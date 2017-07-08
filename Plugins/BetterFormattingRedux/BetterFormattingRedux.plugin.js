@@ -4,7 +4,7 @@ var BetterFormattingRedux = function() {};
 
 var appName = "Better Formatting Redux";
 var appAuthor = "Zerebos";
-var appVersion = "1.0.2";
+var appVersion = "1.1.1";
 
 var appDescription = "An advanced version of Anxeal's Better Formatting that allows for customization of wrappers and formatting as well as adding additional formatting types.";
 

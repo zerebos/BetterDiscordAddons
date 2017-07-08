@@ -65,15 +65,16 @@ The default wrappers (`^`, `%`, `##`, `&&`, `||`) can all be customized in the s
  
 ## Changelog
 
-#### 1.0.2
+#### 1.1.1
 
  - Squashed more bugs
  - Half-baked code cleaning
  - Initial release
 
-#### 1.0.1
+#### 1.1.0
 
  - Added varied caps formatting
+ - Settings panel created
  - Squashed a couple pesky bugs
 
 #### 1.0.0
