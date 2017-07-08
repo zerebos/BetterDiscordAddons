@@ -59,7 +59,7 @@ BetterFormattingRedux.prototype.doFormat = function(text, wrapper, offset) {
 						return index != -1 ? this.upsideDownList[index] : letter;
 					case this.wrappers.varied:
 						var compare = this.formatSettings.startCaps ? 1 : 0;
-						if (letter == " ") letterNum = letterNum - 1;
+						if (letter.toLowerCase() == letter.toUpperCase()) letterNum = letterNum - 1;
 						return index != -1 ? letterNum % 2 == compare ? letter.toUpperCase() : letter.toLowerCase() : letter;
 					default:
 						return letter;
