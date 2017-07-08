@@ -2,7 +2,7 @@
 
 Lets you format your messages with buttons and adds more formatting options. For support you can visit [Zere's server](http://discord.zackrauen.com/).
 
-![BFRedux Demo](https://gfycat.com/HugeDeadDuckling)
+![BFRedux Demo](http://discord.zackrauen.com/BFRedux/bfredux.png)
 
 ## Features
 
@@ -11,7 +11,7 @@ BFRedux adds a handy toolbar to make formatting easier.
 
 Click the buttons to insert tags or surround the selected text with tags.
 
-![BFRedux Demo](http://discord.zackrauen.com/BFRedux/bfredux.png)
+![BFRedux Demo](https://zippy.gfycat.com/HugeDeadDuckling.gif)
 
 ### New Formatting Options
 
