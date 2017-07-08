@@ -53,6 +53,9 @@ The default wrappers (`^`, `%`, `##`, `&&`, `||`) can all be customized in the s
  
 ![BFRedux Formatting](http://discord.zackrauen.com/BFRedux/formatting.png)
 
+## Coming Soon
+ - Switch to non-prototype classes.
+
 ## Known Bugs and Issues
  - Clicking the buttons on the toolbar too rapidly will cause the tags to be inserted on a different place than where the caret is and move the caret.
 
