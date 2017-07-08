@@ -1,6 +1,6 @@
 # BetterFormattingRedux (BFRedux) - [Download](https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js)
 
-Lets you format your messages with buttons and adds more formatting options. For support you can visit [Zere's server](http://discord.zackrauen.com/).
+Lets you format your messages with buttons and adds more formatting options. For support and update announcements you can visit [Zere's server](http://discord.zackrauen.com/).
 
 ![BFRedux Demo](https://zippy.gfycat.com/HugeDeadDuckling.gif)
 
