@@ -4,7 +4,7 @@ var BetterFormattingRedux = function() {};
 
 var appName = "Better Formatting Redux";
 var appAuthor = "Zerebos";
-var appVersion = "0.3.2";
+var appVersion = "1.0.2";
 
 var appDescription = "An advanced version of Anxeal's Better Formatting that allows for customization of wrappers and formatting as well as adding additional formatting types.";
 
@@ -59,6 +59,7 @@ BetterFormattingRedux.prototype.doFormat = function(text, wrapper, offset) {
 						return index != -1 ? this.upsideDownList[index] : letter;
 					case this.wrappers.varied:
 						var compare = this.formatSettings.startCaps ? 1 : 0;
+						if (letter == " ") letterNum = letterNum - 1;
 						return index != -1 ? letterNum % 2 == compare ? letter.toUpperCase() : letter.toLowerCase() : letter;
 					default:
 						return letter;
@@ -303,9 +304,9 @@ BetterFormattingRedux.prototype.start = function() {
 };
 
 BetterFormattingRedux.prototype.stop = function() {
-    $(document).add("*").off(appNameShort);
-    $(".bf-toolbar").remove();
-    BdApi.clearCSS("bf-style");
+	$(document).add("*").off(appNameShort);
+	$(".bf-toolbar").remove();
+	BdApi.clearCSS("bf-style");
 };
 
 BetterFormattingRedux.prototype.observer = function(e) {
@@ -395,7 +396,7 @@ SettingField.prototype.setField = function(field) {
 }
 
 SettingField.wrapperSetting = function(key, name, helptext) {
-	bfr = BdApi.getPlugin(appName);
+	var bfr = BdApi.getPlugin(appName);
 	var setting = new SettingField(name, helptext);
 	var input = $("<input>", {
 		type: "text",
@@ -433,13 +434,21 @@ SettingField.formatSetting = function(key, name, helptext) {
 
 	input.on("click."+appNameShort, function() {
 		var checked = $(this).prop("checked");
+		if (checked) {
+			switchDiv.addClass("checked");
+		}
+		else {
+			switchDiv.removeClass("checked");
+		}
 		bfr.formatSettings[key] = checked;
 		bfr.saveSettings();
 	})
 	
 	var checkboxWrap = $('<label class="ui-switch-wrapper ui-flex-child" style="flex:0 0 auto;">');
 	checkboxWrap.append(input);
-	checkboxWrap.append($('<div class="ui-switch checked">'));
+	var switchDiv = $('<div class="ui-switch">');
+	if (bfr.formatSettings[key]) switchDiv.addClass("checked");
+	checkboxWrap.append(switchDiv);
 	
 	setting.setField(checkboxWrap);
 	return setting.row;	
@@ -450,17 +459,15 @@ BetterFormattingRedux.prototype.getSettingsPanel = function () {
 		.addClass("form")
 		.css("width", "100%");
 
-	var wrapperControls = this.controlGroup("Wrapper Options").appendTo(panel)
-					.append(SettingField.wrapperSetting("superscript","Superscript", "The wrapper for superscripted text."),
-							SettingField.wrapperSetting("smallcaps", "Smallcaps", "The wrapper to make Smallcaps."),
-							SettingField.wrapperSetting("fullwidth", "Full Width", "The wrapper for E X P A N D E D  T E X T."),
-							SettingField.wrapperSetting("upsidedown", "Upsidedown", "The wrapper to flip the text upsidedown."),
-							SettingField.wrapperSetting("varied", "Varied Caps", "The wrapper to VaRy the capitalization."));
+	var wrapperControls = this.controlGroup("Wrapper Options").appendTo(panel).append(SettingField.wrapperSetting("superscript","Superscript", "The wrapper for superscripted text."),
+			SettingField.wrapperSetting("smallcaps", "Smallcaps", "The wrapper to make Smallcaps."),
+			SettingField.wrapperSetting("fullwidth", "Full Width", "The wrapper for E X P A N D E D  T E X T."),
+			SettingField.wrapperSetting("upsidedown", "Upsidedown", "The wrapper to flip the text upsidedown."),
+			SettingField.wrapperSetting("varied", "Varied Caps", "The wrapper to VaRy the capitalization."));
 	
-	var formatControls = this.controlGroup("Formatting Options").appendTo(panel)
-					.append(SettingField.formatSetting("fullWidthMap", "Use Char Map?", "This determines if the char map is used, or just spaced capital letters."), 
-							SettingField.formatSetting("reorderUpsidedown", "Reorder Upsidedown Text", "Having this enabled reorders the upside down text to make it in-order."),
-							SettingField.formatSetting("startCaps", "Start VaRiEd Caps With Capital", "Enabling this starts a varied text string with a capital."))
+	var formatControls = this.controlGroup("Formatting Options").appendTo(panel).append(SettingField.formatSetting("fullWidthMap", "Use Char Map?", "This determines if the char map is used, or just spaced capital letters."), 
+			SettingField.formatSetting("reorderUpsidedown", "Reorder Upsidedown Text", "Having this enabled reorders the upside down text to make it in-order."),
+			SettingField.formatSetting("startCaps", "Start VaRiEd Caps With Capital", "Enabling this starts a varied text string with a capital."));
 							
 	var bfr = this;
 	var resetButton = $("<button>");
