@@ -69,7 +69,7 @@ The default wrappers (`^`, `%`, `##`, `&&`, `||`) can all be customized in the s
 
  - Squashed more bugs
  - Half-baked code cleaning
- - Initial release
+ - Initial release for testing
 
 #### 1.1.0
 
@@ -80,4 +80,7 @@ The default wrappers (`^`, `%`, `##`, `&&`, `||`) can all be customized in the s
 #### 1.0.0
 
  - Initial version of this rewrite
+ - Abstracted wrapper replacement
+ - Improved Regex
+ - Added capability for multiple character wrappers
 

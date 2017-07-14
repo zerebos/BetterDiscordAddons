@@ -17,17 +17,27 @@ BetterFormattingRedux.prototype.superscriptList = " !\"#$%&'⁽⁾*⁺,⁻./⁰�
 BetterFormattingRedux.prototype.upsideDownList = " ¡\"#$%⅋,)(*+'-˙/0ƖᄅƐㄣϛ9ㄥ86:;>=<¿@∀qƆpƎℲפHIſʞ˥WNOԀQɹS┴∩ΛMX⅄Z]\\[^‾,ɐqɔpǝɟƃɥᴉɾʞlɯuodbɹsʇnʌʍxʎz}|{";
 BetterFormattingRedux.prototype.fullwidthList = "　！＂＃＄％＆＇（）＊＋，－．／０１２３４５６７８９：；＜＝＞？＠ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ［＼］＾＿｀ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ｛｜｝";
 
-BetterFormattingRedux.prototype.toolbarString = "<div class='bf-toolbar'><div name='bold'><b>Bold</b></div><div name='italic'><i>Italic</i></div><div name='underline'><u>Underline</u></div><div name='strikethrough'><s>Strikethrough</s></div><div style='font-family:monospace;' name='code'>Code</div><div name='superscript'>ˢᵘᵖᵉʳˢᶜʳᶦᵖᵗ</div><div name='smallcaps'>SᴍᴀʟʟCᴀᴘs</div><div name='fullwidth'>Ｆｕｌｌｗｉｄｔｈ</div><div name='upsidedown'>uʍopǝpᴉsd∩</div><div name='varied'>VaRiEd CaPs</div></div></div>";
+BetterFormattingRedux.prototype.toolbarString = "<div class='bf-toolbar'><div class='bf-arrow'></div><div name='bold'><b>Bold</b></div><div name='italic'><i>Italic</i></div><div name='underline'><u>Underline</u></div><div name='strikethrough'><s>Strikethrough</s></div><div style='font-family:monospace;' name='code'>Code</div><div name='superscript'>ˢᵘᵖᵉʳˢᶜʳᶦᵖᵗ</div><div name='smallcaps'>SᴍᴀʟʟCᴀᴘs</div><div name='fullwidth'>Ｆｕｌｌｗｉｄｔｈ</div><div name='upsidedown'>uʍopǝpᴉsd∩</div><div name='varied'>VaRiEd CaPs</div></div></div>";
+
+BetterFormattingRedux.prototype.defaultSettings = {wrappers: {bold: "**", italic: "*", underline: "__", strikethrough: "~~", code: "`", superscript: "^", smallcaps: "%", fullwidth: "##", upsidedown: "&&", varied: "||"},
+											formatting: {fullWidthMap: true, reorderUpsidedown: true, startCaps: true},
+											plugin: {hoverOpen: true}}
+BetterFormattingRedux.prototype.settings = {wrappers: {bold: "**", italic: "*", underline: "__", strikethrough: "~~", code: "`", superscript: "^", smallcaps: "%", fullwidth: "##", upsidedown: "&&", varied: "||"},
+											formatting: {fullWidthMap: true, reorderUpsidedown: true, startCaps: true},
+											plugin: {hoverOpen: true}}
 
 BetterFormattingRedux.prototype.defaultWrappers = {bold: "**", italic: "*", underline: "__", strikethrough: "~~", code: "`", superscript: "^", smallcaps: "%", fullwidth: "##", upsidedown: "&&", varied: "||"};
 BetterFormattingRedux.prototype.wrappers = {bold: "**", italic: "*", underline: "__", strikethrough: "~~", code: "`", superscript: "^", smallcaps: "%", fullwidth: "##", upsidedown: "&&", varied: "||"};
 
+BetterFormattingRedux.prototype.defaultFormatSettings = {fullWidthMap: true, reorderUpsidedown: true, startCaps: true}
+BetterFormattingRedux.prototype.formatSettings = {fullWidthMap: true, reorderUpsidedown: true, startCaps: true}
+
+BetterFormattingRedux.prototype.defaultPluginSettings = {hoverOpen: true}
+BetterFormattingRedux.prototype.pluginSettings = {hoverOpen: true}
 
 BetterFormattingRedux.prototype.escape = function(s) {
     return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
-BetterFormattingRedux.prototype.defaultFormatSettings = {fullWidthMap: true, reorderUpsidedown: true, startCaps: true}
-BetterFormattingRedux.prototype.formatSettings = {fullWidthMap: true, reorderUpsidedown: true, startCaps: true}
 
 BetterFormattingRedux.prototype.doFormat = function(text, wrapper, offset) {
 	var returnText = text;
@@ -133,8 +143,6 @@ BetterFormattingRedux.prototype.addToolbar = function($textarea) {
     var hoverInterval;
     $textarea
         .on("keypress."+appNameShort, this.format)
-        .on("focus."+appNameShort, this.showToolbar)
-        .on("blur."+appNameShort, this.hideToolbar)
         .parent().after(this.toolbarString)
         .siblings(".bf-toolbar")
         .on("mousemove."+appNameShort, (e) => {
@@ -151,12 +159,36 @@ BetterFormattingRedux.prototype.addToolbar = function($textarea) {
                 $textarea.focus();
             }, 10);
         })
+		.on("mouseenter."+appNameShort, "div", (e) => {
+            $button = $(e.currentTarget);
+			if ($button.hasClass("bf-arrow")) {
+				if (this.pluginSettings.hoverOpen == true) {
+					$(".bf-toolbar").toggleClass('bf-hover');
+				}
+			}
+        })
+		.on("mouseleave."+appNameShort, "div", (e) => {
+            $button = $(e.currentTarget);
+			if ($button.hasClass("bf-arrow")) {
+				if (this.pluginSettings.hoverOpen == true) {
+					$(".bf-toolbar").toggleClass('bf-hover');
+				}
+			}
+        })
         .on("mouseleave."+appNameShort, () => {
             clearInterval(hoverInterval);
         })
         .on("click."+appNameShort, "div", (e) => {
             $button = $(e.currentTarget);
-            this.wrapSelection($textarea[0], this.wrappers[$button.attr("name")]);
+			if ($button.hasClass("bf-arrow")) {
+				if (this.pluginSettings.hoverOpen == false) {
+					$(".bf-toolbar").toggleClass('bf-visible');
+					console.log("Count: " + $(".bf-toolbar").length)
+				}
+			}
+			else {
+				this.wrapSelection($textarea[0], this.wrappers[$button.attr("name")]);	
+			}
         })
         .show();
 };
@@ -181,32 +213,16 @@ BetterFormattingRedux.prototype.start = function() {
     BdApi.injectCSS("bf-style", `
 .bf-toolbar {
     user-select: none;
-    overflow: hidden;
-    width: calc(100% - 30px);
     white-space: nowrap;
     font-size:85%;
-    height:auto;
     display:flex;
-}
-.bf-toolbar div {
-    display: inline;
-    padding: 5px;
-    transition: all .2s ease;
-    cursor: pointer;
-    display : inline-flex;
-    align-items : center;
-}
-.bf-toolbar div:hover {
-    background: rgba(102,102,102,.5);
-}
-.bf-toolbar {
     position: absolute;
+    color: rgba(255, 255, 255, .5);
     width:auto!important;
     right:0;
     bottom:auto;
     border-radius:0;
     margin:0!important;
-    margin-right:10px!important;
     height:27px!important;
     top:0px;
     transform:translate(0,-100%);
@@ -214,8 +230,8 @@ BetterFormattingRedux.prototype.start = function() {
     display:block!important;
     overflow: hidden!important;
     pointer-events: none;
-    padding:10px 40px 15px 20px!important;
-    cursor:pointer;
+    padding:10px 30px 15px 10px!important;
+    margin-right:5px!important;
 }
 .message-group .bf-toolbar{
     padding:10px 20px 15px 20px!important;
@@ -229,9 +245,18 @@ BetterFormattingRedux.prototype.start = function() {
     right:auto;
     transform:translate(-50%,100%);
 }
-.upload-modal .bf-toolbar div,
+.upload-modal .bf-toolbar div:not(.bf-arrow):hover{
+    background:rgba(255,255,255,.1)!important;
+}
+.upload-modal .bf-toolbar div:not(.bf-arrow):active{
+    background:rgba(0,0,0,.1)!important;
+}
+.upload-modal .bf-toolbar:before{
+    background:var(--accent-color)!important;
+}
+.upload-modal .bf-toolbar div:not(.bf-arrow),
 .upload-modal .bf-toolbar:before,
-.message-group .bf-toolbar div,
+.message-group .bf-toolbar div:not(.bf-arrow),
 .message-group .bf-toolbar:before{
     transform:translate(0,0);
 }
@@ -239,68 +264,78 @@ BetterFormattingRedux.prototype.start = function() {
 .message-group .bf-toolbar:after{
     display: none;
 }
-.bf-toolbar:hover{
+.bf-toolbar.bf-visible,
+.bf-toolbar.bf-hover:hover{
     pointer-events: initial;
 }
-.bf-toolbar div{
+.bf-toolbar div:not(.bf-arrow){
+    display: inline;
+    padding: 7px 5px;
+    cursor: pointer;
+    display : inline-flex;
+    align-items : center;
     transform:translate(0,55px);
     transition:all 50ms,transform 200ms ease!important;
     position:relative;
     pointer-events: initial;
     border-radius:2px;
 }
-.bf-toolbar div:hover{
+.bf-toolbar div:not(.bf-arrow):hover{
+    background:rgba(255,255,255,.1)!important;
     color:rgba(255,255,255,.9);
 }
-.bf-toolbar div:active{
+.bf-toolbar div:not(.bf-arrow):active{
+    background:rgba(0,0,0,.1)!important;
     transition:all 0ms,transform 200ms ease!important;
 }
-.bf-toolbar:hover div{
+.bf-toolbar.bf-visible div:not(.bf-arrow),
+.bf-toolbar.bf-hover:hover div:not(.bf-arrow){
     transform:translate(0,0);
     transition:all 50ms,transform 200ms cubic-bezier(0,0,0,1)!important;
 }
 .bf-toolbar:before {
     content:"";
     display: block;
-    width:calc(100% - 20px);
+    width:100%;
     height:calc(100% - 15px);
     position: absolute;
     z-index: -1;
-    background:#1e2124;
+    background:#424549;
     pointer-events: initial;
-    left:10px;
+    left:0px;
     top:5px;
     border-radius:3px;
     transform:translate(0,55px);
     transition:all 200ms ease!important;
-    box-shadow: 0 5px 10px rgba(0,0,0,.1);
 }
-.bf-toolbar:hover:before {
+.bf-toolbar.bf-visible:before,
+.bf-toolbar.bf-hover:hover:before {
     transform:translate(0,0px);
     transition:all 200ms cubic-bezier(0,0,0,1)!important;
 }
 
-.bf-toolbar:after {
+.bf-toolbar .bf-arrow {
     content:"";
     display:block;
     background:url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTcuNDEgMTUuNDFMMTIgMTAuODNsNC41OSA0LjU4TDE4IDE0bC02LTYtNiA2eiIvPiAgICA8cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PC9zdmc+);
     height:30px;
     width:30px;
-    right:15px;
+    right:5px;
     position: absolute;
     pointer-events: initial;
-    bottom:-5px;
+    bottom:0;
     background-repeat: no-repeat;
     background-position: 50%;
     transition:all 200ms ease!important;
     opacity: .3;
+    cursor:pointer;
 }
-.bf-toolbar:hover:after {
-    transform:translate(0,-19px)rotate(-90deg);
+.bf-toolbar.bf-visible .bf-arrow,
+.bf-toolbar.bf-hover:hover .bf-arrow {
+    transform:translate(0,-14px)rotate(-90deg);
     transition:all 200ms cubic-bezier(0,0,0,1)!important;
     opacity: .9;
-}
-`);
+}`);
 };
 
 BetterFormattingRedux.prototype.stop = function() {
@@ -454,6 +489,39 @@ SettingField.formatSetting = function(key, name, helptext) {
 	return setting.row;	
 }
 
+SettingField.pluginSetting = function(key, name, helptext) {
+	var bfr = BdApi.getPlugin(appName);
+	var setting = new SettingField(name, helptext);
+	var input = $("<input>", {
+		type: "checkbox",
+		name: key,
+		id: key,
+		checked: bfr.pluginSettings[key]
+	});
+	input.attr("class", "ui-switch-checkbox");
+
+	input.on("click."+appNameShort, function() {
+		var checked = $(this).prop("checked");
+		if (checked) {
+			switchDiv.addClass("checked");
+		}
+		else {
+			switchDiv.removeClass("checked");
+		}
+		bfr.pluginSettings[key] = checked;
+		bfr.saveSettings();
+	})
+	
+	var checkboxWrap = $('<label class="ui-switch-wrapper ui-flex-child" style="flex:0 0 auto;">');
+	checkboxWrap.append(input);
+	var switchDiv = $('<div class="ui-switch">');
+	if (bfr.pluginSettings[key]) switchDiv.addClass("checked");
+	checkboxWrap.append(switchDiv);
+	
+	setting.setField(checkboxWrap);
+	return setting.row;	
+}
+
 BetterFormattingRedux.prototype.getSettingsPanel = function () {
 	var panel = $("<form>")
 		.addClass("form")
@@ -467,7 +535,10 @@ BetterFormattingRedux.prototype.getSettingsPanel = function () {
 	
 	var formatControls = this.controlGroup("Formatting Options").appendTo(panel).append(SettingField.formatSetting("fullWidthMap", "Use Char Map?", "This determines if the char map is used, or just spaced capital letters."), 
 			SettingField.formatSetting("reorderUpsidedown", "Reorder Upsidedown Text", "Having this enabled reorders the upside down text to make it in-order."),
+            SettingField.formatSetting("hoverOpen", "Open On Hover", "Enabling this makes you able to open the menu just by hovering the arrow instead of clicking it."),
 			SettingField.formatSetting("startCaps", "Start VaRiEd Caps With Capital", "Enabling this starts a varied text string with a capital."));
+	
+	var pluginControls = this.controlGroup("Plugin Options").appendTo(panel).append(SettingField.pluginSetting("hoverOpen", "Open On Hover", "Enabling this opens the arrow toolbar on hover. Otherwise it is toggle via click."))
 							
 	var bfr = this;
 	var resetButton = $("<button>");
