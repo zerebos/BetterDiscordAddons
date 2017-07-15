@@ -65,6 +65,13 @@ The default wrappers (`^`, `%`, `##`, `&&`, `||`) can all be customized in the s
  
 ## Changelog
 
+#### 1.1.2
+
+ - New CSS courtesy of Beard Design
+ - Settings panel cleanup
+ - Backend of settings abstracted for future development
+ - New setting to click open versus hover open
+
 #### 1.1.1
 
  - Squashed more bugs

@@ -4,7 +4,7 @@ var BetterFormattingRedux = function() {};
 
 var appName = "Better Formatting Redux";
 var appAuthor = "Zerebos";
-var appVersion = "1.1.1";
+var appVersion = "1.1.2";
 
 var appDescription = "An advanced version of Anxeal's Better Formatting that allows for customization of wrappers and formatting as well as adding additional formatting types.";
 
@@ -132,9 +132,13 @@ BetterFormattingRedux.prototype.hideToolbar = function(e) {
 
 BetterFormattingRedux.prototype.addToolbar = function($textarea) {
     var hoverInterval;
+	var toolbarElement = $(this.toolbarString)
+	if (this.settings.plugin.hoverOpen == true) {
+		toolbarElement.addClass("bf-hover")
+	}
     $textarea
         .on("keypress."+appNameShort, this.format)
-        .parent().after(this.toolbarString)
+        .parent().after(toolbarElement)
         .siblings(".bf-toolbar")
         .on("mousemove."+appNameShort, (e) => {
             $this = $(e.currentTarget);
@@ -149,15 +153,9 @@ BetterFormattingRedux.prototype.addToolbar = function($textarea) {
             hoverInterval = setInterval(() => {
                 $textarea.focus();
             }, 10);
-			if (this.settings.plugin.hoverOpen == true) {
-				$(".bf-toolbar").toggleClass('bf-hover');
-			}
         })
         .on("mouseleave."+appNameShort, () => {
             clearInterval(hoverInterval);
-			if (this.settings.plugin.hoverOpen == true) {
-				$(".bf-toolbar").toggleClass('bf-hover');
-			}
         })
         .on("click."+appNameShort, "div", (e) => {
             $button = $(e.currentTarget);
@@ -171,7 +169,7 @@ BetterFormattingRedux.prototype.addToolbar = function($textarea) {
 			}
         })
         .show();
-};
+}
 
 // unused
 BetterFormattingRedux.prototype.load = function() {};
@@ -354,7 +352,7 @@ BetterFormattingRedux.prototype.getAuthor = function() {
 BetterFormattingRedux.prototype.loadSettings = function() {
 	try {
 		for (settingType in this.settings) {
-			this.settings[settingType] = $.extend({}, this.settings.wrappers, bdPluginStorage.get(appNameShort, settingType));
+			this.settings[settingType] = $.extend({}, this.settings[settingType], bdPluginStorage.get(appNameShort, settingType));
 		}
 	} catch (err) {
 		console.warn(appNameShort, "unable to load settings:", err);
@@ -373,133 +371,97 @@ BetterFormattingRedux.prototype.saveSettings = function() {
 
 // Settings panel
 
-BetterFormattingRedux.prototype.controlGroup = function(groupName) {
+BetterFormattingRedux.prototype.controlGroup = function(groupName, callback) {
 	var group = $("<div>").addClass("control-group");
 
 	var label = $("<h2>").text(groupName);
 	label.attr("class", "h5-3KssQU title-1pmpPr marginReset-3hwONl size12-1IGJl9 height16-1qXrGy weightSemiBold-T8sxWH defaultMarginh5-2UwwFY marginBottom8-1mABJ4");
 	label.css("margin-top", "30px")
 	group.append(label);
+	
+	if (typeof callback != 'undefined') {
+		group.on("change."+appNameShort, "input", callback)
+	}
 
 	return group;
 }
 
-function SettingField(name, helptext) {
-	this.name = name;
-	this.helptext = helptext;
-	this.row = $("<div>");
-	this.row.attr("class", "ui-flex flex-vertical flex-justify-start flex-align-stretch flex-nowrap ui-switch-item");
-	this.row.attr("style", "margin-top: 0;");
-	this.top = $("<div>");
-	this.top.attr("class", "ui-flex flex-horizontal flex-justify-start flex-align-stretch flex-nowrap")
-	this.label = $("<h3>");
-	this.label.attr("class", "ui-form-title h3 margin-reset margin-reset ui-flex-child");
-	this.label.text(name);
-	
-	this.help = $("<div>");
-	this.help.attr("class", "ui-form-text style-description margin-top-4");
-	this.help.attr("style", "flex:1 1 auto;");
-	this.help.text(helptext);
-	
-	this.top.append(this.label);
-	this.row.append(this.top);
-	this.row.append(this.help);
+class SettingField {
+	constructor(name, helptext) {
+		this.name = name;
+		this.helptext = helptext;
+		this.row = $("<div>");
+		this.row.attr("class", "ui-flex flex-vertical flex-justify-start flex-align-stretch flex-nowrap ui-switch-item");
+		this.row.css("margin-top", 0);
+		this.top = $("<div>");
+		this.top.attr("class", "ui-flex flex-horizontal flex-justify-start flex-align-stretch flex-nowrap")
+		this.label = $("<h3>");
+		this.label.attr("class", "ui-form-title h3 margin-reset margin-reset ui-flex-child");
+		this.label.text(name);
+		
+		this.help = $("<div>");
+		this.help.attr("class", "ui-form-text style-description margin-top-4");
+		this.help.css("flex", "1 1 auto");
+		this.help.text(helptext);
+		
+		this.top.append(this.label);
+		this.row.append(this.top);
+		this.row.append(this.help);
+	}
 }
 
-SettingField.prototype.setField = function(field) {
-	this.top.append(field);
+class TextSetting extends SettingField {
+	constructor(label, help, value, placeholder, callback) {
+		super(label, help);
+		var input = $("<input>", {
+			type: "text",
+			placeholder: placeholder,
+			value: value
+		});
+
+		input.on("keyup."+appNameShort+" change."+appNameShort, function() {
+			if (typeof callback != 'undefined') {
+				callback($(this).val())
+			}
+		})
+		
+		this.top.append(input);
+		return this.row;
+	}
 }
 
-SettingField.wrapperSetting = function(key, name, helptext) {
-	var bfr = BdApi.getPlugin(appName);
-	var setting = new SettingField(name, helptext);
-	var input = $("<input>", {
-		type: "text",
-		placeholder: bfr.defaultSettings.wrappers[key],
-		name: key,
-		id: key,
-		value: bfr.settings.wrappers[key]
-	});
+class CheckboxSetting extends SettingField {
+	constructor(label, help, isChecked, callback) {
+		super(label, help);
+		var input = $("<input>", {
+			type: "checkbox",
+			checked: isChecked
+		});
+		input.attr("class", "ui-switch-checkbox");
 
-	input.on("keyup."+appNameShort+" change."+appNameShort, function() {
-		if ($(this).val() != "") {
-			bfr.settings.wrappers[key] = $(this).val();
-			bfr.saveSettings();
-		}
-		else {
-			bfr.settings.wrappers[key] = bfr.defaultSettings.wrappers[key];
-			bfr.saveSettings();
-		}
-	})
-	
-	setting.setField(input);
-	return setting.row;
-}
-
-SettingField.formatSetting = function(key, name, helptext) {
-	var bfr = BdApi.getPlugin(appName);
-	var setting = new SettingField(name, helptext);
-	var input = $("<input>", {
-		type: "checkbox",
-		name: key,
-		id: key,
-		checked: bfr.settings.formatting[key]
-	});
-	input.attr("class", "ui-switch-checkbox");
-
-	input.on("click."+appNameShort, function() {
-		var checked = $(this).prop("checked");
-		if (checked) {
-			switchDiv.addClass("checked");
-		}
-		else {
-			switchDiv.removeClass("checked");
-		}
-		bfr.settings.formatting[key] = checked;
-		bfr.saveSettings();
-	})
-	
-	var checkboxWrap = $('<label class="ui-switch-wrapper ui-flex-child" style="flex:0 0 auto;">');
-	checkboxWrap.append(input);
-	var switchDiv = $('<div class="ui-switch">');
-	if (bfr.settings.formatting[key]) switchDiv.addClass("checked");
-	checkboxWrap.append(switchDiv);
-	
-	setting.setField(checkboxWrap);
-	return setting.row;	
-}
-
-SettingField.pluginSetting = function(key, name, helptext) {
-	var bfr = BdApi.getPlugin(appName);
-	var setting = new SettingField(name, helptext);
-	var input = $("<input>", {
-		type: "checkbox",
-		name: key,
-		id: key,
-		checked: bfr.settings.plugin[key]
-	});
-	input.attr("class", "ui-switch-checkbox");
-
-	input.on("click."+appNameShort, function() {
-		var checked = $(this).prop("checked");
-		if (checked) {
-			switchDiv.addClass("checked");
-		}
-		else {
-			switchDiv.removeClass("checked");
-		}
-		bfr.settings.plugin[key] = checked;
-		bfr.saveSettings();
-	})
-	
-	var checkboxWrap = $('<label class="ui-switch-wrapper ui-flex-child" style="flex:0 0 auto;">');
-	checkboxWrap.append(input);
-	var switchDiv = $('<div class="ui-switch">');
-	if (bfr.settings.plugin[key]) switchDiv.addClass("checked");
-	checkboxWrap.append(switchDiv);
-	
-	setting.setField(checkboxWrap);
-	return setting.row;	
+		input.on("click."+appNameShort, function() {
+			var checked = $(this).prop("checked");
+			if (checked) {
+				switchDiv.addClass("checked");
+			}
+			else {
+				switchDiv.removeClass("checked");
+			}
+			
+			if (typeof callback != 'undefined') {
+				callback(checked)
+			}
+		})
+		
+		var checkboxWrap = $('<label class="ui-switch-wrapper ui-flex-child" style="flex:0 0 auto;">');
+		checkboxWrap.append(input);
+		var switchDiv = $('<div class="ui-switch">');
+		if (isChecked) switchDiv.addClass("checked");
+		checkboxWrap.append(switchDiv);
+		
+		this.top.append(checkboxWrap);
+		return this.row;
+	}
 }
 
 BetterFormattingRedux.prototype.getSettingsPanel = function () {
@@ -507,17 +469,40 @@ BetterFormattingRedux.prototype.getSettingsPanel = function () {
 		.addClass("form")
 		.css("width", "100%");
 
-	var wrapperControls = this.controlGroup("Wrapper Options").appendTo(panel).append(SettingField.wrapperSetting("superscript","Superscript", "The wrapper for superscripted text."),
-			SettingField.wrapperSetting("smallcaps", "Smallcaps", "The wrapper to make Smallcaps."),
-			SettingField.wrapperSetting("fullwidth", "Full Width", "The wrapper for E X P A N D E D  T E X T."),
-			SettingField.wrapperSetting("upsidedown", "Upsidedown", "The wrapper to flip the text upsidedown."),
-			SettingField.wrapperSetting("varied", "Varied Caps", "The wrapper to VaRy the capitalization."));
+	var wrapperControls = this.controlGroup("Wrapper Options", () => {this.saveSettings()}).appendTo(panel).append(
+			new TextSetting("Superscript", "The wrapper for superscripted text.", this.settings.wrappers.superscript, this.defaultSettings.wrappers.superscript,
+							(text) => {this.settings.wrappers.superscript = text != "" ? text : this.defaultSettings.wrappers.superscript}),
+			new TextSetting("Smallcaps", "The wrapper to make Smallcaps.", this.settings.wrappers.smallcaps, this.defaultSettings.wrappers.smallcaps,
+							(text) => {this.settings.wrappers.smallcaps = text != "" ? text : this.defaultSettings.wrappers.smallcaps}),
+			new TextSetting("Full Width", "The wrapper for E X P A N D E D  T E X T.", this.settings.wrappers.fullwidth, this.defaultSettings.wrappers.fullwidth,
+							(text) => {this.settings.wrappers.fullwidth = text != "" ? text : this.defaultSettings.wrappers.fullwidth}),
+			new TextSetting("Upsidedown", "The wrapper to flip the text upsidedown.", this.settings.wrappers.upsidedown, this.defaultSettings.wrappers.upsidedown,
+							(text) => {this.settings.wrappers.upsidedown = text != "" ? text : this.defaultSettings.wrappers.upsidedown}),
+			new TextSetting("Varied Caps", "The wrapper to VaRy the capitalization.", this.settings.wrappers.varied, this.defaultSettings.wrappers.varied,
+							(text) => {this.settings.wrappers.varied = text != "" ? text : this.defaultSettings.wrappers.varied}));
 	
-	var formatControls = this.controlGroup("Formatting Options").appendTo(panel).append(SettingField.formatSetting("fullWidthMap", "Use Char Map?", "This determines if the char map is used, or just spaced capital letters."), 
-			SettingField.formatSetting("reorderUpsidedown", "Reorder Upsidedown Text", "Having this enabled reorders the upside down text to make it in-order."),
-			SettingField.formatSetting("startCaps", "Start VaRiEd Caps With Capital", "Enabling this starts a varied text string with a capital."));
+	var formatControls = this.controlGroup("Formatting Options", () => {this.saveSettings()}).appendTo(panel).append(
+			new CheckboxSetting("Use Char Map?", "This determines if the char map is used, or just spaced capital letters.",
+								this.settings.formatting.fullWidthMap, (checked) => {this.settings.formatting.fullWidthMap = checked}), 
+			new CheckboxSetting("Reorder Upsidedown Text", "Having this enabled reorders the upside down text to make it in-order.",
+								this.settings.formatting.reorderUpsidedown, (checked) => {this.settings.formatting.reorderUpsidedown = checked}),
+			new CheckboxSetting("Start VaRiEd Caps With Capital", "Enabling this starts a varied text string with a capital.",
+								this.settings.formatting.startCaps, (checked) => {this.settings.formatting.startCaps = checked}));
 	
-	var pluginControls = this.controlGroup("Plugin Options").appendTo(panel).append(SettingField.pluginSetting("hoverOpen", "Open On Hover", "Enabling this makes you able to open the menu just by hovering the arrow instead of clicking it."))
+	var pluginControls = this.controlGroup("Plugin Options", () => {this.saveSettings()}).appendTo(panel).append(
+			new CheckboxSetting("Open On Hover", "Enabling this makes you able to open the menu just by hovering the arrow instead of clicking it.", this.settings.plugin.hoverOpen,
+				(checked) => {
+					 this.settings.plugin.hoverOpen = checked;
+					 if (checked) {
+						$(".bf-toolbar").removeClass('bf-visible')
+						$(".bf-toolbar").addClass('bf-hover')
+					 }
+					 else {
+						 $(".bf-toolbar").removeClass('bf-hover')
+					 }
+				}
+			)
+		)
 							
 	var bfr = this;
 	var resetButton = $("<button>");
@@ -526,7 +511,7 @@ BetterFormattingRedux.prototype.getSettingsPanel = function () {
 		bfr.saveSettings();
 	});
 	resetButton.text("Reset To Defaults");
-	resetButton.attr("style", "float:right;");
+	resetButton.css("float", "right");
 	
 	panel.append(resetButton);
 
