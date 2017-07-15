@@ -26,15 +26,6 @@ BetterFormattingRedux.prototype.settings = {wrappers: {bold: "**", italic: "*", 
 											formatting: {fullWidthMap: true, reorderUpsidedown: true, startCaps: true},
 											plugin: {hoverOpen: true}}
 
-BetterFormattingRedux.prototype.defaultWrappers = {bold: "**", italic: "*", underline: "__", strikethrough: "~~", code: "`", superscript: "^", smallcaps: "%", fullwidth: "##", upsidedown: "&&", varied: "||"};
-BetterFormattingRedux.prototype.wrappers = {bold: "**", italic: "*", underline: "__", strikethrough: "~~", code: "`", superscript: "^", smallcaps: "%", fullwidth: "##", upsidedown: "&&", varied: "||"};
-
-BetterFormattingRedux.prototype.defaultFormatSettings = {fullWidthMap: true, reorderUpsidedown: true, startCaps: true}
-BetterFormattingRedux.prototype.formatSettings = {fullWidthMap: true, reorderUpsidedown: true, startCaps: true}
-
-BetterFormattingRedux.prototype.defaultPluginSettings = {hoverOpen: true}
-BetterFormattingRedux.prototype.pluginSettings = {hoverOpen: true}
-
 BetterFormattingRedux.prototype.escape = function(s) {
     return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
@@ -58,17 +49,17 @@ BetterFormattingRedux.prototype.doFormat = function(text, wrapper, offset) {
 				var index = this.replaceList.indexOf(letter);
 				letterNum += 1;
 				switch (wrapper) {
-					case this.wrappers.fullwidth:
-						if (this.formatSettings.fullWidthMap) return index != -1 ? this.fullwidthList[index] : letter;
+					case this.settings.wrappers.fullwidth:
+						if (this.settings.formatting.fullWidthMap) return index != -1 ? this.fullwidthList[index] : letter;
 						else return index != -1 ? letterNum == middle.length ? letter.toUpperCase() : letter.toUpperCase() + " " : letter;
-					case this.wrappers.superscript:
+					case this.settings.wrappers.superscript:
 						return index != -1 ? this.superscriptList[index] : letter
-					case this.wrappers.smallcaps:
+					case this.settings.wrappers.smallcaps:
 						return index != -1 ? this.smallCapsList[index] : letter;
-					case this.wrappers.upsidedown:
+					case this.settings.wrappers.upsidedown:
 						return index != -1 ? this.upsideDownList[index] : letter;
-					case this.wrappers.varied:
-						var compare = this.formatSettings.startCaps ? 1 : 0;
+					case this.settings.wrappers.varied:
+						var compare = this.settings.formatting.startCaps ? 1 : 0;
 						if (letter.toLowerCase() == letter.toUpperCase()) letterNum = letterNum - 1;
 						return index != -1 ? letterNum % 2 == compare ? letter.toUpperCase() : letter.toLowerCase() : letter;
 					default:
@@ -76,7 +67,7 @@ BetterFormattingRedux.prototype.doFormat = function(text, wrapper, offset) {
 				}
 				previousLetter = letter;
 			})
-			if (wrapper == this.wrappers.upsidedown && this.formatSettings.reorderUpsidedown) return before + middle.split("").reverse().join("") + after;
+			if (wrapper == this.settings.wrappers.upsidedown && this.settings.formatting.reorderUpsidedown) return before + middle.split("").reverse().join("") + after;
 			else return before + middle + after;
 		});
 		begin = text.indexOf(wrapper, end + wrapper.length);
@@ -103,10 +94,10 @@ BetterFormattingRedux.prototype.format = function(e) {
                 break;
 			default:
 				for (var w=0; w<newStyleNames.length; w++) {
-					newText = bfr.doFormat(text, bfr.wrappers[newStyleNames[w]], i);
+					newText = bfr.doFormat(text, bfr.settings.wrappers[newStyleNames[w]], i);
 					if (text != newText) {
 						text = newText;
-						i = i - bfr.wrappers[newStyleNames[w]].length;
+						i = i - bfr.settings.wrappers[newStyleNames[w]].length;
 					}
 				}
         }
@@ -158,36 +149,25 @@ BetterFormattingRedux.prototype.addToolbar = function($textarea) {
             hoverInterval = setInterval(() => {
                 $textarea.focus();
             }, 10);
-        })
-		.on("mouseenter."+appNameShort, "div", (e) => {
-            $button = $(e.currentTarget);
-			if ($button.hasClass("bf-arrow")) {
-				if (this.pluginSettings.hoverOpen == true) {
-					$(".bf-toolbar").toggleClass('bf-hover');
-				}
-			}
-        })
-		.on("mouseleave."+appNameShort, "div", (e) => {
-            $button = $(e.currentTarget);
-			if ($button.hasClass("bf-arrow")) {
-				if (this.pluginSettings.hoverOpen == true) {
-					$(".bf-toolbar").toggleClass('bf-hover');
-				}
+			if (this.settings.plugin.hoverOpen == true) {
+				$(".bf-toolbar").toggleClass('bf-hover');
 			}
         })
         .on("mouseleave."+appNameShort, () => {
             clearInterval(hoverInterval);
+			if (this.settings.plugin.hoverOpen == true) {
+				$(".bf-toolbar").toggleClass('bf-hover');
+			}
         })
         .on("click."+appNameShort, "div", (e) => {
             $button = $(e.currentTarget);
 			if ($button.hasClass("bf-arrow")) {
-				if (this.pluginSettings.hoverOpen == false) {
+				if (this.settings.plugin.hoverOpen == false) {
 					$(".bf-toolbar").toggleClass('bf-visible');
-					console.log("Count: " + $(".bf-toolbar").length)
 				}
 			}
 			else {
-				this.wrapSelection($textarea[0], this.wrappers[$button.attr("name")]);	
+				this.wrapSelection($textarea[0], this.settings.wrappers[$button.attr("name")]);	
 			}
         })
         .show();
@@ -372,21 +352,20 @@ BetterFormattingRedux.prototype.getAuthor = function() {
 };
 
 BetterFormattingRedux.prototype.loadSettings = function() {
-	var localSettings;
-
 	try {
-		this.wrappers = $.extend({}, this.wrappers, bdPluginStorage.get(appNameShort, "wrappers"));
-		this.formatSettings = $.extend({}, this.formatSettings, bdPluginStorage.get(appNameShort, "format"));
+		for (settingType in this.settings) {
+			this.settings[settingType] = $.extend({}, this.settings.wrappers, bdPluginStorage.get(appNameShort, settingType));
+		}
 	} catch (err) {
-		console.warn(appNameShort, "unable to load wrappers:", err);
-		localSettings = null;
+		console.warn(appNameShort, "unable to load settings:", err);
 	}
 }
 
 BetterFormattingRedux.prototype.saveSettings = function() {
 	try {
-		bdPluginStorage.set(appNameShort, "wrappers", this.wrappers);
-		bdPluginStorage.set(appNameShort, "format", this.formatSettings);
+		for (settingType in this.settings) {
+			bdPluginStorage.set(appNameShort, settingType, this.settings[settingType]);
+		}
 	} catch (err) {
 		console.warn(appNameShort, "unable to save settings:", err);
 	}
@@ -399,6 +378,7 @@ BetterFormattingRedux.prototype.controlGroup = function(groupName) {
 
 	var label = $("<h2>").text(groupName);
 	label.attr("class", "h5-3KssQU title-1pmpPr marginReset-3hwONl size12-1IGJl9 height16-1qXrGy weightSemiBold-T8sxWH defaultMarginh5-2UwwFY marginBottom8-1mABJ4");
+	label.css("margin-top", "30px")
 	group.append(label);
 
 	return group;
@@ -435,19 +415,19 @@ SettingField.wrapperSetting = function(key, name, helptext) {
 	var setting = new SettingField(name, helptext);
 	var input = $("<input>", {
 		type: "text",
-		placeholder: bfr.defaultWrappers[key],
+		placeholder: bfr.defaultSettings.wrappers[key],
 		name: key,
 		id: key,
-		value: bfr.wrappers[key]
+		value: bfr.settings.wrappers[key]
 	});
 
 	input.on("keyup."+appNameShort+" change."+appNameShort, function() {
 		if ($(this).val() != "") {
-			bfr.wrappers[key] = $(this).val();
+			bfr.settings.wrappers[key] = $(this).val();
 			bfr.saveSettings();
 		}
 		else {
-			bfr.wrappers[key] = bfr.defaultWrappers[key];
+			bfr.settings.wrappers[key] = bfr.defaultSettings.wrappers[key];
 			bfr.saveSettings();
 		}
 	})
@@ -463,7 +443,7 @@ SettingField.formatSetting = function(key, name, helptext) {
 		type: "checkbox",
 		name: key,
 		id: key,
-		checked: bfr.formatSettings[key]
+		checked: bfr.settings.formatting[key]
 	});
 	input.attr("class", "ui-switch-checkbox");
 
@@ -475,14 +455,14 @@ SettingField.formatSetting = function(key, name, helptext) {
 		else {
 			switchDiv.removeClass("checked");
 		}
-		bfr.formatSettings[key] = checked;
+		bfr.settings.formatting[key] = checked;
 		bfr.saveSettings();
 	})
 	
 	var checkboxWrap = $('<label class="ui-switch-wrapper ui-flex-child" style="flex:0 0 auto;">');
 	checkboxWrap.append(input);
 	var switchDiv = $('<div class="ui-switch">');
-	if (bfr.formatSettings[key]) switchDiv.addClass("checked");
+	if (bfr.settings.formatting[key]) switchDiv.addClass("checked");
 	checkboxWrap.append(switchDiv);
 	
 	setting.setField(checkboxWrap);
@@ -496,7 +476,7 @@ SettingField.pluginSetting = function(key, name, helptext) {
 		type: "checkbox",
 		name: key,
 		id: key,
-		checked: bfr.pluginSettings[key]
+		checked: bfr.settings.plugin[key]
 	});
 	input.attr("class", "ui-switch-checkbox");
 
@@ -508,14 +488,14 @@ SettingField.pluginSetting = function(key, name, helptext) {
 		else {
 			switchDiv.removeClass("checked");
 		}
-		bfr.pluginSettings[key] = checked;
+		bfr.settings.plugin[key] = checked;
 		bfr.saveSettings();
 	})
 	
 	var checkboxWrap = $('<label class="ui-switch-wrapper ui-flex-child" style="flex:0 0 auto;">');
 	checkboxWrap.append(input);
 	var switchDiv = $('<div class="ui-switch">');
-	if (bfr.pluginSettings[key]) switchDiv.addClass("checked");
+	if (bfr.settings.plugin[key]) switchDiv.addClass("checked");
 	checkboxWrap.append(switchDiv);
 	
 	setting.setField(checkboxWrap);
@@ -535,16 +515,14 @@ BetterFormattingRedux.prototype.getSettingsPanel = function () {
 	
 	var formatControls = this.controlGroup("Formatting Options").appendTo(panel).append(SettingField.formatSetting("fullWidthMap", "Use Char Map?", "This determines if the char map is used, or just spaced capital letters."), 
 			SettingField.formatSetting("reorderUpsidedown", "Reorder Upsidedown Text", "Having this enabled reorders the upside down text to make it in-order."),
-            SettingField.formatSetting("hoverOpen", "Open On Hover", "Enabling this makes you able to open the menu just by hovering the arrow instead of clicking it."),
 			SettingField.formatSetting("startCaps", "Start VaRiEd Caps With Capital", "Enabling this starts a varied text string with a capital."));
 	
-	var pluginControls = this.controlGroup("Plugin Options").appendTo(panel).append(SettingField.pluginSetting("hoverOpen", "Open On Hover", "Enabling this opens the arrow toolbar on hover. Otherwise it is toggle via click."))
+	var pluginControls = this.controlGroup("Plugin Options").appendTo(panel).append(SettingField.pluginSetting("hoverOpen", "Open On Hover", "Enabling this makes you able to open the menu just by hovering the arrow instead of clicking it."))
 							
 	var bfr = this;
 	var resetButton = $("<button>");
 	resetButton.on("click."+appNameShort, function() {
-		bfr.wrappers = bfr.defaultWrappers;
-		bfr.formatSettings = bfr.defaultFormatSettings;
+		bfr.settings = bfr.defaultSettings;
 		bfr.saveSettings();
 	});
 	resetButton.text("Reset To Defaults");
