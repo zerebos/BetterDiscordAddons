@@ -65,11 +65,18 @@ The default wrappers (`^`, `%`, `##`, `&&`, `||`) can all be customized in the s
  
 ## Changelog
 
+#### 1.1.2
+
+ - New CSS courtesy of Beard Design
+ - Settings panel cleanup
+ - Backend of settings abstracted for future development
+ - New setting to click open versus hover open
+
 #### 1.1.1
 
  - Squashed more bugs
  - Half-baked code cleaning
- - Initial release
+ - Initial release for testing
 
 #### 1.1.0
 
@@ -80,4 +87,7 @@ The default wrappers (`^`, `%`, `##`, `&&`, `||`) can all be customized in the s
 #### 1.0.0
 
  - Initial version of this rewrite
+ - Abstracted wrapper replacement
+ - Improved Regex
+ - Added capability for multiple character wrappers
 
