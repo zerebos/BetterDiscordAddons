@@ -8,30 +8,30 @@ For support and update announcements you can visit [Zere's server](http://discor
 
 ## Screenshots
 
-#### Member List
+### Member List
 ![Member List](http://discord.zackrauen.com/RadialStatus/member_list.png)
 
-##### Typing Status
+#### Typing Status
 ![Typing Status](http://discord.zackrauen.com/RadialStatus/typing.png)
 
-#### Profile Popout and Modal
+### Profile Popout and Modal
 
-##### Popout
+#### Popout
 ![Profile Popout](http://discord.zackrauen.com/RadialStatus/profile_popout.png)
 
-##### Modal
+#### Modal
 ![Profile Modal](http://discord.zackrauen.com/RadialStatus/profile_modal.png)
 
-#### Direct Messages
+### Direct Messages
 ![Direct Messages](http://discord.zackrauen.com/RadialStatus/direct_messages.png)
 
-#### Mentions
+### Mentions
 ![Mentions](http://discord.zackrauen.com/RadialStatus/mentions.png)
 
-#### Personal Status
+### Personal Status
 ![Personal Status](http://discord.zackrauen.com/RadialStatus/personal_status.png)
 
-#### Beard's Material Design Theme Compatibility
+### Beard's Material Design Theme Compatibility
 ![Compatibility](http://discord.zackrauen.com/RadialStatus/beard_design.png)
 
 
