@@ -1,0 +1,109 @@
+//META{"name":"Radial_Status","description":"Changes status dot to a circle updated from Status Circles (Author: Zerthox) by Zerebos","author":"Zerebos","version":"1.3.0"}*//{}
+
+.channel-members .avatar-small .status,
+.private-channels .avatar-small .status,
+.channels-wrap .avatar-small .status,
+.user-popout .avatar-popout .status,
+#user-profile-modal .avatar-profile .status,
+.avatar-small .status,
+.account .status {
+    width:100%!important;
+    background: transparent !important;
+    border-radius: 50% !important;
+    height: 100%!important;
+    transition: all 200ms ease !important;
+	right: -4px !important;
+	bottom: -4px !important;
+	padding: 2px !important;
+}
+.channel-members .avatar-small .status-online,
+.private-channels  .avatar-small .status-online,
+.channels-wrap .avatar-small .status-online,
+.user-popout .avatar-popout .status-online,
+#user-profile-modal .avatar-profile .status-online,
+.avatar-small .status-online,
+.status.status-online {
+    transition: all 200ms ease !important;
+    border: 2px solid #43b581 !important;
+}
+.channel-members .avatar-small .status-idle,
+.private-channels  .avatar-small .status-idle,
+.channels-wrap .avatar-small .status-idle,
+.user-popout .avatar-popout .status-idle,
+#user-profile-modal .avatar-profile .status-idle,
+.avatar-small .status-idle,
+.status.status-idle {
+    border: 2px solid #faa61a !important;
+}
+.channel-members .avatar-small .status-dnd,
+.private-channels  .avatar-small .status-dnd,
+.channels-wrap .avatar-small .status-dnd,
+.user-popout .avatar-popout .status-dnd,
+#user-profile-modal .avatar-profile .status-dnd,
+.avatar-small .status-dnd,
+.status.status-dnd {
+    border: 2px solid #f04747 !important;
+}
+.channel-members .avatar-small .status-streaming,
+.private-channels .avatar-small .status-streaming,
+.channels-wrap .avatar-small .status-streaming,
+.user-popout .avatar-popout .status-streaming,
+#user-profile-modal .avatar-profile .status-streaming,
+.avatar-small .status-streaming,
+.status-streaming{
+    animation:streaming-flash 1.5s linear infinite !important;
+    border: 2px solid #643da7 !important;
+}
+.channel-members .avatar-small .status-invisible,
+.private-channels  .avatar-small .status-invisible,
+.channels-wrap .avatar-small .status-invisible,
+.user-popout .avatar-popout .status-invisible,
+#user-profile-modal .avatar-profile .status-invisible,
+.avatar-small .status-invisible,
+.status-unknown {
+    border: 2px solid #747f8d !important;
+}
+.private-channels  .avatar-small .status-offline {
+    border: 2px solid #636b75 !important;
+}
+.status.status-typing {
+    width: 30px !important;
+    background-color: rgba(0, 0, 0, 0.3) !important;
+}
+.status.status-typing .spinner .spinner-inner {
+    left: 1px !important;
+    top: 1px !important;
+}
+
+.user-popout .avatar-popout .status,
+#user-profile-modal .avatar-profile .status {
+	border-width: 4px !important;
+	right: -7px !important;
+	bottom: -7px !important;
+	padding: 3px !important;
+	-webkit-box-shadow: none !important;
+	box-shadow: none !important;
+	-webkit-box-sizing: content-box !important;
+    box-sizing: content-box !important;
+}
+
+#user-profile-modal .avatar-profile .status {
+	zoom: 1 !important;
+	-ms-transform: none !important;
+	transform: none !important;
+}
+
+#user-profile-modal .avatar-wrapper {
+	zoom: 1 !important;
+	top: 40px !important;
+	left: 56px !important;
+}
+
+.avatar-profile {
+    width: 102px !important;
+    height: 102px !important;
+    background-size: 102px 102px !important;
+}
+
+.status.status-typing { right: 0 !important;}
+.channel-members .member { margin-bottom: 3px !important; }
