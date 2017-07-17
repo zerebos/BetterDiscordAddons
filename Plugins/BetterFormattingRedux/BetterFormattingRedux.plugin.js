@@ -190,56 +190,69 @@ BetterFormattingRedux.prototype.start = function() {
 	// http://www.beard-design.com/discord-material-theme
     BdApi.injectCSS("bf-style", `
 .bf-toolbar {
-    user-select: none;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
     white-space: nowrap;
     font-size:85%;
+    display:-webkit-box;
+    display:-ms-flexbox;
     display:flex;
     position: absolute;
     color: rgba(255, 255, 255, .5);
-    width:auto!important;
+    width:auto;
     right:0;
     bottom:auto;
     border-radius:0;
-    margin:0!important;
-    height:27px!important;
+    margin:0;
+    height:27px;
     top:0px;
-    transform:translate(0,-100%);
+    -webkit-transform:translate(0,-100%);
+        -ms-transform:translate(0,-100%);
+            transform:translate(0,-100%);
     opacity:1;
-    display:block!important;
-    overflow: hidden!important;
+    display:block;
+    overflow: hidden;
     pointer-events: none;
-    padding:10px 30px 15px 10px!important;
-    margin-right:5px!important;
+    padding:10px 30px 15px 10px;
+    margin-right:5px;
 }
 .message-group .bf-toolbar{
-    padding:10px 20px 15px 20px!important;
-    animation:slide-up 300ms cubic-bezier(0,0,0,1), opacity 300ms ease
+    padding:10px 10px 15px 10px;
+}
+.message-group .bf-toolbar div:not(.bf-arrow),
+.message-group .bf-toolbar:before{
+    -webkit-animation:bf-slide-up 300ms cubic-bezier(.4,0,0,1);
+            animation:bf-slide-up 300ms cubic-bezier(.4,0,0,1);
+}
+@keyframes bf-slide-up {
+    from {
+        transform: translate(0, 55px);
+        opacity:0;
+    }
 }
 .upload-modal .bf-toolbar{
-    padding:10px 20px 15px 20px!important;
-    bottom:0!important;
-    top:auto!important;
-    left:50%;
-    right:auto;
-    transform:translate(-50%,100%);
+    position: relative;
+    transform:none;
+    padding:0;
+    margin-right:0;
+    border-radius:2px;
 }
-.upload-modal .bf-toolbar div:not(.bf-arrow):hover{
-    background:rgba(255,255,255,.1)!important;
-}
-.upload-modal .bf-toolbar div:not(.bf-arrow):active{
-    background:rgba(0,0,0,.1)!important;
-}
+
 .upload-modal .bf-toolbar:before{
-    background:var(--accent-color)!important;
+    display: none;
 }
 .upload-modal .bf-toolbar div:not(.bf-arrow),
 .upload-modal .bf-toolbar:before,
 .message-group .bf-toolbar div:not(.bf-arrow),
 .message-group .bf-toolbar:before{
-    transform:translate(0,0);
+    -webkit-transform:translate(0,0);
+        -ms-transform:translate(0,0);
+            transform:translate(0,0);
 }
-.upload-modal .bf-toolbar:after,
-.message-group .bf-toolbar:after{
+.upload-modal .bf-toolbar .bf-arrow,
+.message-group .bf-toolbar .bf-arrow{
     display: none;
 }
 .bf-toolbar.bf-visible,
@@ -250,26 +263,46 @@ BetterFormattingRedux.prototype.start = function() {
     display: inline;
     padding: 7px 5px;
     cursor: pointer;
+    display : -webkit-inline-box;
+    display : -ms-inline-flexbox;
     display : inline-flex;
-    align-items : center;
-    transform:translate(0,55px);
-    transition:all 50ms,transform 200ms ease!important;
+    -webkit-box-align : center;
+        -ms-flex-align : center;
+            align-items : center;
+    -webkit-transform:translate(0,55px);
+        -ms-transform:translate(0,55px);
+            transform:translate(0,55px);
+    -webkit-transition:all 50ms,-webkit-transform 200ms ease;
+            transition:all 50ms,-webkit-transform 200ms ease;
+         -o-transition:all 50ms,transform 200ms ease;
+            transition:all 50ms,transform 200ms ease;
+            transition:all 50ms,transform 200ms ease,-webkit-transform 200ms ease;
     position:relative;
     pointer-events: initial;
     border-radius:2px;
 }
 .bf-toolbar div:not(.bf-arrow):hover{
-    background:rgba(255,255,255,.1)!important;
+    background:rgba(255,255,255,.1);
     color:rgba(255,255,255,.9);
 }
 .bf-toolbar div:not(.bf-arrow):active{
-    background:rgba(0,0,0,.1)!important;
-    transition:all 0ms,transform 200ms ease!important;
+    background:rgba(0,0,0,.1);
+    -webkit-transition:all 0ms,-webkit-transform 200ms ease;
+            transition:all 0ms,-webkit-transform 200ms ease;
+         -o-transition:all 0ms,transform 200ms ease;
+            transition:all 0ms,transform 200ms ease;
+            transition:all 0ms,transform 200ms ease,-webkit-transform 200ms ease;
 }
 .bf-toolbar.bf-visible div:not(.bf-arrow),
 .bf-toolbar.bf-hover:hover div:not(.bf-arrow){
-    transform:translate(0,0);
-    transition:all 50ms,transform 200ms cubic-bezier(0,0,0,1)!important;
+    -webkit-transform:translate(0,0);
+        -ms-transform:translate(0,0);
+            transform:translate(0,0);
+    -webkit-transition:all 50ms,-webkit-transform 200ms cubic-bezier(0,0,0,1);
+            transition:all 50ms,-webkit-transform 200ms cubic-bezier(0,0,0,1);
+         -o-transition:all 50ms,transform 200ms cubic-bezier(0,0,0,1);
+            transition:all 50ms,transform 200ms cubic-bezier(0,0,0,1);
+            transition:all 50ms,transform 200ms cubic-bezier(0,0,0,1),-webkit-transform 200ms cubic-bezier(0,0,0,1);
 }
 .bf-toolbar:before {
     content:"";
@@ -283,13 +316,21 @@ BetterFormattingRedux.prototype.start = function() {
     left:0px;
     top:5px;
     border-radius:3px;
-    transform:translate(0,55px);
-    transition:all 200ms ease!important;
+    -webkit-transform:translate(0,55px);
+        -ms-transform:translate(0,55px);
+            transform:translate(0,55px);
+    -webkit-transition:all 200ms ease;
+         -o-transition:all 200ms ease;
+            transition:all 200ms ease;
 }
 .bf-toolbar.bf-visible:before,
 .bf-toolbar.bf-hover:hover:before {
-    transform:translate(0,0px);
-    transition:all 200ms cubic-bezier(0,0,0,1)!important;
+    -webkit-transform:translate(0,0px);
+        -ms-transform:translate(0,0px);
+            transform:translate(0,0px);
+    -webkit-transition:all 200ms cubic-bezier(0,0,0,1);
+         -o-transition:all 200ms cubic-bezier(0,0,0,1);
+            transition:all 200ms cubic-bezier(0,0,0,1);
 }
 
 .bf-toolbar .bf-arrow {
@@ -304,14 +345,20 @@ BetterFormattingRedux.prototype.start = function() {
     bottom:0;
     background-repeat: no-repeat;
     background-position: 50%;
-    transition:all 200ms ease!important;
+    -webkit-transition:all 200ms ease;
+         -o-transition:all 200ms ease;
+            transition:all 200ms ease;
     opacity: .3;
     cursor:pointer;
 }
 .bf-toolbar.bf-visible .bf-arrow,
 .bf-toolbar.bf-hover:hover .bf-arrow {
-    transform:translate(0,-14px)rotate(-90deg);
-    transition:all 200ms cubic-bezier(0,0,0,1)!important;
+    -webkit-transform:translate(0,-14px)rotate(-90deg);
+        -ms-transform:translate(0,-14px)rotate(-90deg);
+            transform:translate(0,-14px)rotate(-90deg);
+    -webkit-transition:all 200ms cubic-bezier(0,0,0,1);
+         -o-transition:all 200ms cubic-bezier(0,0,0,1);
+            transition:all 200ms cubic-bezier(0,0,0,1);
     opacity: .9;
 }`);
 };
