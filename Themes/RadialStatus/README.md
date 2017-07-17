@@ -49,6 +49,7 @@ For support and update announcements you can visit [Zere's server](http://discor
 #### 1.1.2
 
  - Added circles showing during mentioning
+ - Fix typing symbol bug
 
 #### 1.1.1
 

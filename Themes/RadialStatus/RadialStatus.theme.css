@@ -1,4 +1,4 @@
-//META{"name":"Radial_Status","description":"Changes status dot to a circle updated from Status Circles (Author: Zerthox) by Zerebos","author":"Zerebos","version":"1.3.0"}*//{}
+//META{"name":"Radial_Status","description":"Changes status dot to a circle updated from Status Circles (Author: Zerthox) by Zerebos","author":"Zerebos","version":"1.1.2"}*//{}
 
 .channel-members .avatar-small .status,
 .private-channels .avatar-small .status,
@@ -8,7 +8,7 @@
 .avatar-small .status,
 .account .status {
     width:100%!important;
-    background: transparent !important;
+    background: transparent;
     border-radius: 50% !important;
     height: 100%!important;
     transition: all 200ms ease !important;
@@ -68,7 +68,7 @@
 }
 .status.status-typing {
     width: 30px !important;
-    background-color: rgba(0, 0, 0, 0.3) !important;
+    background-color: rgba(0, 0, 0, 0.4) !important;
 }
 .status.status-typing .spinner .spinner-inner {
     left: 1px !important;
