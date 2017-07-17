@@ -12,7 +12,7 @@ For support and update announcements you can visit [Zere's server](http://discor
 ![Member List](http://discord.zackrauen.com/RadialStatus/member_list_short.png)
 
 #### Typing Status
-![Typing Status](http://discord.zackrauen.com/RadialStatus/typing.png)
+![Typing Status](http://discord.zackrauen.com/RadialStatus/typing_status.png)
 
 ### Profile Popout and Modal
 
