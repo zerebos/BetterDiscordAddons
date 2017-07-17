@@ -1,4 +1,4 @@
-//META{"name":"Radial_Status","description":"Changes status dot to a circle updated from Status Circles (Author: Zerthox) by Zerebos","author":"Zerebos","version":"1.1.2"}*//{}
+//META{"name":"Radial_Status","description":"Changes status dot to a circle updated from Status Circles Theme by Zerebos#7790","author":"Zerebos","version":"1.1.3"}*//{}
 
 .channel-members .avatar-small .status,
 .private-channels .avatar-small .status,
@@ -106,4 +106,19 @@
 }
 
 .status.status-typing { right: 0 !important;}
-.channel-members .member { margin-bottom: 3px !important; }
+
+.channel-members .member {
+	padding-bottom: 8px !important;
+	padding-top: 8px !important;
+}
+
+.channel-members .member.popout-open .avatar-small,
+.channel-members .member:hover .avatar-small {
+    -ms-transform: scale(1.15) !important;
+    transform: scale(1.15) !important;
+}
+
+.channel-members .member .avatar-small {
+    -ms-transform: scale(1) !important;
+    transform: scale(1) !important;
+}

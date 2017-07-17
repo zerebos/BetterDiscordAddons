@@ -46,6 +46,11 @@ For support and update announcements you can visit [Zere's server](http://discor
  
 ## Changelog
 
+#### 1.1.3
+
+ - Fixed an issue with active popouts and hovered names overlapping
+ - Add compatibility with Beard's auto collapsing member list
+
 #### 1.1.2
 
  - Added circles showing during mentioning
