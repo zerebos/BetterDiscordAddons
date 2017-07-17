@@ -6,6 +6,7 @@
 .user-popout .avatar-popout .status,
 #user-profile-modal .avatar-profile .status,
 .avatar-small .status,
+#user-profile-modal .guilds .guild .status,
 .account .status {
     width:100%!important;
     background: transparent;
@@ -22,6 +23,7 @@
 .user-popout .avatar-popout .status-online,
 #user-profile-modal .avatar-profile .status-online,
 .avatar-small .status-online,
+#user-profile-modal .guilds .guild .status-online,
 .status.status-online {
     transition: all 200ms ease !important;
     border: 2px solid #43b581 !important;
@@ -32,6 +34,7 @@
 .user-popout .avatar-popout .status-idle,
 #user-profile-modal .avatar-profile .status-idle,
 .avatar-small .status-idle,
+#user-profile-modal .guilds .guild .status-idle,
 .status.status-idle {
     border: 2px solid #faa61a !important;
 }
@@ -41,6 +44,7 @@
 .user-popout .avatar-popout .status-dnd,
 #user-profile-modal .avatar-profile .status-dnd,
 .avatar-small .status-dnd,
+#user-profile-modal .guilds .guild .status-dnd,
 .status.status-dnd {
     border: 2px solid #f04747 !important;
 }
@@ -50,6 +54,7 @@
 .user-popout .avatar-popout .status-streaming,
 #user-profile-modal .avatar-profile .status-streaming,
 .avatar-small .status-streaming,
+#user-profile-modal .guilds .guild .status-streaming,
 .status-streaming{
     animation:streaming-flash 1.5s linear infinite !important;
     border: 2px solid #643da7 !important;
@@ -60,12 +65,26 @@
 .user-popout .avatar-popout .status-invisible,
 #user-profile-modal .avatar-profile .status-invisible,
 .avatar-small .status-invisible,
+#user-profile-modal .guilds .guild .status-invisible,
 .status-unknown {
     border: 2px solid #747f8d !important;
 }
-.private-channels  .avatar-small .status-offline {
+
+.channel-members .avatar-small .status-offline,
+.private-channels  .avatar-small .status-offline,
+.channels-wrap .avatar-small .status-offline,
+.user-popout .avatar-popout .status-offline,
+#user-profile-modal .avatar-profile .status-offline,
+.avatar-small .status-offline,
+#user-profile-modal .guilds .guild .status-offline,
+.status-offline {
     border: 2px solid #636b75 !important;
 }
+
+.channel-members .member.member-status-offline .status {
+	display: initial !important;
+}
+
 .status.status-typing {
     width: 30px !important;
     background-color: rgba(0, 0, 0, 0.4) !important;
@@ -107,7 +126,7 @@
 
 .status.status-typing { right: 0 !important;}
 
-.channel-members .member {
+.channel-members .member, #user-profile-modal .guilds .guild {
 	padding-bottom: 8px !important;
 	padding-top: 8px !important;
 }

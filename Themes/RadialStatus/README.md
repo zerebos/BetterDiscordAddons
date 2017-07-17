@@ -50,6 +50,8 @@ For support and update announcements you can visit [Zere's server](http://discor
 
  - Fixed an issue with active popouts and hovered names overlapping
  - Add compatibility with Beard's auto collapsing member list
+ - Fixed circles not working on mutual friends list
+ - Added offline circles to servers that show offline users
 
 #### 1.1.2
 
