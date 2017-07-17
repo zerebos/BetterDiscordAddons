@@ -9,30 +9,30 @@ For support and update announcements you can visit [Zere's server](http://discor
 ## Screenshots
 
 #### Member List
-![Member List](https://discord.zackrauen.com/RadialStatus/member_list.png)
+![Member List](http://discord.zackrauen.com/RadialStatus/member_list.png)
 
 ##### Typing Status
-![Typing Status](https://discord.zackrauen.com/RadialStatus/typing.png)
+![Typing Status](http://discord.zackrauen.com/RadialStatus/typing.png)
 
 #### Profile Popout and Modal
 
 ##### Popout
-![Profile Popout](https://discord.zackrauen.com/RadialStatus/profile_popout.png)
+![Profile Popout](http://discord.zackrauen.com/RadialStatus/profile_popout.png)
 
 ##### Modal
-![Profile Modal](https://discord.zackrauen.com/RadialStatus/profile_modal.png)
+![Profile Modal](http://discord.zackrauen.com/RadialStatus/profile_modal.png)
 
 #### Direct Messages
-![Direct Messages](https://discord.zackrauen.com/RadialStatus/direct_messages.png)
+![Direct Messages](http://discord.zackrauen.com/RadialStatus/direct_messages.png)
 
 #### Mentions
-![Mentions](https://discord.zackrauen.com/RadialStatus/mentions.png)
+![Mentions](http://discord.zackrauen.com/RadialStatus/mentions.png)
 
 #### Personal Status
-![Personal Status](https://discord.zackrauen.com/RadialStatus/personal_status.png)
+![Personal Status](http://discord.zackrauen.com/RadialStatus/personal_status.png)
 
 #### Beard's Material Design Theme Compatibility
-![Compatibility](https://discord.zackrauen.com/RadialStatus/beard_design.png)
+![Compatibility](http://discord.zackrauen.com/RadialStatus/beard_design.png)
 
 
 ## Coming Soon
