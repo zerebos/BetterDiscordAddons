@@ -570,12 +570,8 @@ class CheckboxSetting extends SettingField {
 	}
 }
 
-BetterFormattingRedux.prototype.getSettingsPanel = function () {
-	var panel = $("<form>")
-		.addClass("form")
-		.css("width", "100%");
-
-	var wrapperControls = this.controlGroup("Wrapper Options", () => {this.saveSettings()}).appendTo(panel).append(
+BetterFormattingRedux.prototype.generateSettings = function(panel) {
+		var wrapperControls = this.controlGroup("Wrapper Options", () => {this.saveSettings()}).appendTo(panel).append(
 			new TextSetting("Superscript", "The wrapper for superscripted text.", this.settings.wrappers.superscript, this.defaultSettings.wrappers.superscript,
 							(text) => {this.settings.wrappers.superscript = text != "" ? text : this.defaultSettings.wrappers.superscript}),
 			new TextSetting("Smallcaps", "The wrapper to make Smallcaps.", this.settings.wrappers.smallcaps, this.defaultSettings.wrappers.smallcaps,
@@ -615,17 +611,28 @@ BetterFormattingRedux.prototype.getSettingsPanel = function () {
 			new CheckboxSetting("Toolbar on Right Side", "This option enables swapping toolbar from right side to left side. Enabled means right side.",
 								this.settings.plugin.rightSide, (checked) => {this.settings.plugin.rightSide = checked; this.changeSide();})
 		)
-							
+		
 	var bfr = this;
 	var resetButton = $("<button>");
 	resetButton.on("click."+appNameShort, function() {
 		bfr.settings = bfr.defaultSettings;
 		bfr.saveSettings();
+		panel.empty()
+		bfr.generateSettings(panel)
 	});
 	resetButton.text("Reset To Defaults");
 	resetButton.css("float", "right");
+	resetButton.attr("type","button")
 	
 	panel.append(resetButton);
+}
 
+BetterFormattingRedux.prototype.getSettingsPanel = function () {
+	var panel = $("<form>")
+		.addClass("form")
+		.css("width", "100%");
+
+	this.generateSettings(panel)
+	
 	return panel[0];
 };

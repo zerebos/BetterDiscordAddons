@@ -92,7 +92,8 @@ The default wrappers (`^`, `%`, `##`, `&&`, `||`) can all be customized in the s
 
  - Added the ability to swap the toolbar (and the arrow) from the right hand side to the left hand side (by popular demand)
  - Added in the features promised last time, I made a goof and committed the wrong file
- - Update description
+ - Fixed a bug where button would reload discord (and also pressing enter)
+ - Update description in discord
 
 #### 1.1.3
 
