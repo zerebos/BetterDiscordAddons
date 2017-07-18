@@ -57,12 +57,18 @@ The default wrappers (`^`, `%`, `##`, `&&`, `||`) can all be customized in the s
 ![BFRedux Chaining](http://discord.zackrauen.com/BFRedux/functional.png)
 
  - You can change between the default hover mode (from above), or click to see toolbar.
+ 
 ![BFRedux Click Mode](https://zippy.gfycat.com/RectangularGargantuanIndianjackal.gif)
  - Optionally, you can make it disappear when the message is sent
+ 
 ![BFRedux Send Clear](https://zippy.gfycat.com/IllfatedDimpledGalapagossealion.gif)
+
  - You can also switch format chaining order from outside first to inside first which means:
+ 
 `&&##Sample Text##&&` will give you ｔｘｅＴ　ｅｌｐｍａＳ instead of ʇｘǝ┴　ǝｌｄɯɐＳ (May not appear right in browser)
+
 `##&&Sample Text&&##` will give you ʇｘǝ┴　ǝｌｄɯɐＳ instead of ＆＆Ｓａｍｐｌｅ　Ｔｅｘｔ＆＆ (May not appear right in browser)
+
  ![BFRedux Chaining](http://discord.zackrauen.com/BFRedux/chaining.png)
 
 ## Coming Soon
