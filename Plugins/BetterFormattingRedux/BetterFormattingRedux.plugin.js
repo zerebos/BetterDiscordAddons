@@ -4,9 +4,9 @@ var BetterFormattingRedux = function() {};
 
 var appName = "Better Formatting Redux";
 var appAuthor = "Zerebos";
-var appVersion = "1.1.2";
+var appVersion = "1.1.4";
 
-var appDescription = "An advanced version of Anxeal's Better Formatting that allows for customization of wrappers and formatting as well as adding additional formatting types.";
+var appDescription = "Enables different formatting in standard Discord chat. GitHub for Zerebos#7790: https://github.com/rauenzi/BetterDiscordAddons/";
 
 var appNameShort = "BFRedux"; // Used for namespacing, settings, and logging
 var newStyleNames = ["superscript", "smallcaps", "fullwidth", "upsidedown", "varied"];
@@ -21,63 +21,69 @@ BetterFormattingRedux.prototype.toolbarString = "<div class='bf-toolbar'><div cl
 
 BetterFormattingRedux.prototype.defaultSettings = {wrappers: {bold: "**", italic: "*", underline: "__", strikethrough: "~~", code: "`", superscript: "^", smallcaps: "%", fullwidth: "##", upsidedown: "&&", varied: "||"},
 											formatting: {fullWidthMap: true, reorderUpsidedown: true, startCaps: true},
-											plugin: {hoverOpen: true}}
+											plugin: {hoverOpen: true, closeOnSend: true, chainFormats: true, rightSide: true}}
 BetterFormattingRedux.prototype.settings = {wrappers: {bold: "**", italic: "*", underline: "__", strikethrough: "~~", code: "`", superscript: "^", smallcaps: "%", fullwidth: "##", upsidedown: "&&", varied: "||"},
 											formatting: {fullWidthMap: true, reorderUpsidedown: true, startCaps: true},
-											plugin: {hoverOpen: true}}
+											plugin: {hoverOpen: true, closeOnSend: true, chainFormats: true, rightSide: true}}
 
 BetterFormattingRedux.prototype.escape = function(s) {
     return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
 
 BetterFormattingRedux.prototype.doFormat = function(text, wrapper, offset) {
-	var returnText = text;
-	var len = text.length
+
+	// If this is not a wrapper, return original
 	if (text.substring(offset, offset+wrapper.length) != wrapper) return text;
+	
+	var returnText = text, len = text.length
 	var begin = text.indexOf(wrapper, offset);
-	if (text[begin-1] == "\\") {
-		return text.substring(0, begin - 1) + text.substring(begin--)
-	}
-		var end = text.indexOf(wrapper, begin + wrapper.length);
-		if (end != -1) {
-			end += wrapper.length-1;
-		}
+	
+	if (text[begin-1] == "\\") return text; // If the wrapper is escaped, remove the backslash and return the text
+	
+	var end = text.indexOf(wrapper, begin + wrapper.length);
+	if (end != -1) end += wrapper.length-1;
+	
+	// Making it to this point means that we have found a full wrapper
+	// This block performs inner chaining
+	if (this.settings.plugin.chainFormats) {
 		for (var w=0; w<newStyleNames.length; w++) {
-			newText = this.doFormat(returnText, this.settings.wrappers[newStyleNames[w]], end);
+			newText = this.doFormat(returnText, this.settings.wrappers[newStyleNames[w]], begin+wrapper.length);
 			if (returnText != newText) {
 				returnText = newText;
-				i = i - this.settings.wrappers[newStyleNames[w]].length;
+				end = end - this.settings.wrappers[newStyleNames[w]].length*2
 			}
 		}
-		returnText = returnText.replace(new RegExp(`([^]{${begin}})${this.escape(wrapper)}([^]*)${this.escape(wrapper)}([^]{${len - end - 1}})`), (match, before, middle, after) => {
-			var letterNum = 0;
-			var previousLetter = "";
-			middle = middle.replace(/./g, letter => {
-				var index = this.replaceList.indexOf(letter);
-				letterNum += 1;
-				switch (wrapper) {
-					case this.settings.wrappers.fullwidth:
-						if (this.settings.formatting.fullWidthMap) return index != -1 ? this.fullwidthList[index] : letter;
-						else return index != -1 ? letterNum == middle.length ? letter.toUpperCase() : letter.toUpperCase() + " " : letter;
-					case this.settings.wrappers.superscript:
-						return index != -1 ? this.superscriptList[index] : letter
-					case this.settings.wrappers.smallcaps:
-						return index != -1 ? this.smallCapsList[index] : letter;
-					case this.settings.wrappers.upsidedown:
-						return index != -1 ? this.upsideDownList[index] : letter;
-					case this.settings.wrappers.varied:
-						var compare = this.settings.formatting.startCaps ? 1 : 0;
-						if (letter.toLowerCase() == letter.toUpperCase()) letterNum = letterNum - 1;
-						return index != -1 ? letterNum % 2 == compare ? letter.toUpperCase() : letter.toLowerCase() : letter;
-					default:
-						return letter;
-				}
-				previousLetter = letter;
-			})
-			if (wrapper == this.settings.wrappers.upsidedown && this.settings.formatting.reorderUpsidedown) return before + middle.split("").reverse().join("") + after;
-			else return before + middle + after;
-		});
-		begin = text.indexOf(wrapper, end + wrapper.length);
+	}
+	
+	returnText = returnText.replace(new RegExp(`([^]{${begin}})${this.escape(wrapper)}([^]*)${this.escape(wrapper)}([^]{${len - end - 1}})`), (match, before, middle, after) => {
+		var letterNum = 0;
+		var previousLetter = "";
+		middle = middle.replace(/./g, letter => {
+			var index = this.replaceList.indexOf(letter);
+			letterNum += 1;
+			switch (wrapper) {
+				case this.settings.wrappers.fullwidth:
+					if (this.settings.formatting.fullWidthMap) return index != -1 ? this.fullwidthList[index] : letter;
+					else return index != -1 ? letterNum == middle.length ? letter.toUpperCase() : letter.toUpperCase() + " " : letter;
+				case this.settings.wrappers.superscript:
+					return index != -1 ? this.superscriptList[index] : letter
+				case this.settings.wrappers.smallcaps:
+					return index != -1 ? this.smallCapsList[index] : letter;
+				case this.settings.wrappers.upsidedown:
+					return index != -1 ? this.upsideDownList[index] : letter;
+				case this.settings.wrappers.varied:
+					var compare = this.settings.formatting.startCaps ? 1 : 0;
+					if (letter.toLowerCase() == letter.toUpperCase()) letterNum = letterNum - 1;
+					return index != -1 ? letterNum % 2 == compare ? letter.toUpperCase() : letter.toLowerCase() : letter;
+				default:
+					return letter;
+			}
+			previousLetter = letter;
+		})
+		if (wrapper == this.settings.wrappers.upsidedown && this.settings.formatting.reorderUpsidedown) return before + middle.split("").reverse().join("") + after;
+		else return before + middle + after;
+	});
+	//begin = text.indexOf(wrapper, end + wrapper.length);
 	return returnText;
 }
 
@@ -104,12 +110,13 @@ BetterFormattingRedux.prototype.format = function(e) {
 					newText = bfr.doFormat(text, bfr.settings.wrappers[newStyleNames[w]], i);
 					if (text != newText) {
 						text = newText;
-						i = i - bfr.settings.wrappers[newStyleNames[w]].length;
+						i = i - bfr.settings.wrappers[newStyleNames[w]].length*2
 					}
 				}
         }
     }
     $textarea.val(text);
+	if (bfr.settings.plugin.closeOnSend) $(".bf-toolbar").removeClass('bf-visible');
 };
 
 BetterFormattingRedux.prototype.wrapSelection = function(textarea, wrapper) {
@@ -185,6 +192,48 @@ BetterFormattingRedux.prototype.onMessage = function() {};
 BetterFormattingRedux.prototype.onSwitch = function() {};
 // unused
 
+BetterFormattingRedux.prototype.leftCSS = `
+.bf-toolbar {
+	right: auto;
+	left: 0;
+	margin-left: 5px;
+	margin-right: 0;
+	padding: 10px 10px 15px 30px
+}
+
+.bf-toolbar .bf-arrow {
+	right: auto;
+	left: 5px;
+}
+
+.bf-toolbar.bf-visible .bf-arrow,
+.bf-toolbar.bf-hover:hover .bf-arrow {
+	-webkit-transform:translate(0,-14px)rotate(90deg);
+	-ms-transform:translate(0,-14px)rotate(90deg);
+	transform:translate(0,-14px)rotate(90deg);
+}`;
+
+BetterFormattingRedux.prototype.rightCSS = `
+.bf-toolbar {
+	right: 0;
+	left: auto;
+	margin-left: 0;
+	margin-right: 5px;
+	padding: 10px 30px 15px 10px
+}
+
+.bf-toolbar .bf-arrow {
+	right: 5px;
+	left: auto;
+}
+
+.bf-toolbar.bf-visible .bf-arrow,
+.bf-toolbar.bf-hover:hover .bf-arrow {
+	-webkit-transform:translate(0,-14px)rotate(-90deg);
+	-ms-transform:translate(0,-14px)rotate(-90deg);
+	transform:translate(0,-14px)rotate(-90deg);
+}`;
+
 BetterFormattingRedux.prototype.start = function() {
 	this.loadSettings();
     $(".channel-textarea textarea").each((index, elem) => {
@@ -209,7 +258,6 @@ BetterFormattingRedux.prototype.start = function() {
     position: absolute;
     color: rgba(255, 255, 255, .5);
     width:auto;
-    right:0;
     bottom:auto;
     border-radius:0;
     margin:0;
@@ -222,11 +270,9 @@ BetterFormattingRedux.prototype.start = function() {
     display:block;
     overflow: hidden;
     pointer-events: none;
-    padding:10px 30px 15px 10px;
-    margin-right:5px;
 }
 .message-group .bf-toolbar{
-    padding:10px 10px 15px 10px;
+    padding:10px 30px 15px 10px;
 }
 .message-group .bf-toolbar div:not(.bf-arrow),
 .message-group .bf-toolbar:before{
@@ -243,7 +289,8 @@ BetterFormattingRedux.prototype.start = function() {
     position: relative;
     transform:none;
     padding:0;
-    margin-right:0;
+    margin-left:0;
+	margin-right: 0;
     border-radius:2px;
 }
 
@@ -346,7 +393,6 @@ BetterFormattingRedux.prototype.start = function() {
     background:url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTcuNDEgMTUuNDFMMTIgMTAuODNsNC41OSA0LjU4TDE4IDE0bC02LTYtNiA2eiIvPiAgICA8cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PC9zdmc+);
     height:30px;
     width:30px;
-    right:5px;
     position: absolute;
     pointer-events: initial;
     bottom:0;
@@ -360,20 +406,23 @@ BetterFormattingRedux.prototype.start = function() {
 }
 .bf-toolbar.bf-visible .bf-arrow,
 .bf-toolbar.bf-hover:hover .bf-arrow {
-    -webkit-transform:translate(0,-14px)rotate(-90deg);
-        -ms-transform:translate(0,-14px)rotate(-90deg);
-            transform:translate(0,-14px)rotate(-90deg);
     -webkit-transition:all 200ms cubic-bezier(0,0,0,1);
          -o-transition:all 200ms cubic-bezier(0,0,0,1);
             transition:all 200ms cubic-bezier(0,0,0,1);
     opacity: .9;
 }`);
+this.changeSide()
 };
+
+BetterFormattingRedux.prototype.changeSide = function() {
+	BdApi.injectCSS("bf-style-side", this.settings.plugin.rightSide ? this.rightCSS : this.leftCSS)
+}
 
 BetterFormattingRedux.prototype.stop = function() {
 	$(document).add("*").off(appNameShort);
 	$(".bf-toolbar").remove();
 	BdApi.clearCSS("bf-style");
+	BdApi.clearCS("bf-style-side")
 };
 
 BetterFormattingRedux.prototype.observer = function(e) {
@@ -485,11 +534,14 @@ class TextSetting extends SettingField {
 }
 
 class CheckboxSetting extends SettingField {
-	constructor(label, help, isChecked, callback) {
+	constructor(label, help, isChecked, callback, disabled) {
 		super(label, help);
+		var isDisabled = false
+		if (typeof disabled != 'undefined') isDisabled = disabled;
 		var input = $("<input>", {
 			type: "checkbox",
-			checked: isChecked
+			checked: isChecked,
+			disabled: isDisabled
 		});
 		input.attr("class", "ui-switch-checkbox");
 
@@ -555,7 +607,13 @@ BetterFormattingRedux.prototype.getSettingsPanel = function () {
 						 $(".bf-toolbar").removeClass('bf-hover')
 					 }
 				}
-			)
+			),
+			new CheckboxSetting("Close On Send", "This option will close the toolbar when the message is sent when \"Open On Hover\" is disabled.",
+								this.settings.plugin.closeOnSend, (checked) => {this.settings.plugin.closeOnSend = checked;}),
+			new CheckboxSetting("Chain Formats Outward", "Enabling this changes the chaining order from inward to outward. Check the GitHub for more info.",
+								this.settings.plugin.chainFormats, (checked) => {this.settings.plugin.chainFormats = checked;}),
+			new CheckboxSetting("Toolbar on Right Side", "This option enables swapping toolbar from right side to left side. Enabled means right side.",
+								this.settings.plugin.rightSide, (checked) => {this.settings.plugin.rightSide = checked; this.changeSide();})
 		)
 							
 	var bfr = this;

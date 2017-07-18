@@ -54,7 +54,7 @@ The default wrappers (`^`, `%`, `##`, `&&`, `||`) can all be customized in the s
 ![BFRedux Formatting](http://discord.zackrauen.com/BFRedux/formatting.png)
  
 ### Functional Plugin Settings
-![BFRedux Chaining](http://discord.zackrauen.com/BFRedux/functional.png)
+![BFRedux Chaining](http://discord.zackrauen.com/BFRedux/functional_updated.png)
 
  - You can change between the default hover mode (from above), or click to see toolbar.
  
@@ -70,6 +70,11 @@ The default wrappers (`^`, `%`, `##`, `&&`, `||`) can all be customized in the s
 `##&&Sample Text&&##` will give you ʇｘǝ┴　ǝｌｄɯɐＳ instead of ＆＆Ｓａｍｐｌｅ　Ｔｅｘｔ＆＆ (May not appear right in browser)
 
  ![BFRedux Chaining](http://discord.zackrauen.com/BFRedux/chaining_order.png)
+ 
+ - Swap the toolbar (and arrow) from the right side (above) to the left side
+ 
+ ![BFRedux Sideswap](https://gfycat.com/FlusteredViciousEnglishpointer)
+ 
 
 ## Coming Soon
  - Switch to non-prototype classes.
@@ -82,6 +87,12 @@ The default wrappers (`^`, `%`, `##`, `&&`, `||`) can all be customized in the s
  - BeardDesign#6223 - The CSS for the toolbar is a modified version of the CSS written by BeardDesign creator of Beard's Material Design Theme, a theme for BetterDiscord. His theme is compatible with several plugins so be sure to check it out [here](http://www.beard-design.com/discord-material-theme).
  
 ## Changelog
+
+#### 1.1.4
+
+ - Added the ability to swap the toolbar (and the arrow) from the right hand side to the left hand side (by popular demand)
+ - Added in the features promised last time, I made a goof and committed the wrong file
+ - Update description
 
 #### 1.1.3
 
