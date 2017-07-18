@@ -69,7 +69,7 @@ The default wrappers (`^`, `%`, `##`, `&&`, `||`) can all be customized in the s
 
 `##&&Sample Text&&##` will give you ʇｘǝ┴　ǝｌｄɯɐＳ instead of ＆＆Ｓａｍｐｌｅ　Ｔｅｘｔ＆＆ (May not appear right in browser)
 
- ![BFRedux Chaining](http://discord.zackrauen.com/BFRedux/chaining.png)
+ ![BFRedux Chaining](http://discord.zackrauen.com/BFRedux/chaining_order.png)
 
 ## Coming Soon
  - Switch to non-prototype classes.
