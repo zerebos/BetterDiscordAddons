@@ -73,7 +73,7 @@ The default wrappers (`^`, `%`, `##`, `&&`, `||`) can all be customized in the s
  
  - Swap the toolbar (and arrow) from the right side (above) to the left side
  
- ![BFRedux Sideswap](https://gfycat.com/FlusteredViciousEnglishpointer)
+ ![BFRedux Sideswap](https://zippy.gfycat.com/FlusteredViciousEnglishpointer.gif)
  
 
 ## Coming Soon
