@@ -42,6 +42,13 @@ BetterFormattingRedux.prototype.doFormat = function(text, wrapper, offset) {
 		if (end != -1) {
 			end += wrapper.length-1;
 		}
+		for (var w=0; w<newStyleNames.length; w++) {
+			newText = this.doFormat(returnText, this.settings.wrappers[newStyleNames[w]], end);
+			if (returnText != newText) {
+				returnText = newText;
+				i = i - this.settings.wrappers[newStyleNames[w]].length;
+			}
+		}
 		returnText = returnText.replace(new RegExp(`([^]{${begin}})${this.escape(wrapper)}([^]*)${this.escape(wrapper)}([^]{${len - end - 1}})`), (match, before, middle, after) => {
 			var letterNum = 0;
 			var previousLetter = "";
