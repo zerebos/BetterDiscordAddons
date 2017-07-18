@@ -6,7 +6,7 @@ var appName = "Better Formatting Redux";
 var appAuthor = "Zerebos";
 var appVersion = "1.1.4";
 
-var appDescription = "Enables different formatting in standard Discord chat. GitHub for Zerebos#7790: https://github.com/rauenzi/BetterDiscordAddons/";
+var appDescription = "Enables different formatting in standard Discord chat. GitHub for Zerebos#7790: bit.ly/ZerebosBD";
 
 var appNameShort = "BFRedux"; // Used for namespacing, settings, and logging
 var newStyleNames = ["superscript", "smallcaps", "fullwidth", "upsidedown", "varied"];
@@ -185,8 +185,18 @@ BetterFormattingRedux.prototype.addToolbar = function($textarea) {
         .show();
 }
 
+BetterFormattingRedux.isUpdate = false
+BetterFormattingRedux.remoteVersion = ""
+BetterFormattingRedux.prototype.load = function() {
+	$.get("https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js", function(result){
+		var ver = result.match(/"[0-9]+\.[0-9]+\.[0-9]+"/i);
+		ver = ver.toString().replace(/"/g, "")
+		BetterFormattingRedux.remoteVersion = ver;
+		if (ver != appVersion) BetterFormattingRedux.isUpdate = true;
+	});
+};
+
 // unused
-BetterFormattingRedux.prototype.load = function() {};
 BetterFormattingRedux.prototype.unload = function() {};
 BetterFormattingRedux.prototype.onMessage = function() {};
 BetterFormattingRedux.prototype.onSwitch = function() {};
@@ -422,7 +432,7 @@ BetterFormattingRedux.prototype.stop = function() {
 	$(document).add("*").off(appNameShort);
 	$(".bf-toolbar").remove();
 	BdApi.clearCSS("bf-style");
-	BdApi.clearCS("bf-style-side")
+	BdApi.clearCSS("bf-style-side")
 };
 
 BetterFormattingRedux.prototype.observer = function(e) {
@@ -571,7 +581,17 @@ class CheckboxSetting extends SettingField {
 }
 
 BetterFormattingRedux.prototype.generateSettings = function(panel) {
-		var wrapperControls = this.controlGroup("Wrapper Options", () => {this.saveSettings()}).appendTo(panel).append(
+	
+	if (BetterFormattingRedux.isUpdate) {
+		var header = $('<div class="formNotice-2tZsrh margin-bottom-20 padded cardWarning-31DHBH card-3DrRmC">')
+		var headerText = $('<div class="default-3bB32Y formText-1L-zZB formNoticeBody-1C0wup whiteText-32USMe modeDefault-389VjU primary-2giqSn">')
+		headerText.html("Update Available! Your version: " + appVersion + " | Current version: " + BetterFormattingRedux.remoteVersion + "<br>Get it on Zere's GitHub! http://bit.ly/BFRedux")
+		headerText.css("line-height", "150%")
+		headerText.appendTo(header)
+		header.appendTo(panel)
+	}
+	
+	var wrapperControls = this.controlGroup("Wrapper Options", () => {this.saveSettings()}).appendTo(panel).append(
 			new TextSetting("Superscript", "The wrapper for superscripted text.", this.settings.wrappers.superscript, this.defaultSettings.wrappers.superscript,
 							(text) => {this.settings.wrappers.superscript = text != "" ? text : this.defaultSettings.wrappers.superscript}),
 			new TextSetting("Smallcaps", "The wrapper to make Smallcaps.", this.settings.wrappers.smallcaps, this.defaultSettings.wrappers.smallcaps,
