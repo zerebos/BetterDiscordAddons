@@ -249,9 +249,6 @@ BetterFormattingRedux.prototype.start = function() {
     $(".channel-textarea textarea").each((index, elem) => {
         this.addToolbar($(elem));
     });
-	$(".channelTextArea-1HTP3C textarea").each((index, elem) => {
-        this.addToolbar($(elem));
-    });
 	
 	// CSS is a modified form of the CSS used in
 	// Beard's Material Design Theme for BetterDiscrod
