@@ -44,6 +44,11 @@ Currently there are no settings.
  
 ## Changelog
 
+#### 0.2.3-beta
+
+ - Add ability to reset the original order
+ - Fix a bug where the button wasn't removed on disabling plugin
+
 #### 0.2.2-beta
 
  - Clean up the code
