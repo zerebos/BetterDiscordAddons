@@ -35,6 +35,7 @@ Currently there are no settings.
  - Saving and loading the order of the servers
  - More sorting methods
  - Sync server order with cloud (maybe?)
+ - Folders and groupings
 
 ## Known Bugs and Issues
 
