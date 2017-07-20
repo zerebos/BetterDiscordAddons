@@ -2,6 +2,8 @@
 
 Lets you format your messages with buttons and adds more formatting options. For support and update announcements you can visit [Zere's server](http://discord.zackrauen.com/).
 
+**Note:** Currently incompatible with Canary
+
 ![BFRedux Demo](https://zippy.gfycat.com/HugeDeadDuckling.gif)
 
 ## Features
