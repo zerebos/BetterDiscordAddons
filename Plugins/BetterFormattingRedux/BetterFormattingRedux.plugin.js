@@ -447,6 +447,11 @@ BetterFormattingRedux.prototype.observer = function(e) {
         $textarea = $elem.find("textarea");
         this.addToolbar($textarea);
     }
+	
+	if ($elem.find(".channelTextArea-1HTP3C").length || $elem.closest(".channelTextArea-1HTP3C").length) {
+        $textarea = $elem.find("textarea");
+        this.addToolbar($textarea);
+    }
 };
 
 BetterFormattingRedux.prototype.getName = function() {
