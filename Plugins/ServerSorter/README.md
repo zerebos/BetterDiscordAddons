@@ -4,7 +4,7 @@ Adds the ability to do some basic sorting of your servers. For support and updat
 
 **Note:** This is currently in beta and does not save the order of the servers on restart. It also will not update the order across devices.
 
-![Sorter Demo](https://fat.gfycat.com/KeenDisastrousBighornedsheep.gif)
+![Sorter Demo](https://thumbs.gfycat.com/KeenDisastrousBighornedsheep-size_restricted.gif)
 
 ## Features
 
