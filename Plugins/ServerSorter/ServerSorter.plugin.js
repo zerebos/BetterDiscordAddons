@@ -4,7 +4,7 @@ class ServerSorter {
 	getName(){return "Server Sorter"}
 	getShortName() {return "ServerSorter"}
 	getDescription(){return "Adds server sorting abilities to Discord."}
-	getVersion(){return "0.2.2-beta"}
+	getVersion(){return "0.2.3-beta"}
 	getAuthor(){return "Zerebos"}
 	loadSettings() {
 		try {
