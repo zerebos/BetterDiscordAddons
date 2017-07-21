@@ -6,6 +6,8 @@ Lets you format your messages with buttons and adds more formatting options. For
 
 ![BFRedux Demo](https://zippy.gfycat.com/HugeDeadDuckling.gif)
 
+Feel free to either DM me (Zerebos#7790) with any feature requests or bugs. Or just open an issue here on GitHub.
+
 ## Features
 
 ### Formatting Toolbar
