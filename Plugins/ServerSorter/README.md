@@ -38,6 +38,8 @@ Currently there are no settings.
  - Folders and groupings
 
 ## Known Bugs and Issues
+ - Adding a server will cause it to be sorted to bottom on all options (including reset)
+ - Removing a server will probably cause errors on sorting (untested)
 
 ## Special Thanks
  - DevilBro (Mirco)#4401 for helping me access the React data.
