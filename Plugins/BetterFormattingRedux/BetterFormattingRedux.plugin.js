@@ -4,7 +4,7 @@ var BetterFormattingRedux = function() {};
 
 var appName = "Better Formatting Redux";
 var appAuthor = "Zerebos";
-var appVersion = "1.1.4";
+var appVersion = "1.1.5";
 
 var appDescription = "Enables different formatting in standard Discord chat. GitHub for Zerebos#7790: bit.ly/ZerebosBD";
 
@@ -116,6 +116,7 @@ BetterFormattingRedux.prototype.format = function(e) {
         }
     }
     $textarea.val(text);
+	$textarea[0].dispatchEvent(new Event('input', { bubbles: true }))
 	if (bfr.settings.plugin.closeOnSend) $(".bf-toolbar").removeClass('bf-visible');
 };
 

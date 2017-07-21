@@ -2,7 +2,7 @@
 
 Lets you format your messages with buttons and adds more formatting options. For support and update announcements you can visit [Zere's server](http://discord.zackrauen.com/).
 
-**Note:** Currently incompatible with Canary
+**Note:** ~~Currently incompatible with Canary~~ Canary/PTB compatibility has been resolved.
 
 ![BFRedux Demo](https://zippy.gfycat.com/HugeDeadDuckling.gif)
 
@@ -89,6 +89,11 @@ The default wrappers (`^`, `%`, `##`, `&&`, `||`) can all be customized in the s
  - BeardDesign#6223 - The CSS for the toolbar is a modified version of the CSS written by BeardDesign creator of Beard's Material Design Theme, a theme for BetterDiscord. His theme is compatible with several plugins so be sure to check it out [here](http://www.beard-design.com/discord-material-theme).
  
 ## Changelog
+
+#### 1.1.5
+
+ - Fixes toolbar not showing up in Canary/PTB
+ - Fixes not actually changing the text before sending in Canary/PTB
 
 #### 1.1.4
 
