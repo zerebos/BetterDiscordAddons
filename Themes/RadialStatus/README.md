@@ -46,6 +46,10 @@ For support and update announcements you can visit [Zere's server](http://discor
  
 ## Changelog
 
+#### 1.1.4
+
+ - Added support for new selectors in the autocomplete for mentions
+
 #### 1.1.3
 
  - Fixed an issue with active popouts and hovered names overlapping
