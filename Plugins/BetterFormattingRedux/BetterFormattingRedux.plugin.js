@@ -6,7 +6,7 @@ var appName = "Better Formatting Redux";
 var appAuthor = "Zerebos";
 var appVersion = "1.1.5";
 
-var appDescription = "Enables different formatting in standard Discord chat. GitHub for Zerebos#7790: bit.ly/ZerebosBD";
+var appDescription = "Enables different formatting in standard Discord chat. Support Server: bit.ly/ZeresServer";
 
 var appNameShort = "BFRedux"; // Used for namespacing, settings, and logging
 var newStyleNames = ["superscript", "smallcaps", "fullwidth", "upsidedown", "varied"];
