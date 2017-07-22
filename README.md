@@ -5,5 +5,8 @@ A series of plugins and themes for BetterDiscord. For support or announcements o
  - [BetterFormattingRedux](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux) - A rewrite of Anxeal's BetterFormatting that includes new options and settings.
  - [ServerSorter](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSorter) - Adds the ability to sort the servers that you're in.
  
- ## Themes
+## Themes
  - [RadialStatus](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/RadialStatus) - An extension (and update/fix) of Zerthox's Status Circles
+ 
+## Fixes
+ - [ColoredVoice & ColoredTyping](https://gist.github.com/rauenzi/dd262d03b250f5bcd0469f65145bae1b) - Fixed versions of Anxeal's ColoredVoice and ColoredTyping
