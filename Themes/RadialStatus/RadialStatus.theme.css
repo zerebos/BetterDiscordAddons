@@ -1,4 +1,4 @@
-//META{"name":"Radial_Status","description":"Changes status dot to a circle. Support Server: bit.ly/ZeresServer","author":"Zerebos","version":"1.2.0"}*//{}
+//META{"name":"Radial_Status","description":"Changes status dot to a circle. Support Server: bit.ly/ZeresServer","author":"Zerebos","version":"1.2.1"}*//{}
 
 
 div[class*="avatar-"] div[class*="status"],
@@ -8,11 +8,14 @@ div[class*="avatar-"] div[class*="status"],
     border-radius: 50% !important;
     height: 100%!important;
     transition: all 200ms ease !important;
+	top: -4px !important;
 	right: -4px !important;
 	bottom: -4px !important;
+	left: -4px !important;
 	padding: 2px !important;
 	transition: all 200ms ease !important;
 	border: 2px solid #636b75 !important;
+	margin: 0 !important;
 }
 
 .theme-dark div[class*="avatar-"] div[class*="online"],
@@ -69,13 +72,14 @@ div[class*="avatar-"] div[class*="status"],
 .theme-dark .user-popout .avatar-popout .status,
 .theme-dark #user-profile-modal .avatar-profile .status {
 	border-width: 4px !important;
+	top: -7px !important;
 	right: -7px !important;
 	bottom: -7px !important;
+	left: -7px !important;
 	padding: 3px !important;
 	-webkit-box-shadow: none !important;
 	box-shadow: none !important;
-	-webkit-box-sizing: content-box !important;
-    box-sizing: content-box !important;
+	box-sizing: content-box;
 }
 
 .channel-members .member, #user-profile-modal .guilds .guild {
@@ -110,5 +114,4 @@ div[class*="avatar-"] div[class*="status"],
 .channel-members .member .avatar-small {
     -ms-transform: scale(1) !important;
     transform: scale(1) !important;
-}
-*/
+}*/
