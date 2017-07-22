@@ -1,14 +1,8 @@
-//META{"name":"Radial_Status","description":"Changes status dot to a circle. Support Server: bit.ly/ZeresServer","author":"Zerebos","version":"1.1.4"}*//{}
+//META{"name":"Radial_Status","description":"Changes status dot to a circle. Support Server: bit.ly/ZeresServer","author":"Zerebos","version":"1.2.0"}*//{}
 
-.channel-members .avatar-small .status,
-.private-channels .avatar-small .status,
-.channels-wrap .avatar-small .status,
-.user-popout .avatar-popout .status,
-#user-profile-modal .avatar-profile .status,
-.avatar-small .status,
-.avatar-1BXaQj .status-3jUEha,
-#user-profile-modal .guilds .guild .status,
-.account .status {
+
+div[class*="avatar-"] div[class*="status"],
+#user-profile-modal .status {
     width:100%!important;
     background: transparent;
     border-radius: 50% !important;
@@ -18,73 +12,44 @@
 	bottom: -4px !important;
 	padding: 2px !important;
 	transition: all 200ms ease !important;
-}
-.channel-members .avatar-small .status-online,
-.private-channels  .avatar-small .status-online,
-.channels-wrap .avatar-small .status-online,
-.user-popout .avatar-popout .status-online,
-#user-profile-modal .avatar-profile .status-online,
-.avatar-small .status-online,
-.avatar-1BXaQj .statusOnline-1Mp2_H,
-#user-profile-modal .guilds .guild .status-online,
-.status.status-online {
-    border: 2px solid #43b581 !important;
-}
-.channel-members .avatar-small .status-idle,
-.private-channels  .avatar-small .status-idle,
-.channels-wrap .avatar-small .status-idle,
-.user-popout .avatar-popout .status-idle,
-#user-profile-modal .avatar-profile .status-idle,
-.avatar-small .status-idle,
-.avatar-1BXaQj .statusIdle-2AQdvu,
-#user-profile-modal .guilds .guild .status-idle,
-.status.status-idle {
-    border: 2px solid #faa61a !important;
-}
-.channel-members .avatar-small .status-dnd,
-.private-channels  .avatar-small .status-dnd,
-.channels-wrap .avatar-small .status-dnd,
-.user-popout .avatar-popout .status-dnd,
-#user-profile-modal .avatar-profile .status-dnd,
-.avatar-small .status-dnd,
-.avatar-1BXaQj .statusDnd-35xAXU,
-#user-profile-modal .guilds .guild .status-dnd,
-.status.status-dnd {
-    border: 2px solid #f04747 !important;
-}
-.channel-members .avatar-small .status-streaming,
-.private-channels .avatar-small .status-streaming,
-.channels-wrap .avatar-small .status-streaming,
-.user-popout .avatar-popout .status-streaming,
-#user-profile-modal .avatar-profile .status-streaming,
-.avatar-small .status-streaming,
-#user-profile-modal .guilds .guild .status-streaming,
-.status-streaming{
-    animation:streaming-flash 1.5s linear infinite !important;
-    border: 2px solid #643da7 !important;
-}
-.channel-members .avatar-small .status-invisible,
-.private-channels  .avatar-small .status-invisible,
-.channels-wrap .avatar-small .status-invisible,
-.user-popout .avatar-popout .status-invisible,
-#user-profile-modal .avatar-profile .status-invisible,
-.avatar-small .status-invisible,
-.avatar-1BXaQj .statusInvisible-2ci18Q,
-#user-profile-modal .guilds .guild .status-invisible,
-.status-unknown {
-    border: 2px solid #747f8d !important;
+	border: 2px solid #636b75 !important;
 }
 
-.channel-members .avatar-small .status-offline,
-.private-channels  .avatar-small .status-offline,
-.channels-wrap .avatar-small .status-offline,
-.user-popout .avatar-popout .status-offline,
-#user-profile-modal .avatar-profile .status-offline,
-.avatar-small .status-offline,
-.avatar-1BXaQj .statusOffline-jZXr_u,
-#user-profile-modal .guilds .guild .status-offline,
-.status-offline {
-    border: 2px solid #636b75 !important;
+.theme-dark div[class*="avatar-"] div[class*="online"],
+.theme-dark div[class*="avatar-"] div[class*="Online"],
+#user-profile-modal div[class*="online"] {
+    border-color: #43b581 !important;
+}
+
+.theme-dark div[class*="avatar-"] div[class*="idle"],
+.theme-dark div[class*="avatar-"] div[class*="Idle"],
+#user-profile-modal div[class*="idle"] {
+    border-color: #faa61a !important;
+}
+
+.theme-dark div[class*="avatar-"] div[class*="dnd"],
+.theme-dark div[class*="avatar-"] div[class*="Dnd"],
+#user-profile-modal div[class*="dnd"] {
+    border-color: #f04747 !important;
+}
+
+.theme-dark div[class*="avatar-"] div[class*="streaming"],
+.theme-dark div[class*="avatar-"] div[class*="Streaming"],
+#user-profile-modal div[class*="streaming"]{
+    animation: streaming-flash 1.5s linear infinite !important;
+    border-color: #643da7 !important;
+}
+
+.theme-dark div[class*="avatar-"] div[class*="invisible"],
+.theme-dark div[class*="avatar-"] div[class*="Invisible"],
+#user-profile-modal div[class*="invisible"] {
+    border-color: #747f8d !important;
+}
+
+.theme-dark div[class*="avatar-"] div[class*="offline"],
+.theme-dark div[class*="avatar-"] div[class*="Offline"],
+#user-profile-modal div[class*="offline"] {
+    border-color: #636b75 !important;
 }
 
 .channel-members .member.member-status-offline .status {
@@ -94,14 +59,15 @@
 .status.status-typing {
     width: 30px !important;
     background-color: rgba(0, 0, 0, 0.4) !important;
+	right: 0 !important;
 }
 .status.status-typing .spinner .spinner-inner {
     left: 1px !important;
     top: 1px !important;
 }
 
-.user-popout .avatar-popout .status,
-#user-profile-modal .avatar-profile .status {
+.theme-dark .user-popout .avatar-popout .status,
+.theme-dark #user-profile-modal .avatar-profile .status {
 	border-width: 4px !important;
 	right: -7px !important;
 	bottom: -7px !important;
@@ -112,6 +78,12 @@
     box-sizing: content-box !important;
 }
 
+.channel-members .member, #user-profile-modal .guilds .guild {
+	padding-bottom: 8px !important;
+	padding-top: 8px !important;
+}
+
+/* UNCOMMENT FOR BEARD'S THEME
 #user-profile-modal .avatar-profile .status {
 	zoom: 1 !important;
 	-ms-transform: none !important;
@@ -128,14 +100,6 @@
     width: 102px !important;
     height: 102px !important;
     background-size: 102px 102px !important;
-}
-
-.status.status-typing { right: 0 !important;}
-
-.channel-members .member, #user-profile-modal .guilds .guild {
-	padding-bottom: 8px !important;
-	padding-top: 8px !important;
-}
 
 .channel-members .member.popout-open .avatar-small,
 .channel-members .member:hover .avatar-small {
@@ -147,3 +111,4 @@
     -ms-transform: scale(1) !important;
     transform: scale(1) !important;
 }
+*/
