@@ -18,6 +18,10 @@ div[class*="avatar-"] div[class*="status"],
 	margin: 0 !important;
 }
 
+div[class*="user-info"] div[class*="status"] {
+	border: none !important;
+}
+
 .theme-dark div[class*="avatar-"] div[class*="online"],
 .theme-dark div[class*="avatar-"] div[class*="Online"],
 #user-profile-modal div[class*="online"] {
