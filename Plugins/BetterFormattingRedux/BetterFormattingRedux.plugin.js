@@ -1,6 +1,87 @@
 //META{"name":"BetterFormattingRedux"}*//
 
-var BetterFormattingRedux = function() {};
+var BetterFormattingRedux = (function() {
+
+class SettingField {
+	constructor(name, helptext) {
+		this.name = name;
+		this.helptext = helptext;
+		this.row = $("<div>");
+		this.row.attr("class", "ui-flex flex-vertical flex-justify-start flex-align-stretch flex-nowrap ui-switch-item");
+		this.row.css("margin-top", 0);
+		this.top = $("<div>");
+		this.top.attr("class", "ui-flex flex-horizontal flex-justify-start flex-align-stretch flex-nowrap")
+		this.label = $("<h3>");
+		this.label.attr("class", "ui-form-title h3 margin-reset margin-reset ui-flex-child");
+		this.label.text(name);
+		
+		this.help = $("<div>");
+		this.help.attr("class", "ui-form-text style-description margin-top-4");
+		this.help.css("flex", "1 1 auto");
+		this.help.text(helptext);
+		
+		this.top.append(this.label);
+		this.row.append(this.top);
+		this.row.append(this.help);
+	}
+}
+
+class TextSetting extends SettingField {
+	constructor(label, help, value, placeholder, callback) {
+		super(label, help);
+		var input = $("<input>", {
+			type: "text",
+			placeholder: placeholder,
+			value: value
+		});
+
+		input.on("keyup."+appNameShort+" change."+appNameShort, function() {
+			if (typeof callback != 'undefined') {
+				callback($(this).val())
+			}
+		})
+		
+		this.top.append(input);
+		return this.row;
+	}
+}
+
+class CheckboxSetting extends SettingField {
+	constructor(label, help, isChecked, callback, disabled) {
+		super(label, help);
+		var isDisabled = false
+		if (typeof disabled != 'undefined') isDisabled = disabled;
+		var input = $("<input>", {
+			type: "checkbox",
+			checked: isChecked,
+			disabled: isDisabled
+		});
+		input.attr("class", "ui-switch-checkbox");
+
+		input.on("click."+appNameShort, function() {
+			var checked = $(this).prop("checked");
+			if (checked) {
+				switchDiv.addClass("checked");
+			}
+			else {
+				switchDiv.removeClass("checked");
+			}
+			
+			if (typeof callback != 'undefined') {
+				callback(checked)
+			}
+		})
+		
+		var checkboxWrap = $('<label class="ui-switch-wrapper ui-flex-child" style="flex:0 0 auto;">');
+		checkboxWrap.append(input);
+		var switchDiv = $('<div class="ui-switch">');
+		if (isChecked) switchDiv.addClass("checked");
+		checkboxWrap.append(switchDiv);
+		
+		this.top.append(checkboxWrap);
+		return this.row;
+	}
+}
 
 var appName = "Better Formatting Redux";
 var appAuthor = "Zerebos";
@@ -11,20 +92,37 @@ var appDescription = "Enables different formatting in standard Discord chat. Sup
 var appNameShort = "BFRedux"; // Used for namespacing, settings, and logging
 var newStyleNames = ["superscript", "smallcaps", "fullwidth", "upsidedown", "varied"];
 
-BetterFormattingRedux.prototype.replaceList = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}";
-BetterFormattingRedux.prototype.smallCapsList = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`ᴀʙᴄᴅᴇғɢʜɪᴊᴋʟᴍɴᴏᴘǫʀsᴛᴜᴠᴡxʏᴢ{|}";
-BetterFormattingRedux.prototype.superscriptList = " !\"#$%&'⁽⁾*⁺,⁻./⁰¹²³⁴⁵⁶⁷⁸⁹:;<⁼>?@ᴬᴮᶜᴰᴱᶠᴳᴴᴵᴶᴷᴸᴹᴺᴼᴾQᴿˢᵀᵁⱽᵂˣʸᶻ[\\]^_`ᵃᵇᶜᵈᵉᶠᵍʰᶦʲᵏˡᵐⁿᵒᵖᑫʳˢᵗᵘᵛʷˣʸᶻ{|}";
-BetterFormattingRedux.prototype.upsideDownList = " ¡\"#$%⅋,)(*+'-˙/0ƖᄅƐㄣϛ9ㄥ86:;>=<¿@∀qƆpƎℲפHIſʞ˥WNOԀQɹS┴∩ΛMX⅄Z]\\[^‾,ɐqɔpǝɟƃɥᴉɾʞlɯuodbɹsʇnʌʍxʎz}|{";
-BetterFormattingRedux.prototype.fullwidthList = "　！＂＃＄％＆＇（）＊＋，－．／０１２３４５６７８９：；＜＝＞？＠ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ［＼］＾＿｀ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ｛｜｝";
+class BFRedux {
+	constructor() {
+		this.replaceList = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}";
+		this.smallCapsList = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`ᴀʙᴄᴅᴇғɢʜɪᴊᴋʟᴍɴᴏᴘǫʀsᴛᴜᴠᴡxʏᴢ{|}";
+		this.superscriptList = " !\"#$%&'⁽⁾*⁺,⁻./⁰¹²³⁴⁵⁶⁷⁸⁹:;<⁼>?@ᴬᴮᶜᴰᴱᶠᴳᴴᴵᴶᴷᴸᴹᴺᴼᴾQᴿˢᵀᵁⱽᵂˣʸᶻ[\\]^_`ᵃᵇᶜᵈᵉᶠᵍʰᶦʲᵏˡᵐⁿᵒᵖᑫʳˢᵗᵘᵛʷˣʸᶻ{|}";
+		this.upsideDownList = " ¡\"#$%⅋,)(*+'-˙/0ƖᄅƐㄣϛ9ㄥ86:;>=<¿@∀qƆpƎℲפHIſʞ˥WNOԀQɹS┴∩ΛMX⅄Z]\\[^‾,ɐqɔpǝɟƃɥᴉɾʞlɯuodbɹsʇnʌʍxʎz}|{";
+		this.fullwidthList = "　！＂＃＄％＆＇（）＊＋，－．／０１２３４５６７８９：；＜＝＞？＠ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ［＼］＾＿｀ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ｛｜｝";
 
-BetterFormattingRedux.prototype.toolbarString = "<div class='bf-toolbar'><div class='bf-arrow'></div><div name='bold'><b>Bold</b></div><div name='italic'><i>Italic</i></div><div name='underline'><u>Underline</u></div><div name='strikethrough'><s>Strikethrough</s></div><div style='font-family:monospace;' name='code'>Code</div><div name='superscript'>ˢᵘᵖᵉʳˢᶜʳᶦᵖᵗ</div><div name='smallcaps'>SᴍᴀʟʟCᴀᴘs</div><div name='fullwidth'>Ｆｕｌｌｗｉｄｔｈ</div><div name='upsidedown'>uʍopǝpᴉsd∩</div><div name='varied'>VaRiEd CaPs</div></div></div>";
+		this.toolbarString = "<div class='bf-toolbar'><div class='bf-arrow'></div><div name='bold'><b>Bold</b></div><div name='italic'><i>Italic</i></div><div name='underline'><u>Underline</u></div><div name='strikethrough'><s>Strikethrough</s></div><div style='font-family:monospace;' name='code'>Code</div><div name='superscript'>ˢᵘᵖᵉʳˢᶜʳᶦᵖᵗ</div><div name='smallcaps'>SᴍᴀʟʟCᴀᴘs</div><div name='fullwidth'>Ｆｕｌｌｗｉｄｔｈ</div><div name='upsidedown'>uʍopǝpᴉsd∩</div><div name='varied'>VaRiEd CaPs</div></div></div>";
 
-BetterFormattingRedux.prototype.defaultSettings = {wrappers: {bold: "**", italic: "*", underline: "__", strikethrough: "~~", code: "`", superscript: "^", smallcaps: "%", fullwidth: "##", upsidedown: "&&", varied: "||"},
-											formatting: {fullWidthMap: true, reorderUpsidedown: true, startCaps: true},
-											plugin: {hoverOpen: true, closeOnSend: true, chainFormats: true, rightSide: true}}
-BetterFormattingRedux.prototype.settings = {wrappers: {bold: "**", italic: "*", underline: "__", strikethrough: "~~", code: "`", superscript: "^", smallcaps: "%", fullwidth: "##", upsidedown: "&&", varied: "||"},
-											formatting: {fullWidthMap: true, reorderUpsidedown: true, startCaps: true},
-											plugin: {hoverOpen: true, closeOnSend: true, chainFormats: true, rightSide: true}}
+		this.defaultSettings = {wrappers: {bold: "**", italic: "*", underline: "__", strikethrough: "~~", code: "`", superscript: "^", smallcaps: "%", fullwidth: "##", upsidedown: "&&", varied: "||"},
+													formatting: {fullWidthMap: true, reorderUpsidedown: true, startCaps: true},
+													plugin: {hoverOpen: true, closeOnSend: true, chainFormats: true, rightSide: true}}
+		this.settings = {wrappers: {bold: "**", italic: "*", underline: "__", strikethrough: "~~", code: "`", superscript: "^", smallcaps: "%", fullwidth: "##", upsidedown: "&&", varied: "||"},
+													formatting: {fullWidthMap: true, reorderUpsidedown: true, startCaps: true},
+													plugin: {hoverOpen: true, closeOnSend: true, chainFormats: true, rightSide: true}}
+	}
+	getName() { return appName; };
+
+	BetterFormattingRedux.prototype.getDescription = function() {
+		return appDescription
+	};
+
+	BetterFormattingRedux.prototype.getVersion = function() {
+		return appVersion;
+	};
+
+	BetterFormattingRedux.prototype.getAuthor = function() {
+		return appAuthor;
+	};
+}
 
 BetterFormattingRedux.prototype.escape = function(s) {
     return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
@@ -455,22 +553,6 @@ BetterFormattingRedux.prototype.observer = function(e) {
     }
 };
 
-BetterFormattingRedux.prototype.getName = function() {
-    return appName;
-};
-
-BetterFormattingRedux.prototype.getDescription = function() {
-    return appDescription
-};
-
-BetterFormattingRedux.prototype.getVersion = function() {
-    return appVersion;
-};
-
-BetterFormattingRedux.prototype.getAuthor = function() {
-    return appAuthor;
-};
-
 BetterFormattingRedux.prototype.loadSettings = function() {
 	try {
 		for (settingType in this.settings) {
@@ -506,87 +588,6 @@ BetterFormattingRedux.prototype.controlGroup = function(groupName, callback) {
 	}
 
 	return group;
-}
-
-class SettingField {
-	constructor(name, helptext) {
-		this.name = name;
-		this.helptext = helptext;
-		this.row = $("<div>");
-		this.row.attr("class", "ui-flex flex-vertical flex-justify-start flex-align-stretch flex-nowrap ui-switch-item");
-		this.row.css("margin-top", 0);
-		this.top = $("<div>");
-		this.top.attr("class", "ui-flex flex-horizontal flex-justify-start flex-align-stretch flex-nowrap")
-		this.label = $("<h3>");
-		this.label.attr("class", "ui-form-title h3 margin-reset margin-reset ui-flex-child");
-		this.label.text(name);
-		
-		this.help = $("<div>");
-		this.help.attr("class", "ui-form-text style-description margin-top-4");
-		this.help.css("flex", "1 1 auto");
-		this.help.text(helptext);
-		
-		this.top.append(this.label);
-		this.row.append(this.top);
-		this.row.append(this.help);
-	}
-}
-
-class TextSetting extends SettingField {
-	constructor(label, help, value, placeholder, callback) {
-		super(label, help);
-		var input = $("<input>", {
-			type: "text",
-			placeholder: placeholder,
-			value: value
-		});
-
-		input.on("keyup."+appNameShort+" change."+appNameShort, function() {
-			if (typeof callback != 'undefined') {
-				callback($(this).val())
-			}
-		})
-		
-		this.top.append(input);
-		return this.row;
-	}
-}
-
-class CheckboxSetting extends SettingField {
-	constructor(label, help, isChecked, callback, disabled) {
-		super(label, help);
-		var isDisabled = false
-		if (typeof disabled != 'undefined') isDisabled = disabled;
-		var input = $("<input>", {
-			type: "checkbox",
-			checked: isChecked,
-			disabled: isDisabled
-		});
-		input.attr("class", "ui-switch-checkbox");
-
-		input.on("click."+appNameShort, function() {
-			var checked = $(this).prop("checked");
-			if (checked) {
-				switchDiv.addClass("checked");
-			}
-			else {
-				switchDiv.removeClass("checked");
-			}
-			
-			if (typeof callback != 'undefined') {
-				callback(checked)
-			}
-		})
-		
-		var checkboxWrap = $('<label class="ui-switch-wrapper ui-flex-child" style="flex:0 0 auto;">');
-		checkboxWrap.append(input);
-		var switchDiv = $('<div class="ui-switch">');
-		if (isChecked) switchDiv.addClass("checked");
-		checkboxWrap.append(switchDiv);
-		
-		this.top.append(checkboxWrap);
-		return this.row;
-	}
 }
 
 BetterFormattingRedux.prototype.generateSettings = function(panel) {
@@ -665,3 +666,6 @@ BetterFormattingRedux.prototype.getSettingsPanel = function () {
 	
 	return panel[0];
 };
+
+return BFRedux;
+})();
