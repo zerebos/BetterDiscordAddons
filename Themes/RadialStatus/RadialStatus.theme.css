@@ -104,6 +104,7 @@ div[class*="avatar-"] div[class*="status"],
     width: 102px !important;
     height: 102px !important;
     background-size: 102px 102px !important;
+}
 
 .channel-members .member.popout-open .avatar-small,
 .channel-members .member:hover .avatar-small {
