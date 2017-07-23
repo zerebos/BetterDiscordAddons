@@ -5,7 +5,7 @@ div[class*="avatar-"] div[class*="status"],
 #user-profile-modal .status {
     width:100%!important;
     background: transparent;
-    border-radius: 50% !important;
+    border-radius: inherit !important;
     height: 100%!important;
     transition: all 200ms ease !important;
 	top: -4px !important;
@@ -87,7 +87,7 @@ div[class*="avatar-"] div[class*="status"],
 	padding-top: 8px !important;
 }
 
-/* UNCOMMENT FOR BEARD'S THEME
+/* DELETE THIS LINE FOR BEARDS THEME
 #user-profile-modal .avatar-profile .status {
 	zoom: 1 !important;
 	-ms-transform: none !important;
@@ -114,4 +114,5 @@ div[class*="avatar-"] div[class*="status"],
 .channel-members .member .avatar-small {
     -ms-transform: scale(1) !important;
     transform: scale(1) !important;
-}*/
+}
+DELETE THIS LINE FOR BEARDS THEME */
