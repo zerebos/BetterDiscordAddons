@@ -2,7 +2,7 @@
 
 Changes all instances of the status dot to a status circle except for the friends list. This is an update to Zerthox's StatusCircles to fix small issues as well as add the circles everywhere else possible.
 
-This should also be compatible with Beard's Material Design Theme as long as ~~this is loaded afterward **AND**~~ you uncomment the designated section in __this__ theme by deleting lines 85 & 118. (Should no longer need to be loaded after.)
+This should also be compatible with Beard's Material Design Theme as long as ~~this is loaded afterward **AND**~~ you uncomment the designated section in __this__ theme by deleting lines 94 & 123. (Should no longer need to be loaded after.)
 
 This should also be compatible with ClearVision without modification.
 
@@ -56,6 +56,7 @@ For support and update announcements you can visit [Zere's server](http://discor
  - Made the borders dynamic so they will match whatever avatar scheme used (such as rounded corners)
  - Made some of the styling more verbose to override theme styling
  - Also added a couple more styling notes to fix issues with some themes including ClearVision
+ - Fixed an issue where a fake status would show on the account page for some people
 
 #### 1.2.0
 
