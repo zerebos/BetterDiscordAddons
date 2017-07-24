@@ -130,9 +130,9 @@ class BFRedux {
 													formatting: {fullWidthMap: true, reorderUpsidedown: true, startCaps: true},
 													plugin: {hoverOpen: true, closeOnSend: true, chainFormats: true, rightSide: true}}
 		
-		this.leftCSS = '.bf-toolbar{right:auto;left:0;margin-left:5px;margin-right:0;padding:10px 10px 15px 30px}.bf-toolbar .bf-arrow{right:auto;left:5px}.bf-toolbar.bf-hover:hover .bf-arrow,.bf-toolbar.bf-visible .bf-arrow{-webkit-transform:translate(0,-14px) rotate(90deg);-ms-transform:translate(0,-14px) rotate(90deg);transform:translate(0,-14px) rotate(90deg)}'
+		this.leftCSS = '.bf-toolbar{right:auto!important;left:0!important;margin-left:5px!important;margin-right:0!important;padding:10px 10px 15px 30px!important}.bf-toolbar .bf-arrow{right:auto!important;left:5px!important}.bf-toolbar.bf-hover:hover .bf-arrow,.bf-toolbar.bf-visible .bf-arrow{-webkit-transform:translate(0,-14px) rotate(90deg)!important;-ms-transform:translate(0,-14px) rotate(90deg)!important;transform:translate(0,-14px) rotate(90deg)!important}'
 
-		this.rightCSS = '.bf-toolbar{right:0;left:auto;margin-left:0;margin-right:5px;padding:10px 30px 15px 10px}.bf-toolbar .bf-arrow{right:5px;left:auto}.bf-toolbar.bf-hover:hover .bf-arrow,.bf-toolbar.bf-visible .bf-arrow{-webkit-transform:translate(0,-14px) rotate(-90deg);-ms-transform:translate(0,-14px) rotate(-90deg);transform:translate(0,-14px) rotate(-90deg)}'
+		this.rightCSS = '.bf-toolbar{right:0!important;left:auto!important;margin-left:0!important;margin-right:5px!important;padding:10px 30px 15px 10px!important}.bf-toolbar .bf-arrow{right:5px!important;left:auto!important}.bf-toolbar.bf-hover:hover .bf-arrow,.bf-toolbar.bf-visible .bf-arrow{-webkit-transform:translate(0,-14px) rotate(-90deg)!important;-ms-transform:translate(0,-14px) rotate(-90deg)!important;transform:translate(0,-14px) rotate(-90deg)!important}'
 		
 		
 		// CSS is a modified form of the CSS used in
@@ -151,7 +151,7 @@ class BFRedux {
 	
 	loadSettings() {
 		try {
-			for (settingType in this.settings) {
+			for (var settingType in this.settings) {
 				this.settings[settingType] = $.extend({}, this.settings[settingType], bdPluginStorage.get(appNameShort, settingType));
 			}
 		} catch (err) {
@@ -161,7 +161,7 @@ class BFRedux {
 
 	saveSettings() {
 		try {
-			for (settingType in this.settings) {
+			for (var settingType in this.settings) {
 				bdPluginStorage.set(appNameShort, settingType, this.settings[settingType]);
 			}
 		} catch (err) {
@@ -199,15 +199,15 @@ class BFRedux {
 		BdApi.clearCSS("bf-style-side")
 	}
 	
-	onSwitch{};
+	onSwitch() {};
 	
-	observer = function(e) {
+	observer(e) {
 		if (!e.addedNodes.length) return;
 
 		var $elem = $(e.addedNodes[0]);
 		
 		if ($elem.find(".channelTextArea-1HTP3C").length || $elem.closest(".channelTextArea-1HTP3C").length) {
-			$textarea = $elem.find("textarea");
+			var $textarea = $elem.find("textarea");
 			this.addToolbar($textarea);
 		}
 	}
@@ -239,7 +239,7 @@ class BFRedux {
 		// This block performs inner chaining
 		if (this.settings.plugin.chainFormats) {
 			for (var w=0; w<newStyleNames.length; w++) {
-				newText = this.doFormat(returnText, this.settings.wrappers[newStyleNames[w]], begin+wrapper.length);
+				var newText = this.doFormat(returnText, this.settings.wrappers[newStyleNames[w]], begin+wrapper.length);
 				if (returnText != newText) {
 					returnText = newText;
 					end = end - this.settings.wrappers[newStyleNames[w]].length*2
@@ -281,8 +281,8 @@ class BFRedux {
 	
 	format(e) {
 		if (e.shiftKey || e.which != 13) return;
-		$textarea = $(e.currentTarget);
-		var text = $textarea.val();
+		var textarea = $(e.currentTarget);
+		var text = textarea.val();
 		var bfr = BdApi.getPlugin(appName);
 		for (var i = 0; i < text.length; i++) {
 			var len = text.length;
@@ -299,7 +299,7 @@ class BFRedux {
 					break;
 				default:
 					for (var w=0; w<newStyleNames.length; w++) {
-						newText = bfr.doFormat(text, bfr.settings.wrappers[newStyleNames[w]], i);
+						var newText = bfr.doFormat(text, bfr.settings.wrappers[newStyleNames[w]], i);
 						if (text != newText) {
 							text = newText;
 							i = i - bfr.settings.wrappers[newStyleNames[w]].length*2
@@ -307,8 +307,8 @@ class BFRedux {
 					}
 			}
 		}
-		$textarea.val(text);
-		$textarea[0].dispatchEvent(new Event('input', { bubbles: true }))
+		textarea.val(text);
+		textarea[0].dispatchEvent(new Event('input', { bubbles: true }))
 		if (bfr.settings.plugin.closeOnSend) $(".bf-toolbar").removeClass('bf-visible');
 	}
 	
@@ -338,7 +338,7 @@ class BFRedux {
 			.parent().after(toolbarElement)
 			.siblings(".bf-toolbar")
 			.on("mousemove."+appNameShort, (e) => {
-				$this = $(e.currentTarget);
+				var $this = $(e.currentTarget);
 				var pos = e.pageX - $this.parent().offset().left;
 				var diff = -$this.width();
 				$this.children().each((index, elem) => {
@@ -355,7 +355,7 @@ class BFRedux {
 				clearInterval(hoverInterval);
 			})
 			.on("click."+appNameShort, "div", (e) => {
-				$button = $(e.currentTarget);
+				var $button = $(e.currentTarget);
 				if ($button.hasClass("bf-arrow")) {
 					if (this.settings.plugin.hoverOpen == false) {
 						$(".bf-toolbar").toggleClass('bf-visible');
