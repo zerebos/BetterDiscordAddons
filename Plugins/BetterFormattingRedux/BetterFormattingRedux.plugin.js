@@ -13,18 +13,30 @@ var appNameShort = "BFRedux"; // Used for namespacing, settings, and logging
 
 class ControlGroup {
 	constructor(groupName, callback) {
-		var group = $("<div>").addClass("control-group");
+		this.group = $("<div>").addClass("control-group");
 
 		var label = $("<h2>").text(groupName);
 		label.attr("class", "h5-3KssQU title-1pmpPr marginReset-3hwONl size12-1IGJl9 height16-1qXrGy weightSemiBold-T8sxWH defaultMarginh5-2UwwFY marginBottom8-1mABJ4");
 		label.css("margin-top", "30px")
-		group.append(label);
+		this.group.append(label);
 		
 		if (typeof callback != 'undefined') {
-			group.on("change."+appNameShort, "input", callback)
+			this.group.on("change."+appNameShort, "input", callback)
 		}
-
-		return group;
+	}
+	
+	getElement() {return this.group;}
+	
+	append() {
+		for (var i = 0; i < arguments.length; i++) {
+			this.group.append(arguments[i].getElement())
+		}
+		return this
+	}
+	
+	appendTo(node) {
+		this.group.appendTo(node)
+		return this
 	}
 }
 
@@ -50,6 +62,8 @@ class SettingField {
 		this.row.append(this.top);
 		this.row.append(this.help);
 	}
+	
+	getElement() {return this.row}
 }
 
 class TextSetting extends SettingField {
@@ -68,7 +82,6 @@ class TextSetting extends SettingField {
 		})
 		
 		this.top.append(input);
-		return this.row;
 	}
 }
 
@@ -79,6 +92,7 @@ class ColorSetting extends SettingField {
 			type: "color",
 			value: value
 		});
+		input.css("margin-left", "10px")
 
 		input.on("change."+appNameShort, function() {
 			if (typeof callback != 'undefined') {
@@ -86,8 +100,14 @@ class ColorSetting extends SettingField {
 			}
 		})
 		
-		this.top.append(input);
-		return this.row;
+		var label = $('<span class="plugin-setting-label">')
+		label.text(value)
+		
+		input.on("input."+appNameShort, function() {
+			label.text($(this).val())
+		})
+		
+		this.top.append($('<div style="display:flex;align-items:center;">').append(label,input));
 	}
 }
 
@@ -131,47 +151,6 @@ class SliderSetting extends SettingField {
 		})
 		
 		this.top.append($('<div style="display:flex;align-items:center;">').append(label,input));
-		return this.row;
-	}
-}
-
-// True is right side
-class PillSetting extends SettingField {
-	constructor(label, help, leftLabel, rightLabel, isChecked, callback, disabled) {
-		super(label, help);
-		var isDisabled = false
-		if (typeof disabled != 'undefined') isDisabled = disabled;
-		var input = $("<input>", {
-			type: "checkbox",
-			checked: isChecked,
-			disabled: isDisabled
-		});
-		input.attr("class", "ui-switch-checkbox");
-
-		input.on("click."+appNameShort, function() {
-			var checked = $(this).prop("checked");
-			if (checked) { switchDiv.addClass("checked"); }
-			else { switchDiv.removeClass("checked"); }
-			
-			if (typeof callback != 'undefined') {
-				callback(checked)
-			}
-		})
-		
-		var checkboxWrap = $('<label class="ui-switch-wrapper ui-flex-child" style="flex:0 0 auto;">');
-		checkboxWrap.append(input);
-		var switchDiv = $('<div class="ui-switch">');
-		if (isChecked) switchDiv.addClass("checked");
-		checkboxWrap.append(switchDiv);
-		checkboxWrap.css("margin","0 7px")
-		
-		var labelLeft = $('<span class="plugin-setting-label">')
-		labelLeft.text(leftLabel)
-		var labelRight = $('<span class="plugin-setting-label">')
-		labelRight.text(rightLabel)
-		
-		this.top.append($('<div style="display:flex;align-items:center;">').append(labelLeft, checkboxWrap, labelRight));
-		return this.row;
 	}
 }
 
@@ -201,14 +180,29 @@ class CheckboxSetting extends SettingField {
 			}
 		})
 		
-		var checkboxWrap = $('<label class="ui-switch-wrapper ui-flex-child" style="flex:0 0 auto;">');
-		checkboxWrap.append(input);
+		this.checkboxWrap = $('<label class="ui-switch-wrapper ui-flex-child" style="flex:0 0 auto;">');
+		this.checkboxWrap.append(input);
 		var switchDiv = $('<div class="ui-switch">');
 		if (isChecked) switchDiv.addClass("checked");
-		checkboxWrap.append(switchDiv);
+		this.checkboxWrap.append(switchDiv);
+
+		this.top.append(this.checkboxWrap);
+	}
+}
+
+// True is right side
+class PillSetting extends CheckboxSetting {
+	constructor(label, help, leftLabel, rightLabel, isChecked, callback, disabled) {
+		super(label, help, isChecked, callback, disabled);
 		
-		this.top.append(checkboxWrap);
-		return this.row;
+		this.checkboxWrap.css("margin","0 7px")
+		
+		var labelLeft = $('<span class="plugin-setting-label">')
+		labelLeft.text(leftLabel)
+		var labelRight = $('<span class="plugin-setting-label">')
+		labelRight.text(rightLabel)
+		
+		this.top.append($('<div style="display:flex;align-items:center;">').append(labelLeft, this.checkboxWrap.detach(), labelRight));
 	}
 }
 
@@ -579,7 +573,8 @@ li[data-reactid*="Better Formatting Redux"] input[type=range]::-webkit-slider-th
 			new TextSetting("Upsidedown", "The wrapper to flip the text upsidedown.", this.settings.wrappers.upsidedown, this.defaultSettings.wrappers.upsidedown,
 							(text) => {this.settings.wrappers.upsidedown = text != "" ? text : this.defaultSettings.wrappers.upsidedown}),
 			new TextSetting("Varied Caps", "The wrapper to VaRy the capitalization.", this.settings.wrappers.varied, this.defaultSettings.wrappers.varied,
-							(text) => {this.settings.wrappers.varied = text != "" ? text : this.defaultSettings.wrappers.varied}));
+							(text) => {this.settings.wrappers.varied = text != "" ? text : this.defaultSettings.wrappers.varied})
+		)
 		
 		new ControlGroup("Formatting Options", () => {this.saveSettings()}).appendTo(panel).append(
 			new CheckboxSetting("Use Char Map?", "This determines if the char map is used, or just spaced capital letters.",
@@ -587,7 +582,8 @@ li[data-reactid*="Better Formatting Redux"] input[type=range]::-webkit-slider-th
 			new CheckboxSetting("Reorder Upsidedown Text", "Having this enabled reorders the upside down text to make it in-order.",
 								this.settings.formatting.reorderUpsidedown, (checked) => {this.settings.formatting.reorderUpsidedown = checked}),
 			new CheckboxSetting("Start VaRiEd Caps With Capital", "Enabling this starts a varied text string with a capital.",
-								this.settings.formatting.startCaps, (checked) => {this.settings.formatting.startCaps = checked}));
+								this.settings.formatting.startCaps, (checked) => {this.settings.formatting.startCaps = checked})
+		)
 		
 		new ControlGroup("Plugin Options", () => {this.saveSettings()}).appendTo(panel).append(
 			new CheckboxSetting("Open On Hover", "Enabling this makes you able to open the menu just by hovering the arrow instead of clicking it.", this.settings.plugin.hoverOpen,
@@ -626,7 +622,7 @@ li[data-reactid*="Better Formatting Redux"] input[type=range]::-webkit-slider-th
 		resetButton.text("Reset To Defaults");
 		resetButton.css("float", "right");
 		resetButton.attr("type","button")
-		
+
 		panel.append(resetButton);
 	}
 }
