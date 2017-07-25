@@ -342,21 +342,17 @@ li[data-reactid*="Better Formatting Redux"] input[type=range]::-webkit-slider-th
 	
 	start() {
 		this.loadSettings();
+		BdApi.injectCSS("bf-style", this.mainCSS);
+		BdApi.injectCSS("bf-settings", this.settingsCSS);
 		$(".channelTextArea-1HTP3C textarea").each((index, elem) => {
 			this.addToolbar($(elem));
 		});
-
-		BdApi.injectCSS("bf-style", this.mainCSS);
-		BdApi.injectCSS("bf-settings", this.settingsCSS);
-		this.updateSide()
-		this.updateOpacity()
 	}
 	
 	stop() {
 		$(document).add("*").off(appNameShort);
 		$(".bf-toolbar").remove();
 		BdApi.clearCSS("bf-style");
-		BdApi.clearCSS("bf-style-side")
 		BdApi.clearCSS("bf-settings");
 	}
 	
@@ -380,19 +376,11 @@ li[data-reactid*="Better Formatting Redux"] input[type=range]::-webkit-slider-th
 	}
 	
 	updateSide() {
-		if (this.settings.style.rightSide) {
-			$(".bf-toolbar").removeClass("bf-left")
-		}
-		else {
-			$(".bf-toolbar").addClass("bf-left")
-		}
-		//BdApi.clearCSS("bf-style-side")
-		//BdApi.injectCSS("bf-style-side", this.settings.style.rightSide ? this.rightCSS : this.leftCSS)
+		if (this.settings.style.rightSide) { $(".bf-toolbar").removeClass("bf-left") }
+		else { $(".bf-toolbar").addClass("bf-left") }
 	}
 	
 	updateOpacity() {
-		//BdApi.clearCSS("bf-trans")
-		//BdApi.injectCSS("bf-trans", ".bf-toolbar{opacity:"+this.settings.style.opacity+";}") //background: rgba(66, 69, 73, 0.6)!important
 		$(".bf-toolbar").css("opacity", this.settings.style.opacity)
 	}
 	
@@ -607,8 +595,7 @@ li[data-reactid*="Better Formatting Redux"] input[type=range]::-webkit-slider-th
 		new ControlGroup("Style Options", () => {this.saveSettings()}).appendTo(panel).append(
 			new PillSetting("Toolbar Location", "This option enables swapping toolbar from right side to left side.", "Left", "Right",
 							this.settings.style.rightSide, (checked) => {this.settings.style.rightSide = checked; this.updateSide();}),
-			new SliderSetting("Opacity", "This allows the toolbar to be partially seethrough.", 0, 1, 0.01, this.settings.style.opacity, (val) => {this.settings.style.opacity = val; this.updateOpacity();}),
-			new ColorSetting("Color", "This is testing ColorSetting.", "#ff0000", console.log)
+			new SliderSetting("Opacity", "This allows the toolbar to be partially seethrough.", 0, 1, 0.01, this.settings.style.opacity, (val) => {this.settings.style.opacity = val; this.updateOpacity();})
 		)
 			
 		var bfr = this;
