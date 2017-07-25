@@ -72,6 +72,109 @@ class TextSetting extends SettingField {
 	}
 }
 
+class ColorSetting extends SettingField {
+	constructor(label, help, value, callback) {
+		super(label, help);
+		var input = $("<input>", {
+			type: "color",
+			value: value
+		});
+
+		input.on("change."+appNameShort, function() {
+			if (typeof callback != 'undefined') {
+				callback($(this).val())
+			}
+		})
+		
+		this.top.append(input);
+		return this.row;
+	}
+}
+
+class SliderSetting extends SettingField {
+	constructor(label, help, min, max, step, value, callback) {
+		super(label, help);
+		var input = $("<input>", {
+			type: "range",
+			min: min,
+			max: max,
+			step: step,
+			value: value
+		});
+		
+		var bg = $('<div class="ui-switch-item"><div class="ui-switch-wrapper"><input type="checkbox" checked="checked" class="ui-switch-checkbox"><div class="ui-switch checked">')
+		bg.appendTo($("#bd-settingspane-container"))
+		var bgColor = $(".ui-switch.checked").first().css("background-color")
+		var afterColor = window.getComputedStyle(bg.find(".ui-switch.checked")[0], ':after').getPropertyValue('background-color');
+		bgColor = afterColor == "rgba(0, 0, 0, 0)" ? bgColor : afterColor
+		bg.remove();
+		
+		var percent = ((value-min)/max)*100
+		input.css('background', 'linear-gradient(to right, '+bgColor+', '+bgColor+' ' + percent + '%, #72767d ' + percent + '%)')	
+		input.css("margin-left", "10px")
+		input.css("float", "right")
+		input.on("input."+appNameShort, function(){
+			var percent = ((parseFloat($(this).val())-min)/max)*100
+			$(this).css('background', 'linear-gradient(to right, '+bgColor+', '+bgColor+' ' + percent + '%, #72767d ' + percent + '%)')
+		})
+		
+		var label = $('<span class="plugin-setting-label">')
+		label.text(value)
+		
+		input.on("input."+appNameShort, function() {
+			label.text(parseFloat($(this).val()))
+		})
+		input.on("change."+appNameShort, function() {
+			if (typeof callback != 'undefined') {
+				callback(parseFloat($(this).val()))
+			}
+		})
+		
+		this.top.append($('<div style="display:flex;align-items:center;">').append(label,input));
+		return this.row;
+	}
+}
+
+// True is right side
+class PillSetting extends SettingField {
+	constructor(label, help, leftLabel, rightLabel, isChecked, callback, disabled) {
+		super(label, help);
+		var isDisabled = false
+		if (typeof disabled != 'undefined') isDisabled = disabled;
+		var input = $("<input>", {
+			type: "checkbox",
+			checked: isChecked,
+			disabled: isDisabled
+		});
+		input.attr("class", "ui-switch-checkbox");
+
+		input.on("click."+appNameShort, function() {
+			var checked = $(this).prop("checked");
+			if (checked) { switchDiv.addClass("checked"); }
+			else { switchDiv.removeClass("checked"); }
+			
+			if (typeof callback != 'undefined') {
+				callback(checked)
+			}
+		})
+		
+		var checkboxWrap = $('<label class="ui-switch-wrapper ui-flex-child" style="flex:0 0 auto;">');
+		checkboxWrap.append(input);
+		var switchDiv = $('<div class="ui-switch">');
+		if (isChecked) switchDiv.addClass("checked");
+		checkboxWrap.append(switchDiv);
+		checkboxWrap.css("margin","0 7px")
+		
+		var labelLeft = $('<span class="plugin-setting-label">')
+		labelLeft.text(leftLabel)
+		var labelRight = $('<span class="plugin-setting-label">')
+		labelRight.text(rightLabel)
+		
+		this.top.append($('<div style="display:flex;align-items:center;">').append(labelLeft, checkboxWrap, labelRight));
+		return this.row;
+	}
+}
+
 class CheckboxSetting extends SettingField {
 	constructor(label, help, isChecked, callback, disabled) {
 		super(label, help);
@@ -113,6 +216,7 @@ var newStyleNames = ["superscript", "smallcaps", "fullwidth", "upsidedown", "var
 
 class BFRedux {
 	constructor() {
+		this.isOpen = false
 		this.hasUpdate = false
 		this.remoteVersion = ""
 		this.replaceList = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}";
@@ -125,21 +229,80 @@ class BFRedux {
 
 		this.defaultSettings = {wrappers: {bold: "**", italic: "*", underline: "__", strikethrough: "~~", code: "`", superscript: "^", smallcaps: "%", fullwidth: "##", upsidedown: "&&", varied: "||"},
 													formatting: {fullWidthMap: true, reorderUpsidedown: true, startCaps: true},
-													plugin: {hoverOpen: true, closeOnSend: true, chainFormats: true, rightSide: true}}
+													plugin: {hoverOpen: true, closeOnSend: true, chainFormats: true},
+													style: {rightSide: true, opacity: 1}}
 		this.settings = {wrappers: {bold: "**", italic: "*", underline: "__", strikethrough: "~~", code: "`", superscript: "^", smallcaps: "%", fullwidth: "##", upsidedown: "&&", varied: "||"},
 													formatting: {fullWidthMap: true, reorderUpsidedown: true, startCaps: true},
-													plugin: {hoverOpen: true, closeOnSend: true, chainFormats: true, rightSide: true}}
+													plugin: {hoverOpen: true, closeOnSend: true, chainFormats: true},
+													style: {rightSide: true, opacity: 1}}
 		
-		this.leftCSS = '.bf-toolbar{right:auto!important;left:0!important;margin-left:5px!important;margin-right:0!important;padding:10px 10px 15px 30px!important}.bf-toolbar .bf-arrow{right:auto!important;left:5px!important}.bf-toolbar.bf-hover:hover .bf-arrow,.bf-toolbar.bf-visible .bf-arrow{-webkit-transform:translate(0,-14px) rotate(90deg)!important;-ms-transform:translate(0,-14px) rotate(90deg)!important;transform:translate(0,-14px) rotate(90deg)!important}'
 
-		this.rightCSS = '.bf-toolbar{right:0!important;left:auto!important;margin-left:0!important;margin-right:5px!important;padding:10px 30px 15px 10px!important}.bf-toolbar .bf-arrow{right:5px!important;left:auto!important}.bf-toolbar.bf-hover:hover .bf-arrow,.bf-toolbar.bf-visible .bf-arrow{-webkit-transform:translate(0,-14px) rotate(-90deg)!important;-ms-transform:translate(0,-14px) rotate(-90deg)!important;transform:translate(0,-14px) rotate(-90deg)!important}'
 		
 		
 		// CSS is a modified form of the CSS used in
-		// Beard's Material Design Theme for BetterDiscrod
+		// Beard's Material Design Theme for BetterDiscord
 		// Make sure to check it out!
 		// http://www.beard-design.com/discord-material-theme
-		this.mainCSS = '.bf-toolbar{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;white-space:nowrap;font-size:85%;position:absolute;color:rgba(255,255,255,.5);width:auto;bottom:auto;border-radius:0;margin:0;height:27px;top:0;-webkit-transform:translate(0,-100%);-ms-transform:translate(0,-100%);transform:translate(0,-100%);opacity:1;display:block;overflow:hidden;pointer-events:none}.message-group .bf-toolbar .bf-arrow,.upload-modal .bf-toolbar .bf-arrow,.upload-modal .bf-toolbar:before{display:none}.message-group .bf-toolbar{padding:10px 30px 15px 10px}.message-group .bf-toolbar div:not(.bf-arrow),.message-group .bf-toolbar:before{-webkit-animation:bf-slide-up .3s cubic-bezier(.4,0,0,1);animation:bf-slide-up .3s cubic-bezier(.4,0,0,1)}@keyframes bf-slide-up{from{transform:translate(0,55px);opacity:0}}.upload-modal .bf-toolbar{position:relative;transform:none;padding:0;margin-left:0;margin-right:0;border-radius:2px}.message-group .bf-toolbar div:not(.bf-arrow),.message-group .bf-toolbar:before,.upload-modal .bf-toolbar div:not(.bf-arrow),.upload-modal .bf-toolbar:before{-webkit-transform:translate(0,0);-ms-transform:translate(0,0);transform:translate(0,0)}.bf-toolbar.bf-hover:hover,.bf-toolbar.bf-visible{pointer-events:initial}.bf-toolbar div:not(.bf-arrow){padding:7px 5px;cursor:pointer;display:-webkit-inline-box;display:-ms-inline-flexbox;display:inline-flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-transform:translate(0,55px);-ms-transform:translate(0,55px);transform:translate(0,55px);-webkit-transition:all 50ms,-webkit-transform .2s ease;-o-transition:all 50ms,transform .2s ease;transition:all 50ms,transform .2s ease;transition:all 50ms,transform .2s ease,-webkit-transform .2s ease;position:relative;pointer-events:initial;border-radius:2px}.bf-toolbar .bf-arrow,.bf-toolbar:before{content:"";display:block;position:absolute;pointer-events:initial}.bf-toolbar div:not(.bf-arrow):hover{background:rgba(255,255,255,.1);color:rgba(255,255,255,.9)}.bf-toolbar div:not(.bf-arrow):active{background:rgba(0,0,0,.1);-webkit-transition:all 0s,-webkit-transform .2s ease;-o-transition:all 0s,transform .2s ease;transition:all 0s,transform .2s ease;transition:all 0s,transform .2s ease,-webkit-transform .2s ease}.bf-toolbar.bf-hover:hover div:not(.bf-arrow),.bf-toolbar.bf-visible div:not(.bf-arrow){-webkit-transform:translate(0,0);-ms-transform:translate(0,0);transform:translate(0,0);-webkit-transition:all 50ms,-webkit-transform .2s cubic-bezier(0,0,0,1);-o-transition:all 50ms,transform .2s cubic-bezier(0,0,0,1);transition:all 50ms,transform .2s cubic-bezier(0,0,0,1);transition:all 50ms,transform .2s cubic-bezier(0,0,0,1),-webkit-transform .2s cubic-bezier(0,0,0,1)}.bf-toolbar:before{width:100%;height:calc(100% - 15px);z-index:-1;background:#424549;left:0;top:5px;border-radius:3px;-webkit-transform:translate(0,55px);-ms-transform:translate(0,55px);transform:translate(0,55px);-webkit-transition:all .2s ease;-o-transition:all .2s ease;transition:all .2s ease}.bf-toolbar.bf-hover:hover:before,.bf-toolbar.bf-visible:before{-webkit-transform:translate(0,0);-ms-transform:translate(0,0);transform:translate(0,0);-webkit-transition:all .2s cubic-bezier(0,0,0,1);-o-transition:all .2s cubic-bezier(0,0,0,1);transition:all .2s cubic-bezier(0,0,0,1)}.bf-toolbar .bf-arrow{background:url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTcuNDEgMTUuNDFMMTIgMTAuODNsNC41OSA0LjU4TDE4IDE0bC02LTYtNiA2eiIvPiAgICA8cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PC9zdmc+) 50% no-repeat;height:30px;width:30px;bottom:0;-webkit-transition:all .2s ease;-o-transition:all .2s ease;transition:all .2s ease;opacity:.3;cursor:pointer}.bf-toolbar.bf-hover:hover .bf-arrow,.bf-toolbar.bf-visible .bf-arrow{-webkit-transition:all .2s cubic-bezier(0,0,0,1);-o-transition:all .2s cubic-bezier(0,0,0,1);transition:all .2s cubic-bezier(0,0,0,1);opacity:.9}'
+		this.settingsCSS = `
+li[data-reactid*="Better Formatting Redux"] input:focus {
+	outline: 0;
+}
+li[data-reactid*="Better Formatting Redux"] input[type=range] {
+  -webkit-appearance: none;
+  border:none!important;
+  border-radius: 5px;
+  height: 5px;
+  cursor: pointer;
+}
+
+li[data-reactid*="Better Formatting Redux"] input[type=range]::-webkit-slider-runnable-track {
+  background: none!important;
+}
+
+li[data-reactid*="Better Formatting Redux"] input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  background: #f6f6f7;
+  width: 10px;
+  height: 20px;
+  
+}
+
+li[data-reactid*="Better Formatting Redux"] input[type=range]::-webkit-slider-thumb:hover {
+	box-shadow:0 2px 10px rgba(0,0,0,0.5);
+}
+
+li[data-reactid*="Better Formatting Redux"] input[type=range]::-webkit-slider-thumb:active {
+	box-shadow:0 2px 10px rgba(0,0,0,1);
+}
+
+.plugin-setting-label {
+	color: #f6f6f7;
+	font-weight: 500;
+}
+		`
+
+		this.mainCSS =  '.bf-toolbar{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;white-space:nowrap;font-size:85%;position:absolute;color:rgba(255,255,255,.5);width:auto;right:0;bottom:auto;border-radius:0;margin:0 5px 0 0;height:27px;top:0;-webkit-transform:translate(0,-100%);-ms-transform:translate(0,-100%);transform:translate(0,-100%);opacity:1;display:block;overflow:hidden;pointer-events:none;padding:10px 30px 15px 10px}.message-group .bf-toolbar .bf-arrow,.upload-modal .bf-toolbar .bf-arrow,.upload-modal .bf-toolbar:before{display:none}.message-group .bf-toolbar{padding:10px 10px 15px}.message-group .bf-toolbar div:not(.bf-arrow),.message-group .bf-toolbar:before{-webkit-animation:bf-slide-up .3s cubic-bezier(.4,0,0,1);animation:bf-slide-up .3s cubic-bezier(.4,0,0,1)}@keyframes bf-slide-up{from{transform:translate(0,55px);opacity:0}}.upload-modal .bf-toolbar{position:relative;transform:none;padding:0;margin-right:0;border-radius:2px}.message-group .bf-toolbar div:not(.bf-arrow),.message-group .bf-toolbar:before,.upload-modal .bf-toolbar div:not(.bf-arrow),.upload-modal .bf-toolbar:before{-webkit-transform:translate(0,0);-ms-transform:translate(0,0);transform:translate(0,0)}.bf-toolbar.bf-hover:hover,.bf-toolbar.bf-visible{pointer-events:initial}.bf-toolbar div:not(.bf-arrow){padding:7px 5px;cursor:pointer;display:-webkit-inline-box;display:-ms-inline-flexbox;display:inline-flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-transform:translate(0,55px);-ms-transform:translate(0,55px);transform:translate(0,55px);-webkit-transition:all 50ms,-webkit-transform .2s ease;-o-transition:all 50ms,transform .2s ease;transition:all 50ms,transform .2s ease;transition:all 50ms,transform .2s ease,-webkit-transform .2s ease;position:relative;pointer-events:initial;border-radius:2px}.bf-toolbar .bf-arrow,.bf-toolbar:before{content:"";display:block;position:absolute;pointer-events:initial}.bf-toolbar div:not(.bf-arrow):hover{background:rgba(255,255,255,.1);color:rgba(255,255,255,.9)}.bf-toolbar div:not(.bf-arrow):active{background:rgba(0,0,0,.1);-webkit-transition:all 0s,-webkit-transform .2s ease;-o-transition:all 0s,transform .2s ease;transition:all 0s,transform .2s ease;transition:all 0s,transform .2s ease,-webkit-transform .2s ease}.bf-toolbar.bf-hover:hover div:not(.bf-arrow),.bf-toolbar.bf-visible div:not(.bf-arrow){-webkit-transform:translate(0,0);-ms-transform:translate(0,0);transform:translate(0,0);-webkit-transition:all 50ms,-webkit-transform .2s cubic-bezier(0,0,0,1);-o-transition:all 50ms,transform .2s cubic-bezier(0,0,0,1);transition:all 50ms,transform .2s cubic-bezier(0,0,0,1);transition:all 50ms,transform .2s cubic-bezier(0,0,0,1),-webkit-transform .2s cubic-bezier(0,0,0,1)}.bf-toolbar:before{width:100%;height:calc(100% - 15px);z-index:-1;background:#424549;left:0;top:5px;border-radius:3px;-webkit-transform:translate(0,55px);-ms-transform:translate(0,55px);transform:translate(0,55px);-webkit-transition:all .2s ease;-o-transition:all .2s ease;transition:all .2s ease}.bf-toolbar.bf-hover:hover:before,.bf-toolbar.bf-visible:before{-webkit-transform:translate(0,0);-ms-transform:translate(0,0);transform:translate(0,0);-webkit-transition:all .2s cubic-bezier(0,0,0,1);-o-transition:all .2s cubic-bezier(0,0,0,1);transition:all .2s cubic-bezier(0,0,0,1)}.bf-toolbar .bf-arrow{background:url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTcuNDEgMTUuNDFMMTIgMTAuODNsNC41OSA0LjU4TDE4IDE0bC02LTYtNiA2eiIvPiAgICA8cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PC9zdmc+) 50% no-repeat;height:30px;width:30px;right:5px;bottom:0;-webkit-transition:all .2s ease;-o-transition:all .2s ease;transition:all .2s ease;opacity:.3;cursor:pointer}.bf-toolbar.bf-hover:hover .bf-arrow,.bf-toolbar.bf-visible .bf-arrow{-webkit-transform:translate(0,-14px) rotate(-90deg);-ms-transform:translate(0,-14px) rotate(-90deg);transform:translate(0,-14px) rotate(-90deg);-webkit-transition:all .2s cubic-bezier(0,0,0,1);-o-transition:all .2s cubic-bezier(0,0,0,1);transition:all .2s cubic-bezier(0,0,0,1);opacity:.9}'
+		
+		this.mainCSS += `
+.bf-toolbar.bf-left {
+	left: 0!important;
+	right: auto!important;
+	margin-right: 0!important;
+	margin-left: 5px!important;
+	padding: 10px 10px 15px 30px!important;
+}
+
+.bf-toolbar.bf-left .bf-arrow {
+	left: 5px!important;
+	right: auto!important;
+}
+
+.bf-toolbar.bf-left.bf-hover:hover .bf-arrow,.bf-toolbar.bf-left.bf-visible .bf-arrow {
+	-webkit-transform: translate(0,-14px) rotate(90deg)!important;
+	-ms-transform: translate(0,-14px) rotate(90deg)!important;
+	transform: translate(0,-14px) rotate(90deg)!important;
+}
+		`
 	}
 	getName() { return appName }
 
@@ -188,8 +351,11 @@ class BFRedux {
 		$(".channelTextArea-1HTP3C textarea").each((index, elem) => {
 			this.addToolbar($(elem));
 		});
+
 		BdApi.injectCSS("bf-style", this.mainCSS);
-		this.changeSide()
+		BdApi.injectCSS("bf-settings", this.settingsCSS);
+		this.updateSide()
+		this.updateOpacity()
 	}
 	
 	stop() {
@@ -197,6 +363,7 @@ class BFRedux {
 		$(".bf-toolbar").remove();
 		BdApi.clearCSS("bf-style");
 		BdApi.clearCSS("bf-style-side")
+		BdApi.clearCSS("bf-settings");
 	}
 	
 	onSwitch() {};
@@ -218,8 +385,26 @@ class BFRedux {
 		return panel[0];
 	}
 	
-	changeSide() {
-		BdApi.injectCSS("bf-style-side", this.settings.plugin.rightSide ? this.rightCSS : this.leftCSS)
+	updateSide() {
+		if (this.settings.style.rightSide) {
+			$(".bf-toolbar").removeClass("bf-left")
+		}
+		else {
+			$(".bf-toolbar").addClass("bf-left")
+		}
+		//BdApi.clearCSS("bf-style-side")
+		//BdApi.injectCSS("bf-style-side", this.settings.style.rightSide ? this.rightCSS : this.leftCSS)
+	}
+	
+	updateOpacity() {
+		//BdApi.clearCSS("bf-trans")
+		//BdApi.injectCSS("bf-trans", ".bf-toolbar{opacity:"+this.settings.style.opacity+";}") //background: rgba(66, 69, 73, 0.6)!important
+		$(".bf-toolbar").css("opacity", this.settings.style.opacity)
+	}
+	
+	openClose() {
+		this.isOpen = !this.isOpen;
+		$(".bf-toolbar").toggleClass('bf-visible');
 	}
 	
 	doFormat(text, wrapper, offset) {
@@ -333,6 +518,9 @@ class BFRedux {
 		if (this.settings.plugin.hoverOpen == true) {
 			toolbarElement.addClass("bf-hover")
 		}
+		if (this.isOpen) {
+			toolbarElement.addClass("bf-visible")
+		}
 		textarea
 			.on("keypress."+appNameShort, this.format)
 			.parent().after(toolbarElement)
@@ -358,7 +546,7 @@ class BFRedux {
 				var $button = $(e.currentTarget);
 				if ($button.hasClass("bf-arrow")) {
 					if (this.settings.plugin.hoverOpen == false) {
-						$(".bf-toolbar").toggleClass('bf-visible');
+						this.openClose();
 					}
 				}
 				else {
@@ -366,6 +554,8 @@ class BFRedux {
 				}
 			})
 			.show();
+		this.updateSide()
+		this.updateOpacity()
 	}
 	
 	generateSettings(panel) {
@@ -379,46 +569,51 @@ class BFRedux {
 			header.appendTo(panel)
 		}
 		
-		var wrapperControls = new ControlGroup("Wrapper Options", () => {this.saveSettings()}).appendTo(panel).append(
-				new TextSetting("Superscript", "The wrapper for superscripted text.", this.settings.wrappers.superscript, this.defaultSettings.wrappers.superscript,
-								(text) => {this.settings.wrappers.superscript = text != "" ? text : this.defaultSettings.wrappers.superscript}),
-				new TextSetting("Smallcaps", "The wrapper to make Smallcaps.", this.settings.wrappers.smallcaps, this.defaultSettings.wrappers.smallcaps,
-								(text) => {this.settings.wrappers.smallcaps = text != "" ? text : this.defaultSettings.wrappers.smallcaps}),
-				new TextSetting("Full Width", "The wrapper for E X P A N D E D  T E X T.", this.settings.wrappers.fullwidth, this.defaultSettings.wrappers.fullwidth,
-								(text) => {this.settings.wrappers.fullwidth = text != "" ? text : this.defaultSettings.wrappers.fullwidth}),
-				new TextSetting("Upsidedown", "The wrapper to flip the text upsidedown.", this.settings.wrappers.upsidedown, this.defaultSettings.wrappers.upsidedown,
-								(text) => {this.settings.wrappers.upsidedown = text != "" ? text : this.defaultSettings.wrappers.upsidedown}),
-				new TextSetting("Varied Caps", "The wrapper to VaRy the capitalization.", this.settings.wrappers.varied, this.defaultSettings.wrappers.varied,
-								(text) => {this.settings.wrappers.varied = text != "" ? text : this.defaultSettings.wrappers.varied}));
+		new ControlGroup("Wrapper Options", () => {this.saveSettings()}).appendTo(panel).append(
+			new TextSetting("Superscript", "The wrapper for superscripted text.", this.settings.wrappers.superscript, this.defaultSettings.wrappers.superscript,
+							(text) => {this.settings.wrappers.superscript = text != "" ? text : this.defaultSettings.wrappers.superscript}),
+			new TextSetting("Smallcaps", "The wrapper to make Smallcaps.", this.settings.wrappers.smallcaps, this.defaultSettings.wrappers.smallcaps,
+							(text) => {this.settings.wrappers.smallcaps = text != "" ? text : this.defaultSettings.wrappers.smallcaps}),
+			new TextSetting("Full Width", "The wrapper for E X P A N D E D  T E X T.", this.settings.wrappers.fullwidth, this.defaultSettings.wrappers.fullwidth,
+							(text) => {this.settings.wrappers.fullwidth = text != "" ? text : this.defaultSettings.wrappers.fullwidth}),
+			new TextSetting("Upsidedown", "The wrapper to flip the text upsidedown.", this.settings.wrappers.upsidedown, this.defaultSettings.wrappers.upsidedown,
+							(text) => {this.settings.wrappers.upsidedown = text != "" ? text : this.defaultSettings.wrappers.upsidedown}),
+			new TextSetting("Varied Caps", "The wrapper to VaRy the capitalization.", this.settings.wrappers.varied, this.defaultSettings.wrappers.varied,
+							(text) => {this.settings.wrappers.varied = text != "" ? text : this.defaultSettings.wrappers.varied}));
 		
-		var formatControls = new ControlGroup("Formatting Options", () => {this.saveSettings()}).appendTo(panel).append(
-				new CheckboxSetting("Use Char Map?", "This determines if the char map is used, or just spaced capital letters.",
-									this.settings.formatting.fullWidthMap, (checked) => {this.settings.formatting.fullWidthMap = checked}), 
-				new CheckboxSetting("Reorder Upsidedown Text", "Having this enabled reorders the upside down text to make it in-order.",
-									this.settings.formatting.reorderUpsidedown, (checked) => {this.settings.formatting.reorderUpsidedown = checked}),
-				new CheckboxSetting("Start VaRiEd Caps With Capital", "Enabling this starts a varied text string with a capital.",
-									this.settings.formatting.startCaps, (checked) => {this.settings.formatting.startCaps = checked}));
+		new ControlGroup("Formatting Options", () => {this.saveSettings()}).appendTo(panel).append(
+			new CheckboxSetting("Use Char Map?", "This determines if the char map is used, or just spaced capital letters.",
+								this.settings.formatting.fullWidthMap, (checked) => {this.settings.formatting.fullWidthMap = checked}), 
+			new CheckboxSetting("Reorder Upsidedown Text", "Having this enabled reorders the upside down text to make it in-order.",
+								this.settings.formatting.reorderUpsidedown, (checked) => {this.settings.formatting.reorderUpsidedown = checked}),
+			new CheckboxSetting("Start VaRiEd Caps With Capital", "Enabling this starts a varied text string with a capital.",
+								this.settings.formatting.startCaps, (checked) => {this.settings.formatting.startCaps = checked}));
 		
-		var pluginControls = new ControlGroup("Plugin Options", () => {this.saveSettings()}).appendTo(panel).append(
-				new CheckboxSetting("Open On Hover", "Enabling this makes you able to open the menu just by hovering the arrow instead of clicking it.", this.settings.plugin.hoverOpen,
-					(checked) => {
-						 this.settings.plugin.hoverOpen = checked;
-						 if (checked) {
-							$(".bf-toolbar").removeClass('bf-visible')
-							$(".bf-toolbar").addClass('bf-hover')
-						 }
-						 else {
-							 $(".bf-toolbar").removeClass('bf-hover')
-						 }
-					}
-				),
-				new CheckboxSetting("Close On Send", "This option will close the toolbar when the message is sent when \"Open On Hover\" is disabled.",
-									this.settings.plugin.closeOnSend, (checked) => {this.settings.plugin.closeOnSend = checked;}),
-				new CheckboxSetting("Chain Formats Outward", "Enabling this changes the chaining order from inward to outward. Check the GitHub for more info.",
-									this.settings.plugin.chainFormats, (checked) => {this.settings.plugin.chainFormats = checked;}),
-				new CheckboxSetting("Toolbar on Right Side", "This option enables swapping toolbar from right side to left side. Enabled means right side.",
-									this.settings.plugin.rightSide, (checked) => {this.settings.plugin.rightSide = checked; this.changeSide();})
-			)
+		new ControlGroup("Plugin Options", () => {this.saveSettings()}).appendTo(panel).append(
+			new CheckboxSetting("Open On Hover", "Enabling this makes you able to open the menu just by hovering the arrow instead of clicking it.", this.settings.plugin.hoverOpen,
+				(checked) => {
+					 this.settings.plugin.hoverOpen = checked;
+					 if (checked) {
+						$(".bf-toolbar").removeClass('bf-visible')
+						$(".bf-toolbar").addClass('bf-hover')
+					 }
+					 else {
+						 $(".bf-toolbar").removeClass('bf-hover')
+					 }
+				}
+			),
+			new CheckboxSetting("Close On Send", "This option will close the toolbar when the message is sent when \"Open On Hover\" is disabled.",
+								this.settings.plugin.closeOnSend, (checked) => {this.settings.plugin.closeOnSend = checked;}),
+			new CheckboxSetting("Chain Formats Outward", "Enabling this changes the chaining order from inward to outward. Check the GitHub for more info.",
+								this.settings.plugin.chainFormats, (checked) => {this.settings.plugin.chainFormats = checked;})
+		)
+		
+		new ControlGroup("Style Options", () => {this.saveSettings()}).appendTo(panel).append(
+			new PillSetting("Toolbar Location", "This option enables swapping toolbar from right side to left side.", "Left", "Right",
+							this.settings.style.rightSide, (checked) => {this.settings.style.rightSide = checked; this.updateSide();}),
+			new SliderSetting("Opacity", "This allows the toolbar to be partially seethrough.", 0, 1, 0.01, this.settings.style.opacity, (val) => {this.settings.style.opacity = val; this.updateOpacity();}),
+			new ColorSetting("Color", "This is testing ColorSetting.", "#ff0000", console.log)
+		)
 			
 		var bfr = this;
 		var resetButton = $("<button>");
