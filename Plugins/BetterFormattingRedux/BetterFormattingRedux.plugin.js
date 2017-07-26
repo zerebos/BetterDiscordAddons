@@ -6,7 +6,7 @@ var appName = "Better Formatting Redux";
 var appAuthor = "Zerebos";
 var appVersion = "2.0.0";
 
-var appDescription = "Enables different formatting in standard Discord chat. Support Server: bit.ly/ZeresServer";
+var appDescription = "Enables different types of formatting in standard Discord chat. Support Server: bit.ly/ZeresServer";
 
 var appNameShort = "BFRedux"; // Used for namespacing, settings, and logging
 
@@ -27,9 +27,9 @@ class ControlGroup {
 	
 	getElement() {return this.group;}
 	
-	append() {
-		for (var i = 0; i < arguments.length; i++) {
-			this.group.append(arguments[i].getElement())
+	append(...nodes) {
+		for (var i = 0; i < nodes.length; i++) {
+			this.group.append(nodes[i].getElement())
 		}
 		return this
 	}
@@ -41,35 +41,26 @@ class ControlGroup {
 }
 
 class SettingField {
-	constructor(name, helptext, inputData, callback, disabled) {
+	constructor(name, helptext, inputData, callback, disabled = false) {
 		this.name = name;
 		this.helptext = helptext;
-		this.row = $("<div>");
-		this.row.attr("class", "ui-flex flex-vertical flex-justify-start flex-align-stretch flex-nowrap ui-switch-item");
-		this.row.css("margin-top", 0);
-		this.top = $("<div>");
-		this.top.attr("class", "ui-flex flex-horizontal flex-justify-start flex-align-stretch flex-nowrap plugin-setting-input-row")
-		this.settingLabel = $("<h3>");
-		this.settingLabel.attr("class", "ui-form-title h3 margin-reset margin-reset ui-flex-child");
-		this.settingLabel.text(name);
+		this.row = $("<div>").addClass("ui-flex flex-vertical flex-justify-start flex-align-stretch flex-nowrap ui-switch-item").css("margin-top", 0);
+		this.top = $("<div>").addClass("ui-flex flex-horizontal flex-justify-start flex-align-stretch flex-nowrap plugin-setting-input-row")
+		this.settingLabel = $("<h3>").attr("class", "ui-form-title h3 margin-reset margin-reset ui-flex-child").text(name);
 		
-		this.help = $("<div>");
-		this.help.attr("class", "ui-form-text style-description margin-top-4");
-		this.help.css("flex", "1 1 auto");
-		this.help.text(helptext);
+		this.help = $("<div>").addClass("ui-form-text style-description margin-top-4").css("flex", "1 1 auto").text(helptext);
 		
 		this.top.append(this.settingLabel);
-		this.row.append(this.top);
-		this.row.append(this.help);
+		this.row.append(this.top, this.help);
 		
-		inputData["disabled"] = typeof disabled != 'undefined' ? disabled : false
+		inputData.disabled = disabled
 		
 		this.input = $("<input>", inputData)
 		this.getValue = () => {return this.input.val();}
 		this.processValue = (value) => {return value;}
 		this.input.on("keyup."+appNameShort+" change."+appNameShort, () => {
 			if (typeof callback != 'undefined') {
-				var returnVal = this.processValue(this.getValue())
+				var returnVal = this.getValue()
 				callback(returnVal)
 			}
 		})
@@ -111,8 +102,7 @@ class ColorSetting extends SettingField {
 		super(label, help, {type: "color", value: value}, callback, disabled);
 		this.input.css("margin-left", "10px")
 		
-		var label = $('<span class="plugin-setting-label">')
-		label.text(value)
+		var label = $('<span class="plugin-setting-label">').text(value)
 		
 		this.input.on("input."+appNameShort, function() {
 			label.text($(this).val())
@@ -123,31 +113,31 @@ class ColorSetting extends SettingField {
 }
 
 class SliderSetting extends SettingField {
-	constructor(label, help, min, max, step, value, callback, disabled) {
-		super(label, help, {type: "range", min: min, max: max, step: step, value: value}, callback, disabled);
-		this.value = value; this.min = min; this.max = max;
+	constructor(settingLabel, help, min, max, step, value, callback, disabled) {
+		super(settingLabel, help, {type: "range", min: min, max: max, step: step, value: parseFloat(value)}, callback, disabled);
+		this.value = parseFloat(value); this.min = min; this.max = max;
 		
-		this.processValue = (value) => {return parseFloat(value);}
+		this.getValue = () => {return parseFloat(this.input.val());}
 		
 		this.accentColor = SettingField.getAccentColor()
 		this.setBackground()
-		this.input.css("margin-left", "10px")
-		this.input.css("float", "right")
+		this.input.css("margin-left", "10px").css("float", "right")
 		
-		var label = $('<span class="plugin-setting-label">')
-		label.text(value)
+		this.labelUnit = ""
+		this.label = $('<span class="plugin-setting-label">').text(this.value + this.labelUnit)
 		
 		this.input.on("input."+appNameShort, () => {
 			this.value = parseFloat(this.input.val())
-			label.text(this.value)
+			this.label.text(this.value + this.labelUnit)
 			this.setBackground()
 		})
 		
-		this.setInputElement(SettingField.inputContainer().append(label,this.input));
+		this.setInputElement(SettingField.inputContainer().append(this.label,this.input));
 	}
 	
 	getPercent() {return ((this.value-this.min)/this.max)*100;}
 	setBackground() {var percent = this.getPercent(); this.input.css('background', 'linear-gradient(to right, '+this.accentColor+', '+this.accentColor+' '+percent+'%, #72767d '+percent+'%)')}
+	setLabelUnit(unit) {this.labelUnit = unit; this.label.text(this.value + this.labelUnit); return this;}
 }
 
 class CheckboxSetting extends SettingField {
@@ -223,11 +213,11 @@ class BFRedux {
 		this.defaultSettings = {wrappers: {superscript: "^", smallcaps: "%", fullwidth: "##", upsidedown: "&&", varied: "||"},
 								formatting: {fullWidthMap: true, reorderUpsidedown: true, startCaps: true},
 								plugin: {hoverOpen: true, closeOnSend: true, chainFormats: true},
-								style: {rightSide: true, opacity: 1}}
+								style: {rightSide: true, opacity: 1, fontSize: "85%"}}
 		this.settings = {wrappers: {superscript: "^", smallcaps: "%", fullwidth: "##", upsidedown: "&&", varied: "||"},
 						formatting: {fullWidthMap: true, reorderUpsidedown: true, startCaps: true},
 						plugin: {hoverOpen: true, closeOnSend: true, chainFormats: true},
-						style: {rightSide: true, opacity: 1}}
+						style: {rightSide: true, opacity: 1, fontSize: "85%"}}
 						
 		this.customWrappers = Object.keys(this.settings.wrappers)
 		
@@ -272,11 +262,16 @@ class BFRedux {
 	}
 	
 	load() {
-		$.get("https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js", function(result){
+		$.get("https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js", (result) => {
 			var ver = result.match(/"[0-9]+\.[0-9]+\.[0-9]+"/i);
 			ver = ver.toString().replace(/"/g, "")
 			this.remoteVersion = ver;
-			if (ver != appVersion) this.hasUpdate = true;
+			ver = ver.split(".")
+			var lver = this.getVersion().split(".")
+			if (ver[0] > lver[0]) this.hasUpdate = true;
+			else if (ver[0]==lver[0] && ver[1] > lver[1]) this.hasUpdate = true;
+			else if (ver[0]==lver[0] && ver[1]==lver[1] && ver[2] > lver[2]) this.hasUpdate = true;
+			else this.hasUpdate = false;
 		});
 	}
 	unload() {};
@@ -315,6 +310,12 @@ class BFRedux {
 		this.generateSettings(panel)
 		return panel[0];
 	}
+
+	updateStyle() {
+		this.updateSide()
+		this.updateOpacity()
+		this.updateFontSize()
+	}
 	
 	updateSide() {
 		if (this.settings.style.rightSide) { $(".bf-toolbar").removeClass("bf-left") }
@@ -323,6 +324,10 @@ class BFRedux {
 	
 	updateOpacity() {
 		$(".bf-toolbar").css("opacity", this.settings.style.opacity)
+	}
+
+	updateFontSize() {
+		$(".bf-toolbar").css("font-size", this.settings.style.fontSize)
 	}
 	
 	openClose() {
@@ -452,16 +457,15 @@ class BFRedux {
 					this.wrapSelection(textarea[0], wrapper);	
 				}
 			})
-		this.updateSide()
-		this.updateOpacity()
+		this.updateStyle()
 	}
 	
 	generateSettings(panel) {
 		
 		if (this.hasUpdate) {
-			var header = $('<div class="formNotice-2tZsrh margin-bottom-20 padded cardWarning-31DHBH card-3DrRmC">')
+			var header = $('<div class="formNotice-2tZsrh margin-bottom-20 padded cardWarning-31DHBH card-3DrRmC">').css("background", SettingField.getAccentColor()).css("border-color", "transparent")
 			var headerText = $('<div class="default-3bB32Y formText-1L-zZB formNoticeBody-1C0wup whiteText-32USMe modeDefault-389VjU primary-2giqSn">')
-			headerText.html("Update Available! Your version: " + appVersion + " | Current version: " + this.remoteVersion + "<br>Get it on Zere's GitHub! http://bit.ly/ZerebosBD")
+			headerText.html("Update Available! Your version: " + this.getVersion() + " | Current version: " + this.remoteVersion + "<br>Get it on Zere's GitHub! http://bit.ly/ZerebosBD")
 			headerText.css("line-height", "150%")
 			headerText.appendTo(header)
 			header.appendTo(panel)
@@ -511,7 +515,8 @@ class BFRedux {
 		new ControlGroup("Style Options", () => {this.saveSettings()}).appendTo(panel).append(
 			new PillSetting("Toolbar Location", "This option enables swapping toolbar from right side to left side.", "Left", "Right",
 							this.settings.style.rightSide, (checked) => {this.settings.style.rightSide = checked; this.updateSide();}),
-			new SliderSetting("Opacity", "This allows the toolbar to be partially seethrough.", 0, 1, 0.01, this.settings.style.opacity, (val) => {this.settings.style.opacity = val; this.updateOpacity();})
+			new SliderSetting("Opacity", "This allows the toolbar to be partially seethrough.", 0, 1, 0.01, this.settings.style.opacity, (val) => {this.settings.style.opacity = val; this.updateOpacity();}),
+			new SliderSetting("Font Size", "Adjust the font size between 0 and 100%.", 0, 100, 1, this.settings.style.fontSize, (val) => {this.settings.style.fontSize = val+"%"; this.updateFontSize();}).setLabelUnit("%")
 		)
 			
 		var bfr = this;

@@ -90,6 +90,7 @@ The default wrappers (`^`, `%`, `##`, `&&`, `||`) can all be customized in the s
 ## Coming Soon (Possibly)
  - Code Blocks (```) and the auto-inserting languages
  - 1337 (Leet) formatting
+ - Ability to enable/disable which formats are on the toolbar
 
 ## Known Bugs and Issues
  - ~~Clicking the buttons on the toolbar too rapidly will cause the tags to be inserted on a different place than where the caret is and move the caret.~~ Should be resolved
