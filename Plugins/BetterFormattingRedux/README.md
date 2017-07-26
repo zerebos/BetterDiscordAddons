@@ -55,10 +55,10 @@ The default wrappers (`^`, `%`, `##`, `&&`, `||`) can all be customized in the s
  - The upsidedown text can switch between ʇxǝ┴ ǝldɯɐS and Sɐɯdlǝ ┴ǝxʇ.
  - The varied caps can switch between SaMpLe TeXt and sAmPlE tExT. (Change whether to start with a capital)
  
-![BFRedux Formatting](http://discord.zackrauen.com/BFRedux/formatting.png)
+![BFRedux Formatting](http://discord.zackrauen.com/BFRedux/formatting_new.png)
  
 ### Functional Plugin Settings
-![BFRedux Chaining](http://discord.zackrauen.com/BFRedux/functional_updated.png)
+![BFRedux Chaining](http://discord.zackrauen.com/BFRedux/functional.png)
 
  - You can change between the default hover mode (from above), or click to see toolbar.
  
@@ -75,22 +75,43 @@ The default wrappers (`^`, `%`, `##`, `&&`, `||`) can all be customized in the s
 
  ![BFRedux Chaining](http://discord.zackrauen.com/BFRedux/chaining_order.png)
  
+### Style Settings
+![BFRedux Style](http://discord.zackrauen.com/BFRedux/style.png)
+
+ - Change the opacity of the toolbar
+ - Change the size of the text
  - Swap the toolbar (and arrow) from the right side (above) to the left side
  
  ![BFRedux Sideswap](https://zippy.gfycat.com/FlusteredViciousEnglishpointer.gif)
+
+
  
 
-## Coming Soon
- - Switch to non-prototype classes.
+## Coming Soon (Possibly)
+ - Code Blocks (```) and the auto-inserting languages
+ - 1337 (Leet) formatting
 
 ## Known Bugs and Issues
- - Clicking the buttons on the toolbar too rapidly will cause the tags to be inserted on a different place than where the caret is and move the caret.
+ - ~~Clicking the buttons on the toolbar too rapidly will cause the tags to be inserted on a different place than where the caret is and move the caret.~~ Should be resolved
 
 ## Special Thanks
  - Anxeal#4160 for the original Better Formatting - This is based on the original BetterFormatting by Anxeal#4160 although it has been nearly entirely rewritten. You can find that [here](https://github.com/Anxeal/BDEnhancements/tree/master/plugins/BetterFormatting). 
  - BeardDesign#6223 - The CSS for the toolbar is a modified version of the CSS written by BeardDesign creator of Beard's Material Design Theme, a theme for BetterDiscord. His theme is compatible with several plugins so be sure to check it out [here](http://www.beard-design.com/discord-material-theme).
  
 ## Changelog
+
+#### 2.0.0
+ 
+ - Complete rewrite to ES6 style classes
+ - Refactor settings code to be more generic
+ - Remake settings panel
+ - Add new setting types (Pill, Slider)
+ - New setting: opacity
+ - New setting: font size
+ - Fix issue with toolbar closing
+ - Remove need to save default discord wrappers
+ - Improved and reduced parsing for formatting
+ - Other minor code cleaning
 
 #### 1.1.5
 

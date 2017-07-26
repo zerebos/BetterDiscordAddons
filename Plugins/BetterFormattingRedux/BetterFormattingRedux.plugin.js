@@ -4,7 +4,7 @@ var BetterFormattingRedux = (function() {
 
 var appName = "Better Formatting Redux";
 var appAuthor = "Zerebos";
-var appVersion = "1.1.5";
+var appVersion = "2.0.0";
 
 var appDescription = "Enables different formatting in standard Discord chat. Support Server: bit.ly/ZeresServer";
 
@@ -41,152 +41,134 @@ class ControlGroup {
 }
 
 class SettingField {
-	constructor(name, helptext) {
+	constructor(name, helptext, inputData, callback, disabled) {
 		this.name = name;
 		this.helptext = helptext;
 		this.row = $("<div>");
 		this.row.attr("class", "ui-flex flex-vertical flex-justify-start flex-align-stretch flex-nowrap ui-switch-item");
 		this.row.css("margin-top", 0);
 		this.top = $("<div>");
-		this.top.attr("class", "ui-flex flex-horizontal flex-justify-start flex-align-stretch flex-nowrap")
-		this.label = $("<h3>");
-		this.label.attr("class", "ui-form-title h3 margin-reset margin-reset ui-flex-child");
-		this.label.text(name);
+		this.top.attr("class", "ui-flex flex-horizontal flex-justify-start flex-align-stretch flex-nowrap plugin-setting-input-row")
+		this.settingLabel = $("<h3>");
+		this.settingLabel.attr("class", "ui-form-title h3 margin-reset margin-reset ui-flex-child");
+		this.settingLabel.text(name);
 		
 		this.help = $("<div>");
 		this.help.attr("class", "ui-form-text style-description margin-top-4");
 		this.help.css("flex", "1 1 auto");
 		this.help.text(helptext);
 		
-		this.top.append(this.label);
+		this.top.append(this.settingLabel);
 		this.row.append(this.top);
 		this.row.append(this.help);
+		
+		inputData["disabled"] = typeof disabled != 'undefined' ? disabled : false
+		
+		this.input = $("<input>", inputData)
+		this.getValue = () => {return this.input.val();}
+		this.processValue = (value) => {return value;}
+		this.input.on("keyup."+appNameShort+" change."+appNameShort, () => {
+			if (typeof callback != 'undefined') {
+				var returnVal = this.processValue(this.getValue())
+				callback(returnVal)
+			}
+		})
+	}
+	
+	setInputElement(node) {
+		this.top.append(node)
 	}
 	
 	getElement() {return this.row}
+	
+	static getAccentColor() {
+		var bg = $('<div class="ui-switch-item"><div class="ui-switch-wrapper"><input type="checkbox" checked="checked" class="ui-switch-checkbox"><div class="ui-switch checked">')
+		bg.appendTo($("#bd-settingspane-container"))
+		var bgColor = $(".ui-switch.checked").first().css("background-color")
+		var afterColor = window.getComputedStyle(bg.find(".ui-switch.checked")[0], ':after').getPropertyValue('background-color'); // For beardy's theme
+		bgColor = afterColor == "rgba(0, 0, 0, 0)" ? bgColor : afterColor
+		bg.remove();
+		return bgColor
+	}
+	
+	static getCSS(appName) {
+		return 'li[data-reactid*="'+appName+'"] input:focus{outline:0}li[data-reactid*="'+appName+'"] input[type=range]{-webkit-appearance:none;border:none!important;border-radius:5px;height:5px;cursor:pointer}li[data-reactid*="'+appName+'"] input[type=range]::-webkit-slider-runnable-track{background:0 0!important}li[data-reactid*="'+appName+'"] input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;background:#f6f6f7;width:10px;height:20px}li[data-reactid*="'+appName+'"] input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 2px 10px rgba(0,0,0,.5)}li[data-reactid*="'+appName+'"] input[type=range]::-webkit-slider-thumb:active{box-shadow:0 2px 10px rgba(0,0,0,1)}.plugin-setting-label{color:#f6f6f7;font-weight:500}.plugin-setting-input-row{padding-right:5px!important}.plugin-setting-input-container{display:flex;align-items:center;justify-content:center}';
+	}
+	
+	static inputContainer() { return $('<div class="plugin-setting-input-container">');}
 }
 
 class TextSetting extends SettingField {
-	constructor(label, help, value, placeholder, callback) {
-		super(label, help);
-		var input = $("<input>", {
-			type: "text",
-			placeholder: placeholder,
-			value: value
-		});
-
-		input.on("keyup."+appNameShort+" change."+appNameShort, function() {
-			if (typeof callback != 'undefined') {
-				callback($(this).val())
-			}
-		})
+	constructor(label, help, value, placeholder, callback, disabled) {
+		super(label, help, {type: "text", placeholder: placeholder, value: value}, callback, disabled);
 		
-		this.top.append(input);
+		this.setInputElement(this.input);
 	}
 }
 
 class ColorSetting extends SettingField {
-	constructor(label, help, value, callback) {
-		super(label, help);
-		var input = $("<input>", {
-			type: "color",
-			value: value
-		});
-		input.css("margin-left", "10px")
-
-		input.on("change."+appNameShort, function() {
-			if (typeof callback != 'undefined') {
-				callback($(this).val())
-			}
-		})
+	constructor(label, help, value, callback, disabled) {
+		super(label, help, {type: "color", value: value}, callback, disabled);
+		this.input.css("margin-left", "10px")
 		
 		var label = $('<span class="plugin-setting-label">')
 		label.text(value)
 		
-		input.on("input."+appNameShort, function() {
+		this.input.on("input."+appNameShort, function() {
 			label.text($(this).val())
 		})
 		
-		this.top.append($('<div style="display:flex;align-items:center;">').append(label,input));
+		this.setInputElement(SettingField.inputContainer().append(label,input));
 	}
 }
 
 class SliderSetting extends SettingField {
-	constructor(label, help, min, max, step, value, callback) {
-		super(label, help);
-		var input = $("<input>", {
-			type: "range",
-			min: min,
-			max: max,
-			step: step,
-			value: value
-		});
+	constructor(label, help, min, max, step, value, callback, disabled) {
+		super(label, help, {type: "range", min: min, max: max, step: step, value: value}, callback, disabled);
+		this.value = value; this.min = min; this.max = max;
 		
-		var bg = $('<div class="ui-switch-item"><div class="ui-switch-wrapper"><input type="checkbox" checked="checked" class="ui-switch-checkbox"><div class="ui-switch checked">')
-		bg.appendTo($("#bd-settingspane-container"))
-		var bgColor = $(".ui-switch.checked").first().css("background-color")
-		var afterColor = window.getComputedStyle(bg.find(".ui-switch.checked")[0], ':after').getPropertyValue('background-color');
-		bgColor = afterColor == "rgba(0, 0, 0, 0)" ? bgColor : afterColor
-		bg.remove();
+		this.processValue = (value) => {return parseFloat(value);}
 		
-		var percent = ((value-min)/max)*100
-		input.css('background', 'linear-gradient(to right, '+bgColor+', '+bgColor+' ' + percent + '%, #72767d ' + percent + '%)')	
-		input.css("margin-left", "10px")
-		input.css("float", "right")
-		input.on("input."+appNameShort, function(){
-			var percent = ((parseFloat($(this).val())-min)/max)*100
-			$(this).css('background', 'linear-gradient(to right, '+bgColor+', '+bgColor+' ' + percent + '%, #72767d ' + percent + '%)')
-		})
+		this.accentColor = SettingField.getAccentColor()
+		this.setBackground()
+		this.input.css("margin-left", "10px")
+		this.input.css("float", "right")
 		
 		var label = $('<span class="plugin-setting-label">')
 		label.text(value)
 		
-		input.on("input."+appNameShort, function() {
-			label.text(parseFloat($(this).val()))
-		})
-		input.on("change."+appNameShort, function() {
-			if (typeof callback != 'undefined') {
-				callback(parseFloat($(this).val()))
-			}
+		this.input.on("input."+appNameShort, () => {
+			this.value = parseFloat(this.input.val())
+			label.text(this.value)
+			this.setBackground()
 		})
 		
-		this.top.append($('<div style="display:flex;align-items:center;">').append(label,input));
+		this.setInputElement(SettingField.inputContainer().append(label,this.input));
 	}
+	
+	getPercent() {return ((this.value-this.min)/this.max)*100;}
+	setBackground() {var percent = this.getPercent(); this.input.css('background', 'linear-gradient(to right, '+this.accentColor+', '+this.accentColor+' '+percent+'%, #72767d '+percent+'%)')}
 }
 
 class CheckboxSetting extends SettingField {
 	constructor(label, help, isChecked, callback, disabled) {
-		super(label, help);
-		var isDisabled = false
-		if (typeof disabled != 'undefined') isDisabled = disabled;
-		var input = $("<input>", {
-			type: "checkbox",
-			checked: isChecked,
-			disabled: isDisabled
-		});
-		input.attr("class", "ui-switch-checkbox");
+		super(label, help, {type: "checkbox", checked: isChecked}, callback, disabled);
+		this.getValue = () => {return this.input.prop("checked")}
+		this.input.addClass("ui-switch-checkbox");
 
-		input.on("click."+appNameShort, function() {
-			var checked = $(this).prop("checked");
-			if (checked) {
-				switchDiv.addClass("checked");
-			}
-			else {
-				switchDiv.removeClass("checked");
-			}
-			
-			if (typeof callback != 'undefined') {
-				callback(checked)
-			}
+		this.input.on("change."+appNameShort, function() {
+			if ($(this).prop("checked")) switchDiv.addClass("checked");
+			else switchDiv.removeClass("checked");
 		})
 		
 		this.checkboxWrap = $('<label class="ui-switch-wrapper ui-flex-child" style="flex:0 0 auto;">');
-		this.checkboxWrap.append(input);
+		this.checkboxWrap.append(this.input);
 		var switchDiv = $('<div class="ui-switch">');
 		if (isChecked) switchDiv.addClass("checked");
 		this.checkboxWrap.append(switchDiv);
+		this.checkboxWrap.css("right", "0px")
 
-		this.top.append(this.checkboxWrap);
+		this.setInputElement(this.checkboxWrap);
 	}
 }
 
@@ -195,18 +177,33 @@ class PillSetting extends CheckboxSetting {
 	constructor(label, help, leftLabel, rightLabel, isChecked, callback, disabled) {
 		super(label, help, isChecked, callback, disabled);
 		
-		this.checkboxWrap.css("margin","0 7px")
+		this.checkboxWrap.css("margin","0 9px")
 		
-		var labelLeft = $('<span class="plugin-setting-label">')
+		var labelLeft = $('<span class="plugin-setting-label left">')
 		labelLeft.text(leftLabel)
-		var labelRight = $('<span class="plugin-setting-label">')
+		var labelRight = $('<span class="plugin-setting-label right">')
 		labelRight.text(rightLabel)
 		
-		this.top.append($('<div style="display:flex;align-items:center;">').append(labelLeft, this.checkboxWrap.detach(), labelRight));
+		var accent = SettingField.getAccentColor()
+		
+		if (isChecked) labelRight.css("color", accent);
+		else labelLeft.css("color", accent);
+		
+		this.checkboxWrap.find('input').on("click."+appNameShort, function() {
+			var checked = $(this).prop("checked");
+			if (checked) {
+				labelRight.css("color", accent);
+				labelLeft.css("color", "");
+			}
+			else {
+				labelLeft.css("color", accent);
+				labelRight.css("color", "");
+			}
+		})
+		
+		this.setInputElement(SettingField.inputContainer().append(labelLeft, this.checkboxWrap.detach(), labelRight));
 	}
 }
-
-var newStyleNames = ["superscript", "smallcaps", "fullwidth", "upsidedown", "varied"];
 
 class BFRedux {
 	constructor() {
@@ -219,85 +216,29 @@ class BFRedux {
 		this.upsideDownList = " ¡\"#$%⅋,)(*+'-˙/0ƖᄅƐㄣϛ9ㄥ86:;>=<¿@∀qƆpƎℲפHIſʞ˥WNOԀQɹS┴∩ΛMX⅄Z]\\[^‾,ɐqɔpǝɟƃɥᴉɾʞlɯuodbɹsʇnʌʍxʎz}|{";
 		this.fullwidthList = "　！＂＃＄％＆＇（）＊＋，－．／０１２３４５６７８９：；＜＝＞？＠ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ［＼］＾＿｀ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ｛｜｝";
 
-		this.toolbarString = "<div class='bf-toolbar'><div class='bf-arrow'></div><div name='bold'><b>Bold</b></div><div name='italic'><i>Italic</i></div><div name='underline'><u>Underline</u></div><div name='strikethrough'><s>Strikethrough</s></div><div style='font-family:monospace;' name='code'>Code</div><div name='superscript'>ˢᵘᵖᵉʳˢᶜʳᶦᵖᵗ</div><div name='smallcaps'>SᴍᴀʟʟCᴀᴘs</div><div name='fullwidth'>Ｆｕｌｌｗｉｄｔｈ</div><div name='upsidedown'>uʍopǝpᴉsd∩</div><div name='varied'>VaRiEd CaPs</div></div></div>";
-
-		this.defaultSettings = {wrappers: {bold: "**", italic: "*", underline: "__", strikethrough: "~~", code: "`", superscript: "^", smallcaps: "%", fullwidth: "##", upsidedown: "&&", varied: "||"},
-													formatting: {fullWidthMap: true, reorderUpsidedown: true, startCaps: true},
-													plugin: {hoverOpen: true, closeOnSend: true, chainFormats: true},
-													style: {rightSide: true, opacity: 1}}
-		this.settings = {wrappers: {bold: "**", italic: "*", underline: "__", strikethrough: "~~", code: "`", superscript: "^", smallcaps: "%", fullwidth: "##", upsidedown: "&&", varied: "||"},
-													formatting: {fullWidthMap: true, reorderUpsidedown: true, startCaps: true},
-													plugin: {hoverOpen: true, closeOnSend: true, chainFormats: true},
-													style: {rightSide: true, opacity: 1}}
+		this.toolbarString = "<div class='bf-toolbar'><div class='bf-arrow'></div><div data-type='discord' data-name='bold'><b>Bold</b></div><div data-type='discord' data-name='italic'><i>Italic</i></div><div data-type='discord' data-name='underline'><u>Underline</u></div><div data-type='discord' data-name='strikethrough'><s>Strikethrough</s></div><div style='font-family:monospace;' data-type='discord' data-name='code'>Code</div><div data-type='bfredux' data-name='superscript'>ˢᵘᵖᵉʳˢᶜʳᶦᵖᵗ</div><div data-type='bfredux' data-name='smallcaps'>SᴍᴀʟʟCᴀᴘs</div><div data-type='bfredux' data-name='fullwidth'>Ｆｕｌｌｗｉｄｔｈ</div><div data-type='bfredux' data-name='upsidedown'>uʍopǝpᴉsd∩</div><div data-type='bfredux' data-name='varied'>VaRiEd CaPs</div></div></div>";
 		
+		this.discordWrappers = {bold: "**", italic: "*", underline: "__", strikethrough: "~~", code: "`"}
 
+		this.defaultSettings = {wrappers: {superscript: "^", smallcaps: "%", fullwidth: "##", upsidedown: "&&", varied: "||"},
+								formatting: {fullWidthMap: true, reorderUpsidedown: true, startCaps: true},
+								plugin: {hoverOpen: true, closeOnSend: true, chainFormats: true},
+								style: {rightSide: true, opacity: 1}}
+		this.settings = {wrappers: {superscript: "^", smallcaps: "%", fullwidth: "##", upsidedown: "&&", varied: "||"},
+						formatting: {fullWidthMap: true, reorderUpsidedown: true, startCaps: true},
+						plugin: {hoverOpen: true, closeOnSend: true, chainFormats: true},
+						style: {rightSide: true, opacity: 1}}
+						
+		this.customWrappers = Object.keys(this.settings.wrappers)
 		
 		
 		// CSS is a modified form of the CSS used in
 		// Beard's Material Design Theme for BetterDiscord
 		// Make sure to check it out!
 		// http://www.beard-design.com/discord-material-theme
-		this.settingsCSS = `
-li[data-reactid*="Better Formatting Redux"] input:focus {
-	outline: 0;
-}
-li[data-reactid*="Better Formatting Redux"] input[type=range] {
-  -webkit-appearance: none;
-  border:none!important;
-  border-radius: 5px;
-  height: 5px;
-  cursor: pointer;
-}
-
-li[data-reactid*="Better Formatting Redux"] input[type=range]::-webkit-slider-runnable-track {
-  background: none!important;
-}
-
-li[data-reactid*="Better Formatting Redux"] input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  background: #f6f6f7;
-  width: 10px;
-  height: 20px;
-  
-}
-
-li[data-reactid*="Better Formatting Redux"] input[type=range]::-webkit-slider-thumb:hover {
-	box-shadow:0 2px 10px rgba(0,0,0,0.5);
-}
-
-li[data-reactid*="Better Formatting Redux"] input[type=range]::-webkit-slider-thumb:active {
-	box-shadow:0 2px 10px rgba(0,0,0,1);
-}
-
-.plugin-setting-label {
-	color: #f6f6f7;
-	font-weight: 500;
-}
-		`
-
-		this.mainCSS =  '.bf-toolbar{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;white-space:nowrap;font-size:85%;position:absolute;color:rgba(255,255,255,.5);width:auto;right:0;bottom:auto;border-radius:0;margin:0 5px 0 0;height:27px;top:0;-webkit-transform:translate(0,-100%);-ms-transform:translate(0,-100%);transform:translate(0,-100%);opacity:1;display:block;overflow:hidden;pointer-events:none;padding:10px 30px 15px 10px}.message-group .bf-toolbar .bf-arrow,.upload-modal .bf-toolbar .bf-arrow,.upload-modal .bf-toolbar:before{display:none}.message-group .bf-toolbar{padding:10px 10px 15px}.message-group .bf-toolbar div:not(.bf-arrow),.message-group .bf-toolbar:before{-webkit-animation:bf-slide-up .3s cubic-bezier(.4,0,0,1);animation:bf-slide-up .3s cubic-bezier(.4,0,0,1)}@keyframes bf-slide-up{from{transform:translate(0,55px);opacity:0}}.upload-modal .bf-toolbar{position:relative;transform:none;padding:0;margin-right:0;border-radius:2px}.message-group .bf-toolbar div:not(.bf-arrow),.message-group .bf-toolbar:before,.upload-modal .bf-toolbar div:not(.bf-arrow),.upload-modal .bf-toolbar:before{-webkit-transform:translate(0,0);-ms-transform:translate(0,0);transform:translate(0,0)}.bf-toolbar.bf-hover:hover,.bf-toolbar.bf-visible{pointer-events:initial}.bf-toolbar div:not(.bf-arrow){padding:7px 5px;cursor:pointer;display:-webkit-inline-box;display:-ms-inline-flexbox;display:inline-flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-transform:translate(0,55px);-ms-transform:translate(0,55px);transform:translate(0,55px);-webkit-transition:all 50ms,-webkit-transform .2s ease;-o-transition:all 50ms,transform .2s ease;transition:all 50ms,transform .2s ease;transition:all 50ms,transform .2s ease,-webkit-transform .2s ease;position:relative;pointer-events:initial;border-radius:2px}.bf-toolbar .bf-arrow,.bf-toolbar:before{content:"";display:block;position:absolute;pointer-events:initial}.bf-toolbar div:not(.bf-arrow):hover{background:rgba(255,255,255,.1);color:rgba(255,255,255,.9)}.bf-toolbar div:not(.bf-arrow):active{background:rgba(0,0,0,.1);-webkit-transition:all 0s,-webkit-transform .2s ease;-o-transition:all 0s,transform .2s ease;transition:all 0s,transform .2s ease;transition:all 0s,transform .2s ease,-webkit-transform .2s ease}.bf-toolbar.bf-hover:hover div:not(.bf-arrow),.bf-toolbar.bf-visible div:not(.bf-arrow){-webkit-transform:translate(0,0);-ms-transform:translate(0,0);transform:translate(0,0);-webkit-transition:all 50ms,-webkit-transform .2s cubic-bezier(0,0,0,1);-o-transition:all 50ms,transform .2s cubic-bezier(0,0,0,1);transition:all 50ms,transform .2s cubic-bezier(0,0,0,1);transition:all 50ms,transform .2s cubic-bezier(0,0,0,1),-webkit-transform .2s cubic-bezier(0,0,0,1)}.bf-toolbar:before{width:100%;height:calc(100% - 15px);z-index:-1;background:#424549;left:0;top:5px;border-radius:3px;-webkit-transform:translate(0,55px);-ms-transform:translate(0,55px);transform:translate(0,55px);-webkit-transition:all .2s ease;-o-transition:all .2s ease;transition:all .2s ease}.bf-toolbar.bf-hover:hover:before,.bf-toolbar.bf-visible:before{-webkit-transform:translate(0,0);-ms-transform:translate(0,0);transform:translate(0,0);-webkit-transition:all .2s cubic-bezier(0,0,0,1);-o-transition:all .2s cubic-bezier(0,0,0,1);transition:all .2s cubic-bezier(0,0,0,1)}.bf-toolbar .bf-arrow{background:url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTcuNDEgMTUuNDFMMTIgMTAuODNsNC41OSA0LjU4TDE4IDE0bC02LTYtNiA2eiIvPiAgICA8cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PC9zdmc+) 50% no-repeat;height:30px;width:30px;right:5px;bottom:0;-webkit-transition:all .2s ease;-o-transition:all .2s ease;transition:all .2s ease;opacity:.3;cursor:pointer}.bf-toolbar.bf-hover:hover .bf-arrow,.bf-toolbar.bf-visible .bf-arrow{-webkit-transform:translate(0,-14px) rotate(-90deg);-ms-transform:translate(0,-14px) rotate(-90deg);transform:translate(0,-14px) rotate(-90deg);-webkit-transition:all .2s cubic-bezier(0,0,0,1);-o-transition:all .2s cubic-bezier(0,0,0,1);transition:all .2s cubic-bezier(0,0,0,1);opacity:.9}'
-		
-		this.mainCSS += `
-.bf-toolbar.bf-left {
-	left: 0!important;
-	right: auto!important;
-	margin-right: 0!important;
-	margin-left: 5px!important;
-	padding: 10px 10px 15px 30px!important;
-}
-
-.bf-toolbar.bf-left .bf-arrow {
-	left: 5px!important;
-	right: auto!important;
-}
-
-.bf-toolbar.bf-left.bf-hover:hover .bf-arrow,.bf-toolbar.bf-left.bf-visible .bf-arrow {
-	-webkit-transform: translate(0,-14px) rotate(90deg)!important;
-	-ms-transform: translate(0,-14px) rotate(90deg)!important;
-	transform: translate(0,-14px) rotate(90deg)!important;
-}
-		`
+		this.mainCSS =  '.bf-toolbar{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;white-space:nowrap;font-size:85%;position:absolute;color:rgba(255,255,255,.5);width:auto;right:0;bottom:auto;border-radius:0;margin:0 5px 0 0;height:27px;top:0;-webkit-transform:translate(0,-100%);-ms-transform:translate(0,-100%);transform:translate(0,-100%);opacity:1;display:block;overflow:hidden;pointer-events:none;padding:10px 30px 15px 10px}.message-group .bf-toolbar .bf-arrow,.upload-modal .bf-toolbar .bf-arrow,.upload-modal .bf-toolbar:before{display:none}.message-group .bf-toolbar{padding:10px 10px 15px}.message-group .bf-toolbar div:not(.bf-arrow),.message-group .bf-toolbar:before{-webkit-animation:bf-slide-up .3s cubic-bezier(.4,0,0,1);animation:bf-slide-up .3s cubic-bezier(.4,0,0,1)}@keyframes bf-slide-up{from{transform:translate(0,55px);opacity:0}}.upload-modal .bf-toolbar{position:relative;transform:none;padding:0;margin-right:0;border-radius:2px}.message-group .bf-toolbar div:not(.bf-arrow),.message-group .bf-toolbar:before,.upload-modal .bf-toolbar div:not(.bf-arrow),.upload-modal .bf-toolbar:before{-webkit-transform:translate(0,0);-ms-transform:translate(0,0);transform:translate(0,0)}.bf-toolbar.bf-hover:hover,.bf-toolbar.bf-visible{pointer-events:initial}.bf-toolbar div:not(.bf-arrow){padding:7px 5px;cursor:pointer;display:-webkit-inline-box;display:-ms-inline-flexbox;display:inline-flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-transform:translate(0,55px);-ms-transform:translate(0,55px);transform:translate(0,55px);-webkit-transition:all 50ms,-webkit-transform .2s ease;-o-transition:all 50ms,transform .2s ease;transition:all 50ms,transform .2s ease;transition:all 50ms,transform .2s ease,-webkit-transform .2s ease;position:relative;pointer-events:initial;border-radius:2px}.bf-toolbar .bf-arrow,.bf-toolbar:before{content:"";display:block;position:absolute;pointer-events:initial}.bf-toolbar div:not(.bf-arrow):hover{background:rgba(255,255,255,.1);color:rgba(255,255,255,.9)}.bf-toolbar div:not(.bf-arrow):active{background:rgba(0,0,0,.1);-webkit-transition:all 0s,-webkit-transform .2s ease;-o-transition:all 0s,transform .2s ease;transition:all 0s,transform .2s ease;transition:all 0s,transform .2s ease,-webkit-transform .2s ease}.bf-toolbar.bf-hover:hover div:not(.bf-arrow),.bf-toolbar.bf-visible div:not(.bf-arrow){-webkit-transform:translate(0,0);-ms-transform:translate(0,0);transform:translate(0,0);-webkit-transition:all 50ms,-webkit-transform .2s cubic-bezier(0,0,0,1);-o-transition:all 50ms,transform .2s cubic-bezier(0,0,0,1);transition:all 50ms,transform .2s cubic-bezier(0,0,0,1);transition:all 50ms,transform .2s cubic-bezier(0,0,0,1),-webkit-transform .2s cubic-bezier(0,0,0,1)}.bf-toolbar:before{width:100%;height:calc(100% - 15px);z-index:-1;background:#424549;left:0;top:5px;border-radius:3px;-webkit-transform:translate(0,55px);-ms-transform:translate(0,55px);transform:translate(0,55px);-webkit-transition:all .2s ease;-o-transition:all .2s ease;transition:all .2s ease}.bf-toolbar.bf-hover:hover:before,.bf-toolbar.bf-visible:before{-webkit-transform:translate(0,0);-ms-transform:translate(0,0);transform:translate(0,0);-webkit-transition:all .2s cubic-bezier(0,0,0,1);-o-transition:all .2s cubic-bezier(0,0,0,1);transition:all .2s cubic-bezier(0,0,0,1)}.bf-toolbar .bf-arrow{background:url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTcuNDEgMTUuNDFMMTIgMTAuODNsNC41OSA0LjU4TDE4IDE0bC02LTYtNiA2eiIvPiAgICA8cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PC9zdmc+) 50% no-repeat;height:30px;width:30px;right:5px;bottom:0;-webkit-transition:all .2s ease;-o-transition:all .2s ease;transition:all .2s ease;opacity:.3;cursor:pointer}.bf-toolbar.bf-hover:hover .bf-arrow,.bf-toolbar.bf-visible .bf-arrow{-webkit-transform:translate(0,-14px) rotate(-90deg);-ms-transform:translate(0,-14px) rotate(-90deg);transform:translate(0,-14px) rotate(-90deg);-webkit-transition:all .2s cubic-bezier(0,0,0,1);-o-transition:all .2s cubic-bezier(0,0,0,1);transition:all .2s cubic-bezier(0,0,0,1);opacity:.9}.bf-toolbar.bf-left{left:0!important;right:auto!important;margin-right:0!important;margin-left:5px!important;padding:10px 10px 15px 30px!important}.bf-toolbar.bf-left .bf-arrow{left:5px!important;right:auto!important}.bf-toolbar.bf-left.bf-hover:hover .bf-arrow,.bf-toolbar.bf-left.bf-visible .bf-arrow{-webkit-transform:translate(0,-14px) rotate(90deg)!important;-ms-transform:translate(0,-14px) rotate(90deg)!important;transform:translate(0,-14px) rotate(90deg)!important}'
 	}
+	
 	getName() { return appName }
 
 	getDescription() { return appDescription }
@@ -343,7 +284,7 @@ li[data-reactid*="Better Formatting Redux"] input[type=range]::-webkit-slider-th
 	start() {
 		this.loadSettings();
 		BdApi.injectCSS("bf-style", this.mainCSS);
-		BdApi.injectCSS("bf-settings", this.settingsCSS);
+		BdApi.injectCSS("bf-settings", SettingField.getCSS(this.getName()));
 		$(".channelTextArea-1HTP3C textarea").each((index, elem) => {
 			this.addToolbar($(elem));
 		});
@@ -405,11 +346,11 @@ li[data-reactid*="Better Formatting Redux"] input[type=range]::-webkit-slider-th
 		// Making it to this point means that we have found a full wrapper
 		// This block performs inner chaining
 		if (this.settings.plugin.chainFormats) {
-			for (var w=0; w<newStyleNames.length; w++) {
-				var newText = this.doFormat(returnText, this.settings.wrappers[newStyleNames[w]], begin+wrapper.length);
+			for (var w=0; w<this.customWrappers.length; w++) {
+				var newText = this.doFormat(returnText, this.settings.wrappers[this.customWrappers[w]], begin+wrapper.length);
 				if (returnText != newText) {
 					returnText = newText;
-					end = end - this.settings.wrappers[newStyleNames[w]].length*2
+					end = end - this.settings.wrappers[this.customWrappers[w]].length*2
 				}
 			}
 		}
@@ -420,29 +361,25 @@ li[data-reactid*="Better Formatting Redux"] input[type=range]::-webkit-slider-th
 			middle = middle.replace(/./g, letter => {
 				var index = this.replaceList.indexOf(letter);
 				letterNum += 1;
-				switch (wrapper) {
-					case this.settings.wrappers.fullwidth:
-						if (this.settings.formatting.fullWidthMap) return index != -1 ? this.fullwidthList[index] : letter;
-						else return index != -1 ? letterNum == middle.length ? letter.toUpperCase() : letter.toUpperCase() + " " : letter;
-					case this.settings.wrappers.superscript:
-						return index != -1 ? this.superscriptList[index] : letter
-					case this.settings.wrappers.smallcaps:
-						return index != -1 ? this.smallCapsList[index] : letter;
-					case this.settings.wrappers.upsidedown:
-						return index != -1 ? this.upsideDownList[index] : letter;
-					case this.settings.wrappers.varied:
-						var compare = this.settings.formatting.startCaps ? 1 : 0;
-						if (letter.toLowerCase() == letter.toUpperCase()) letterNum = letterNum - 1;
-						return index != -1 ? letterNum % 2 == compare ? letter.toUpperCase() : letter.toLowerCase() : letter;
-					default:
-						return letter;
+				if (wrapper == this.settings.wrappers.fullwidth) {
+					if (this.settings.formatting.fullWidthMap) return index != -1 ? this.fullwidthList[index] : letter;
+					else return index != -1 ? letterNum == middle.length ? letter.toUpperCase() : letter.toUpperCase() + " " : letter;
 				}
+				else if (wrapper == this.settings.wrappers.superscript) {return index != -1 ? this.superscriptList[index] : letter;}
+				else if (wrapper == this.settings.wrappers.smallcaps) {return index != -1 ? this.smallCapsList[index] : letter;}
+				else if (wrapper == this.settings.wrappers.upsidedown) {return index != -1 ? this.upsideDownList[index] : letter;}
+				else if (wrapper == this.settings.wrappers.varied) {
+					var compare = this.settings.formatting.startCaps ? 1 : 0;
+					if (letter.toLowerCase() == letter.toUpperCase()) letterNum = letterNum - 1;
+					return index != -1 ? letterNum % 2 == compare ? letter.toUpperCase() : letter.toLowerCase() : letter;
+				}
+				else {return letter;}
 				previousLetter = letter;
 			})
 			if (wrapper == this.settings.wrappers.upsidedown && this.settings.formatting.reorderUpsidedown) return before + middle.split("").reverse().join("") + after;
 			else return before + middle + after;
 		});
-		//begin = text.indexOf(wrapper, end + wrapper.length);
+		
 		return returnText;
 	}
 	
@@ -450,61 +387,48 @@ li[data-reactid*="Better Formatting Redux"] input[type=range]::-webkit-slider-th
 		if (e.shiftKey || e.which != 13) return;
 		var textarea = $(e.currentTarget);
 		var text = textarea.val();
-		var bfr = BdApi.getPlugin(appName);
 		for (var i = 0; i < text.length; i++) {
-			var len = text.length;
-			switch (text[i]) {
-				case "`":
-					next = text.indexOf("`", i + 1);
-					if (next != -1)
-						i = next;
-					break;
-				case "@":
-					var match = /@.*#[0-9]*/.exec(text.substring(i))
-					if(match && match.index == 0)
-						i += match[0].length - 1;
-					break;
-				default:
-					for (var w=0; w<newStyleNames.length; w++) {
-						var newText = bfr.doFormat(text, bfr.settings.wrappers[newStyleNames[w]], i);
-						if (text != newText) {
-							text = newText;
-							i = i - bfr.settings.wrappers[newStyleNames[w]].length*2
-						}
+			if (text[i] == "`") {
+				next = text.indexOf("`", i + 1);
+				if (next != -1)
+					i = next;
+			}
+			else if (text[i] == "@") {
+				var match = /@.*#[0-9]*/.exec(text.substring(i))
+				if(match && match.index == 0) i += match[0].length - 1;
+			}
+			else {
+				for (var w=0; w<this.customWrappers.length; w++) {
+					var newText = this.doFormat(text, this.settings.wrappers[this.customWrappers[w]], i);
+					if (text != newText) {
+						text = newText;
+						i = i - this.settings.wrappers[this.customWrappers[w]].length*2
 					}
+				}
 			}
 		}
 		textarea.val(text);
 		textarea[0].dispatchEvent(new Event('input', { bubbles: true }))
-		if (bfr.settings.plugin.closeOnSend) $(".bf-toolbar").removeClass('bf-visible');
+		if (this.settings.plugin.closeOnSend) $(".bf-toolbar").removeClass('bf-visible');
 	}
 	
 	wrapSelection(textarea, wrapper) {
 		var text = textarea.value;
 		var start = textarea.selectionStart;
 		var len = text.substring(textarea.selectionStart, textarea.selectionEnd).length;
-
 		text = wrapper + text.substring(textarea.selectionStart, textarea.selectionEnd) + wrapper;
-
 		textarea.focus();
-
-		setTimeout(() => {
-			document.execCommand("insertText", false, text);
-			textarea.selectionEnd = (textarea.selectionStart = start + wrapper.length) + len;
-		}, 1);
+		document.execCommand("insertText", false, text);
+		textarea.selectionEnd = (textarea.selectionStart = start + wrapper.length) + len;
 	}
 	
 	addToolbar(textarea) {
 		var hoverInterval;
 		var toolbarElement = $(this.toolbarString)
-		if (this.settings.plugin.hoverOpen == true) {
-			toolbarElement.addClass("bf-hover")
-		}
-		if (this.isOpen) {
-			toolbarElement.addClass("bf-visible")
-		}
-		textarea
-			.on("keypress."+appNameShort, this.format)
+		if (this.settings.plugin.hoverOpen == true) toolbarElement.addClass("bf-hover");
+		if (this.isOpen) toolbarElement.addClass("bf-visible");
+		
+		textarea.on("keypress."+appNameShort, (e) => {this.format(e)})
 			.parent().after(toolbarElement)
 			.siblings(".bf-toolbar")
 			.on("mousemove."+appNameShort, (e) => {
@@ -516,26 +440,18 @@ li[data-reactid*="Better Formatting Redux"] input[type=range]::-webkit-slider-th
 				});
 				$this.scrollLeft(pos / $this.width() * diff);
 			})
-			.on("mouseenter."+appNameShort, () => {
-				hoverInterval = setInterval(() => {
-					textarea.focus();
-				}, 10);
-			})
-			.on("mouseleave."+appNameShort, () => {
-				clearInterval(hoverInterval);
-			})
 			.on("click."+appNameShort, "div", (e) => {
-				var $button = $(e.currentTarget);
-				if ($button.hasClass("bf-arrow")) {
-					if (this.settings.plugin.hoverOpen == false) {
-						this.openClose();
-					}
+				var button = $(e.currentTarget);
+				if (button.hasClass("bf-arrow")) {
+					if (!this.settings.plugin.hoverOpen) this.openClose();
 				}
 				else {
-					this.wrapSelection(textarea[0], this.settings.wrappers[$button.attr("name")]);	
+					var wrapper = "";
+					if (button.data("type") == "discord") wrapper = this.discordWrappers[button.data("name")];
+					else wrapper = this.settings.wrappers[button.data("name")];
+					this.wrapSelection(textarea[0], wrapper);	
 				}
 			})
-			.show();
 		this.updateSide()
 		this.updateOpacity()
 	}
@@ -545,7 +461,7 @@ li[data-reactid*="Better Formatting Redux"] input[type=range]::-webkit-slider-th
 		if (this.hasUpdate) {
 			var header = $('<div class="formNotice-2tZsrh margin-bottom-20 padded cardWarning-31DHBH card-3DrRmC">')
 			var headerText = $('<div class="default-3bB32Y formText-1L-zZB formNoticeBody-1C0wup whiteText-32USMe modeDefault-389VjU primary-2giqSn">')
-			headerText.html("Update Available! Your version: " + appVersion + " | Current version: " + this.remoteVersion + "<br>Get it on Zere's GitHub! http://bit.ly/BFRedux")
+			headerText.html("Update Available! Your version: " + appVersion + " | Current version: " + this.remoteVersion + "<br>Get it on Zere's GitHub! http://bit.ly/ZerebosBD")
 			headerText.css("line-height", "150%")
 			headerText.appendTo(header)
 			header.appendTo(panel)
@@ -565,7 +481,7 @@ li[data-reactid*="Better Formatting Redux"] input[type=range]::-webkit-slider-th
 		)
 		
 		new ControlGroup("Formatting Options", () => {this.saveSettings()}).appendTo(panel).append(
-			new CheckboxSetting("Use Char Map?", "This determines if the char map is used, or just spaced capital letters.",
+			new PillSetting("Fullwidth Style", "Which style of fullwidth formatting should be used.", "T H I S", "ｔｈｉｓ",
 								this.settings.formatting.fullWidthMap, (checked) => {this.settings.formatting.fullWidthMap = checked}), 
 			new CheckboxSetting("Reorder Upsidedown Text", "Having this enabled reorders the upside down text to make it in-order.",
 								this.settings.formatting.reorderUpsidedown, (checked) => {this.settings.formatting.reorderUpsidedown = checked}),
@@ -588,7 +504,7 @@ li[data-reactid*="Better Formatting Redux"] input[type=range]::-webkit-slider-th
 			),
 			new CheckboxSetting("Close On Send", "This option will close the toolbar when the message is sent when \"Open On Hover\" is disabled.",
 								this.settings.plugin.closeOnSend, (checked) => {this.settings.plugin.closeOnSend = checked;}),
-			new CheckboxSetting("Chain Formats Outward", "Enabling this changes the chaining order from inward to outward. Check the GitHub for more info.",
+			new PillSetting("Format Chaining", "Swaps priority of wrappers between inner first and outer first. Check the GitHub for more info.", "Inner", "Outer",
 								this.settings.plugin.chainFormats, (checked) => {this.settings.plugin.chainFormats = checked;})
 		)
 		
