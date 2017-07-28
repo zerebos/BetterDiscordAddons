@@ -1,7 +1,7 @@
+# For a better version check out my new plugin [BetterRoleColors](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors)
+
 # ColoredVoice & ColoredTyping
 **Note:** This is the fixed version of Anxeal's original.
-
-For a better version check out my new plugin [BetterRoleColors](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors)
 
 For support and update announcements you can visit [Zere's server](http://discord.zackrauen.com/).
 
