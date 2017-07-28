@@ -1,5 +1,7 @@
 //META{"name":"ServerSorter"}*//
 
+var ServerSorter = (function() {
+
 class ServerSorter {
 	getName(){return "Server Sorter"}
 	getShortName() {return "ServerSorter"}
@@ -89,7 +91,7 @@ class ServerSorter {
 			var item = $(e.currentTarget);
 			if (item.data("sort")) this.doSort(item.data("sort"), item.data("reverse"), item.data("reset-sort"));
 		}) 
-		this.options.appendTo('.platform-win')
+		this.options.appendTo('div[class*="platform-"]')
 
 		this.sortButton = $(this.sorter.find('.sort-button')[0]);
 		this.sortButton.on("click."+this.getShortName(), () => {
@@ -113,3 +115,8 @@ class ServerSorter {
 	
 	observer(mutation){}
 }
+
+
+return ServerSorter
+})();
+
