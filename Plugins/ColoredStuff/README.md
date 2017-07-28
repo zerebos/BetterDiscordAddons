@@ -1,8 +1,7 @@
 # ColoredVoice & ColoredTyping
-
-Adds user's role colors to their typing notification and their name in the voice chat.
-
 **Note:** This is the fixed version of Anxeal's original.
+
+For a better version check out my new plugin [BetterRoleColors](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors)
 
 For support and update announcements you can visit [Zere's server](http://discord.zackrauen.com/).
 
