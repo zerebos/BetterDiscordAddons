@@ -387,7 +387,7 @@ class Plugin {
 	}
 	
 	generateSettings(panel) {
-		this.hasUpdate = false
+		
 		if (this.hasUpdate) {
 			var header = $('<div class="formNotice-2tZsrh margin-bottom-20 padded cardWarning-31DHBH card-3DrRmC">').css("background", SettingField.getAccentColor()).css("border-color", "transparent")
 			var headerText = $('<div class="default-3bB32Y formText-1L-zZB formNoticeBody-1C0wup whiteText-32USMe modeDefault-389VjU primary-2giqSn">')
