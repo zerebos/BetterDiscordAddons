@@ -6,7 +6,7 @@ class Plugin {
 	getName(){return "ResizableCSS"}
 	getShortName() {return "rcss"}
 	getDescription(){return "Allows you to resize the detached CustomCSS window."}
-	getVersion(){return "0.0.1"}
+	getVersion(){return "0.1.1"}
 	getAuthor(){return "Zerebos"}
 	
 	load(){}
