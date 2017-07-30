@@ -6,7 +6,7 @@ var appName = "Better Role Colors";
 var appNameShort = "BRC"; // Used for namespacing, settings, and logging
 var appDescription = "Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer";
 var appAuthor = "Zerebos";
-var appVersion = "0.3.4";
+var appVersion = "0.3.5";
 var appGithubLink = "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js";
 
 class ControlGroup {
@@ -111,14 +111,16 @@ class Plugin {
 		this.isOpen = false
 		this.hasUpdate = false
 		this.remoteVersion = ""
-		this.defaultSettings = {modules: {typing: true, voice: true, popouts: true, modals: true, auditLog: true, mentions: true},
+		this.defaultSettings = {modules: {typing: true, voice: true, mentions: true},
 								popouts: {username: false, discriminator: false, nickname: true, fallback: true},
 								modals: {username: true, discriminator: false},
-								auditLog: {username: true, discriminator: false}}
-		this.settings = {modules: {typing: true, voice: true, popouts: true, modals: true, auditLog: true, mentions: true},
+								auditLog: {username: true, discriminator: false},
+								account: {username: true, discriminator: false}}
+		this.settings = {modules: {typing: true, voice: true, mentions: true},
 						 popouts: {username: false, discriminator: false, nickname: true, fallback: true},
 						 modals: {username: true, discriminator: false},
-						 auditLog: {username: true, discriminator: false}}
+						 auditLog: {username: true, discriminator: false},
+						 account: {username: true, discriminator: false}}
 		this.mainCSS =  ""
 
 		this.colorData = {}
@@ -240,6 +242,10 @@ class Plugin {
 			this.getMessageColors()
 			this.colorize()
 		}
+
+    	if (elem.find("#friends").length || elem.is("#friends")) {
+        	this.colorize()
+    	}
 	}
 
 	getReactInstance(node) { 
@@ -324,7 +330,7 @@ class Plugin {
 			var user = $(elem).find('.member-username-inner').text()
 			if (user) {
 				var color = $(elem).find('.member-username-inner')[0].style.color;
-				if (this.settings.modules.voice) this.addColorData(server, user, color);
+				if (this.settings.modules.typing) this.addColorData(server, user, color);
 				this.addColorData(server, this.getReactInstance(elem)._currentElement.props.children["0"].props.user.id, color)
 			}
 		});
@@ -337,12 +343,12 @@ class Plugin {
 			//var user = this.getReactInstance(elem)._currentElement.props.children.props.user.id
 			var user = $(elem).find(".avatarContainer-303pFz").siblings().first().text()
 			var userAlt = this.getReactInstance(elem)._currentElement.props.children.props.user.id
-			if (this.getColorData(server,user) && this.getColorData(server,userAlt)) return;
+			if (this.getColorData(server,user) && (!this.getColorData(server,userAlt) == !this.settings.modules.typing)) return;
 			$(elem).children().first().click()
 			var popout = $(".user-popout");
 			var color = this.getRoleFromPopout()
 			popout.remove()
-			if (this.settings.modules.voice) this.addColorData(server, user, color);
+			if (this.settings.modules.typing) this.addColorData(server, user, color);
 			this.addColorData(server, userAlt, color)
 		});
 	}
@@ -355,7 +361,7 @@ class Plugin {
 			var user = $(elem).find('.user-name').text()
 			if (user) {
 				var color = $(elem).find('.user-name')[0].style.color;
-				if (this.settings.modules.voice) this.addColorData(server, user, color);
+				if (this.settings.modules.typing) this.addColorData(server, user, color);
 				this.addColorData(server, this.getReactInstance(elem)._currentElement.props.children["0"].props.children.props.user.id, color)
 			}
 		});
@@ -365,9 +371,17 @@ class Plugin {
 		this.colorizeTyping()
 		this.colorizeVoice()
 		this.colorizeMentions()
-		/*this.colorizePopout()
-		this.colorizeModal()
-		this.colorizeAuditLog()*/
+		this.colorizeAccountStatus()
+	}
+
+	colorizeAccountStatus() {
+		if (!this.settings.account.username && !this.settings.account.discriminator) return;
+		let server = this.getCurrentServer()
+		let account = $('div[class*="accountDetails"]')
+		let user = this.getReactInstance(account[0])._hostParent._currentElement.props.children[1].props.user.id
+		let color = this.getColorData(server, user)
+		if (this.settings.account.username) account.find(".username").css("color", color);
+		if (this.settings.account.discriminator) account.find(".discriminator").css("color", color).css("opacity", 1);
 	}
 
 	colorizeTyping() {
@@ -416,7 +430,7 @@ class Plugin {
 	}
 
 	colorizePopout() {
-		if (!this.settings.modules.popouts) return;
+		if (!this.settings.popouts.username && !this.settings.popouts.discriminator && !this.settings.popouts.nickname) return;
 		let server = this.getCurrentServer()
 	    $(".user-popout").each((index, elem) => {
 	        var user = $(elem).text()
@@ -427,12 +441,11 @@ class Plugin {
 	        if ((color && this.settings.popouts.username) || (!hasNickname && this.settings.popouts.fallback)) $(elem).find('.username')[0].style.setProperty("color", color, "important");
 	        if (color && this.settings.popouts.discriminator) $(elem).find('.discriminator')[0].style.setProperty("color", color, "important");
 	        if (color && this.settings.popouts.nickname && hasNickname) $(elem).find('.nickname')[0].style.setProperty("color", color, "important");
-			//else $(elem).css("color", color);
 	    });
 	}
 
 	colorizeModal() {
-		if (!this.settings.modules.modals) return;
+		if (!this.settings.modals.username && !this.settings.modals.discriminator) return;
 		let server = this.getCurrentServer()
 	    $("#user-profile-modal").each((index, elem) => {
 	        var user = this.getReactInstance(elem)._currentElement.props.children[3].props.user.id
@@ -443,14 +456,14 @@ class Plugin {
 	}
 
 	colorizeAuditLog() {
-		if (!this.settings.modules.auditLog) return;
+		if (!this.settings.auditLog.username && !this.settings.auditLog.discriminator) return;
 		let server = this.getReactInstance($('.guild-settings-audit-logs')[0])._currentElement.props.children.props.children._owner._currentElement.props.guildId
 	    $(".userHook-DFT5u7").each((index, elem) => {
 	    	var index = $(elem).index() ? 2 : 0
 	        let user = this.getReactInstance(elem)._hostParent._currentElement.props.children[index].props.user.id
 	        let color = this.getColorData(server, user)
 			if (this.settings.auditLog.username) $(elem).children().first().css("color", color);
-			if (this.settings.auditLog.discriminator) { $(elem).children(".discrim-xHdOK3").css("color", color); $(elem).children(".discrim-xHdOK3").css("opacity", 1)}
+			if (this.settings.auditLog.discriminator) { $(elem).children(".discrim-xHdOK3").css("color", color).css("opacity", 1)}
 	    });
 	}
 
@@ -458,9 +471,10 @@ class Plugin {
 		this.decolorizeTyping()
 		this.decolorizeMentions()
 		this.decolorizeVoice()
-		this.decolorizePopouts()()
+		this.decolorizePopouts()
 		this.decolorizeModals()
 		this.decolorizeAuditLog()
+		this.decolorizeAccountStatus()
 	}
 
 	decolorizeTyping() { $(".typing strong").each((index, elem)=>{$(elem).css("color","")}) }
@@ -487,6 +501,11 @@ class Plugin {
 			$(elem).children(".discrim-xHdOK3").each((index, elem)=>{$(elem).css("color","")})
 		})
 	}
+
+	decolorizeAccountStatus() {
+		$('div[class*="accountDetails"]').find('.username').css("color","")
+		$('div[class*="accountDetails"]').find('.discriminator').css("color","")
+	}
 	
 	getSettingsPanel() {
 		var panel = $("<form>").addClass("form").css("width", "100%");
@@ -505,13 +524,10 @@ class Plugin {
 			header.appendTo(panel)
 		}
 
-		new ControlGroup("Module Settings", () => {this.saveSettings()}).appendTo(panel).append(
-			new CheckboxSetting("Typing", "Toggles colorizing of typing notifications. Least reliable module due to discord issues and double saves data.", this.settings.modules.typing, (checked) => {this.settings.modules.typing = checked; if (!checked) this.decolorizeTyping();}),
-			new CheckboxSetting("Voice", "Toggles colorizing of voice users. Laggy at first on large servers.", this.settings.modules.voice, (checked) => {this.settings.modules.voice = checked; if (!checked) this.decolorizeVoice();}),
-			new CheckboxSetting("Popouts", "Toggles colorizing of user popouts to match their role in the current server.", this.settings.modules.popouts, (checked) => {this.settings.modules.popouts = checked}),
-			new CheckboxSetting("Modals", "Toggles colorizing of user profiles (modals) to match their role in the current server.", this.settings.modules.modals, (checked) => {this.settings.modules.modals = checked}),
-			new CheckboxSetting("Audit Log", "Toggles colorizing of audit log of the current server.", this.settings.modules.auditLog, (checked) => {this.settings.modules.auditLog = checked}),
-			new CheckboxSetting("Mentions", "Toggles colorizing of user mentions in the current server.", this.settings.modules.mentions, (checked) => {this.settings.modules.mentions = checked; if (!checked) this.decolorizeMentions();})
+		new ControlGroup("Module Settings", () => {this.saveSettings(); this.decolorize(); this.colorize();}).appendTo(panel).append(
+			new CheckboxSetting("Typing", "Toggles colorizing of typing notifications. Least reliable module due to discord issues and double saves data.", this.settings.modules.typing, (checked) => {this.settings.modules.typing = checked}),
+			new CheckboxSetting("Voice", "Toggles colorizing of voice users. Laggy at first on large servers.", this.settings.modules.voice, (checked) => {this.settings.modules.voice = checked}),
+			new CheckboxSetting("Mentions", "Toggles colorizing of user mentions in the current server.", this.settings.modules.mentions, (checked) => {this.settings.modules.mentions = checked})
 		)
 
 		new ControlGroup("Popout Options", () => {this.saveSettings()}).appendTo(panel).append(
@@ -529,6 +545,11 @@ class Plugin {
 		new ControlGroup("Audit Log Options", () => {this.saveSettings()}).appendTo(panel).append(
 			new CheckboxSetting("Username", "Toggles coloring on the usernames in the audit log.", this.settings.auditLog.username, (checked) => {this.settings.auditLog.username = checked}),
 			new CheckboxSetting("Discriminator", "Toggles coloring on the discriminators in the audit log.", this.settings.auditLog.discriminator, (checked) => {this.settings.auditLog.discriminator = checked})
+		)
+
+		new ControlGroup("Account Options", () => {this.saveSettings(); this.decolorizeAccountStatus(); this.colorizeAccountStatus();}).appendTo(panel).append(
+			new CheckboxSetting("Username", "Toggles coloring on your username at the bottom.", this.settings.account.username, (checked) => {this.settings.account.username = checked}),
+			new CheckboxSetting("Discriminator", "Toggles coloring on your discriminator at the bottom.", this.settings.account.discriminator, (checked) => {this.settings.account.discriminator = checked})
 		)
 			
 		var resetButton = $("<button>");

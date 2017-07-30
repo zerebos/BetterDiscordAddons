@@ -2,6 +2,16 @@
 
 Adds server-based role colors to typing, voice, popouts, modals and more! For support and update announcements you can visit [Zere's server](http://discord.zackrauen.com/).
 
+## What's New
+
+### Mentions
+
+Now you can optionally color mentions for users to match their roles in the server.
+
+### Account Status
+
+You can also optionally have your account status at the bottom match your role in the current server.
+
 ## Features
 
 ### Colored Typing
@@ -61,10 +71,4 @@ Able to change which portions of the modal gets colored.
 
 ## Known Bugs and Issues
  - Joining a server with a large number in voice chat for the firs time can be laggy
- 
-## Changelog
-
-#### 0.3.2
-
- - Initial release
 
