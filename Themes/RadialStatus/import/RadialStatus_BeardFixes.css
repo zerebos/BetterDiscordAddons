@@ -2,10 +2,11 @@
     -ms-transform: none !important;
     transform: none !important;
     border-width: 8px !important;
-    top: -11px !important;
-    right: -11px !important;
-    bottom: -11px !important;
-    left: -11px !important;
+    top: -14px !important;
+    right: -14px !important;
+    bottom: -14px !important;
+    left: -14px !important;
+    padding: 6px !important;
 }
 
 .channel-members .member.popout-open .avatar-small,
@@ -17,4 +18,12 @@
 .channel-members .member .avatar-small {
     -ms-transform: scale(1) !important;
     transform: scale(1) !important;
+}
+
+#user-profile-modal .header .header-info .profile-badge {
+    left: 177px !important;
+}
+
+#user-profile-modal .header .profile-badge+.header-info-inner .discord-tag {
+    margin-left: 40px !important;
 }
