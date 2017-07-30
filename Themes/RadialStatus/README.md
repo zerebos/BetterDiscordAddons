@@ -2,11 +2,15 @@
 
 Changes all instances of the status dot to a status circle except for the friends list. This is an update to Zerthox's StatusCircles to fix small issues as well as add the circles everywhere else possible.
 
-This should also be compatible with Beard's Material Design Theme as long as ~~this is loaded afterward **AND**~~ you uncomment the designated section in __this__ theme by deleting lines 94 & 123. (Should no longer need to be loaded after.)
+This should also be compatible with Beard's Material Design Theme as long as you uncomment the designated section in __this__ theme by deleting lines `4` and `5` **or** adding this line to custom css: `@import url(https://rawgit.com/rauenzi/BetterDiscordAddons/master/Themes/RadialStatus/import/RadialStatus_BeardFixes.css);`
 
 This should also be compatible with ClearVision without modification.
 
 For support and update announcements you can visit [Zere's server](http://discord.zackrauen.com/).
+
+## What's New
+
+The theme has been changed to auto-updating by popular demand. Fixes for beard's theme will also auto-update provided you have deleted lines `4` and `5` **or** added this line to custom css: `@import url(https://rawgit.com/rauenzi/BetterDiscordAddons/master/Themes/RadialStatus/import/RadialStatus_BeardFixes.css);`
 
 ## Screenshots
 

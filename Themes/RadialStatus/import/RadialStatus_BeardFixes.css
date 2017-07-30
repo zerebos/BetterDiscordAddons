@@ -1,0 +1,28 @@
+#user-profile-modal .avatar-profile .status {
+    zoom: 1 !important;
+    -ms-transform: none !important;
+    transform: none !important;
+}
+
+#user-profile-modal .avatar-wrapper {
+    zoom: 1 !important;
+    top: 40px !important;
+    left: 56px !important;
+}
+
+.avatar-profile {
+    width: 102px !important;
+    height: 102px !important;
+    background-size: 102px 102px !important;
+}
+
+.channel-members .member.popout-open .avatar-small,
+.channel-members .member:hover .avatar-small {
+    -ms-transform: scale(1.15) !important;
+    transform: scale(1.15) !important;
+}
+
+.channel-members .member .avatar-small {
+    -ms-transform: scale(1) !important;
+    transform: scale(1) !important;
+}
