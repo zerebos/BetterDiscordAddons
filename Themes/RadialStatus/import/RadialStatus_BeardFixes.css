@@ -1,19 +1,11 @@
-#user-profile-modal .avatar-profile .status {
-    zoom: 1 !important;
+.theme-dark #user-profile-modal .avatar-profile .status {
     -ms-transform: none !important;
     transform: none !important;
-}
-
-#user-profile-modal .avatar-wrapper {
-    zoom: 1 !important;
-    top: 40px !important;
-    left: 56px !important;
-}
-
-.avatar-profile {
-    width: 102px !important;
-    height: 102px !important;
-    background-size: 102px 102px !important;
+    border-width: 8px !important;
+    top: -11px !important;
+    right: -11px !important;
+    bottom: -11px !important;
+    left: -11px !important;
 }
 
 .channel-members .member.popout-open .avatar-small,
