@@ -380,8 +380,8 @@ class Plugin {
 		let account = $('div[class*="accountDetails"]')
 		let user = this.getReactInstance(account[0])._hostParent._currentElement.props.children[1].props.user.id
 		let color = this.getColorData(server, user)
-		if (this.settings.account.username) account.find(".username").css("color", color);
-		if (this.settings.account.discriminator) account.find(".discriminator").css("color", color).css("opacity", 1);
+		if (this.settings.account.username) account.find(".username")[0].style.setProperty("color", color, "important");
+		if (this.settings.account.discriminator) account.find(".discriminator").css("opacity", 1)[0].style.setProperty("color", color, "important");
 	}
 
 	colorizeTyping() {
