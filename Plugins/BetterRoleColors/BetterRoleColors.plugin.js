@@ -6,7 +6,7 @@ var appName = "Better Role Colors";
 var appNameShort = "BRC"; // Used for namespacing, settings, and logging
 var appDescription = "Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer";
 var appAuthor = "Zerebos";
-var appVersion = "0.3.2";
+var appVersion = "0.3.4";
 var appGithubLink = "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js";
 
 class ControlGroup {
@@ -55,7 +55,6 @@ class SettingField {
 		
 		this.input = $("<input>", inputData)
 		this.getValue = () => {return this.input.val();}
-		this.processValue = (value) => {return value;}
 		this.input.on("keyup."+appNameShort+" change."+appNameShort, () => {
 			if (typeof callback != 'undefined') {
 				var returnVal = this.getValue()
@@ -112,11 +111,11 @@ class Plugin {
 		this.isOpen = false
 		this.hasUpdate = false
 		this.remoteVersion = ""
-		this.defaultSettings = {modules: {typing: true, voice: true, popouts: true, modals: true, auditLog: true},
+		this.defaultSettings = {modules: {typing: true, voice: true, popouts: true, modals: true, auditLog: true, mentions: true},
 								popouts: {username: false, discriminator: false, nickname: true, fallback: true},
 								modals: {username: true, discriminator: false},
 								auditLog: {username: true, discriminator: false}}
-		this.settings = {modules: {typing: true, voice: true, popouts: true, modals: true, auditLog: true},
+		this.settings = {modules: {typing: true, voice: true, popouts: true, modals: true, auditLog: true, mentions: true},
 						 popouts: {username: false, discriminator: false, nickname: true, fallback: true},
 						 modals: {username: true, discriminator: false},
 						 auditLog: {username: true, discriminator: false}}
@@ -186,8 +185,9 @@ class Plugin {
 	
 	stop() {
 		this.saveData()
+		this.decolorize()
 		this.saveSettings();
-		$(document).add("*").off(this.getShortName());
+		$("*").off("." + this.getShortName());
 		BdApi.clearCSS(this.getShortName()+"-style");
 		BdApi.clearCSS(this.getShortName()+"-settings");
 	}
@@ -205,8 +205,6 @@ class Plugin {
 
 		if (!e.addedNodes.length) return;
 		var elem = $(e.addedNodes[0]);
-
-		//guild-settings-audit-logs
 
 		if (elem.find(".containerDefault-7RImuF").length || elem.find(".avatarContainer-303pFz").length) {
 			this.getVoiceColors()
@@ -227,6 +225,10 @@ class Plugin {
 
     	if (elem.find("#user-profile-modal").length || elem.is("#user-profile-modal")) {
         	this.colorizeModal()
+    	}
+
+    	if (elem.find(".message-group").length || elem.hasClass("message-group") || elem.find(".message").length || elem.hasClass("message")) {
+        	this.colorizeMentions()
     	}
 
 		if (elem.find(".member-username-inner").length) {
@@ -250,6 +252,47 @@ class Plugin {
 		return this.getReactInstance($('.channels-wrap')[0])._currentElement.props.children["0"].props.guildId
 	}
 
+	getRGB(color) {
+	    var result;
+	    
+	    // Look for rgb(num,num,num)
+	    if (result = /rgb\(\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*\)/.exec(color)) return [parseInt(result[1]), parseInt(result[2]), parseInt(result[3])];
+
+	    // Look for rgb(num%,num%,num%)
+	    if (result = /rgb\(\s*([0-9]+(?:\.[0-9]+)?)\%\s*,\s*([0-9]+(?:\.[0-9]+)?)\%\s*,\s*([0-9]+(?:\.[0-9]+)?)\%\s*\)/.exec(color)) return [parseFloat(result[1]) * 2.55, parseFloat(result[2]) * 2.55, parseFloat(result[3]) * 2.55];
+
+	    // Look for #a0b1c2
+	    if (result = /#([a-fA-F0-9]{2})([a-fA-F0-9]{2})([a-fA-F0-9]{2})/.exec(color)) return [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)];
+
+	    // Look for #fff
+	    if (result = /#([a-fA-F0-9])([a-fA-F0-9])([a-fA-F0-9])/.exec(color)) return [parseInt(result[1] + result[1], 16), parseInt(result[2] + result[2], 16), parseInt(result[3] + result[3], 16)];
+	}
+
+	darkenColor(color, percent) {
+	    var rgb = this.getRGB(color);
+	    
+	    for(var i = 0; i < rgb.length; i++){
+	        rgb[i] = Math.round(Math.max(0, rgb[i] - rgb[i]*(percent/100)));
+	    }
+	    
+	    return 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
+	}
+
+	lightenColor(color, percent) {
+	    var rgb = this.getRGB(color);
+	    
+	    for(var i = 0; i < rgb.length; i++){
+	        rgb[i] = Math.round(Math.min(255, rgb[i] + rgb[i]*(percent/100)));
+	    }
+	    
+	    return 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
+	}
+
+	rgbToAlpha(color, alpha) {
+	    var rgb = this.getRGB(color);	    
+	    return 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + alpha + ')';
+	}
+
 	addColorData(server, user, color) {
 		if (this.colorData[server] === undefined) this.colorData[server] = {};
 		if (color) this.colorData[server][user] = color;
@@ -257,7 +300,7 @@ class Plugin {
 	}
 
 	getColorData(server, user) {
-		if (this.colorData[server] === undefined || this.colorData[server][user] === undefined) return "";
+		if (server === undefined || this.colorData[server] === undefined || this.colorData[server][user] === undefined) return "";
 		else return this.colorData[server][user];
 	}
 
@@ -321,10 +364,14 @@ class Plugin {
 	colorize() {
 		this.colorizeTyping()
 		this.colorizeVoice()
+		this.colorizeMentions()
+		/*this.colorizePopout()
+		this.colorizeModal()
+		this.colorizeAuditLog()*/
 	}
 
 	colorizeTyping() {
-		if (!this.isServer() || !this.settings.modules.typing) return;
+		if (!this.settings.modules.typing) return;
 		let server = this.getCurrentServer()
 	    $(".typing strong").each((index, elem) => {
 	        var user = $(elem).text();
@@ -333,7 +380,7 @@ class Plugin {
 	}
 
 	colorizeVoice() {
-		if (!this.isServer() || !this.settings.modules.voice) return;
+		if (!this.settings.modules.voice) return;
 		let server = this.getCurrentServer()
 	    $(".draggable-3SphXU").each((index, elem) => {
 	        var user = this.getReactInstance(elem)._currentElement.props.children.props.user.id
@@ -341,8 +388,35 @@ class Plugin {
 	    });
 	}
 
+	colorizeMentions(node) {
+		if (!this.settings.modules.mentions) return;
+		let server = this.getCurrentServer()
+		var searchSpace = node === undefined ? $ : node.find
+	    $(".message-group .message").each((index, elem) => {
+	    	var messageNum = $(elem).index()
+	    	var instance = this.getReactInstance(elem)
+	    	$(elem).find('.mention').each((index, elem) => {
+	        	var user = instance._hostParent._currentElement.props.children[0][messageNum].props.message.mentions[index]
+	        	var textColor = this.getColorData(server, user)
+				$(elem).css("color", textColor);
+				if (textColor) {
+					$(elem).css("background", this.rgbToAlpha(textColor,0.1));
+
+					$(elem).on("mouseenter."+this.getShortName(), ()=>{
+						$(elem).css("color", "#FFFFFF");
+						$(elem).css("background", this.rgbToAlpha(textColor,0.7));
+					})
+					$(elem).on("mouseleave."+this.getShortName(), ()=> {
+						$(elem).css("color", textColor);
+						$(elem).css("background", this.rgbToAlpha(textColor,0.1));
+					})
+				}
+	    	})
+	    });
+	}
+
 	colorizePopout() {
-		if (!this.isServer() || !this.settings.modules.popouts) return;
+		if (!this.settings.modules.popouts) return;
 		let server = this.getCurrentServer()
 	    $(".user-popout").each((index, elem) => {
 	        var user = $(elem).text()
@@ -358,7 +432,7 @@ class Plugin {
 	}
 
 	colorizeModal() {
-		if (!this.isServer() || !this.settings.modules.modals) return;
+		if (!this.settings.modules.modals) return;
 		let server = this.getCurrentServer()
 	    $("#user-profile-modal").each((index, elem) => {
 	        var user = this.getReactInstance(elem)._currentElement.props.children[3].props.user.id
@@ -379,6 +453,40 @@ class Plugin {
 			if (this.settings.auditLog.discriminator) { $(elem).children(".discrim-xHdOK3").css("color", color); $(elem).children(".discrim-xHdOK3").css("opacity", 1)}
 	    });
 	}
+
+	decolorize() {
+		this.decolorizeTyping()
+		this.decolorizeMentions()
+		this.decolorizeVoice()
+		this.decolorizePopouts()()
+		this.decolorizeModals()
+		this.decolorizeAuditLog()
+	}
+
+	decolorizeTyping() { $(".typing strong").each((index, elem)=>{$(elem).css("color","")}) }
+	decolorizeVoice() { $('.draggable-3SphXU').each((index, elem)=>{$(elem).find(".avatarContainer-303pFz").siblings().first().css("color", "");}) }
+	decolorizeMentions() { $('.mention').each((index, elem)=>{$(elem).css("color","");$(elem).css("background","")}); $(".mention").off("." + this.getShortName()); }
+	decolorizePopouts() {
+		$(".user-popout").each((index, elem) => {
+			$(elem).find('.discriminator').each((index, elem)=>{$(elem).css("color","")})
+			$(elem).find('.username').each((index, elem)=>{$(elem).css("color","")})
+			$(elem).find('.nickname').each((index, elem)=>{$(elem).css("color","")})
+		})
+	}
+
+	decolorizeModals() {
+		$("#user-profile-modal").each((index, elem) => {
+			$(elem).find('.discriminator').each((index, elem)=>{$(elem).css("color","")})
+			$(elem).find('.username').each((index, elem)=>{$(elem).css("color","")})
+		})
+	}
+
+	decolorizeAuditLog() {
+		$(".userHook-DFT5u7").each((index, elem) => {
+			$(elem).children().first().each((index, elem)=>{$(elem).css("color","")})
+			$(elem).children(".discrim-xHdOK3").each((index, elem)=>{$(elem).css("color","")})
+		})
+	}
 	
 	getSettingsPanel() {
 		var panel = $("<form>").addClass("form").css("width", "100%");
@@ -398,11 +506,12 @@ class Plugin {
 		}
 
 		new ControlGroup("Module Settings", () => {this.saveSettings()}).appendTo(panel).append(
-			new CheckboxSetting("Typing", "Toggles colorizing of typing notifications. Least reliable module due to discord issues and double saves data.", this.settings.modules.typing, (checked) => {this.settings.modules.typing = checked}),
-			new CheckboxSetting("Voice", "Toggles colorizing of voice users. Laggy at first on large servers.", this.settings.modules.voice, (checked) => {this.settings.modules.voice = checked}),
+			new CheckboxSetting("Typing", "Toggles colorizing of typing notifications. Least reliable module due to discord issues and double saves data.", this.settings.modules.typing, (checked) => {this.settings.modules.typing = checked; if (!checked) this.decolorizeTyping();}),
+			new CheckboxSetting("Voice", "Toggles colorizing of voice users. Laggy at first on large servers.", this.settings.modules.voice, (checked) => {this.settings.modules.voice = checked; if (!checked) this.decolorizeVoice();}),
 			new CheckboxSetting("Popouts", "Toggles colorizing of user popouts to match their role in the current server.", this.settings.modules.popouts, (checked) => {this.settings.modules.popouts = checked}),
 			new CheckboxSetting("Modals", "Toggles colorizing of user profiles (modals) to match their role in the current server.", this.settings.modules.modals, (checked) => {this.settings.modules.modals = checked}),
-			new CheckboxSetting("Audit Log", "Toggles colorizing of audit log of the current server.", this.settings.modules.auditLog, (checked) => {this.settings.modules.auditLog = checked})
+			new CheckboxSetting("Audit Log", "Toggles colorizing of audit log of the current server.", this.settings.modules.auditLog, (checked) => {this.settings.modules.auditLog = checked}),
+			new CheckboxSetting("Mentions", "Toggles colorizing of user mentions in the current server.", this.settings.modules.mentions, (checked) => {this.settings.modules.mentions = checked; if (!checked) this.decolorizeMentions();})
 		)
 
 		new ControlGroup("Popout Options", () => {this.saveSettings()}).appendTo(panel).append(
