@@ -1,4 +1,4 @@
-.theme-dark #user-profile-modal .avatar-profile .status {
+[class*="theme-"] #user-profile-modal .avatar-profile .status {
     -ms-transform: none !important;
     transform: none !important;
     border-width: 8px !important;

@@ -19,39 +19,39 @@ div[class*="user-info"] div[class*="status"] {
 	border: none !important;
 }
 
-.theme-dark div[class*="avatar-"] div[class*="online"],
-.theme-dark div[class*="avatar-"] div[class*="Online"],
+[class*="theme-"] div[class*="avatar-"] div[class*="online"],
+[class*="theme-"] div[class*="avatar-"] div[class*="Online"],
 #user-profile-modal div[class*="online"] {
     border-color: #43b581 !important;
 }
 
-.theme-dark div[class*="avatar-"] div[class*="idle"],
-.theme-dark div[class*="avatar-"] div[class*="Idle"],
+[class*="theme-"] div[class*="avatar-"] div[class*="idle"],
+[class*="theme-"] div[class*="avatar-"] div[class*="Idle"],
 #user-profile-modal div[class*="idle"] {
     border-color: #faa61a !important;
 }
 
-.theme-dark div[class*="avatar-"] div[class*="dnd"],
-.theme-dark div[class*="avatar-"] div[class*="Dnd"],
+[class*="theme-"] div[class*="avatar-"] div[class*="dnd"],
+[class*="theme-"] div[class*="avatar-"] div[class*="Dnd"],
 #user-profile-modal div[class*="dnd"] {
     border-color: #f04747 !important;
 }
 
-.theme-dark div[class*="avatar-"] div[class*="streaming"],
-.theme-dark div[class*="avatar-"] div[class*="Streaming"],
+[class*="theme-"] div[class*="avatar-"] div[class*="streaming"],
+[class*="theme-"] div[class*="avatar-"] div[class*="Streaming"],
 #user-profile-modal div[class*="streaming"]{
     animation: streaming-flash 1.5s linear infinite !important;
     border-color: #643da7 !important;
 }
 
-.theme-dark div[class*="avatar-"] div[class*="invisible"],
-.theme-dark div[class*="avatar-"] div[class*="Invisible"],
+[class*="theme-"] div[class*="avatar-"] div[class*="invisible"],
+[class*="theme-"] div[class*="avatar-"] div[class*="Invisible"],
 #user-profile-modal div[class*="invisible"] {
     border-color: #747f8d !important;
 }
 
-.theme-dark div[class*="avatar-"] div[class*="offline"],
-.theme-dark div[class*="avatar-"] div[class*="Offline"],
+[class*="theme-"] div[class*="avatar-"] div[class*="offline"],
+[class*="theme-"] div[class*="avatar-"] div[class*="Offline"],
 #user-profile-modal div[class*="offline"] {
     border-color: #636b75 !important;
 }
@@ -70,8 +70,8 @@ div[class*="user-info"] div[class*="status"] {
     top: 1px !important;
 }
 
-.theme-dark .user-popout .avatar-popout .status,
-.theme-dark #user-profile-modal .avatar-profile .status {
+[class*="theme-"] .user-popout .avatar-popout .status,
+[class*="theme-"] #user-profile-modal .avatar-profile .status {
 	border-width: 4px !important;
 	top: -7px !important;
 	right: -7px !important;
