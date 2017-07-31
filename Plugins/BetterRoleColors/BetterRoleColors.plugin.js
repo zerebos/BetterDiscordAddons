@@ -498,13 +498,13 @@ class Plugin {
 	decolorizeAuditLog() {
 		$(".userHook-DFT5u7").each((index, elem) => {
 			$(elem).children().first().each((index, elem)=>{$(elem).css("color","")})
-			$(elem).children(".discrim-xHdOK3").each((index, elem)=>{$(elem).css("color","")})
+			$(elem).children(".discrim-xHdOK3").each((index, elem)=>{$(elem).css("color","").css("opacity", "")})
 		})
 	}
 
 	decolorizeAccountStatus() {
 		$('div[class*="accountDetails"]').find('.username').css("color","")
-		$('div[class*="accountDetails"]').find('.discriminator').css("color","")
+		$('div[class*="accountDetails"]').find('.discriminator').css("color","").css("opacity", "")
 	}
 	
 	getSettingsPanel() {
