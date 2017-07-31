@@ -6,7 +6,7 @@ class Plugin {
 	getName(){return "BlurNSFW"}
 	getShortName() {return "bnsfw"}
 	getDescription(){return "Blurs images in NSFW channels until you hover over it. Support Server: bit.ly/ZeresServer"}
-	getVersion(){return "0.1.2"}
+	getVersion(){return "0.1.3"}
 	getAuthor(){return "Zerebos"}
 	
 	load(){}
