@@ -4,7 +4,7 @@ var AlwaysTyping = (function() {
 class AlwaysTyping {
 	getName(){return "Always Typing"}
 	getShortName() {return "AlwaysTyping"}
-	getDescription(){return "Makes people think you're always typing, even when you're not."}
+	getDescription(){return "Makes people think you're always typing, even when you're not. Support Server: bit.ly/ZeresServer"}
 	getVersion(){return "0.0.1"}
 	getAuthor(){return "Zerebos"}
 	

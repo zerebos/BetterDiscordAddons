@@ -5,7 +5,7 @@ var ResizableCSS = (function() {
 class Plugin {
 	getName(){return "ResizableCSS"}
 	getShortName() {return "rcss"}
-	getDescription(){return "Allows you to resize the detached CustomCSS window."}
+	getDescription(){return "Allows you to resize the detached CustomCSS window. Support Server: bit.ly/ZeresServer"}
 	getVersion(){return "0.1.1"}
 	getAuthor(){return "Zerebos"}
 	

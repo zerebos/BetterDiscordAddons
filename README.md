@@ -8,6 +8,7 @@ A series of plugins and themes for BetterDiscord. For support or announcements o
  - [Always Typing](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AlwaysTyping) - Makes people think you're always typing, even when you're not.
  - [Better Role Colors](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors) - Adds server-based role colors to typing, voice, popouts, modals and more!
  - [ResizableCSS](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ResizableCSS) - Allows you to resize the detached CustomCSS window.
+ - [BlurNSFW](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BlurNSFW) - Blurs images in NSFW channels until you hover over it.
  
 ## Themes
  - [RadialStatus](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/RadialStatus) - An extension (and update/fix) of Zerthox's Status Circles.

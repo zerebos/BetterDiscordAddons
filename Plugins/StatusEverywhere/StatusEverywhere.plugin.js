@@ -5,7 +5,7 @@ var StatusEverywhere = (function() {
 class Plugin {
 	getName(){return "Status Everywhere"}
 	getShortName() {return "StatusEverywhere"}
-	getDescription(){return "Adds user status everywhere Discord doesn't."}
+	getDescription(){return "Adds user status everywhere Discord doesn't. Support Server: bit.ly/ZeresServer"}
 	getVersion(){return "0.0.1-beta"}
 	getAuthor(){return "Zerebos"}
 	loadSettings() {
