@@ -6,5 +6,5 @@ Blurs images in NSFW channels until you hover over it. For support and update an
 
 
 ## Known Bugs and Issues
- - If you go back and forth quickly between images it sometimes doesn't unblur
+ - ~~If you go back and forth quickly between images it sometimes doesn't unblur~~ Fixed
 
