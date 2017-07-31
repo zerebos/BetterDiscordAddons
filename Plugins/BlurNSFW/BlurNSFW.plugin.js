@@ -14,7 +14,7 @@ class Plugin {
 	
 	start(){
 		this.style = `:root {--blur-nsfw: 10px;}
-		.attachment-image img, .embed-thumbnail img, .attachment-image canvas, .embed-thumbnail canvas {
+		.attachment-image img.blur:hover, .embed-thumbnail img.blur:hover, .attachment-image canvas.blur:hover, .embed-thumbnail canvas.blur:hover {
 			transition: 200ms cubic-bezier(.2, .11, 0, 1) !important;
 			filter: blur(0px);
 		}
@@ -25,7 +25,7 @@ class Plugin {
 		this.blurStuff()
 	}
 	stop(){
-		this.jqui.remove()
+		this.unblurStuff()
 		BdApi.clearCSS(this.getShortName())
 	}
 
@@ -42,17 +42,25 @@ class Plugin {
 
 		var blurAction = (index, elem) => {
 			var img = $(elem)
-			if (!img.hasClass("blur")) {
-				img.addClass("blur")
-				img.on("mouseenter."+this.getShortName(), (e)=>{$(e.target).removeClass("blur")})
-				img.on("mouseleave."+this.getShortName(), (e)=>{$(e.target).addClass("blur")})
-			}
+			if (!img.hasClass("blur")) img.addClass("blur");
 		}
 
 		$('.attachment-image img').each(blurAction)
 		$('.embed-thumbnail img').each(blurAction)
 		$('.attachment-image canvas').each(blurAction)
 		$('.embed-thumbnail canvas').each(blurAction)
+	}
+
+	unblurStuff(node) {
+		var unblurAction = (index, elem) => {
+			var img = $(elem)
+			if (img.hasClass("blur")) img.removeClass("blur");
+		}
+
+		$('.attachment-image img').each(unblurAction)
+		$('.embed-thumbnail img').each(unblurAction)
+		$('.attachment-image canvas').each(unblurAction)
+		$('.embed-thumbnail canvas').each(unblurAction)
 	}
 
 	observer(e){
