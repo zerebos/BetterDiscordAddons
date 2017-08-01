@@ -13,10 +13,10 @@ class Plugin {
 		this.style = `:root {--blur-nsfw: 10px; --blur-nsfw-time: 200ms;}
 		.attachment-image img.blur:hover, .embed-thumbnail img.blur:hover, .attachment-image canvas.blur:hover, .embed-thumbnail canvas.blur:hover, .attachment-image video.blur:hover, .embed-thumbnail video.blur:hover {
 			transition: var(--blur-nsfw-time) cubic-bezier(.2, .11, 0, 1) !important;
-			filter: blur(0px);
+			filter: blur(0px) !important;
 		}
-		.attachment-image img.blur, .embed-thumbnail img.blur, .attachment-image canvas.blur, .embed-thumbnail canvas.blur, .attachment-image video.blur .embed-thumbnail video.blur {
-			filter: blur(var(--blur-nsfw));
+		.attachment-image img.blur, .embed-thumbnail img.blur, .attachment-image canvas.blur, .embed-thumbnail canvas.blur, .attachment-image video.blur, .embed-thumbnail video.blur {
+			filter: blur(var(--blur-nsfw)) !important;
 			transition: var(--blur-nsfw-time) cubic-bezier(.2, .11, 0, 1) !important;
 		}`
 		this.selectors = ['.attachment-image img', '.attachment-image canvas', '.attachment-image video', '.embed-thumbnail img', '.embed-thumbnail canvas', '.embed-thumbnail video']
