@@ -8,20 +8,24 @@ class Plugin {
 	getDescription(){return "Blurs images in NSFW channels until you hover over it. Support Server: bit.ly/ZeresServer"}
 	getVersion(){return "0.1.3"}
 	getAuthor(){return "Zerebos"}
+
+	constructor() {
+		this.style = `:root {--blur-nsfw: 10px; --blur-nsfw-time: 200ms;}
+		.attachment-image img.blur:hover, .embed-thumbnail img.blur:hover, .attachment-image canvas.blur:hover, .embed-thumbnail canvas.blur:hover, .attachment-image video:hover, .embed-thumbnail video:hover {
+			transition: var(--blur-nsfw-time) cubic-bezier(.2, .11, 0, 1) !important;
+			filter: blur(0px);
+		}
+		.attachment-image img.blur, .embed-thumbnail img.blur, .attachment-image canvas.blur, .embed-thumbnail canvas.blur, .attachment-image video, .embed-thumbnail video {
+			filter: blur(var(--blur-nsfw));
+			transition: var(--blur-nsfw-time) cubic-bezier(.2, .11, 0, 1) !important;
+		}`
+		this.selectors = ['.attachment-image img', '.attachment-image canvas', '.attachment-image video', '.embed-thumbnail img', '.embed-thumbnail canvas', '.embed-thumbnail video']
+	}
 	
 	load(){}
 	unload(){}
 	
 	start(){
-		this.style = `:root {--blur-nsfw: 10px; --blur-nsfw-time: 200ms;}
-		.attachment-image img.blur:hover, .embed-thumbnail img.blur:hover, .attachment-image canvas.blur:hover, .embed-thumbnail canvas.blur:hover {
-			transition: var(--blur-nsfw-time) cubic-bezier(.2, .11, 0, 1) !important;
-			filter: blur(0px);
-		}
-		.attachment-image img.blur, .embed-thumbnail img.blur, .attachment-image canvas.blur, .embed-thumbnail canvas.blur {
-			filter: blur(var(--blur-nsfw));
-			transition: var(--blur-nsfw-time) cubic-bezier(.2, .11, 0, 1) !important;
-		}`
 		BdApi.injectCSS(this.getShortName(), this.style)
 		this.blurStuff()
 	}
@@ -46,10 +50,7 @@ class Plugin {
 			if (!img.hasClass("blur")) img.addClass("blur");
 		}
 
-		$('.attachment-image img').each(blurAction)
-		$('.embed-thumbnail img').each(blurAction)
-		$('.attachment-image canvas').each(blurAction)
-		$('.embed-thumbnail canvas').each(blurAction)
+		for (var i=0; i<this.selectors.length; i++) $(this.selectors[i]).each(blurAction);
 	}
 
 	unblurStuff() {
@@ -58,10 +59,7 @@ class Plugin {
 			if (img.hasClass("blur")) img.removeClass("blur");
 		}
 
-		$('.attachment-image img').each(unblurAction)
-		$('.embed-thumbnail img').each(unblurAction)
-		$('.attachment-image canvas').each(unblurAction)
-		$('.embed-thumbnail canvas').each(unblurAction)
+		for (var i=0; i<this.selectors.length; i++) $(this.selectors[i]).each(unblurAction);
 	}
 
 	observer(e){
