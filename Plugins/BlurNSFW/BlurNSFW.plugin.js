@@ -6,7 +6,7 @@ class Plugin {
 	getName(){return "BlurNSFW"}
 	getShortName() {return "bnsfw"}
 	getDescription(){return "Blurs images in NSFW channels until you hover over it. Support Server: bit.ly/ZeresServer"}
-	getVersion(){return "0.1.3"}
+	getVersion(){return "0.1.4"}
 	getAuthor(){return "Zerebos"}
 
 	constructor() {
@@ -39,7 +39,7 @@ class Plugin {
 	}
 
 	isNSFWChannel() {
-		return this.getReactInstance($('.title-wrap')[0])._currentElement.props.children[2].props.channel.nsfw
+		return this.getReactInstance($('.title-wrap')[0])._currentElement.props.children[2].props.channel.nsfw || this.getReactInstance($('.title-wrap')[0])._currentElement.props.children[2].props.channel.name.toLowerCase().contains("nsfw")
 	}
 
 	blurStuff() {
