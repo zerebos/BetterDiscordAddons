@@ -39,6 +39,7 @@ class Plugin {
 	}
 
 	isNSFWChannel() {
+		if (!$('.title-wrap').length) return false;
 		return this.getReactInstance($('.title-wrap')[0])._currentElement.props.children[2].props.channel.nsfw || this.getReactInstance($('.title-wrap')[0])._currentElement.props.children[2].props.channel.name.toLowerCase().indexOf("nsfw") !== -1
 	}
 
