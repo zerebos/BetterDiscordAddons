@@ -6,7 +6,7 @@ var appName = "Better Role Colors";
 var appNameShort = "BRC"; // Used for namespacing, settings, and logging
 var appDescription = "Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer";
 var appAuthor = "Zerebos";
-var appVersion = "0.3.5";
+var appVersion = "0.3.6";
 var appGithubLink = "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js";
 
 class ControlGroup {
@@ -409,8 +409,9 @@ class Plugin {
 	    $(".message-group .message").each((index, elem) => {
 	    	var messageNum = $(elem).index()
 	    	var instance = this.getReactInstance(elem)
-	    	$(elem).find('.mention').each((index, elem) => {
-	        	var user = instance._hostParent._currentElement.props.children[0][messageNum].props.message.mentions[index]
+	    	$(elem).find('.mention:contains("@")').each((index, elem) => {
+	        	var users = instance._hostParent._currentElement.props.children[0][messageNum].props.message.content.match(/<@([0-9])+>/g)
+	        	var user = users[index].replace(/<|@|>/g, "")
 	        	var textColor = this.getColorData(server, user)
 				$(elem).css("color", textColor);
 				if (textColor) {
