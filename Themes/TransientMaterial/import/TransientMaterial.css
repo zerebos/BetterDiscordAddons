@@ -22,7 +22,8 @@
 .private-channels .channel.selected a,
 .private-channels .search-bar,
 .contentSelectedVoice-gTtYM9, .container-3lnMWU,
-.theme-dark .ui-standard-sidebar-view .sidebar-region {
+.theme-dark .ui-standard-sidebar-view .sidebar-region,
+.search-popout .option.selected {
     background: rgba(20,20,20, 0.5) !important;
 }
 
@@ -100,11 +101,11 @@
 	background: transparent !important;   
 }
 
-.messages-popout-wrap {
+.messages-popout-wrap, .search-popout {
 	background: rgba(33,33,33,0.85)!important;
 }
 
-.messages-popout-wrap .header {
+.messages-popout-wrap .header, .popout-bottom .popout-menu {
     background: rgba(20,20,20,0.6)!important;
 }
 
@@ -113,4 +114,8 @@
 }
 .content form {
     background: transparent !important;
+}
+
+.popout-bottom .popout-menu .popout-menu-item:hover, .header-1tSljs:hover, .guild-header header:hover {
+	background: rgba(10,10,10, 0.6) !important;
 }
