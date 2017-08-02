@@ -24,7 +24,9 @@
 .private-channels .search-bar,
 .contentSelectedVoice-gTtYM9, .container-3lnMWU,
 .theme-dark .ui-standard-sidebar-view .sidebar-region,
-.search-popout .option.selected {
+.search-popout .option.selected,
+.connect-account-btn, .quickswitcher.dark .result.selected,
+.toolbar-badge, .channel-notices .channel-notice.invite {
     background: rgba(20,20,20, 0.5) !important;
 }
 
@@ -107,7 +109,8 @@
 }
 
 .messages-popout-wrap .header, .popout-bottom .popout-menu,
-.search-results-wrap, .search-results-wrap .search-header {
+.search-results-wrap, .search-results-wrap .search-header,
+.messages-popout-wrap .footer {
     background: rgba(20,20,20,0.6)!important;
 }
 
@@ -124,4 +127,90 @@
 
 .theme-dark .search-results-wrap .search-result .hit {
 	background: rgba(48,48,48,0.85) !important;
+}
+
+.theme-dark .cardPrimaryEditable-2IQ7-V, .theme-dark .cardPrimaryOutline-2YyAz2, .ui-radiogroup .radio-item, .theme-dark .cardPrimary-ZVL9Jr, .theme-dark .ui-card-primary.editable, .theme-dark .ui-card-primary {
+	background: rgba(41,41,41,0.7);   
+}
+
+.bda-slist li {
+    background: rgba(41,41,41,0.7) !important;
+}
+
+#bd-settings-sidebar .ui-tab-bar-item.selected, .theme-dark #friends .friends-header .tab-bar .tab-bar-item.tab-bar-item-primary.selected .badge, .theme-dark #friends .friends-header .tab-bar .tab-bar-item.tab-bar-item-primary:hover:not(.selected), .theme-dark #friends .friends-header .tab-bar .tab-bar-item.selected .badge, .popout header, .form.deprecated .btn-primary, .form.deprecated .btn-primary:hover, .private-channel-recipients-invite .footer button, .private-channel-recipients-invite .footer button:hover, .private-channel-recipients-invite .error-state.not-friends .btn:hover, .private-channel-recipients-invite .error-state.not-friends .btn, #friends .btn, .theme-dark #friends .friends-header .tab-bar .tab-bar-item.tab-bar-item-primary, .ui-standard-sidebar-view .bda-slist .bda-right button, .itemDefaultSelected-1UAWLe, .itemDefaultSelected-1UAWLe:active, .ui-tab-bar.SIDE .ui-tab-bar-item.selected, .ui-tab-bar.SIDE .ui-tab-bar-item:active, .ui-slider .slider-bar-fill, .ui-switch-wrapper:not(.disabled):not(.clear):hover .ui-switch-checkbox:checked+.ui-switch, .ui-switch-checkbox:checked+.ui-switch, ._3Mv0RaJ0, ._3Mv0RaJ0:hover, .ui-standard-sidebar-view .bda-slist li button, .buttonBrandFilled-3Mv0Ra, .buttonBrandFilled-3Mv0Ra:hover, .ui-button.brand.filled, .ui-button.brand.filled:hover, .create-guild-container.deprecated .action:hover.create .btn, .region-select:hover button, .slider-bar-fill, .form .btn-primary:hover, .form .btn-primary,
+.ui-standard-sidebar-view #bd-settingspane-container .content-column.default .bda-slist::after, .itemDefaultSelected-1UAWLe, .cardPrimaryEditable-2IQ7-V[style*="background-color: rgb(114, 137, 218);"], .radio-item.checked[style*="background-color: rgb(114, 137, 218);"], .theme-dark .ui-card-primary.checked {
+    opacity: 0.85;
+    /*background: var(--accent-color)0f !important;*/
+}
+
+.ui-standard-sidebar-view #bd-settingspane-container .content-column.default .bda-slist::after {
+
+}
+
+.cardWarning-31DHBH {
+    background: rgba(250,166,26,0.7);
+    border-color: rgba(250,166,26,0.7);
+}
+
+.ui-standard-sidebar-view #bd-settingspane-container .content-column.default .bda-slist::before {
+    background: rgba(67,181,129, 0.7);
+}
+
+.theme-dark .ui-select .is-focused .Select-control, .theme-dark .ui-select .Select-control {
+    background: rgba(53,53,53,0.7);
+    border-color: rgba(57,57,57,0.7);
+}
+
+.theme-dark .user-settings-games .now-playing, .theme-light .user-settings-games .now-playing {
+    background: rgba(67,181,129,0.7);
+}
+
+.cardPrimaryEditable-2IQ7-V[style*="background-color: rgb(240, 71, 71);"] {
+	background: rgba(240, 71, 71, 0.7) !important;   
+}
+
+.cardPrimaryEditable-2IQ7-V[style*="background-color: rgb(67, 181, 129);"] {
+    background: rgba(67, 181, 129, 0.7) !important;
+}
+
+.cardPrimaryEditable-2IQ7-V[style*="background-color: rgb(250, 166, 26);"] {
+	background: rgba(250, 166, 26, 0.7) !important;
+}
+
+.connection[style*="background-color: rgb(24, 35, 50)"] {
+    background: rgba(24, 35, 50, 0.7) !important;
+}
+
+.connection[style*="background-color: rgb(0, 157, 215)"] {
+    background: rgba(0, 157, 215, 0.7) !important;
+}
+
+.connection[style*="background-color: rgb(95, 153, 207)"] {
+	background: rgba(95, 153, 207, 0.7) !important;
+}
+
+.connection[style*="background-color: rgb(29, 161, 242)"] {
+	background: rgba(29, 161, 242, 0.7) !important;
+}
+
+.chat form .typing {
+    background: rgba(51,51,51, 0.7) !important;
+}
+
+.quickswitcher.dark .big-input {
+	background: rgba(48,48,48,0.7) !important;
+}
+
+.channel-notices .channel-notice .message .btn, .quickswitcher.dark {
+	background: rgba(33,33,33, 0.7) !important;
+}
+
+.header-toolbar .toolbar-badge {
+    border-width: 0 !important;
+    top: 5px !important;
+    right: 5px !important;
+}
+
+.channel-notices .channel-notice.quickswitcher-notice {
+    background-color: rgba(25,25,25,0.5) !important;
 }
