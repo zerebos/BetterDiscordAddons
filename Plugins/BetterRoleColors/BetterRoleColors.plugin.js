@@ -410,8 +410,8 @@ class Plugin {
 	    	var messageNum = $(elem).index()
 	    	var instance = this.getReactInstance(elem)
 	    	$(elem).find('.mention:contains("@")').each((index, elem) => {
-	        	var users = instance._hostParent._currentElement.props.children[0][messageNum].props.message.content.match(/<@([0-9])+>/g)
-	        	var user = users[index].replace(/<|@|>/g, "")
+	        	var users = instance._hostParent._currentElement.props.children[0][messageNum].props.message.content.match(/<@!?[0-9]+>/g)
+	        	var user = users[index].replace(/<|@|!|>/g, "")
 	        	var textColor = this.getColorData(server, user)
 				$(elem).css("color", textColor);
 				if (textColor) {
