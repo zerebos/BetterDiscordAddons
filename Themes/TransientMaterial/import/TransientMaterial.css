@@ -1,0 +1,116 @@
+.theme-dark .chat{background: transparent;}
+
+.layers, .layer, .theme-dark .ui-standard-sidebar-view { background: transparent !important; }
+
+.channels-wrap, .container-RYiLUQ,
+.channel-members, .private-channels,
+.guilds-wrapper .guilds .guild.selected .guild-inner a:hover::before, .guilds-wrapper .guilds .guild.selected .guild-inner a::before,
+.theme-dark .ui-standard-sidebar-view .content-region {
+    background: rgba(33,33,33, 0.5) !important;
+}
+
+.guilds-wrapper, .theme-dark .chat>.content,
+.chat .messages, #friends,
+#friends .friends-table .friends-table-body,
+#friends .friends-table .friends-table-header,
+.flex-horizontal>.flex-spacer:not(.private-channel-call-participants){
+	background: rgba(48,48,48, 0.5) !important;   
+}
+
+.header-1tSljs, .container-iksrDt,
+.contentSelectedText-3j5CXt,
+.private-channels .channel.selected a,
+.private-channels .search-bar,
+.contentSelectedVoice-gTtYM9, .container-3lnMWU,
+.theme-dark .ui-standard-sidebar-view .sidebar-region {
+    background: rgba(20,20,20, 0.5) !important;
+}
+
+.chat .title-wrap, #friends .friends-header {
+	background: rgba(20,20,20, 0.722) !important;   
+}
+
+.chat>.title-wrap>.title, .messages.scroller, 
+.messages-wrapper .messages .message-group:not(.has-divider),
+.theme-dark .messages-wrapper, #friends .friends-table,
+.container-3NvGrL{
+    background: transparent !important;
+}
+
+.comment {
+	background: rgba(0,0,0, 0.2) !important;   
+}
+
+.theme-dark .messages-wrapper {
+	background: rgba(48,48,48, 0) !important;
+}
+
+::-webkit-scrollbar-thumb,
+#autocomplete-popout .autocomplete-scroller::-webkit-scrollbar-thumb,
+.modal-3HOjGZ .reactors-2PjMP0 .scroller-fzNley::-webkit-scrollbar-thumb,
+.scroller-fzNley.sidebar-region-scroller::-webkit-scrollbar-thumb,
+.private-channels .scroller::-webkit-scrollbar-thumb,
+.channels-wrap .scroller-NXV0-d::-webkit-scrollbar-thumb,
+.emoji-picker .scroller::-webkit-scrollbar-thumb,
+.channel-members::-webkit-scrollbar-thumb,
+.scroller-fzNley.scroller-NXV0-d::-webkit-scrollbar-thumb,
+.channel-members-wrap .channel-members::-webkit-scrollbar-thumb {
+	border: 4px solid rgba(255, 255, 255, 0) !important;
+    background-color: rgba(225, 225, 225, 0.1) !important;
+    display: initial;
+	border-radius: 7px !important;
+}
+
+::-webkit-scrollbar-thumb:active,
+#autocomplete-popout .autocomplete-scroller::-webkit-scrollbar-thumb:active,
+.modal-3HOjGZ .reactors-2PjMP0 .scroller-fzNley::-webkit-scrollbar-thumb:active,
+.scroller-fzNley.sidebar-region-scroller::-webkit-scrollbar-thumb:active,
+.private-channels .scroller::-webkit-scrollbar-thumb:active,
+.channels-wrap .scroller-NXV0-d::-webkit-scrollbar-thumb:active,
+.emoji-picker .scroller::-webkit-scrollbar-thumb:active,
+.channel-members::-webkit-scrollbar-thumb:active,
+.scroller-fzNley.scroller-NXV0-d::-webkit-scrollbar-thumb:active,
+.channel-members-wrap .channel-members::-webkit-scrollbar-thumb:active {
+	border-radius: 7px !important;
+}
+
+::-webkit-scrollbar-track-piece,
+#autocomplete-popout .autocomplete-scroller::-webkit-scrollbar-track-piece,
+.modal-3HOjGZ .reactors-2PjMP0 .scroller-fzNley::-webkit-scrollbar-track-piece,
+.scroller-fzNley.sidebar-region-scroller::-webkit-scrollbar-track-piece,
+.private-channels .scroller::-webkit-scrollbar-track-piece,
+.channels-wrap .scroller-NXV0-d::-webkit-scrollbar-track-piece,
+.emoji-picker .scroller::-webkit-scrollbar-track-piece,
+.channel-members::-webkit-scrollbar-track-piece,
+.scroller-fzNley.scroller-NXV0-d::-webkit-scrollbar-track-piece,
+.channel-members-wrap .channel-members::-webkit-scrollbar-track-piece {
+	background-color: rgba(0, 0, 0, 0) !important;
+}
+
+::-webkit-scrollbar,
+#autocomplete-popout .autocomplete-scroller::-webkit-scrollbar,
+.modal-3HOjGZ .reactors-2PjMP0 .scroller-fzNley::-webkit-scrollbar,
+.scroller-fzNley.sidebar-region-scroller::-webkit-scrollbar,
+.private-channels .scroller::-webkit-scrollbar,
+.channels-wrap .scroller-NXV0-d::-webkit-scrollbar,
+.emoji-picker .scroller::-webkit-scrollbar,
+.channel-members::-webkit-scrollbar,
+.channel-members-wrap .channel-members::-webkit-scrollbar,
+.scroller-fzNley.scroller-NXV0-d::-webkit-scrollbar {
+	background: transparent !important;   
+}
+
+.messages-popout-wrap {
+	background: rgba(33,33,33,0.85)!important;
+}
+
+.messages-popout-wrap .header {
+    background: rgba(20,20,20,0.6)!important;
+}
+
+.theme-dark .inner-3if5cm {
+    background: rgba(58,58,58,0.6) !important;
+}
+.content form {
+    background: transparent !important;
+}
