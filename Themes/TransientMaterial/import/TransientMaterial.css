@@ -13,7 +13,8 @@
 .chat .messages, #friends,
 #friends .friends-table .friends-table-body,
 #friends .friends-table .friends-table-header,
-.flex-horizontal>.flex-spacer:not(.private-channel-call-participants){
+.flex-horizontal>.flex-spacer:not(.private-channel-call-participants), 
+.scroller-wrap.fade.light {
 	background: rgba(48,48,48, 0.5) !important;   
 }
 
@@ -105,7 +106,8 @@
 	background: rgba(33,33,33,0.85)!important;
 }
 
-.messages-popout-wrap .header, .popout-bottom .popout-menu {
+.messages-popout-wrap .header, .popout-bottom .popout-menu,
+.search-results-wrap, .search-results-wrap .search-header {
     background: rgba(20,20,20,0.6)!important;
 }
 
@@ -118,4 +120,8 @@
 
 .popout-bottom .popout-menu .popout-menu-item:hover, .header-1tSljs:hover, .guild-header header:hover {
 	background: rgba(10,10,10, 0.6) !important;
+}
+
+.theme-dark .search-results-wrap .search-result .hit {
+	background: rgba(48,48,48,0.85) !important;
 }
