@@ -9,10 +9,12 @@ A series of plugins and themes for BetterDiscord. For support or announcements o
  - [Better Role Colors](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors) - Adds server-based role colors to typing, voice, popouts, modals and more!
  - [ResizableCSS](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ResizableCSS) - Allows you to resize the detached CustomCSS window.
  - [BlurNSFW](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BlurNSFW) - Blurs images in NSFW channels until you hover over it.
+ - [ImageToClipboard](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ImageToClipboard) - Allows you to copy images (png/jpg) directly to your system clipboard.
  
 ## Themes
  - [RadialStatus](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/RadialStatus) - An extension (and update/fix) of Zerthox's Status Circles.
  - [TransientMaterial](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/TransientMaterial) - Transparency patch theme for Beard's Material Design Theme. Also works fairly well on it's own.
+ - [Checkbox Fix](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/CheckboxFix) - Makes the checkboxes on the plugins and themes pages look like switches again.
  
 ## Fixes
  - ~~[ColoredVoice & ColoredTyping](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ColoredStuff) - Fixed versions of Anxeal's ColoredVoice and ColoredTyping.~~ Outdated: See my new plugin [Better Role Colors](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors)
