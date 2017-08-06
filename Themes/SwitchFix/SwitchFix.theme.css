@@ -1,4 +1,4 @@
-//META{"name":"Checkbox Fix","description":"Makes the checkboxes on the plugins and themes pages look like switches again.","author":"Zerebos","version":"1.0.0"}*//{}
+//META{"name":"Switch Fix","description":"Makes the checkboxes on the plugins and themes pages look like switches again.","author":"Zerebos","version":"1.0.0"}*//{}
 
 .ui-switch-wrapper {
     -webkit-user-select: none;
