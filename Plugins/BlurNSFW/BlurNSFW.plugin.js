@@ -48,7 +48,10 @@ class Plugin {
 
 		var blurAction = (index, elem) => {
 			var img = $(elem)
-			if (!img.hasClass("blur")) img.addClass("blur");
+			if (!img.hasClass("blur")) {
+				img.addClass("blur");
+				img.parent().css("overflow", "hidden")
+			}
 		}
 
 		for (var i=0; i<this.selectors.length; i++) $(this.selectors[i]).each(blurAction);
