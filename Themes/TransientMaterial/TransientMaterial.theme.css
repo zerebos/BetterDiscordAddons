@@ -3,7 +3,7 @@
 @import url(https://rawgit.com/rauenzi/BetterDiscordAddons/master/Themes/TransientMaterial/import/TransientMaterial.css);
 
 /* Change the URLs here to your image and make sure the link starts with https not http */
-..app, .callout-backdrop, .bda-backdrop, #pubs-container::before {
+.app, .callout-backdrop, .bda-backdrop, #pubs-container::before {
 	background-image: url("https://i.imgur.com/kaukr76.png");
 	background-size: cover !important;
 	background-position: center !important;
