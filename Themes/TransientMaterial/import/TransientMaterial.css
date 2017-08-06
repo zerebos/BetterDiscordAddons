@@ -127,6 +127,7 @@
 
 .theme-dark .search-results-wrap .search-result .hit {
 	background: rgba(48,48,48,0.85) !important;
+	box-shadow: none !important;
 }
 
 .theme-dark .cardPrimaryEditable-2IQ7-V, .theme-dark .cardPrimaryOutline-2YyAz2, .ui-radiogroup .radio-item, .theme-dark .cardPrimary-ZVL9Jr, .theme-dark .ui-card-primary.editable, .theme-dark .ui-card-primary {
@@ -213,4 +214,12 @@
 
 .channel-notices .channel-notice.quickswitcher-notice {
     background-color: rgba(25,25,25,0.5) !important;
+}
+
+.comment::before {
+    border-color: transparent rgba(0, 0, 0, .2) transparent transparent;
+}
+
+.theme-dark .search-results-wrap .search-result::before, .theme-dark .search-results-wrap .search-result::after {
+	background: none !important;
 }
