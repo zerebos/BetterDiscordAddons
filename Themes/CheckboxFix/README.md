@@ -1,5 +1,6 @@
 # Checkbox Fix - [Download](https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Themes/CheckboxFix/CheckboxFix.theme.css)
 
+Makes the checkboxes on the plugins and themes pages look like switches again. For support and update announcements you can visit [Zere's server](http://discord.zackrauen.com/).
 
 ## Screenshots
 ![CheckboxFix](http://discord.zackrauen.com/CheckboxFix/fix.png)
