@@ -1,4 +1,4 @@
-# Switch Fix - [Download](https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Themes/SwitchFix/SwitchFix.theme.css)
+# SwitchFix - [Download](https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Themes/SwitchFix/SwitchFix.theme.css)
 
 Makes the checkboxes on the plugins and themes pages look like switches again. For support and update announcements you can visit [Zere's server](http://discord.zackrauen.com/).
 

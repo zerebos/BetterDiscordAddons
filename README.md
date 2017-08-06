@@ -14,7 +14,7 @@ A series of plugins and themes for BetterDiscord. For support or announcements o
 ## Themes
  - [RadialStatus](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/RadialStatus) - An extension (and update/fix) of Zerthox's Status Circles.
  - [TransientMaterial](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/TransientMaterial) - Transparency patch theme for Beard's Material Design Theme. Also works fairly well on it's own.
- - [Switch Fix](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/SwitchFix) - Makes the checkboxes on the plugins and themes pages look like switches again.
+ - [SwitchFix](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/SwitchFix) - Makes the checkboxes on the plugins and themes pages look like switches again.
  
 ## Fixes
  - ~~[ColoredVoice & ColoredTyping](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ColoredStuff) - Fixed versions of Anxeal's ColoredVoice and ColoredTyping.~~ Outdated: See my new plugin [Better Role Colors](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors)
