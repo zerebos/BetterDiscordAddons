@@ -57,15 +57,15 @@ div[class*="user-info"] div[class*="status"] {
 }
 
 .channel-members .member.member-status-offline .status {
-	display: initial !important;
+	display: flex !important;
 }
 
-.status.status-typing {
+div[class*="avatar-"] div[class*="status"].status-typing {
     width: 30px !important;
     background-color: rgba(0, 0, 0, 0.4) !important;
 	right: 0 !important;
 }
-.status.status-typing .spinner .spinner-inner {
+div[class*="avatar-"] div[class*="status"].status-typing .spinner .spinner-inner {
     left: 1px !important;
     top: 1px !important;
 }
