@@ -36,7 +36,7 @@ class ServerSorter {
 	}
 	
 	getGuilds() {
-		return $('.guild-separator ~ div.guild');
+		return $('div.guild:has(div[draggable="true"])');
 	}
 	
 	getGuildData(guild) {
