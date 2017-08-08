@@ -61,7 +61,7 @@ div[class*="user-info"] div[class*="status"] {
 }
 
 div[class*="avatar-"] div[class*="status"].status-typing {
-    width: 30px !important;
+    width: 100% !important;
     background-color: rgba(0, 0, 0, 0.4) !important;
 	right: 0 !important;
 }
