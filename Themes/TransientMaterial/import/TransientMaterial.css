@@ -11,6 +11,7 @@
 	--tm-selected-item: rgba(30,30,30, 0.7);
 	--tm-hover: rgba(255,255,255,0.05);
 	--tm-active: rgba(255,255,255,0.1);
+	--tm-version: "TransientMaterial v1.2.2";
 }
 
 /* Fixes nonsense glitches */
@@ -490,6 +491,10 @@ html, span:not(.spinner-item) {
 
 .connection[style*="background-color: rgb(29, 161, 242)"] {
 	background: rgba(29, 161, 242, 0.7) !important;
+}
+
+#bd-settings-sidebar>span>span::after {
+    content: var(--version) " " var(--tm-version);
 }
 /* End Section */
 
