@@ -34,18 +34,19 @@ Below are all the variables with their default values:
 
 ```css
 :root {
-    --tm-accent: 67, 181, 129;
-    --tm-titlebar-opacity: 0.8;
-    --tm-guilds-opacity: 0.7;
-    --tm-messages-opacity: 0.2;
-    --tm-chat-opacity: 0.7;
-    --tm-memberlist-opacity:  0.7;
-    --tm-channels-opacity: 0.7;
-    --tm-modal-opacity: 0.7;
-    --tm-popout-opacity: 0.95;
-    --tm-selected-item: rgba(30,30,30, 0.7);
-    --tm-hover: rgba(255,255,255,0.05);
-    --tm-active: rgba(255,255,255,0.1);
+    --tm-accent: 67, 181, 129; /* R, G, B of accent-color */
+    --tm-titlebar-opacity: 0.8; /* Titlebar Opacity */
+    --tm-guilds-opacity: 0.7; /* Guilds  Opacity */
+    --tm-messages-opacity: 0.2; /* Message Bubble Opacity */
+    --tm-chat-opacity: 0.7; /* Chat BG Opacity */
+    --tm-chatbox-opacity: 0.7; /* Chatbox Opacity */
+    --tm-memberlist-opacity: 0.7; /* Memberlist Opacity */
+    --tm-channels-opacity: 0.7; /* Channel List Opacity */
+    --tm-modal-opacity: 0.7; /* Modal Opacity */
+    --tm-popout-opacity: 0.95; /* Popout Opacity */
+    --tm-selected-item: rgba(30,30,30, 0.7); /* Selected Channel/Server Color */
+    --tm-hover: rgba(255,255,255,0.05); /* Hover Channel/Server Color */
+    --tm-active: rgba(255,255,255,0.1); /* Clicking Channel/Server Color */
 }
 ```
 
@@ -56,6 +57,7 @@ Below are all the variables with their default values:
  - `--tm-guilds-opacity` - Controls the opacity for the guilds column. Can range from 0.0 to 1.0.
  - `--tm-messages-opacity` - Controls the opacity for the messages (chat bubbles). Can range from 0.0 to 1.0.
  - `--tm-chat-opacity` - Controls the opacity for the chat background. Can range from 0.0 to 1.0.
+ - `--tm-chatbox-opacity` - Controls the opacity for the chatbox where you type. Can range from 0.0 to 1.0.
  - `--tm-memberlist-opacity` - Controls the opacity for the memberlist. Can range from 0.0 to 1.0.
  - `--tm-channels-opacity` - Controls the opacity for the channels and DM lists. Can range from 0.0 to 1.0.
  - `--tm-modal-opacity` - Controls the opacity for the modals. Can range from 0.0 to 1.0.
