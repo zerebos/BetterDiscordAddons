@@ -6,7 +6,7 @@ var appName = "Better Role Colors";
 var appNameShort = "BRC"; // Used for namespacing, settings, and logging
 var appDescription = "Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer";
 var appAuthor = "Zerebos";
-var appVersion = "0.3.6";
+var appVersion = "0.3.7";
 var appGithubLink = "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js";
 
 class ControlGroup {
@@ -221,7 +221,7 @@ class Plugin {
     		this.colorizeAuditLog()
     	}
 
-    	if (elem.find(".user-popout").length || elem.hasClass("user-popout")) {
+    	if (elem.find('div[class*="userPopout"]').length || elem.hasClass("userPopout-4pfA0d")) {
         	this.colorizePopout()
     	}
 
@@ -229,8 +229,12 @@ class Plugin {
         	this.colorizeModal()
     	}
 
-    	if (elem.find(".message-group").length || elem.hasClass("message-group") || elem.find(".message").length || elem.hasClass("message")) {
-        	this.colorizeMentions()
+    	if (elem.find(".message-group").length || elem.hasClass("message-group")) {
+        	this.colorizeMentions(elem)
+    	}
+
+    	if (elem.find(".message").length || elem.hasClass("message")) {
+    		this.colorizeMentions(elem.parents('.message-group'))
     	}
 
 		if (elem.find(".member-username-inner").length) {
@@ -318,8 +322,13 @@ class Plugin {
 	}
 
 	getRoleFromPopout() {
-		if (!$(".user-popout").find(".member-role").length) return "";
-		return $(".user-popout").find(".member-role")[0].style.color;
+		if (!$('div[class*="userPopout"]').find(".member-role").length) return "";
+		return $('div[class*="userPopout"]').find(".member-role")[0].style.color;
+	}
+
+	findPopoutUsername(popout) {
+		if (popout.find('div[class*="headerUsername"]').length) return popout.find('div[class*="headerUsername"]');
+		else return popout.find('div[class*="headerTag"]').children(':first')
 	}
 
 	getMemberListColors() {
@@ -345,7 +354,7 @@ class Plugin {
 			var userAlt = this.getReactInstance(elem)._currentElement.props.children.props.user.id
 			if (this.getColorData(server,user) && (!this.getColorData(server,userAlt) == !this.settings.modules.typing)) return;
 			$(elem).children().first().click()
-			var popout = $(".user-popout");
+			var popout = $('div[class*="userPopout"]');
 			var color = this.getRoleFromPopout()
 			popout.remove()
 			if (this.settings.modules.typing) this.addColorData(server, user, color);
@@ -405,7 +414,7 @@ class Plugin {
 	colorizeMentions(node) {
 		if (!this.settings.modules.mentions) return;
 		let server = this.getCurrentServer()
-		var searchSpace = node === undefined ? $ : node.find
+		var searchSpace = node === undefined ? $(".message-group .message") : node
 	    $(".message-group .message").each((index, elem) => {
 	    	var messageNum = $(elem).index()
 	    	var instance = this.getReactInstance(elem)
@@ -433,14 +442,14 @@ class Plugin {
 	colorizePopout() {
 		if (!this.settings.popouts.username && !this.settings.popouts.discriminator && !this.settings.popouts.nickname) return;
 		let server = this.getCurrentServer()
-	    $(".user-popout").each((index, elem) => {
+	    $('div[class*="userPopout"]').each((index, elem) => {
 	        var user = $(elem).text()
 	        var user = this.getReactInstance(elem)._currentElement._owner._currentElement.props.user.id
 	        var color = this.getColorData(server, user)
 	        var hasNickname = $(elem).find('.nickname').length
 	        if (!color) color = this.getRoleFromPopout();
-	        if ((color && this.settings.popouts.username) || (!hasNickname && this.settings.popouts.fallback)) $(elem).find('.username')[0].style.setProperty("color", color, "important");
-	        if (color && this.settings.popouts.discriminator) $(elem).find('.discriminator')[0].style.setProperty("color", color, "important");
+	        if ((color && this.settings.popouts.username) || (!hasNickname && this.settings.popouts.fallback)) this.findPopoutUsername($(elem))[0].style.setProperty("color", color, "important");
+	        if (color && this.settings.popouts.discriminator) $(elem).find('div[class*="headerDiscriminator"]')[0].style.setProperty("color", color, "important");
 	        if (color && this.settings.popouts.nickname && hasNickname) $(elem).find('.nickname')[0].style.setProperty("color", color, "important");
 	    });
 	}
@@ -482,10 +491,10 @@ class Plugin {
 	decolorizeVoice() { $('.draggable-3SphXU').each((index, elem)=>{$(elem).find(".avatarContainer-303pFz").siblings().first().css("color", "");}) }
 	decolorizeMentions() { $('.mention').each((index, elem)=>{$(elem).css("color","");$(elem).css("background","")}); $(".mention").off("." + this.getShortName()); }
 	decolorizePopouts() {
-		$(".user-popout").each((index, elem) => {
-			$(elem).find('.discriminator').each((index, elem)=>{$(elem).css("color","")})
-			$(elem).find('.username').each((index, elem)=>{$(elem).css("color","")})
-			$(elem).find('.nickname').each((index, elem)=>{$(elem).css("color","")})
+		$('div[class*="userPopout"]').each((index, elem) => {
+			this.findPopoutUsername($(elem)).each((index, elem)=>{$(elem).css("color","")})
+			$(elem).find('div[class*="headerDiscriminator"]').each((index, elem)=>{$(elem).css("color","")})
+			$(elem).find('div[class*="headerName"]').each((index, elem)=>{$(elem).css("color","")})
 		})
 	}
 

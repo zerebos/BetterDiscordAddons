@@ -6,7 +6,7 @@ class Plugin {
 	getName(){return "Status Everywhere"}
 	getShortName() {return "StatusEverywhere"}
 	getDescription(){return "Adds user status everywhere Discord doesn't. Support Server: bit.ly/ZeresServer"}
-	getVersion(){return "0.0.1-beta"}
+	getVersion(){return "0.0.2-beta"}
 	getAuthor(){return "Zerebos"}
 	loadSettings() {
 		try {
@@ -37,14 +37,25 @@ class Plugin {
 	
 	getAuthorStatus(author) {
 		author.click()
-		var popout = $(".user-popout");
-		var block = $(".avatar-popout .status").clone()
+		var popout = $('div[class*="userPopout"]');
+		var block = popout.find('div[class*="statusPopout"]').clone()
 		popout.remove()
 		return block
 	}
 	
 	start(){
-		BdApi.injectCSS(this.getShortName(), ".message-group .avatar-large {margin-left: 5px}")
+		BdApi.injectCSS(this.getShortName(), `.message-group .avatar-large {margin-left: 5px}
+.status.hidden {
+	transform: scale(0,0);
+	transform-origin: 50% 50%!important;
+}
+.status {
+	height: auto;
+	transition: 5s cubic-bezier(.2,0,0,1) !important;
+	transform: scale(1,1);
+	transform-origin: 50% 50%!important;
+}
+			`)
 		$('.message-group .avatar-large').each((index, elem) => {
 			if (!$(elem).find('.status').length) $(elem).append(this.getAuthorStatus(elem))
 		})
@@ -63,7 +74,12 @@ class Plugin {
 		if (elem.parents(".messages.scroller").length || elem.find(".message-group").parents(".messages.scroller").length) {
 			setTimeout(() => {
 				elem.find('.avatar-large').each((index, elem) => {
-					setTimeout( () => {	if (!$(elem).find('.status').length) $(elem).append(this.getAuthorStatus(elem)) }, 1)
+					setTimeout( () => {
+						if (!$(elem).find('.status').length) {
+							var status = this.getAuthorStatus(elem);
+							$(elem).append(status)
+						}
+					}, 1)
 				})
 			},1)
 		}
