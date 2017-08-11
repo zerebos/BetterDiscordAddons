@@ -26,6 +26,11 @@ Either open this theme and change all the background urls to your image (https) 
 }
 ```
 
+## Requirements
+In order for things to look right, you need to add a css variable in addition to the accent-color for Beard's.
+
+`--tm-accent` - This is the accent color you use for Beard's but in RGB format. You can get that here: http://www.javascripter.net/faq/hextorgb.htm
+
 ## Variables
 
 Below are all the variables with their default values:
