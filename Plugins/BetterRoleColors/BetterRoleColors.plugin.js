@@ -6,7 +6,7 @@ var appName = "Better Role Colors";
 var appNameShort = "BRC"; // Used for namespacing, settings, and logging
 var appDescription = "Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer";
 var appAuthor = "Zerebos";
-var appVersion = "0.3.7";
+var appVersion = "0.3.8";
 var appGithubLink = "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js";
 
 class ControlGroup {
@@ -139,13 +139,8 @@ class Plugin {
 	getGithubLink() { return appGithubLink }
 	
 	loadSettings() {
-		var loaded;
-		try { loaded = $.extend({}, this.settings, bdPluginStorage.get(this.getShortName(), "plugin-settings")) }
+		try { $.extend(true, this.settings, bdPluginStorage.get(this.getShortName(), "plugin-settings")); }
 		catch (err) { console.warn(this.getShortName(), "unable to load settings:", err); loaded = this.defaultSettings; }
-
-		for (var settingType in loaded) {
-			this.settings[settingType] = $.extend({}, this.settings[settingType], loaded[settingType]);
-		}
 	}
 
 	saveSettings() {
@@ -253,13 +248,27 @@ class Plugin {
 	}
 
 	getReactInstance(node) { 
-		return node[Object.keys(node).find((key) => key.startsWith("__reactInternalInstance"))];
+		let instance = node[Object.keys(node).find((key) => key.startsWith("__reactInternalInstance"))]
+		instance['getReactProperty'] = function(path) {
+		  var value = path.split(".").reduce(function(obj, prop) {
+		    return obj && obj[prop];
+		  }, this);
+		  return value;
+		};
+		return instance;
+	}
+
+	getReactProperty(object, path) {
+	  var value = path.split(".").reduce(function(obj, prop) {
+	    return obj && obj[prop];
+	  }, object);
+	  return value;
 	}
 
 	isServer() { return this.getCurrentServer() ? true : false}
 
 	getCurrentServer() {
-		return this.getReactInstance($('.channels-wrap')[0])._currentElement.props.children["0"].props.guildId
+		return this.getReactInstance($('.channels-wrap')[0]).getReactProperty('_currentElement.props.children.0.props.guildId')
 	}
 
 	getRGB(color) {
@@ -304,13 +313,14 @@ class Plugin {
 	}
 
 	addColorData(server, user, color) {
+		if (server === undefined || user === undefined || color === undefined) return;
 		if (this.colorData[server] === undefined) this.colorData[server] = {};
 		if (color) this.colorData[server][user] = color;
 		else if (this.colorData[server][user] !== undefined) delete this.colorData[server][user];
 	}
 
 	getColorData(server, user) {
-		if (server === undefined || this.colorData[server] === undefined || this.colorData[server][user] === undefined) return "";
+		if (server === undefined || user === undefined || this.colorData[server] === undefined || this.colorData[server][user] === undefined) return "";
 		else return this.colorData[server][user];
 	}
 
@@ -322,13 +332,8 @@ class Plugin {
 	}
 
 	getRoleFromPopout() {
-		if (!$('div[class*="userPopout"]').find(".member-role").length) return "";
-		return $('div[class*="userPopout"]').find(".member-role")[0].style.color;
-	}
-
-	findPopoutUsername(popout) {
-		if (popout.find('div[class*="headerUsername"]').length) return popout.find('div[class*="headerUsername"]');
-		else return popout.find('div[class*="headerTag"]').children(':first')
+		if (!$('.userPopout-4pfA0d').find(".member-role").length) return "";
+		return $('.userPopout-4pfA0d').find(".member-role")[0].style.color;
 	}
 
 	getMemberListColors() {
@@ -340,7 +345,7 @@ class Plugin {
 			if (user) {
 				var color = $(elem).find('.member-username-inner')[0].style.color;
 				if (this.settings.modules.typing) this.addColorData(server, user, color);
-				this.addColorData(server, this.getReactInstance(elem)._currentElement.props.children["0"].props.user.id, color)
+				this.addColorData(server, this.getReactInstance(elem).getReactProperty('_currentElement.props.children.0.props.user.id'), color)
 			}
 		});
 	}
@@ -351,7 +356,7 @@ class Plugin {
 		$('.draggable-3SphXU').each((index, elem) => {
 			//var user = this.getReactInstance(elem)._currentElement.props.children.props.user.id
 			var user = $(elem).find(".avatarContainer-303pFz").siblings().first().text()
-			var userAlt = this.getReactInstance(elem)._currentElement.props.children.props.user.id
+			var userAlt = this.getReactInstance(elem).getReactProperty('_currentElement.props.children.props.user.id')
 			if (this.getColorData(server,user) && (!this.getColorData(server,userAlt) == !this.settings.modules.typing)) return;
 			$(elem).children().first().click()
 			var popout = $('div[class*="userPopout"]');
@@ -371,7 +376,7 @@ class Plugin {
 			if (user) {
 				var color = $(elem).find('.user-name')[0].style.color;
 				if (this.settings.modules.typing) this.addColorData(server, user, color);
-				this.addColorData(server, this.getReactInstance(elem)._currentElement.props.children["0"].props.children.props.user.id, color)
+				this.addColorData(server, this.getReactInstance(elem).getReactProperty('_currentElement.props.children.0.props.children.props.user.id'), color)
 			}
 		});
 	}
@@ -387,7 +392,7 @@ class Plugin {
 		if (!this.settings.account.username && !this.settings.account.discriminator) return;
 		let server = this.getCurrentServer()
 		let account = $('div[class*="accountDetails"]')
-		let user = this.getReactInstance(account[0])._hostParent._currentElement.props.children[1].props.user.id
+		let user = this.getReactInstance(account[0]).getReactProperty('_hostParent._currentElement.props.children.1.props.user.id')
 		let color = this.getColorData(server, user)
 		if (this.settings.account.username) account.find(".username")[0].style.setProperty("color", color, "important");
 		if (this.settings.account.discriminator) account.find(".discriminator").css("opacity", 1)[0].style.setProperty("color", color, "important");
@@ -406,7 +411,7 @@ class Plugin {
 		if (!this.settings.modules.voice) return;
 		let server = this.getCurrentServer()
 	    $(".draggable-3SphXU").each((index, elem) => {
-	        var user = this.getReactInstance(elem)._currentElement.props.children.props.user.id
+	        var user = this.getReactInstance(elem).getReactProperty('_currentElement.props.children.props.user.id')
 			$(elem).find(".avatarContainer-303pFz").siblings().first().css("color", this.getColorData(server, user));
 	    });
 	}
@@ -419,8 +424,11 @@ class Plugin {
 	    	var messageNum = $(elem).index()
 	    	var instance = this.getReactInstance(elem)
 	    	$(elem).find('.message-text > .markup > .mention:contains("@")').each((index, elem) => {
-	        	var users = instance._hostParent._currentElement.props.children[0][messageNum].props.message.content.match(/<@!?[0-9]+>/g)
-	        	var user = users[index].replace(/<|@|!|>/g, "")
+	        	var users = instance.getReactProperty(`_hostParent._currentElement.props.children.0.${messageNum}.props.message.content`).match(/<@!?[0-9]+>/g)
+	        	if (!users) return true;
+	        	var user = users[index]
+	        	if (!user) return true;
+	        	user = user.replace(/<|@|!|>/g, "")
 	        	var textColor = this.getColorData(server, user)
 				$(elem).css("color", textColor);
 				if (textColor) {
@@ -442,15 +450,16 @@ class Plugin {
 	colorizePopout() {
 		if (!this.settings.popouts.username && !this.settings.popouts.discriminator && !this.settings.popouts.nickname) return;
 		let server = this.getCurrentServer()
-	    $('div[class*="userPopout"]').each((index, elem) => {
+	    $('.userPopout-4pfA0d').each((index, elem) => {
 	        var user = $(elem).text()
-	        var user = this.getReactInstance(elem)._currentElement._owner._currentElement.props.user.id
+	        var user = this.getReactInstance(elem).getReactProperty('_hostParent._currentElement.props.children.props.user.id')
+	        if (!user) return true;
 	        var color = this.getColorData(server, user)
-	        var hasNickname = $(elem).find('.nickname').length
+	        var hasNickname = $(elem).find('.headerName-2N8Pdz').length
 	        if (!color) color = this.getRoleFromPopout();
-	        if ((color && this.settings.popouts.username) || (!hasNickname && this.settings.popouts.fallback)) this.findPopoutUsername($(elem))[0].style.setProperty("color", color, "important");
-	        if (color && this.settings.popouts.discriminator) $(elem).find('div[class*="headerDiscriminator"]')[0].style.setProperty("color", color, "important");
-	        if (color && this.settings.popouts.nickname && hasNickname) $(elem).find('.nickname')[0].style.setProperty("color", color, "important");
+	        if ((color && this.settings.popouts.username) || (!hasNickname && this.settings.popouts.fallback)) $(elem).find('.headerTag-3zin_i span:first-child')[0].style.setProperty("color", color, "important");
+	        if (color && this.settings.popouts.discriminator) $(elem).find('.headerDiscriminator-3fLlCR')[0].style.setProperty("color", color, "important");
+	        if (color && this.settings.popouts.nickname && hasNickname) $(elem).find('.headerName-2N8Pdz')[0].style.setProperty("color", color, "important");
 	    });
 	}
 
@@ -458,7 +467,7 @@ class Plugin {
 		if (!this.settings.modals.username && !this.settings.modals.discriminator) return;
 		let server = this.getCurrentServer()
 	    $("#user-profile-modal").each((index, elem) => {
-	        var user = this.getReactInstance(elem)._currentElement.props.children[3].props.user.id
+	        var user = this.getReactInstance(elem).getReactProperty('_currentElement.props.children.3.props.user.id')
 	        var color = this.getColorData(server, user)
 	        if (color && this.settings.modals.username) $(elem).find('.username')[0].style.setProperty("color", color, "important");
 	        if (color && this.settings.modals.discriminator) $(elem).find('.discriminator')[0].style.setProperty("color", color, "important");
@@ -467,10 +476,10 @@ class Plugin {
 
 	colorizeAuditLog() {
 		if (!this.settings.auditLog.username && !this.settings.auditLog.discriminator) return;
-		let server = this.getReactInstance($('.guild-settings-audit-logs')[0])._currentElement.props.children.props.children._owner._currentElement.props.guildId
+		let server = this.getReactInstance($('.guild-settings-audit-logs')[0]).getReactProperty('_currentElement.props.children.props.children._owner._currentElement.props.guildId')
 	    $(".userHook-DFT5u7").each((index, elem) => {
 	    	var index = $(elem).index() ? 2 : 0
-	        let user = this.getReactInstance(elem)._hostParent._currentElement.props.children[index].props.user.id
+	        let user = this.getReactInstance(elem).getReactProperty(`_hostParent._currentElement.props.children.${index}.props.user.id`)
 	        let color = this.getColorData(server, user)
 			if (this.settings.auditLog.username) $(elem).children().first().css("color", color);
 			if (this.settings.auditLog.discriminator) { $(elem).children(".discrim-xHdOK3").css("color", color).css("opacity", 1)}
@@ -492,7 +501,7 @@ class Plugin {
 	decolorizeMentions() { $('.mention').each((index, elem)=>{$(elem).css("color","");$(elem).css("background","")}); $(".mention").off("." + this.getShortName()); }
 	decolorizePopouts() {
 		$('div[class*="userPopout"]').each((index, elem) => {
-			this.findPopoutUsername($(elem)).each((index, elem)=>{$(elem).css("color","")})
+			$(elem).find('.headerTag-3zin_i span:first-child').each((index, elem)=>{$(elem).css("color","")})
 			$(elem).find('div[class*="headerDiscriminator"]').each((index, elem)=>{$(elem).css("color","")})
 			$(elem).find('div[class*="headerName"]').each((index, elem)=>{$(elem).css("color","")})
 		})
