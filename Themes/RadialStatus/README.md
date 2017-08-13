@@ -10,7 +10,29 @@ For support and update announcements you can visit [Zere's server](http://discor
 
 ## What's New
 
-The theme has been changed to auto-updating by popular demand. Fixes for beard's theme will also auto-update provided you have deleted lines `4` and `5` **or** added this line to custom css: `@import url(https://rawgit.com/rauenzi/BetterDiscordAddons/master/Themes/RadialStatus/import/RadialStatus_BeardFixes.css);`
+### Variables
+
+```css
+:root {
+    --rs-spacing: 2px; /* spacing between avatar and status */
+    --rs-width: 2px; /* width of the status */
+    --rs-popout-spacing: 3px; /* spacing between avatar and status for user popouts */
+    --rs-popout-width: 4px; /* width of the status for user popouts */
+    --rs-profile-spacing: 3px; /* spacing between avatar and status on modals/profiles */
+    --rs-profile-width: 4px; /* width of the status on modals/profiles */
+    --rs-online-color: #43b581; /* color for online status */
+    --rs-idle-color: #faa61a; /* color for idle status */
+    --rs-dnd-color: #f04747; /* color for dnd status */
+    --rs-offline-color: #636b75; /* color for offline status */
+    --rs-invisible-color: #747f8d; /* color for invisible status - Note this will only show for your own invisibility */
+    --rs-streaming-color: #643da7; /* color for streaming status */
+}
+```
+
+### Changed Zoom
+
+If you plan on changing the zoom level change `--rs-width` to `3px`
+
 
 ## Screenshots
 

@@ -1,89 +1,115 @@
-div[class*="avatar-"] div[class*="status"],
+:root {
+    --rs-spacing: 2px; /* spacing between avatar and status */
+    --rs-width: 2px; /* width of the status */
+    --rs-popout-spacing: 3px; /* spacing between avatar and status for user popouts */
+    --rs-popout-width: 4px; /* width of the status for user popouts */
+    --rs-profile-spacing: 3px; /* spacing between avatar and status on modals/profiles */
+    --rs-profile-width: 4px; /* width of the status on modals/profiles */
+    --rs-online-color: #43b581; /* color for online status */
+    --rs-idle-color: #faa61a; /* color for idle status */
+    --rs-dnd-color: #f04747; /* color for dnd status */
+    --rs-offline-color: #636b75; /* color for offline status */
+    --rs-invisible-color: #747f8d; /* color for invisible status - Note this will only show for your own invisibility */
+    --rs-streaming-color: #643da7; /* color for streaming status */
+}
+
+[class*="avatar-"] [class*="status"],
 #user-profile-modal .status {
     width:100%!important;
     background: transparent;
     border-radius: inherit !important;
     height: 100%!important;
     transition: all 200ms ease !important;
-	top: -4px !important;
-	right: -4px !important;
-	bottom: -4px !important;
-	left: -4px !important;
-	padding: 2px !important;
+	top: calc(-1*var(--rs-spacing) + -1*var(--rs-width)) !important;
+	right: calc(-1*var(--rs-spacing) + -1*var(--rs-width)) !important;
+	bottom: calc(-1*var(--rs-spacing) + -1*var(--rs-width)) !important;
+	left: calc(-1*var(--rs-spacing) + -1*var(--rs-width)) !important;
+	padding: var(--rs-spacing) !important;
 	transition: all 200ms ease !important;
-	border: 2px solid #636b75 !important;
+	border: var(--rs-width) solid #636b75 !important;
 	margin: 0 !important;
 }
 
-div[class*="user-info"] div[class*="status"] {
+[class*="user-info"] [class*="status"] {
 	border: none !important;
 }
 
-[class*="theme-"] div[class*="avatar-"] div[class*="online"],
-[class*="theme-"] div[class*="avatar-"] div[class*="Online"],
-#user-profile-modal div[class*="online"] {
-    border-color: #43b581 !important;
+[class*="theme-"] [class*="avatar-"] [class*="online"],
+[class*="theme-"] [class*="avatar-"] [class*="Online"],
+#user-profile-modal [class*="online"] {
+    border-color: var(--rs-online-color) !important;
 }
 
-[class*="theme-"] div[class*="avatar-"] div[class*="idle"],
-[class*="theme-"] div[class*="avatar-"] div[class*="Idle"],
-#user-profile-modal div[class*="idle"] {
-    border-color: #faa61a !important;
+[class*="theme-"] [class*="avatar-"] [class*="idle"],
+[class*="theme-"] [class*="avatar-"] [class*="Idle"],
+#user-profile-modal [class*="idle"] {
+    border-color: var(--rs-idle-color) !important;
 }
 
-[class*="theme-"] div[class*="avatar-"] div[class*="dnd"],
-[class*="theme-"] div[class*="avatar-"] div[class*="Dnd"],
-#user-profile-modal div[class*="dnd"] {
-    border-color: #f04747 !important;
+[class*="theme-"] [class*="avatar-"] [class*="dnd"],
+[class*="theme-"] [class*="avatar-"] [class*="Dnd"],
+#user-profile-modal [class*="dnd"] {
+    border-color: var(--rs-dnd-color) !important;
 }
 
-[class*="theme-"] div[class*="avatar-"] div[class*="streaming"],
-[class*="theme-"] div[class*="avatar-"] div[class*="Streaming"],
-#user-profile-modal div[class*="streaming"]{
+[class*="theme-"] [class*="avatar-"] [class*="streaming"],
+[class*="theme-"] [class*="avatar-"] [class*="Streaming"],
+#user-profile-modal [class*="streaming"]{
     animation: streaming-flash 1.5s linear infinite !important;
-    border-color: #643da7 !important;
+    border-color: var(--rs-streaming-color) !important;
 }
 
-[class*="theme-"] div[class*="avatar-"] div[class*="invisible"],
-[class*="theme-"] div[class*="avatar-"] div[class*="Invisible"],
-#user-profile-modal div[class*="invisible"] {
-    border-color: #747f8d !important;
+[class*="theme-"] [class*="avatar-"] [class*="invisible"],
+[class*="theme-"] [class*="avatar-"] [class*="Invisible"],
+#user-profile-modal [class*="invisible"] {
+    border-color: var(--rs-invisible-color) !important;
 }
 
-[class*="theme-"] div[class*="avatar-"] div[class*="offline"],
-[class*="theme-"] div[class*="avatar-"] div[class*="Offline"],
-#user-profile-modal div[class*="offline"] {
-    border-color: #636b75 !important;
+[class*="theme-"] [class*="avatar-"] [class*="offline"],
+[class*="theme-"] [class*="avatar-"] [class*="Offline"],
+#user-profile-modal [class*="offline"] {
+    border-color: var(--rs-offline-color) !important;
 }
 
 .channel-members .member.member-status-offline .status {
 	display: flex !important;
 }
 
-div[class*="avatar-"] div[class*="status"].status-typing {
+[class*="avatar-"] [class*="status"].status-typing {
     width: 100% !important;
     background-color: rgba(0, 0, 0, 0.4) !important;
 	right: 0 !important;
 }
-div[class*="avatar-"] div[class*="status"].status-typing .spinner .spinner-inner {
+[class*="avatar-"] [class*="status"].status-typing .spinner .spinner-inner {
     left: 1px !important;
     top: 1px !important;
 }
 
-[class*="theme-"] .user-popout .avatar-popout .status,
+[class*="theme-"] [class*="userPopout-"] [class*="avatar-"],
+[class*="theme-"] #user-profile-modal .avatar-profile {
+    border: none;
+}
+/*     --rs-popout-spacing: 3px;
+    --rs-popout-width: 4px; */
+[class*="theme-"] .userPopout-4pfA0d .avatar-1BXaQj.popout-UKvsJt [class*="status"],
 [class*="theme-"] #user-profile-modal .avatar-profile .status {
-	border-width: 4px !important;
+	border-width: var(--rs-popout-width) !important;
 	top: -7px !important;
 	right: -7px !important;
 	bottom: -7px !important;
 	left: -7px !important;
-	padding: 3px !important;
+	padding: var(--rs-popout-spacing) !important;
 	-webkit-box-shadow: none !important;
 	box-shadow: none !important;
 	box-sizing: content-box;
 }
 
+[class*="theme-"] #user-profile-modal .avatar-profile .status {
+    border-width: var(--rs-profile-width) !important;
+    padding: var(--rs-profile-spacing) !important;
+}
+
 .channel-members .member, #user-profile-modal .guilds .guild {
-	padding-bottom: 8px !important;
-	padding-top: 8px !important;
+	padding-bottom: calc((var(--rs-spacing) + var(--rs-width))*2) !important;
+	padding-top: calc((var(--rs-spacing) + var(--rs-width))*2) !important;
 }

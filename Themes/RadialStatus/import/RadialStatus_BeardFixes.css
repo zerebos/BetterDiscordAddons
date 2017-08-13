@@ -1,12 +1,12 @@
 [class*="theme-"] #user-profile-modal .avatar-profile .status {
     -ms-transform: none !important;
     transform: none !important;
-    border-width: 8px !important;
+    border-width: calc(var(--rs-profile-width) * 2) !important;
     top: -14px !important;
     right: -14px !important;
     bottom: -14px !important;
     left: -14px !important;
-    padding: 6px !important;
+    padding: calc(var(--rs-profile-spacing) * 2) !important;
 }
 
 .channel-members .member.popout-open .avatar-small,
