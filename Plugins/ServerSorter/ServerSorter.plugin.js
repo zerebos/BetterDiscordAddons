@@ -2,6 +2,87 @@
 
 var ServerSorter = (function() {
 
+class SettingField {
+	constructor(name, helptext) {
+		this.name = name;
+		this.helptext = helptext;
+		this.row = $("<div>");
+		this.row.attr("class", "ui-flex flex-vertical flex-justify-start flex-align-stretch flex-nowrap ui-switch-item");
+		this.row.css("margin-top", 0);
+		this.top = $("<div>");
+		this.top.attr("class", "ui-flex flex-horizontal flex-justify-start flex-align-stretch flex-nowrap")
+		this.label = $("<h3>");
+		this.label.attr("class", "ui-form-title h3 margin-reset margin-reset ui-flex-child");
+		this.label.text(name);
+		
+		this.help = $("<div>");
+		this.help.attr("class", "ui-form-text style-description margin-top-4");
+		this.help.css("flex", "1 1 auto");
+		this.help.text(helptext);
+		
+		this.top.append(this.label);
+		this.row.append(this.top);
+		this.row.append(this.help);
+	}
+}
+
+class TextSetting extends SettingField {
+	constructor(label, help, value, placeholder, callback) {
+		super(label, help);
+		var input = $("<input>", {
+			type: "text",
+			placeholder: placeholder,
+			value: value
+		});
+
+		input.on("keyup."+appNameShort+" change."+appNameShort, function() {
+			if (typeof callback != 'undefined') {
+				callback($(this).val())
+			}
+		})
+		
+		this.top.append(input);
+		return this.row;
+	}
+}
+
+class CheckboxSetting extends SettingField {
+	constructor(label, help, isChecked, callback, disabled) {
+		super(label, help);
+		var isDisabled = false
+		if (typeof disabled != 'undefined') isDisabled = disabled;
+		var input = $("<input>", {
+			type: "checkbox",
+			checked: isChecked,
+			disabled: isDisabled
+		});
+		input.attr("class", "ui-switch-checkbox");
+
+		input.on("click."+appNameShort, function() {
+			var checked = $(this).prop("checked");
+			if (checked) {
+				switchDiv.addClass("checked");
+			}
+			else {
+				switchDiv.removeClass("checked");
+			}
+			
+			if (typeof callback != 'undefined') {
+				callback(checked)
+			}
+		})
+		
+		var checkboxWrap = $('<label class="ui-switch-wrapper ui-flex-child" style="flex:0 0 auto;">');
+		checkboxWrap.append(input);
+		var switchDiv = $('<div class="ui-switch">');
+		if (isChecked) switchDiv.addClass("checked");
+		checkboxWrap.append(switchDiv);
+		
+		this.top.append(checkboxWrap);
+		return this.row;
+	}
+}
+
 class ServerSorter {
 	getName(){return "Server Sorter"}
 	getShortName() {return "ServerSorter"}
@@ -80,8 +161,8 @@ class ServerSorter {
 	
 	start(){
 		this.loadSettings()
-		BdApi.injectCSS(this.getShortName(), "#sort-options { transition: 500ms cubic-bezier(.2,0,0,1); transform-origin: 0 0!important;transform: scale(1,0);}" +
-											 "#sort-options.open { transition: 500ms cubic-bezier(.2,0,0,1); transform-origin: 0 0!important; transform: scale(1,1);}")
+		BdApi.injectCSS(this.getShortName(), "#sort-options { display:none; transition: 300ms cubic-bezier(.2,0,0,1); transform-origin: 0 0!important;transform: scale(1,0.8);}" +
+											 "#sort-options.open { display:block;transition: 300ms cubic-bezier(.2,0,0,1); transform-origin: 0 0!important; transform: scale(1,1);}")
 		this.defaultGuilds = this.getGuildNames();
 		
 		this.sorter = $('<div class="guild guild-sorter" id="bd-pub-li" style="height: 20px; margin-bottom:10px !important;"><div class="guild-inner" style="height: 20px; border-radius: 4px;"><a><div id="bd-pub-button" class="sort-button" style="line-height: 20px; font-size: 12px;">Sort</div></a></div></div>')
