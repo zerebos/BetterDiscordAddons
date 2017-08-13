@@ -34,12 +34,6 @@
 	border: none !important;
 }
 
-[class*="theme-"] [class*="avatar-"] [class*="online"],
-[class*="theme-"] [class*="avatar-"] [class*="Online"],
-#user-profile-modal [class*="online"] {
-    border-color: var(--rs-online-color) !important;
-}
-
 [class*="theme-"] [class*="avatar-"] [class*="idle"],
 [class*="theme-"] [class*="avatar-"] [class*="Idle"],
 #user-profile-modal [class*="idle"] {
@@ -57,6 +51,12 @@
 #user-profile-modal [class*="streaming"]{
     animation: streaming-flash 1.5s linear infinite !important;
     border-color: var(--rs-streaming-color) !important;
+}
+
+[class*="theme-"] [class*="avatar-"] [class*="online"],
+[class*="theme-"] [class*="avatar-"] [class*="Online"],
+#user-profile-modal [class*="online"] {
+    border-color: var(--rs-online-color) !important;
 }
 
 [class*="theme-"] [class*="avatar-"] [class*="invisible"],
