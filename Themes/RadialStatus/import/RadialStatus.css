@@ -13,6 +13,10 @@
     --rs-streaming-color: #643da7; /* color for streaming status */
 }
 
+.app {
+	--radial-status: 1;
+}
+
 [class*="avatar-"] [class*="status"],
 #user-profile-modal .status {
     width:100%!important;
