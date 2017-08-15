@@ -275,6 +275,7 @@ class Plugin {
 					this.addColorData(server, this.getReactInstance(elem).getReactProperty('_currentElement.props.children.0.props.children.props.user.id'), color)
 				}
 			});
+		}, 100)
 	}
 
 	colorize() {
@@ -304,6 +305,7 @@ class Plugin {
 		        var user = $(elem).text();
 		        $(elem).css("color", this.getColorData(server, user));
 		    });
+		},100)
 	}
 
 	colorizeVoice() {
