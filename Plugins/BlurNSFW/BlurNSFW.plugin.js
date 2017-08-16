@@ -35,12 +35,22 @@ class Plugin {
 	}
 
 	getReactInstance(node) { 
-		return node[Object.keys(node).find((key) => key.startsWith("__reactInternalInstance"))];
+		let instance = node[Object.keys(node).find((key) => key.startsWith("__reactInternalInstance"))]
+		instance['getReactProperty'] = function(path) {
+		  var value = path.split(".").reduce(function(obj, prop) {
+		    return obj && obj[prop];
+		  }, this);
+		  return value;
+		};
+		return instance;
 	}
 
 	isNSFWChannel() {
 		if (!$('.title-wrap').length) return false;
-		return this.getReactInstance($('.title-wrap')[0])._currentElement.props.children[2].props.channel.nsfw || this.getReactInstance($('.title-wrap')[0])._currentElement.props.children[2].props.channel.name.toLowerCase().indexOf("nsfw") !== -1
+		let channelName = this.getReactInstance($('.title-wrap')[0]).getReactProperty("_currentElement.props.children.2.props.channel.name")
+		let isNSFW = this.getReactInstance($('.title-wrap')[0]).getReactProperty("_currentElement.props.children.2.props.channel.nsfw")
+		if (channelName !== undefined) channelName = channelName.toLowerCase().indexOf("nsfw") !== -1;
+		return isNSFW || channelName
 	}
 
 	blurStuff() {
