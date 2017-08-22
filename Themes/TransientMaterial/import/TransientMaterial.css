@@ -50,7 +50,9 @@ html, span:not(.spinner-item) {
 }
 
 .container-iksrDt {
-	height: 70px;
+	min-height: calc((1 - var(--tm-solo)) * 70px);
+	padding-top: calc(var(--tm-solo) * 1px);
+	padding-bottom: calc(var(--tm-solo) * 1px);
 }
 /* End Title Bar + Account Status */
 
@@ -67,6 +69,21 @@ html, span:not(.spinner-item) {
 .guilds-wrapper .guild {
 	margin-left: 10px;
 }
+
+/* .guilds-wrapper .guilds .guild {
+	height: 64px;
+	width: 70px;
+	margin: 0;
+}
+
+.guilds-wrapper .guilds .guild .guild-inner a {
+	width: 100%;
+	height: 64px;
+}
+
+.guilds-wrapper .guilds .guild .badge {
+	bottom: 12px;
+} */
 
 .guilds-wrapper .guilds .friends-online {
 	width: auto;
@@ -117,6 +134,27 @@ html, span:not(.spinner-item) {
 	margin: 10px 0;
 }
 
+.guilds-wrapper .guilds .guild.unread::before, .guilds-wrapper .guilds .guild.selected::before {
+	height: 50px;
+    width: 50px;
+    padding: 2px;
+    top: -4px;
+    margin-top: 0;
+    left: -4px;
+    background: transparent;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+.guilds-wrapper .guilds .guild.selected::before, .guilds-wrapper .guilds .guild.unread:hover::before {
+    border-radius: 20px;
+    transition: border-radius .2s ease-out;
+}
+
+.guilds-wrapper .guilds .guild+.guild {
+    margin-top: calc(var(--tm-solo) * 14px);
+}
+
 /* End Guilds Wrapper */
 
 
@@ -158,7 +196,8 @@ html, span:not(.spinner-item) {
 
 .comment {
 	background: rgba(0,0,0, var(--tm-messages-opacity)) !important;
-	padding: 0 7px 10px 10px;
+	padding: 0px 7px 10px 10px;
+	padding-top: calc(var(--tm-solo) * 10px);
 	border-radius: 3px; 
 }
 
@@ -177,7 +216,7 @@ html, span:not(.spinner-item) {
 .chat form {
     background: rgba(58,58,58,var(--tm-chatbox-opacity)) !important;
     margin: 0;
-    padding: 0 20px;
+    padding: 0;
     border: none !important;
 }
 
@@ -186,7 +225,7 @@ html, span:not(.spinner-item) {
 }
 
 .chat form .typing {
-    background: rgba(51,51,51, 0.7) !important;
+    background: rgba(51,51,51, 0.5) !important;
     top: -30px;
     margin-left: 28px;
     padding: 2px 7px 2px 7px;
@@ -220,11 +259,15 @@ html, span:not(.spinner-item) {
     align-items: center;
 }
 
-.textArea-20yzAH {
+/* .textArea-20yzAH {
 	padding: 26px 0px;
+	padding-top: calc((-8px * var(--tm-solo)) + 26px);
+	padding-bottom: calc((-8px * var(--tm-solo)) + 26px);
     font-size: 0.875rem;
     line-height: 1.125rem;
-}
+    margin: 0;
+    min-height: 18px;
+} */
 /* End Messages */
 
 
@@ -240,8 +283,18 @@ html, span:not(.spinner-item) {
 
 
 /* Member List */
-.channel-members {
+.theme-dark .channel-members-wrap > .scrollerWrap-2uBjct .member, .theme-dark .channel-members-wrap > .scrollerWrap-2uBjct h2 {opacity:0;}
+.theme-dark .channel-members-wrap > .scrollerWrap-2uBjct:only-child .member, .theme-dark .channel-members-wrap > .scrollerWrap-2uBjct:only-child h2 {opacity:1;}
+.theme-dark .channel-members:only-child, .theme-dark .channel-members-loading {
 	background: rgba(33,33,33, var(--tm-memberlist-opacity)) !important;   
+}
+
+.theme-dark .channel-members-loading .heading, .theme-dark .channel-members-loading .member {
+	opacity: var(--tm-memberlist-opacity);
+}
+
+.theme-dark .channel-members-loading .background, .theme-dark .channel-members-loading .heading, .theme-dark .channel-members-loading .member {
+	filter: grayscale(100%);
 }
 /* End Member List */
 
@@ -324,18 +377,29 @@ html, span:not(.spinner-item) {
 }
 
 /* User Popout */
-.user-popout {
+.userPopout-4pfA0d {
 	background: transparent;
 }
 
-.user-popout .header {
+.userPopout-4pfA0d .header-3mZJcV {
 	background-color: rgba(33,33,33, var(--tm-popout-opacity));
 }
 
-.user-popout .body, .user-popout .footer {
+.userPopout-4pfA0d .body-3rkFrF {
 	background: rgba(48,48,48, var(--tm-popout-opacity));
 }
 
+.userPopout-4pfA0d .footer-2J5zqP {
+	background: rgba(56, 56, 56, var(--tm-popout-opacity));
+}
+
+.userPopout-4pfA0d .quick-message {
+	background: transparent;
+}
+
+.userPopout-4pfA0d .quick-message:focus {
+	background: rgba(58, 58, 58, 0.5);
+}
 /* End Popouts */
 
 
@@ -437,8 +501,19 @@ html, span:not(.spinner-item) {
     background: rgba(41,41,41,0.7) !important;
 }
 
-.ui-standard-sidebar-view #bd-settingspane-container .content-column.default .bda-slist::before, #bd-settings-sidebar .ui-tab-bar-item.selected, [class*="theme-"] #friends .friends-header .tab-bar .tab-bar-item.tab-bar-item-primary.selected .badge, [class*="theme-"] #friends .friends-header .tab-bar .tab-bar-item.tab-bar-item-primary:hover:not(.selected), [class*="theme-"] #friends .friends-header .tab-bar .tab-bar-item.selected .badge, .form.deprecated .btn-primary, .form.deprecated .btn-primary:hover, .private-channel-recipients-invite .footer button, .private-channel-recipients-invite .footer button:hover, .private-channel-recipients-invite .error-state.not-friends .btn:hover, .private-channel-recipients-invite .error-state.not-friends .btn, #friends .btn, [class*="theme-"] #friends .friends-header .tab-bar .tab-bar-item.tab-bar-item-primary, .ui-standard-sidebar-view .bda-slist .bda-right button, .itemDefaultSelected-1UAWLe, .itemDefaultSelected-1UAWLe:active, .ui-tab-bar.SIDE .ui-tab-bar-item.selected, .ui-tab-bar.SIDE .ui-tab-bar-item:active, .ui-slider .slider-bar-fill, .ui-switch-wrapper:not(.disabled):not(.clear):hover .ui-switch-checkbox:checked+.ui-switch, .ui-switch-checkbox:checked+.ui-switch, ._3Mv0RaJ0, ._3Mv0RaJ0:hover, .ui-standard-sidebar-view .bda-slist li button, .buttonBrandFilled-3Mv0Ra, .buttonBrandFilled-3Mv0Ra:hover, .ui-button.brand.filled, .ui-button.brand.filled:hover, .create-guild-container.deprecated .action:hover.create .btn, .region-select:hover button, .slider-bar-fill, .form .btn-primary:hover, .form .btn-primary,
-.ui-standard-sidebar-view #bd-settingspane-container .content-column.default .bda-slist::after, .itemDefaultSelected-1UAWLe, .cardPrimaryEditable-2IQ7-V[style*="background-color: rgb(114, 137, 218);"], .radio-item.checked[style*="background-color: rgb(114, 137, 218);"], [class*="theme-"] .ui-card-primary.checked {
+.ui-standard-sidebar-view #bd-settingspane-container .content-column.default .bda-slist::before,
+#bd-settings-sidebar .ui-tab-bar-item.selected, [class*="theme-"] #friends .friends-header .tab-bar .tab-bar-item.tab-bar-item-primary.selected .badge,
+[class*="theme-"] #friends .friends-header .tab-bar .tab-bar-item.tab-bar-item-primary:hover:not(.selected),
+[class*="theme-"] #friends .friends-header .tab-bar .tab-bar-item.selected .badge,
+.form.deprecated .btn-primary, .form.deprecated .btn-primary:hover, .private-channel-recipients-invite .footer button,
+.private-channel-recipients-invite .footer button:hover, .private-channel-recipients-invite .error-state.not-friends .btn:hover,
+.private-channel-recipients-invite .error-state.not-friends .btn, #friends .btn, [class*="theme-"] #friends .friends-header .tab-bar .tab-bar-item.tab-bar-item-primary,
+.ui-standard-sidebar-view .bda-slist .bda-right button, .itemDefaultSelected-1UAWLe, .itemDefaultSelected-1UAWLe:active, .ui-tab-bar.SIDE .ui-tab-bar-item.selected,
+.ui-tab-bar.SIDE .ui-tab-bar-item:active, .ui-slider .slider-bar-fill, ._3Mv0RaJ0, ._3Mv0RaJ0:hover, .ui-standard-sidebar-view .bda-slist li button,
+.buttonBrandFilled-3Mv0Ra, .buttonBrandFilled-3Mv0Ra:hover, .ui-button.brand.filled, .ui-button.brand.filled:hover,
+.create-guild-container.deprecated .action:hover.create .btn, .region-select:hover button, .slider-bar-fill, .form .btn-primary:hover, .form .btn-primary,
+.ui-standard-sidebar-view #bd-settingspane-container .content-column.default .bda-slist::after, .itemDefaultSelected-1UAWLe,
+.cardPrimaryEditable-2IQ7-V[style*="background-color: rgb(114, 137, 218);"], .radio-item.checked[style*="background-color: rgb(114, 137, 218);"], [class*="theme-"] .ui-card-primary.checked {
     /* opacity: 0.85; */
     background: rgba(var(--tm-accent), 0.7) !important;
     border: none !important;
@@ -516,10 +591,11 @@ html, span:not(.spinner-item) {
 .user-popout .section.roles::-webkit-scrollbar-thumb,
 .ui-standard-sidebar-view .scroller::-webkit-scrollbar-thumb,
 .scroller-wrap .scroller::-webkit-scrollbar-thumb {
-	border: 4px solid rgba(255, 255, 255, 0) !important;
+	border: 4px solid transparent !important;
     background-color: rgba(225, 225, 225, 0.1) !important;
     display: initial;
 	border-radius: 7px !important;
+	background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:active,
@@ -574,5 +650,6 @@ html, span:not(.spinner-item) {
 .user-popout .section.roles::-webkit-scrollbar,
 .ui-standard-sidebar-view .scroller::-webkit-scrollbar,
 .scroller-wrap .scroller::-webkit-scrollbar {
+	width: 13px;
 	background: transparent !important;   
 }
