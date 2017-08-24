@@ -93,7 +93,7 @@ class Plugin {
 	getAuthorStatus(id) {
 		var status = this.getUserByID(id).status
 		if (!status) status = "offline";
-		return `<div class="status status-${status}">`
+		return `<div class="status status-se status-${status}">`
 	}
 
 	attachStatuses() {
