@@ -17,10 +17,10 @@ This is a small collection of my CSS Snippets that people may enjoy. Adjust any 
 }
 
 .channel-members .member:hover .status, .channel-members .member.popout-open .status {
-    width:100%;
-    background: transparent;
-    border-radius: inherit;
-    height: 100%;
+	width:100%;
+	background: transparent;
+	border-radius: inherit;
+	height: 100%;
 	right: -4px;
 	bottom: -4px;
 	padding: 2px;
@@ -73,7 +73,7 @@ Underlines and centers the headers in userlist, channel list, and DM list.
 ```css
 /* underline roles in memberlist & DMs */
 .channel-members h2, .private-channels header {
-    text-align: center;
+	text-align: center;
 }
 
 .channel-members h2::after, .private-channels header::after {
@@ -82,16 +82,16 @@ Underlines and centers the headers in userlist, channel list, and DM list.
 	height: 1px;
 	width: 100%;
 	border-bottom: 2px solid var(--accent-color);
-    padding-bottom: 10px;
+	padding-bottom: 10px;
 }
 
 /* underline labels in channellist */
 .channels-wrap .wrapperDefault-1Dl4SS, .channels-wrap .wrapperHovered-1KDCyZ {
 	padding-top: 28px;
-    padding-right: 8px;
-    padding-left: 18px;
-    padding: 0 0 8px 0;
-    height: auto;
+	padding-right: 8px;
+	padding-left: 18px;
+	padding: 0 0 8px 0;
+	height: auto;
 	margin: 28px 8px 4px 18px;
 	border-bottom: 2px solid white;
 }

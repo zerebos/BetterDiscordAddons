@@ -16,5 +16,8 @@ A series of plugins and themes for BetterDiscord. For support or announcements o
  - [TransientMaterial](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/TransientMaterial) - Transparency patch theme for Beard's Material Design Theme. Also works fairly well on it's own.
  - [SwitchFix](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/SwitchFix) - Makes the checkboxes on the plugins and themes pages look like switches again.
  
+## Snippets
+ - [Snippet Collection](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/Snippets) - A collection of useful CSS snippets, could be considered mini-themes.
+ 
 ## Fixes
  - ~~[ColoredVoice & ColoredTyping](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ColoredStuff) - Fixed versions of Anxeal's ColoredVoice and ColoredTyping.~~ Outdated: See my new plugin [Better Role Colors](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors)
