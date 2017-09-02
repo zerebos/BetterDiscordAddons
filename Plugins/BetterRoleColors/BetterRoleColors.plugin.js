@@ -6,7 +6,7 @@ class Plugin {
 	getName() { return "BetterRoleColors" }
 	getShortName() { return "BRC" }
 	getDescription() { return "Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer" }
-	getVersion() { return "0.4.3" }
+	getVersion() { return "0.5.0" }
 	getAuthor() { return "Zerebos" }
 	getGithubLink() { return "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js" }
 
