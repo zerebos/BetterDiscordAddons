@@ -24,7 +24,6 @@ class Plugin {
 						 modals: {username: true, discriminator: false},
 						 auditLog: {username: true, discriminator: false},
 						 account: {username: true, discriminator: false}}
-		this.mainCSS =  ""
 
 		this.colorData = {}
 	}
@@ -37,6 +36,16 @@ class Plugin {
 	saveSettings() {
 		try { bdPluginStorage.set(this.getShortName(), "plugin-settings", this.settings) }
 		catch (err) { console.warn(this.getShortName(), "unable to save settings:", err) }
+	}
+
+	loadData() {
+		try { this.colorData = $.extend(true, this.colorData, bdPluginStorage.get(this.getShortName(), "color-data")) }
+		catch (err) { console.warn(this.getShortName(), "unable to load data:", err) }
+	}
+
+	saveData() {
+		try { bdPluginStorage.set(this.getShortName(), "color-data", this.colorData) }
+		catch (err) { console.warn(this.getShortName(), "unable to save data:", err) }
 	}
 	
 	load() {
@@ -54,19 +63,19 @@ class Plugin {
 	unload() {};
 	
 	start() {
+		this.loadData();
 		this.loadSettings();
-		BdApi.injectCSS(this.getShortName()+"-style", this.mainCSS);
 		BdApi.injectCSS(this.getShortName()+"-settings", SettingField.getCSS(this.getName()));
-		this.getAllUsers()
 		this.currentServer = this.getCurrentServer()
+		this.getAllUsers()
 		this.colorize()
 	}
 	
 	stop() {
+		this.saveData();
 		this.decolorize()
 		this.saveSettings();
 		$("*").off("." + this.getShortName());
-		BdApi.clearCSS(this.getShortName()+"-style");
 		BdApi.clearCSS(this.getShortName()+"-settings");
 	}
 	
@@ -74,7 +83,9 @@ class Plugin {
 		if (this.currentServer == this.getCurrentServer()) return;
 		this.currentServer = this.getCurrentServer()
 		this.getAllUsers()
-		this.colorize()
+		this.colorizeAccountStatus()
+		this.colorizeVoice()
+		//this.colorize()
 	}
 
 	getReactInstance(node) { 
@@ -92,7 +103,7 @@ class Plugin {
 	isServer() { return this.getCurrentServer() ? true : false}
 
 	getCurrentServer() {
-		return this.getReactInstance($('.channels-wrap')[0]).getReactProperty('_currentElement => props => children => 0 => props => guildId')
+		return this.getReactInstance(document.querySelector('.channels-wrap')).getReactProperty('_currentElement => props => children => 0 => props => guildId')
 	}
 
 	getRGB(color) {
@@ -130,81 +141,140 @@ class Plugin {
 	
 	observer(e) {
 
-		if (e.removedNodes.length) {
-			var removed = $(e.removedNodes[0])
-			if (removed.hasClass("spinner") || removed.prop("tagName") == "STRONG") {
+		if (e.removedNodes.length && e.removedNodes[0] instanceof Element) {
+			var removed = e.removedNodes[0]
+			if (removed.classList.contains("spinner") || removed.tagName == "STRONG") {
 				this.colorizeTyping()
 			}
 		}
 
-		if (!e.addedNodes.length) return;
-		var elem = $(e.addedNodes[0]);
+		if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element)) return;
+		var elem = e.addedNodes[0]
 
-		if (elem.find(".containerDefault-7RImuF").length || elem.find(".avatarContainer-303pFz").length) {
+		if (elem.querySelector("#friends") || elem.id == "friends") this.onSwitch();
+
+		if (elem.classList.contains("message-group")) this.getMessageColor(elem);
+
+		if (elem.querySelector(".draggable-3SphXU") || elem.classList.contains("draggable-3SphXU")) {
         	this.colorizeVoice()
 		}
 
-		if (elem.find("strong").length || elem.find(".spinner").length || elem.hasClass("typing") || elem.prop("tagName") == "STRONG") {
+		if (elem.querySelector("strong") || elem.querySelector(".spinner") || elem.classList.contains("typing") || elem.tagName == "STRONG") {
         	this.colorizeTyping()
     	}
 
-    	if (elem.find(".guild-settings-audit-logs").length || elem.hasClass("guild-settings-audit-logs") || elem.find(".userHook-DFT5u7").length || elem.hasClass("userHook-DFT5u7")) {
+    	if (elem.querySelector(".guild-settings-audit-logs") || elem.classList.contains("guild-settings-audit-logs") || elem.querySelector(".userHook-DFT5u7") || elem.classList.contains("userHook-DFT5u7")) {
     		this.colorizeAuditLog()
     	}
 
-    	if (elem.find('.userPopout-4pfA0d').length) {
+    	if (elem.querySelector('.userPopout-4pfA0d')) {
         	this.colorizePopout()
     	}
 
-    	if (elem.find("#user-profile-modal").length) {
+    	if (elem.querySelector("#user-profile-modal")) {
         	this.colorizeModal()
     	}
 
-    	if (elem.hasClass("message-group")) {
-        	this.colorizeMentions(elem)
+    	if (elem.classList.contains("message-group") || elem.classList.contains("messages-wrapper")) {
+    		this.getAllMessageColors()
+        	this.colorizeMentions()
     	}
 
-    	if (elem.hasClass("message")) {
-    		this.colorizeMentions(elem.parents('.message-group'))
+    	if (elem.classList.contains("message")) {
+    		this.colorizeMentions()
     	}
+	}
+	
+	getParents(selector) {
+		var parents = [];
+		while (element = element.parentElement.closest(selector))
+		    parents.push(element);
+		return parents
+	}
+
+	indexInParent(node) {
+	    var children = node.parentNode.childNodes;
+	    var num = 0;
+	    for (var i=0; i<children.length; i++) {
+	         if (children[i]==node) return num;
+	         if (children[i].nodeType==1) num++;
+	    }
+	    return -1;
 	}
 
 	getAllUsers() {
 		this.users = []
-		if (!$('.channel-members').length || $('.private-channels').length) return;
-		let groups = this.getReactInstance($('.channel-members').parent().parent().parent()[0]).getReactProperty('_renderedChildren => [".1"] => _instance => state => memberGroups')
-		for (let i=0; i<groups.length; i++) {
-			this.users.push(...groups[i].users)
+		var server = this.getCurrentServer()
+		if (!document.querySelector('.channel-members') || document.querySelector('.private-channels')) return;
+		let groups = this.getReactInstance(document.querySelector('.channel-members').parentElement.parentElement.parentElement).getReactProperty('_renderedChildren => [".1"] => _instance => state => memberGroups')
+		for (let g=0; g<groups.length; g++) {
+			// this.users.push(...groups[i].users)
+			for (let u=0; u<groups[g].users.length; u++) {
+				let user = groups[g].users[u]
+				this.addColorData(this.currentServer, user.user.id, user.colorString ? user.colorString : "")
+				this.addColorData(this.currentServer, user.nick, user.colorString ? user.colorString : "")
+			}
 		}
+		this.saveData()
 	}
 
-	getUserByID(id) {
-		var user = this.users.find((user) => {return user.user.id == id})
-		if (!user) this.getAllUsers();
-		user = this.users.find((user) => {return user.user.id == id})
-		if (user) return user;
-		else return {colorString: ""};
+	getAllMessageColors() {
+		document.querySelectorAll(".message-group").forEach((elem, _) => {this.getMessageColor(elem)})
 	}
 
-	getUserByNick(nickname) {
-		var user = this.users.find((user) => {return user.nick == nickname})
-		if (!user) this.getAllUsers();
-		user = this.users.find((user) => {return user.nick == nickname})
-		if (user) return user;
-		else return {colorString: ""};
+	getMessageColor(message) {
+		if (!this.isServer()) return;
+		let msg = this.getReactInstance(message).getReactProperty('_currentElement => props => children => [1] => props => children => ["0"] => ["0"] => props => message')
+		if (!msg) return;
+		this.addColorData(this.currentServer, msg.author.id, msg.colorString ? msg.colorString : "")
+		this.addColorData(this.currentServer, msg.nick ? msg.nick : msg.author.username, msg.colorString ? msg.colorString : "")
 	}
 
-	getColorByID(id) {
-		let color = this.getUserByID(id).colorString
-		if (color) return color;
-		else return "";
+	addColorData(server, user, color) {
+		if (server === undefined || user === undefined || color === undefined) return;
+		if (this.colorData[server] === undefined) this.colorData[server] = {};
+		if (color) this.colorData[server][user] = color;
+		else if (this.colorData[server][user] !== undefined) delete this.colorData[server][user];
 	}
 
-	getColorByNick(nickname) {
-		let color = this.getUserByNick(nickname).colorString
-		if (color) return color;
-		else return "";
+	getColorData(server, user) {
+		if (server === undefined || user === undefined || this.colorData[server] === undefined || this.colorData[server][user] === undefined) return "";
+		else return this.colorData[server][user];
 	}
+
+	getUserColor(user) {
+		return this.getColorData(this.currentServer, user)
+	}
+
+	// getUserByID(id) {
+	// 	var user = this.users.find((user) => {return user.user.id == id})
+	// 	if (!user) this.getAllUsers();
+	// 	user = this.users.find((user) => {return user.user.id == id})
+	// 	if (user) return user;
+	// 	else return {colorString: ""};
+	// }
+
+	// getUserByNick(nickname) {
+	// 	var user = this.users.find((user) => {return user.nick == nickname})
+	// 	if (!user) this.getAllUsers();
+	// 	user = this.users.find((user) => {return user.nick == nickname})
+	// 	if (user) return user;
+	// 	else return {colorString: ""};
+	// }
+
+	// getColorByID(id) {
+	// 	// let color = this.getUserByID(id).colorString
+	// 	// if (color) return color;
+	// 	// else return "";
+	// 	return this.getColorData(this.currentServer, id)
+	// }
+
+	// getColorByNick(nickname) {
+	// 	// let color = this.getUserByNick(nickname).colorString
+	// 	// if (color) return color;
+	// 	// else return "";
+	// 	return this.getColorData(this.currentServer, nickname)
+	// }
 
 	colorize() {
 		this.colorizeTyping()
@@ -216,58 +286,67 @@ class Plugin {
 	colorizeAccountStatus() {
 		if (!this.settings.account.username && !this.settings.account.discriminator) return;
 		let server = this.getCurrentServer()
-			let account = $('.accountDetails-15i-_e')
-		let user = this.getReactInstance(account[0]).getReactProperty('_hostParent => _currentElement => props => children => 1 => props => user => id')
-		let color = this.getColorByID(user)
-		if (this.settings.account.username) account.find(".username")[0].style.setProperty("color", color, "important");
-		if (this.settings.account.discriminator) account.find(".discriminator").css("opacity", 1)[0].style.setProperty("color", color, "important");
+		let account = document.querySelector('.accountDetails-15i-_e')
+		let user = this.getReactInstance(account).getReactProperty('_hostParent => _currentElement => props => children => 1 => props => user => id')
+		let color = this.getUserColor(user)
+		if (this.settings.account.username) account.querySelector(".username").style.setProperty("color", color, "important");
+		if (this.settings.account.discriminator) {
+			account.querySelector(".discriminator").style.setProperty("color", color, "important");
+			account.querySelector(".discriminator").style.setProperty("opacity", "1");
+		}
 	}
 
 	colorizeTyping() {
 		if (!this.settings.modules.typing) return;
 		let server = this.getCurrentServer()
-	    $(".typing strong").each((index, elem) => {
-	        var user = $(elem).text();
-	        $(elem).css("color", this.getColorByNick(user));
+	    document.querySelectorAll(".typing strong").forEach((elem, index) => {
+	        var user = elem.textContent;
+	        elem.style.setProperty("color", this.getUserColor(user));
 	    });
 	}
 
 	colorizeVoice() {
 		if (!this.settings.modules.voice) return;
 		let server = this.getCurrentServer()
-	    $(".draggable-3SphXU").each((index, elem) => {
+	    document.querySelectorAll(".draggable-3SphXU").forEach((elem, index) => {
 	        var user = this.getReactInstance(elem).getReactProperty('_currentElement => props => children => props => user => id')
-			$(elem).find(".avatarContainer-303pFz").siblings().first().css("color", this.getColorByID(user));
+	        console.log(user)
+			//$(elem).find(".avatarContainer-303pFz").siblings().first().css("color", this.getColorByID(user));
+			elem.querySelector('[class*="name"]').style.setProperty("color", this.getUserColor(user))
 	    });
 	}
 
 	colorizeMentions(node) {
 		if (!this.settings.modules.mentions) return;
 		let server = this.getCurrentServer()
-		var searchSpace = node === undefined ? $(".message-group .message") : node
-	    $(".message-group .message").each((index, elem) => {
-	    	var messageNum = $(elem).index()
+		// var searchSpace = node === undefined ? document : node
+	    document.querySelectorAll(".message-group .message").forEach((elem, index) => {
+	    	var messageNum = this.indexInParent(elem)
 	    	var instance = this.getReactInstance(elem)
-	    	$(elem).find('.message-text > .markup > .mention:contains("@")').each((index, elem) => {
+	    	var mentionNum = 0
+	    	elem.querySelectorAll('.message-text > .markup > .mention').forEach((elem, index) => {
+	    		if (elem.textContent.indexOf("@") == -1) return;
 	        	var users = instance.getReactProperty(`_hostParent => _currentElement => props => children => 0 => ${messageNum} => props => message => content`).match(/<@!?[0-9]+>/g)
 	        	if (!users) return true;
-	        	var user = users[index]
+	        	var user = users[mentionNum]
 	        	if (!user) return true;
 	        	user = user.replace(/<|@|!|>/g, "")
-	        	var textColor = this.getColorByID(user)
-				$(elem).css("color", textColor);
+	        	var textColor = this.getUserColor(user)
 				if (textColor) {
-					$(elem).css("background", this.rgbToAlpha(textColor,0.1));
+					elem.style.setProperty("color", textColor);
+					elem.style.setProperty("background", this.rgbToAlpha(textColor,0.1));
 
-					$(elem).on("mouseenter."+this.getShortName(), ()=>{
-						$(elem).css("color", "#FFFFFF");
-						$(elem).css("background", this.rgbToAlpha(textColor,0.7));
+					elem.addEventListener()
+					elem.addEventListener("mouseenter"+this.getShortName(), (e)=>{
+						e.target.style.setProperty("color", "#FFFFFF");
+						e.target.style.setProperty("background", this.rgbToAlpha(textColor,0.7));
 					})
-					$(elem).on("mouseleave."+this.getShortName(), ()=> {
-						$(elem).css("color", textColor);
-						$(elem).css("background", this.rgbToAlpha(textColor,0.1));
+					elem.addEventListener("mouseleave"+this.getShortName(), (e)=> {
+						e.target.style.setProperty("color", textColor);
+						e.target.style.setProperty("background", this.rgbToAlpha(textColor,0.1));
 					})
 				}
+			mentionNum += 1;
 	    	})
 	    });
 	}
@@ -275,27 +354,24 @@ class Plugin {
 	colorizePopout() {
 		if (!this.settings.popouts.username && !this.settings.popouts.discriminator && !this.settings.popouts.nickname) return;
 		let server = this.getCurrentServer()
-	    $('.userPopout-4pfA0d').each((index, elem) => {
-	        var user = $(elem).text()
-	        var user = this.getReactInstance(elem).getReactProperty('_hostParent => _currentElement => props => children => props => user => id')
-	        if (!user) return true;
-	        let color = this.getColorByID(user)
-	        var hasNickname = $(elem).find('.headerName-2N8Pdz').length
-	        if ((color && this.settings.popouts.username) || (!hasNickname && this.settings.popouts.fallback)) $(elem).find('.headerTag-3zin_i span:first-child')[0].style.setProperty("color", color, "important");
-	        if (color && this.settings.popouts.discriminator) $(elem).find('.headerDiscriminator-3fLlCR')[0].style.setProperty("color", color, "important");
-	        if (color && this.settings.popouts.nickname && hasNickname) $(elem).find('.headerName-2N8Pdz')[0].style.setProperty("color", color, "important");
-	    });
+	    let popout = document.querySelector('.userPopout-4pfA0d')
+        var user = this.getReactInstance(popout).getReactProperty('_hostParent => _currentElement => props => children => props => user => id')
+        if (!user) return true;
+        let color = this.getUserColor(user)
+        var hasNickname = Boolean(popout.querySelector('.headerName-2N8Pdz'))
+        if ((color && this.settings.popouts.username) || (!hasNickname && this.settings.popouts.fallback)) popout.querySelector('.headerTag-3zin_i span:first-child').style.setProperty("color", color, "important");
+        if (color && this.settings.popouts.discriminator) popout.querySelector('.headerDiscriminator-3fLlCR').style.setProperty("color", color, "important");
+        if (color && this.settings.popouts.nickname && hasNickname) popout.querySelector('.headerName-2N8Pdz').style.setProperty("color", color, "important");
 	}
 
 	colorizeModal() {
 		if (!this.settings.modals.username && !this.settings.modals.discriminator) return;
 		let server = this.getCurrentServer()
-	    $("#user-profile-modal").each((index, elem) => {
-	        var user = this.getReactInstance(elem).getReactProperty('_currentElement => props => children => 3 => props => user => id')
-	        let color = this.getColorByID(user)
-	        if (color && this.settings.modals.username) $(elem).find('.username')[0].style.setProperty("color", color, "important");
-	        if (color && this.settings.modals.discriminator) $(elem).find('.discriminator')[0].style.setProperty("color", color, "important");
-	    });
+	    let modal = document.querySelector("#user-profile-modal")
+        var user = this.getReactInstance(modal).getReactProperty('_currentElement => props => children => 3 => props => user => id')
+        let color = this.getUserColor(user)
+        if (color && this.settings.modals.username) modal.querySelector('.username').style.setProperty("color", color, "important");
+        if (color && this.settings.modals.discriminator) modal.querySelector('.discriminator').style.setProperty("color", color, "important");
 	}
 
 	colorizeAuditLog() {
@@ -304,7 +380,7 @@ class Plugin {
 	    $(".userHook-DFT5u7").each((index, elem) => {
 	    	var index = $(elem).index() ? 2 : 0
 	        let user = this.getReactInstance(elem).getReactProperty(`_hostParent => _currentElement => props => children => ${index} => props => user => id`)
-	        let color = this.getColorByID(user)
+	        let color = this.getUserColor(user)
 			if (this.settings.auditLog.username) $(elem).children().first().css("color", color);
 			if (this.settings.auditLog.discriminator) { $(elem).children(".discrim-xHdOK3").css("color", color).css("opacity", 1)}
 	    });
