@@ -6,7 +6,7 @@ class Plugin {
 	getName(){return "Image To Clipboard"}
 	getShortName() {return "i2c"}
 	getDescription(){return "Copies images (png/jpg) directly to clipboard. Support Server: bit.ly/ZeresServer"}
-	getVersion(){return "0.2.2"}
+	getVersion(){return "0.2.3"}
 	getAuthor(){return "Zerebos"}
 
 	constructor() {
