@@ -59,7 +59,7 @@ class Plugin {
 			var children = Array.isArray(ele.props.children) ? ele.props.children : [ele.props.children];
 			for (var i = 0; i < children.length; i++) {
 				if (children[i] && children[i].props && children[i].props.href && children[i].type && children[i].type.displayName == "NativeLinkGroup") {
-					var imageLink = children[i].props.href;
+					var imageLink = children[i].props.href.toLowerCase();
 					if (imageLink.endsWith('.png') || imageLink.endsWith('.jpg') || imageLink.endsWith('.jpeg')) {
 						var item = $(this.contextItem).on("click."+this.getShortName(), ()=>{$(context).hide();this.copyToClipboard(imageLink);});
 						$(context).find('.item:contains("Copy Link")').after(item)
