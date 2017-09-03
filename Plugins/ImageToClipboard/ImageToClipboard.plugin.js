@@ -6,7 +6,7 @@ class Plugin {
 	getName(){return "Image To Clipboard"}
 	getShortName() {return "i2c"}
 	getDescription(){return "Copies images (png/jpg) directly to clipboard. Support Server: bit.ly/ZeresServer"}
-	getVersion(){return "0.2.2"}
+	getVersion(){return "0.2.3"}
 	getAuthor(){return "Zerebos"}
 
 	constructor() {
@@ -60,7 +60,8 @@ class Plugin {
 			for (var i = 0; i < children.length; i++) {
 				if (children[i] && children[i].props && children[i].props.href && children[i].type && children[i].type.displayName == "NativeLinkGroup") {
 					var imageLink = children[i].props.href;
-					if (imageLink.endsWith('.png') || imageLink.endsWith('.jpg') || imageLink.endsWith('.jpeg')) {
+					var imageLinkLower = imageLink.toLowerCase()
+					if (imageLinkLower.endsWith('.png') || imageLinkLower.endsWith('.jpg') || imageLinkLower.endsWith('.jpeg')) {
 						var item = $(this.contextItem).on("click."+this.getShortName(), ()=>{$(context).hide();this.copyToClipboard(imageLink);});
 						$(context).find('.item:contains("Copy Link")').after(item)
 						break;
@@ -69,7 +70,8 @@ class Plugin {
 						imageLink = children[i].props.src
 						imageLink = imageLink.match(/https?\/.*(\.png|\.jpg|\.jpeg)/g)[0]
 						imageLink = imageLink.replace("http/", "http://").replace("https/", "https://")
-						if (imageLink.endsWith('.png') || imageLink.endsWith('.jpg') || imageLink.endsWith('.jpeg')) {
+						imageLinkLower = imageLink.toLowerCase()
+						if (imageLinkLower.endsWith('.png') || imageLinkLower.endsWith('.jpg') || imageLinkLower.endsWith('.jpeg')) {
 							var item = $(this.contextItem).on("click."+this.getShortName(), ()=>{$(context).hide();this.copyToClipboard(imageLink);});
 							$(context).find('.item:contains("Copy Link")').after(item)
 							break;
