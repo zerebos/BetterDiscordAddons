@@ -98,3 +98,84 @@ Underlines and centers the headers in userlist, channel list, and DM list.
 .channels-wrap .nameDefault-Lnjrwm, .channels-wrap .nameHovered-1YFSWq {text-align: center;}
 .channels-wrap .wrapperDefault-1Dl4SS .flex-lFgbSz, .channels-wrap .wrapperHovered-1KDCyZ .flex-lFgbSz {margin-right:0;}
 ```
+
+## Alternate Speaking Notification
+
+Uses a small bar instead of a circle. Or uses a bar and gradient (like ClearVision)
+
+### Preview
+
+Alt 1:
+![Preview](http://i.zackrauen.com/zW6OZ8.png)
+
+Alt 2:
+![Preview](http://i.zackrauen.com/8zBFJy.png)
+
+### CSS
+
+Alt 1:
+```css
+.avatarSpeaking-3teDH6 {
+	box-shadow: none;
+}
+.avatarSpeaking-3teDH6::before {
+	content: "";
+	display: block;
+	height: 20px;
+	border-left: 4px solid #43b581;
+	position: absolute;
+	left: -5px;
+}
+```
+
+Alt 2:
+```css
+.avatarSpeaking-3teDH6, .avatarDefault-3jtQoc, .avatarContainer-303pFz {
+	border-color: transparent !important;
+	box-shadow: none !important;
+	z-index: 10;
+}
+
+.avatarSpeaking-3teDH6::before {
+	content: "";
+	position: absolute;
+	left: -5px;
+	width: 4px;
+	height: 20px;
+	background: #43b581;
+}
+
+.avatarSpeaking-3teDH6::after {
+	content: "";
+	position: absolute;
+	height: 20px;
+	left: -5px;
+	width: 100%;
+	background: linear-gradient(to right, #43b581 0%, transparent 35%);
+	opacity: 0.5;
+	z-index: -1;
+}
+```
+
+## Blur Email (Show on Hover)
+
+Blurs the email in account settings for showing off themes. Email will show on hover.
+
+### Preview
+
+![Blurred Email](http://i.zackrauen.com/pESY7C.gif)
+
+### CSS
+
+```css
+/* Blur account email */
+.user-settings-account .ui-form-item:last-of-type .view-body.selectable-prgIYK:last-of-type {
+	filter: blur(5px);
+	transition: 200ms cubic-bezier(.2, .11, 0, 1);
+}
+
+.user-settings-account .ui-form-item:last-of-type .view-body.selectable-prgIYK:last-of-type:hover {
+	filter: none;
+	transition: 200ms cubic-bezier(.2, .11, 0, 1);
+}
+```
