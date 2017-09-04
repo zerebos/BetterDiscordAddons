@@ -2,10 +2,10 @@
     -ms-transform: none !important;
     transform: none !important;
     border-width: calc(var(--rs-profile-width) * 2) !important;
-    top: -14px !important;
-    right: -14px !important;
-    bottom: -14px !important;
-    left: -14px !important;
+    top: calc(-2*var(--rs-profile-spacing) + -2*var(--rs-profile-width)) !important;
+    right: calc(-2*var(--rs-profile-spacing) + -2*var(--rs-profile-width)) !important;
+    bottom: calc(-2*var(--rs-profile-spacing) + -2*var(--rs-profile-width)) !important;
+    left: calc(-2*var(--rs-profile-spacing) + -2*var(--rs-profile-width)) !important;
     padding: calc(var(--rs-profile-spacing) * 2) !important;
 }
 
