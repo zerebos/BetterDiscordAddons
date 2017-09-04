@@ -6,7 +6,7 @@ class Plugin {
 	getName() { return "BetterRoleColors" }
 	getShortName() { return "BRC" }
 	getDescription() { return "Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer" }
-	getVersion() { return "0.5.0" }
+	getVersion() { return "0.5.1" }
 	getAuthor() { return "Zerebos" }
 	getGithubLink() { return "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js" }
 
@@ -67,12 +67,14 @@ class Plugin {
 		this.loadSettings();
 		BdApi.injectCSS(this.getShortName()+"-settings", SettingField.getCSS(this.getName()));
 		this.currentServer = this.getCurrentServer()
+		this.currentUser = this.getReactInstance($('div[class*="accountDetails"]')[0])._hostParent._currentElement.props.children[1].props.user.id
 		this.getAllUsers()
 		this.colorize()
 	}
 	
 	stop() {
 		this.saveData();
+		delete this.colorData
 		this.decolorize()
 		this.saveSettings();
 		$("*").off("." + this.getShortName());
@@ -212,7 +214,6 @@ class Plugin {
 			for (let u=0; u<groups[g].users.length; u++) {
 				let user = groups[g].users[u]
 				this.addColorData(this.currentServer, user.user.id, user.colorString ? user.colorString : "")
-				this.addColorData(this.currentServer, user.nick, user.colorString ? user.colorString : "")
 			}
 		}
 		this.saveData()
@@ -227,7 +228,6 @@ class Plugin {
 		let msg = this.getReactInstance(message).getReactProperty('_currentElement => props => children => [1] => props => children => ["0"] => ["0"] => props => message')
 		if (!msg) return;
 		this.addColorData(this.currentServer, msg.author.id, msg.colorString ? msg.colorString : "")
-		this.addColorData(this.currentServer, msg.nick ? msg.nick : msg.author.username, msg.colorString ? msg.colorString : "")
 	}
 
 	addColorData(server, user, color) {
@@ -297,11 +297,15 @@ class Plugin {
 	}
 
 	colorizeTyping() {
-		if (!this.settings.modules.typing) return;
+		if (!this.settings.modules.typing || !document.querySelector('.typing')) return;
 		let server = this.getCurrentServer()
+		var typingUsers = this.getReactInstance(document.querySelector('.typing').parentElement).getReactProperty('_renderedChildren=>[".1"]=>_instance=>state=>typingUsers')
+		delete typingUsers[this.currentUser]
+		var sorted = Object.keys(typingUsers).sort(function(a,b){return typingUsers[a]-typingUsers[b]})
 	    document.querySelectorAll(".typing strong").forEach((elem, index) => {
 	        var user = elem.textContent;
-	        elem.style.setProperty("color", this.getUserColor(user));
+	        var ID = sorted[index]
+	        elem.style.setProperty("color", this.getUserColor(ID));
 	    });
 	}
 
