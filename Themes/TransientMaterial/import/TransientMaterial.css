@@ -221,6 +221,7 @@ html, span:not(.spinner-item) {
     border: none !important;
 }
 
+.inner-3if5cm .textArea-20yzAH:focus, .inner-3if5cm:hover .textArea-20yzAH {
 	opacity: 0.64!important;
 }
 
