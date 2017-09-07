@@ -1,18 +1,19 @@
 :root {
 	--tm-accent: 67, 181, 129; /* R, G, B of accent-color */
 	--tm-titlebar-opacity: 0.8; /* Titlebar Opacity */
-	--tm-guilds-opacity: 0.7; /* Guilds  Opacity */
-	--tm-messages-opacity: 0.2; /* Message Bubble Opacity */
-	--tm-chat-opacity: 0.7; /* Chat BG Opacity */
-	--tm-chatbox-opacity: 0.7; /* Chatbox Opacity */
-	--tm-memberlist-opacity: 0.7; /* Memberlist Opacity */
-	--tm-channels-opacity: 0.7; /* Channel List Opacity */
-	--tm-modal-opacity: 0.7; /* Modal Opacity */
+	--tm-guilds-opacity: 0.75; /* Guilds  Opacity */
+	--tm-messages-opacity: 0.5; /* Message Bubble Opacity */
+	--tm-chat-opacity: 0.75; /* Chat BG Opacity */
+	--tm-chatbox-opacity: 0.75; /* Chatbox Opacity */
+	--tm-memberlist-opacity: 0.75; /* Memberlist Opacity */
+	--tm-channels-opacity: 0.75; /* Channel List Opacity */
+	--tm-modal-opacity: 0.75; /* Modal Opacity */
 	--tm-popout-opacity: 0.95; /* Popout Opacity */
 	--tm-selected-item: rgba(30,30,30, 0.7); /* Selected Channel/Server Color */
 	--tm-hover: rgba(255,255,255,0.05); /* Hover Channel/Server Color */
 	--tm-active: rgba(255,255,255,0.1); /* Clicking Channel/Server Color */
 	--tm-version: "TransientMaterial v1.2.2"; /* Current Version */
+	--tm-solo: 0;
 }
 
 /* Fixes nonsense glitches */
@@ -209,7 +210,7 @@ html, span:not(.spinner-item) {
 	background: rgba(0,0,0, var(--tm-messages-opacity)) !important;
 }
 
-.messages.scroller {
+.messages.scroller, .content > .theme-dark {
     background: rgba(48,48,48, var(--tm-chat-opacity)) !important;
 }
 
@@ -218,6 +219,9 @@ html, span:not(.spinner-item) {
     margin: 0;
     padding: 0;
     border: none !important;
+}
+
+	opacity: 0.64!important;
 }
 
 .channel-text-area-default {
@@ -326,13 +330,24 @@ html, span:not(.spinner-item) {
 	background-color: rgba(20,20,20, 0.7) !important;
 }
 
-.private-channels .channel.selected a,
-.private-channels .search-bar {
+.private-channels .scrollerWrap-2uBjct::before {
+	background: rgba(20,20,20, var(--tm-titlebar-opacity));
+}
+
+.private-channels .channel.selected a {
     background: rgba(20,20,20, 0.7) !important;
+}
+
+.private-channels .search-bar input:focus {
+	background: rgba(55,55,55,0.9);
 }
 
 .theme-dark #friends .friends-header .tab-bar .tab-bar-item:hover:not(.selected) {
 	background: var(--tm-hover);
+}
+
+#friends .friends-table .friends-row {
+	background: transparent;
 }
 /* End Friends/DMs */
 
