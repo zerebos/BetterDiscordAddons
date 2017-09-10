@@ -10,6 +10,7 @@ A series of plugins and themes for BetterDiscord. For support or announcements o
  - [ResizableCSS](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ResizableCSS) - Allows you to resize the detached CustomCSS window.
  - [BlurNSFW](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BlurNSFW) - Blurs images in NSFW channels until you hover over it.
  - [ImageToClipboard](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ImageToClipboard) - Allows you to copy images (png/jpg) directly to your system clipboard.
+ - [SendButton](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/SendButton) - Adds a send button to discord.
  
 ## Themes
  - [RadialStatus](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/RadialStatus) - An extension (and update/fix) of Zerthox's Status Circles.
