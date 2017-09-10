@@ -14,14 +14,15 @@ This is a small collection of my CSS Snippets that people may enjoy. Adjust any 
 /* Hover and popout like RadialStatus */
 .channel-members .member .status {
 	transition: all 150ms ease;
+    will-change: border-color, width, background, height, padding;
 }
 
 .channel-members .member:hover .status, .channel-members .member.popout-open .status {
-	width:100%;
-	background: transparent;
-	border-radius: inherit;
-	height: 100%;
-	right: -4px;
+    width:100% !important;
+    background: transparent;
+    border-radius: inherit;
+    height: 100%;
+	right: -4px !important;
 	bottom: -4px;
 	padding: 2px;
 	transition: all 150ms ease;
@@ -39,6 +40,10 @@ This is a small collection of my CSS Snippets that people may enjoy. Adjust any 
 .channel-members .member.popout-open .status.status-offline {border-color: #636b75 !important}
 .channel-members .member:hover .status-streaming.status,
 .channel-members .member.popout-open .status-streaming.status {border-color: #593695 !important}
+.channel-members .member.popout-open .status.status-typing,
+.channel-members .member:hover .status.status-typing {background-color: rgba(0, 0, 0, 0.4) !important;}
+.channel-members .member.popout-open .status.status-typing .spinner .spinner-inner,
+.channel-members .member:hover .status.status-typing .spinner .spinner-inner {left: 1px !important;top: 1px !important;}
 ```
 
 ## Colored Game
