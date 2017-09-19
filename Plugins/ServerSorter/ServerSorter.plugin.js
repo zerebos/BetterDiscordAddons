@@ -2,92 +2,11 @@
 
 var ServerSorter = (function() {
 
-class SettingField {
-	constructor(name, helptext) {
-		this.name = name;
-		this.helptext = helptext;
-		this.row = $("<div>");
-		this.row.attr("class", "ui-flex flex-vertical flex-justify-start flex-align-stretch flex-nowrap ui-switch-item");
-		this.row.css("margin-top", 0);
-		this.top = $("<div>");
-		this.top.attr("class", "ui-flex flex-horizontal flex-justify-start flex-align-stretch flex-nowrap")
-		this.label = $("<h3>");
-		this.label.attr("class", "ui-form-title h3 margin-reset margin-reset ui-flex-child");
-		this.label.text(name);
-		
-		this.help = $("<div>");
-		this.help.attr("class", "ui-form-text style-description margin-top-4");
-		this.help.css("flex", "1 1 auto");
-		this.help.text(helptext);
-		
-		this.top.append(this.label);
-		this.row.append(this.top);
-		this.row.append(this.help);
-	}
-}
-
-class TextSetting extends SettingField {
-	constructor(label, help, value, placeholder, callback) {
-		super(label, help);
-		var input = $("<input>", {
-			type: "text",
-			placeholder: placeholder,
-			value: value
-		});
-
-		input.on("keyup."+appNameShort+" change."+appNameShort, function() {
-			if (typeof callback != 'undefined') {
-				callback($(this).val())
-			}
-		})
-		
-		this.top.append(input);
-		return this.row;
-	}
-}
-
-class CheckboxSetting extends SettingField {
-	constructor(label, help, isChecked, callback, disabled) {
-		super(label, help);
-		var isDisabled = false
-		if (typeof disabled != 'undefined') isDisabled = disabled;
-		var input = $("<input>", {
-			type: "checkbox",
-			checked: isChecked,
-			disabled: isDisabled
-		});
-		input.attr("class", "ui-switch-checkbox");
-
-		input.on("click."+appNameShort, function() {
-			var checked = $(this).prop("checked");
-			if (checked) {
-				switchDiv.addClass("checked");
-			}
-			else {
-				switchDiv.removeClass("checked");
-			}
-			
-			if (typeof callback != 'undefined') {
-				callback(checked)
-			}
-		})
-		
-		var checkboxWrap = $('<label class="ui-switch-wrapper ui-flex-child" style="flex:0 0 auto;">');
-		checkboxWrap.append(input);
-		var switchDiv = $('<div class="ui-switch">');
-		if (isChecked) switchDiv.addClass("checked");
-		checkboxWrap.append(switchDiv);
-		
-		this.top.append(checkboxWrap);
-		return this.row;
-	}
-}
-
 class ServerSorter {
-	getName(){return "Server Sorter"}
+	getName(){return "ServerSorter"}
 	getShortName() {return "ServerSorter"}
 	getDescription(){return "Adds server sorting abilities to Discord. Support Server: bit.ly/ZeresServer"}
-	getVersion(){return "0.2.3-beta"}
+	getVersion(){return "0.2.4"}
 	getAuthor(){return "Zerebos"}
 	loadSettings() {
 		try {
@@ -108,20 +27,123 @@ class ServerSorter {
 			console.warn(this.getShortName(), "unable to save settings:", err);
 		}
 	}
+
+	checkForUpdate() {
+		const githubLink = "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/"+this.getName()
+		const githubRaw = "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/"+this.getName()+"/"+this.getName()+".plugin.js"
+		BdApi.clearCSS("pluginNoticeCSS")
+		BdApi.injectCSS("pluginNoticeCSS", "#pluginNotice span, #pluginNotice span a {-webkit-app-region: no-drag;color:#fff;} #pluginNotice span a:hover {text-decoration:underline;}")
+		let noticeElement = '<div class="notice notice-info" id="pluginNotice"><div class="notice-dismiss" id="pluginNoticeDismiss"></div>The following plugins have updates: &nbsp;<strong id="outdatedPlugins"></strong></div>'
+		$.get(githubRaw, (result) => {
+			var ver = result.match(/"[0-9]+\.[0-9]+\.[0-9]+"/i);
+			if (!ver) return;
+			ver = ver.toString().replace(/"/g, "")
+			this.remoteVersion = ver;
+			ver = ver.split(".")
+			var lver = this.getVersion().split(".")
+			if (ver[0] > lver[0]) this.hasUpdate = true;
+			else if (ver[0]==lver[0] && ver[1] > lver[1]) this.hasUpdate = true;
+			else if (ver[0]==lver[0] && ver[1]==lver[1] && ver[2] > lver[2]) this.hasUpdate = true;
+			else this.hasUpdate = false;
+			if (this.hasUpdate) {
+				if (!$('#pluginNotice').length)  {
+					$('.app.flex-vertical').children().first().before(noticeElement);
+					$('.win-buttons').addClass("win-buttons-notice")
+					$('#pluginNoticeDismiss').on('click', () => {
+						$('.win-buttons').animate({top: 0}, 400, "swing", () => {$('.win-buttons').css("top","").removeClass("win-buttons-notice")});
+						$('#pluginNotice').slideUp({complete: () => {
+							$('#pluginNotice').remove()
+						}})
+					})
+				}
+				let pluginNoticeID = this.getName()+'-notice'
+				let pluginNoticeElement = $('<span id="'+pluginNoticeID+'">')
+				pluginNoticeElement.html('<a href="'+githubLink+'" target="_blank">'+this.getName()+'</a>')
+				if (!$('#'+pluginNoticeID).length) {
+					if ($('#outdatedPlugins').children('span').length) pluginNoticeElement.html(', ' + pluginNoticeElement.html());
+					$('#outdatedPlugins').append(pluginNoticeElement)
+				}
+			}
+		});
+	}
 	
-	load(){}
+	load(){this.checkForUpdate()}
 	unload(){}
 	
 	getReactInstance(node) { 
-		return node[Object.keys(node).find((key) => key.startsWith("__reactInternalInstance"))];
+		let instance = node[Object.keys(node).find((key) => key.startsWith("__reactInternalInstance"))]
+		instance['getReactProperty'] = function(path) {
+			path = path.replace(/\["?([^"]*)"?\]/g, "$1")
+			var value = path.split(/\s?=>\s?/).reduce(function(obj, prop) {
+				return obj && obj[prop];
+			}, this);
+			return value;
+		};
+		return instance;
 	}
+
+	getReactKey(config) {
+		if (config === undefined) return null;
+		if (config.node === undefined || config.key === undefined) return null;
+		var defaultValue = config.default ? config.default : null;
+		
+		var inst = this.getReactInstance(config.node);
+		if (!inst) return defaultValue;
+		
+		
+		// to avoid endless loops (parentnode > childnode > parentnode ...)
+		var maxDepth = config.depth === undefined ? 30 : config.depth;
+			
+		var keyWhiteList = typeof config.whiteList === "object" ? config.whiteList : {
+			"_currentElement":true,
+			"_renderedChildren":true,
+			"_instance":true,
+			"_owner":true,
+			"props":true,
+			"state":true,
+			"user":true,
+			"guild":true,
+			"stateNode":true,
+			"refs":true,
+			"updater":true,
+			"children":true,
+			"type":true,
+			"memoizedProps":true,
+			"memoizedState":true,
+			"child":true,
+			"firstEffect":true,
+			"return":true
+		};
+		
+		var keyBlackList = typeof config.blackList === "object" ? config.blackList : {};
+		
+		return searchKeyInReact(inst, 0);
+
+		function searchKeyInReact (ele, depth) {
+			if (!ele || depth > maxDepth) return defaultValue;
+			var keys = Object.keys(ele);
+			var result = null;
+			for (var i = 0; result === null && i < keys.length; i++) {
+				var key = keys[i];
+				var value = ele[keys[i]];
+				
+				if (config.key === key && (config.value === undefined || config.value === value)) {
+					result = config.returnParent ? ele : value;
+				}
+				else if ((typeof value === "object" || typeof value === "function") && ((keyWhiteList[key] && !keyBlackList[key]) || key[0] == "." || !isNaN(key[0]))) {
+					result = searchKeyInReact(value, depth++);
+				}
+			}
+			return result;
+		}
+	};
 	
 	getGuilds() {
 		return $('div.guild:has(div[draggable="true"])');
 	}
 	
 	getGuildData(guild) {
-		return this.getReactInstance(guild)._currentElement._owner._instance.props.guild;
+		return this.getReactKey({node: guild, key: "guild"}) || {name: ""};
 	}
 	
 	getGuildNames() {
@@ -160,6 +182,7 @@ class ServerSorter {
 	}
 	
 	start(){
+		this.checkForUpdate()
 		this.loadSettings()
 		BdApi.injectCSS(this.getShortName(), "#sort-options { display:none; transition: 300ms cubic-bezier(.2,0,0,1); transform-origin: 0 0!important;transform: scale(1,0.8);}" +
 											 "#sort-options.open { display:block;transition: 300ms cubic-bezier(.2,0,0,1); transform-origin: 0 0!important; transform: scale(1,1);}")

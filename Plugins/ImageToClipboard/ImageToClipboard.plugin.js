@@ -3,10 +3,10 @@
 var ImageToClipboard = (function() {
 
 class Plugin {
-	getName(){return "Image To Clipboard"}
+	getName(){return "ImageToClipboard"}
 	getShortName() {return "i2c"}
 	getDescription(){return "Copies images (png/jpg) directly to clipboard. Support Server: bit.ly/ZeresServer"}
-	getVersion(){return "0.2.3"}
+	getVersion(){return "0.2.4"}
 	getAuthor(){return "Zerebos"}
 
 	constructor() {
@@ -16,18 +16,112 @@ class Plugin {
 		this.link = '<a target="_blank" rel="noreferrer" class="download-button">Copy original</a>'
 		this.contextItem = '<div class="item"><span>Copy Image</span><div class="hint"></div></div>'
 	}
+
+	checkForUpdate() {
+		const githubLink = "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/"+this.getName()
+		const githubRaw = "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/"+this.getName()+"/"+this.getName()+".plugin.js"
+		BdApi.clearCSS("pluginNoticeCSS")
+		BdApi.injectCSS("pluginNoticeCSS", "#pluginNotice span, #pluginNotice span a {-webkit-app-region: no-drag;color:#fff;} #pluginNotice span a:hover {text-decoration:underline;}")
+		let noticeElement = '<div class="notice notice-info" id="pluginNotice"><div class="notice-dismiss" id="pluginNoticeDismiss"></div>The following plugins have updates: &nbsp;<strong id="outdatedPlugins"></strong></div>'
+		$.get(githubRaw, (result) => {
+			var ver = result.match(/"[0-9]+\.[0-9]+\.[0-9]+"/i);
+			if (!ver) return;
+			ver = ver.toString().replace(/"/g, "")
+			this.remoteVersion = ver;
+			ver = ver.split(".")
+			var lver = this.getVersion().split(".")
+			if (ver[0] > lver[0]) this.hasUpdate = true;
+			else if (ver[0]==lver[0] && ver[1] > lver[1]) this.hasUpdate = true;
+			else if (ver[0]==lver[0] && ver[1]==lver[1] && ver[2] > lver[2]) this.hasUpdate = true;
+			else this.hasUpdate = false;
+			if (this.hasUpdate) {
+				if (!$('#pluginNotice').length)  {
+					$('.app.flex-vertical').children().first().before(noticeElement);
+					$('.win-buttons').addClass("win-buttons-notice")
+					$('#pluginNoticeDismiss').on('click', () => {
+						$('.win-buttons').animate({top: 0}, 400, "swing", () => {$('.win-buttons').css("top","").removeClass("win-buttons-notice")});
+						$('#pluginNotice').slideUp({complete: () => {
+							$('#pluginNotice').remove()
+						}})
+					})
+				}
+				let pluginNoticeID = this.getName()+'-notice'
+				let pluginNoticeElement = $('<span id="'+pluginNoticeID+'">')
+				pluginNoticeElement.html('<a href="'+githubLink+'" target="_blank">'+this.getName()+'</a>')
+				if (!$('#'+pluginNoticeID).length) {
+					if ($('#outdatedPlugins').children('span').length) pluginNoticeElement.html(', ' + pluginNoticeElement.html());
+					$('#outdatedPlugins').append(pluginNoticeElement)
+				}
+			}
+		});
+	}
 	
-	load(){}
+	load() {this.checkForUpdate()}
 	unload(){}
 	
-	start(){
-	}
+	start(){this.checkForUpdate()}
 	stop(){
 	}
 
-	getReactInstance (node) { 
-		return node[Object.keys(node).find((key) => key.startsWith("__reactInternalInstance"))];
+	getReactInstance(node) { 
+	        return node[Object.keys(node).find((key) => key.startsWith("__reactInternalInstance"))];
 	}
+
+	getReactKey(config) {
+		if (config === undefined) return null;
+		if (config.node === undefined || config.key === undefined) return null;
+		var defaultValue = config.default ? config.default : null;
+		
+		var inst = this.getReactInstance(config.node);
+		if (!inst) return defaultValue;
+		
+		
+		// to avoid endless loops (parentnode > childnode > parentnode ...)
+		var maxDepth = config.depth === undefined ? 30 : config.depth;
+			
+		var keyWhiteList = typeof config.whiteList === "object" ? config.whiteList : {
+			"_currentElement":true,
+			"_renderedChildren":true,
+			"_instance":true,
+			"_owner":true,
+			"props":true,
+			"state":true,
+			"user":true,
+			"guild":true,
+			"stateNode":true,
+			"refs":true,
+			"updater":true,
+			"children":true,
+			"type":true,
+			"memoizedProps":true,
+			"memoizedState":true,
+			"child":true,
+			"firstEffect":true,
+			"return":true
+		};
+		
+		var keyBlackList = typeof config.blackList === "object" ? config.blackList : {};
+		
+		return searchKeyInReact(inst, 0);
+
+		function searchKeyInReact (ele, depth) {
+			if (!ele || depth > maxDepth) return defaultValue;
+			var keys = Object.keys(ele);
+			var result = null;
+			for (var i = 0; result === null && i < keys.length; i++) {
+				var key = keys[i];
+				var value = ele[keys[i]];
+				
+				if (config.key === key && (config.value === undefined || config.value === value)) {
+					result = config.returnParent ? ele : value;
+				}
+				else if ((typeof value === "object" || typeof value === "function") && ((keyWhiteList[key] && !keyBlackList[key]) || key[0] == "." || !isNaN(key[0]))) {
+					result = searchKeyInReact(value, depth++);
+				}
+			}
+			return result;
+		}
+	};
 
 	getDataUri(targetUrl, callback) {
 	    var xhr = new XMLHttpRequest();
@@ -52,32 +146,25 @@ class Plugin {
 	}
 
 	bindMenu(context) {
-		var inst = this.getReactInstance(context);
-		if (!inst) return;
-		var ele = inst._currentElement;
-		if (ele.props && ele.props.children) {
-			var children = Array.isArray(ele.props.children) ? ele.props.children : [ele.props.children];
-			for (var i = 0; i < children.length; i++) {
-				if (children[i] && children[i].props && children[i].props.href && children[i].type && children[i].type.displayName == "NativeLinkGroup") {
-					var imageLink = children[i].props.href;
-					var imageLinkLower = imageLink.toLowerCase()
-					if (imageLinkLower.endsWith('.png') || imageLinkLower.endsWith('.jpg') || imageLinkLower.endsWith('.jpeg')) {
-						var item = $(this.contextItem).on("click."+this.getShortName(), ()=>{$(context).hide();this.copyToClipboard(imageLink);});
-						$(context).find('.item:contains("Copy Link")').after(item)
-						break;
-					}
-					else {
-						imageLink = children[i].props.src
-						imageLink = imageLink.match(/https?\/.*(\.png|\.jpg|\.jpeg)/g)[0]
-						imageLink = imageLink.replace("http/", "http://").replace("https/", "https://")
-						imageLinkLower = imageLink.toLowerCase()
-						if (imageLinkLower.endsWith('.png') || imageLinkLower.endsWith('.jpg') || imageLinkLower.endsWith('.jpeg')) {
-							var item = $(this.contextItem).on("click."+this.getShortName(), ()=>{$(context).hide();this.copyToClipboard(imageLink);});
-							$(context).find('.item:contains("Copy Link")').after(item)
-							break;
-						}
-					}
-				}
+		var displayName = this.getReactKey({node: context, key: "displayName", value: "NativeLinkGroup"});
+		var imageLink = this.getReactKey({node: context, key: "href"});
+		if (imageLink) {
+			var imageLinkLower = imageLink.toLowerCase()
+			if (imageLinkLower.endsWith('.png') || imageLinkLower.endsWith('.jpg') || imageLinkLower.endsWith('.jpeg')) {
+				var item = $(this.contextItem).on("click."+this.getShortName(), ()=>{$(context).hide();this.copyToClipboard(imageLink);});
+				$(context).find('.item:contains("Copy Link")').after(item)
+			}
+		}
+		else {
+			imageLink = this.getReactKey({node: context, key: "src"});
+			if (!imageLink) return;
+			imageLink = imageLink.match(/https?\/.*(\.png|\.jpg|\.jpeg)/g)
+			if (!imageLink) return;
+			imageLink = imageLink[0].replace("http/", "http://").replace("https/", "https://")
+			imageLinkLower = imageLink.toLowerCase()
+			if (imageLinkLower.endsWith('.png') || imageLinkLower.endsWith('.jpg') || imageLinkLower.endsWith('.jpeg')) {
+				var item = $(this.contextItem).on("click."+this.getShortName(), ()=>{$(context).hide();this.copyToClipboard(imageLink);});
+				$(context).find('.item:contains("Copy Link")').after(item)
 			}
 		}
 	}
