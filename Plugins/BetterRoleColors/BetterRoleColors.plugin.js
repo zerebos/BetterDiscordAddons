@@ -228,6 +228,8 @@ class Plugin {
 			if (removed.classList.contains("spinner") || removed.tagName == "STRONG") {
 				this.colorizeTyping()
 			}
+
+			if (removed.querySelector("#friends") || removed.id == "friends") this.onSwitch();
 		}
 
 		if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element)) return;
@@ -287,7 +289,6 @@ class Plugin {
 	getAllUsers() {
 		this.users = []
 		var server = this.getCurrentServer()
-		console.log(server)
 		if (!document.querySelector('.channel-members') || document.querySelector('.private-channels')) return;
 		// let groups = this.getReactInstance(document.querySelector('.channel-members').parentElement.parentElement.parentElement).getReactProperty('_renderedChildren => [".1"] => _instance => state => memberGroups')
 		let groups = this.getReactKey({node: document.querySelector('.channel-members').parentElement.parentElement.parentElement, key: "memberGroups"})
@@ -314,14 +315,14 @@ class Plugin {
 	}
 
 	addColorData(server, user, color) {
-		if (server === undefined || user === undefined || color === undefined) return;
+		if (!server || !user || !color) return;
 		if (this.colorData[server] === undefined) this.colorData[server] = {};
 		if (color) this.colorData[server][user] = color;
 		else if (this.colorData[server][user] !== undefined) delete this.colorData[server][user];
 	}
 
 	getColorData(server, user) {
-		if (server === undefined || user === undefined || this.colorData[server] === undefined || this.colorData[server][user] === undefined) return "";
+		if (!server || !user || !this.colorData[server] || !this.colorData[server][user]) return "";
 		else return this.colorData[server][user];
 	}
 
