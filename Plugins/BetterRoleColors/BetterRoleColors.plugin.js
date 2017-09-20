@@ -6,7 +6,7 @@ class Plugin {
 	getName() { return "BetterRoleColors" }
 	getShortName() { return "BRC" }
 	getDescription() { return "Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer" }
-	getVersion() { return "0.5.1" }
+	getVersion() { return "0.5.2" }
 	getAuthor() { return "Zerebos" }
 	getGithubLink() { return "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js" }
 
@@ -47,10 +47,17 @@ class Plugin {
 		try { bdPluginStorage.set(this.getShortName(), "color-data", this.colorData) }
 		catch (err) { console.warn(this.getShortName(), "unable to save data:", err) }
 	}
-	
-	load() {
-		$.get(this.getGithubLink(), (result) => {
-			var ver = result.match(/"[0-9]+\.[0-9]+\.[0-9]+"/i).toString().replace(/"/g, "")
+
+	checkForUpdate() {
+		const githubLink = "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/"+this.getName()
+		const githubRaw = "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/"+this.getName()+"/"+this.getName()+".plugin.js"
+		BdApi.clearCSS("pluginNoticeCSS")
+		BdApi.injectCSS("pluginNoticeCSS", "#pluginNotice span, #pluginNotice span a {-webkit-app-region: no-drag;color:#fff;} #pluginNotice span a:hover {text-decoration:underline;}")
+		let noticeElement = '<div class="notice notice-info" id="pluginNotice"><div class="notice-dismiss" id="pluginNoticeDismiss"></div>The following plugins have updates: &nbsp;<strong id="outdatedPlugins"></strong></div>'
+		$.get(githubRaw, (result) => {
+			var ver = result.match(/"[0-9]+\.[0-9]+\.[0-9]+"/i);
+			if (!ver) return;
+			ver = ver.toString().replace(/"/g, "")
 			this.remoteVersion = ver;
 			ver = ver.split(".")
 			var lver = this.getVersion().split(".")
@@ -58,16 +65,38 @@ class Plugin {
 			else if (ver[0]==lver[0] && ver[1] > lver[1]) this.hasUpdate = true;
 			else if (ver[0]==lver[0] && ver[1]==lver[1] && ver[2] > lver[2]) this.hasUpdate = true;
 			else this.hasUpdate = false;
+			if (this.hasUpdate) {
+				if (!$('#pluginNotice').length)  {
+					$('.app.flex-vertical').children().first().before(noticeElement);
+					$('.win-buttons').addClass("win-buttons-notice")
+					$('#pluginNoticeDismiss').on('click', () => {
+						$('.win-buttons').animate({top: 0}, 400, "swing", () => {$('.win-buttons').css("top","").removeClass("win-buttons-notice")});
+						$('#pluginNotice').slideUp({complete: () => {
+							$('#pluginNotice').remove()
+						}})
+					})
+				}
+				let pluginNoticeID = this.getName()+'-notice'
+				let pluginNoticeElement = $('<span id="'+pluginNoticeID+'">')
+				pluginNoticeElement.html('<a href="'+githubLink+'" target="_blank">'+this.getName()+'</a>')
+				if (!$('#'+pluginNoticeID).length) {
+					if ($('#outdatedPlugins').children('span').length) pluginNoticeElement.html(', ' + pluginNoticeElement.html());
+					$('#outdatedPlugins').append(pluginNoticeElement)
+				}
+			}
 		});
 	}
+	
+	load() {this.checkForUpdate()}
 	unload() {};
 	
 	start() {
+		this.checkForUpdate();
 		this.loadData();
 		this.loadSettings();
 		BdApi.injectCSS(this.getShortName()+"-settings", SettingField.getCSS(this.getName()));
 		this.currentServer = this.getCurrentServer()
-		this.currentUser = this.getReactInstance($('div[class*="accountDetails"]')[0])._hostParent._currentElement.props.children[1].props.user.id
+		this.currentUser = this.getReactKey({node: $('div[class*="accountDetails"]')[0].parentElement, key: "user", defaultValue: {id: "0"}}).id
 		this.getAllUsers()
 		this.colorize()
 	}
@@ -87,25 +116,76 @@ class Plugin {
 		this.getAllUsers()
 		this.colorizeAccountStatus()
 		this.colorizeVoice()
-		//this.colorize()
+		this.colorize()
 	}
 
 	getReactInstance(node) { 
-		let instance = node[Object.keys(node).find((key) => key.startsWith("__reactInternalInstance"))]
-		instance['getReactProperty'] = function(path) {
-			path = path.replace(/\["?([^"]*)"?\]/g, "$1")
-			var value = path.split(/\s?=>\s?/).reduce(function(obj, prop) {
-				return obj && obj[prop];
-			}, this);
-			return value;
-		};
-		return instance;
+		return node[Object.keys(node).find((key) => key.startsWith("__reactInternalInstance"))]
 	}
+
+	getReactKey(config) {
+		if (config === undefined) return null;
+		if (config.node === undefined || config.key === undefined) return null;
+		var defaultValue = config.default ? config.default : null;
+		
+		var inst = this.getReactInstance(config.node);
+		if (!inst) return defaultValue;
+		
+		
+		// to avoid endless loops (parentnode > childnode > parentnode ...)
+		var maxDepth = config.depth === undefined ? 30 : config.depth;
+			
+		var keyWhiteList = typeof config.whiteList === "object" ? config.whiteList : {
+			"_currentElement":true,
+			"_renderedChildren":true,
+			"_instance":true,
+			"_owner":true,
+			"props":true,
+			"state":true,
+			"user":true,
+			"guild":true,
+			"onContextMenu":true,
+			"stateNode":true,
+			"refs":true,
+			"updater":true,
+			"children":true,
+			"type":true,
+			"memoizedProps":true,
+			"memoizedState":true,
+			"child":true,
+			"firstEffect":true,
+			"return":true
+		};
+		
+		var keyBlackList = typeof config.blackList === "object" ? config.blackList : {};
+		
+		return searchKeyInReact(inst, 0);
+
+		function searchKeyInReact (ele, depth) {
+			if (!ele || depth > maxDepth) return defaultValue;
+			var keys = Object.getOwnPropertyNames(ele);
+			var result = null;
+			for (var i = 0; result === null && i < keys.length; i++) {
+				var key = keys[i];
+				var value = ele[keys[i]];
+				
+				if (config.key === key && (config.value === undefined || config.value === value)) {
+					result = config.returnParent ? ele : value;
+				}
+				else if ((typeof value === "object" || typeof value === "function") && ((keyWhiteList[key] && !keyBlackList[key]) || key[0] == "." || !isNaN(key[0]))) {
+					result = searchKeyInReact(value, depth++);
+				}
+			}
+			return result;
+		}
+	};
 
 	isServer() { return this.getCurrentServer() ? true : false}
 
 	getCurrentServer() {
-		return this.getReactInstance(document.querySelector('.channels-wrap')).getReactProperty('_currentElement => props => children => 0 => props => guildId')
+		var auditLog = document.querySelector('.guild-settings-audit-logs')
+		if (auditLog) return this.getReactKey({node: auditLog, key: "guildId"})
+		else return this.getReactKey({node: document.querySelector('.channels-wrap'), key: "guildId"})
 	}
 
 	getRGB(color) {
@@ -207,8 +287,10 @@ class Plugin {
 	getAllUsers() {
 		this.users = []
 		var server = this.getCurrentServer()
+		console.log(server)
 		if (!document.querySelector('.channel-members') || document.querySelector('.private-channels')) return;
-		let groups = this.getReactInstance(document.querySelector('.channel-members').parentElement.parentElement.parentElement).getReactProperty('_renderedChildren => [".1"] => _instance => state => memberGroups')
+		// let groups = this.getReactInstance(document.querySelector('.channel-members').parentElement.parentElement.parentElement).getReactProperty('_renderedChildren => [".1"] => _instance => state => memberGroups')
+		let groups = this.getReactKey({node: document.querySelector('.channel-members').parentElement.parentElement.parentElement, key: "memberGroups"})
 		for (let g=0; g<groups.length; g++) {
 			// this.users.push(...groups[i].users)
 			for (let u=0; u<groups[g].users.length; u++) {
@@ -225,7 +307,8 @@ class Plugin {
 
 	getMessageColor(message) {
 		if (!this.isServer()) return;
-		let msg = this.getReactInstance(message).getReactProperty('_currentElement => props => children => [1] => props => children => ["0"] => ["0"] => props => message')
+		// let msg = this.getReactInstance(message).getReactProperty('_currentElement => props => children => [1] => props => children => ["0"] => ["0"] => props => message')
+		let msg = this.getReactKey({node: message, key: "message"})
 		if (!msg) return;
 		this.addColorData(this.currentServer, msg.author.id, msg.colorString ? msg.colorString : "")
 	}
@@ -246,36 +329,6 @@ class Plugin {
 		return this.getColorData(this.currentServer, user)
 	}
 
-	// getUserByID(id) {
-	// 	var user = this.users.find((user) => {return user.user.id == id})
-	// 	if (!user) this.getAllUsers();
-	// 	user = this.users.find((user) => {return user.user.id == id})
-	// 	if (user) return user;
-	// 	else return {colorString: ""};
-	// }
-
-	// getUserByNick(nickname) {
-	// 	var user = this.users.find((user) => {return user.nick == nickname})
-	// 	if (!user) this.getAllUsers();
-	// 	user = this.users.find((user) => {return user.nick == nickname})
-	// 	if (user) return user;
-	// 	else return {colorString: ""};
-	// }
-
-	// getColorByID(id) {
-	// 	// let color = this.getUserByID(id).colorString
-	// 	// if (color) return color;
-	// 	// else return "";
-	// 	return this.getColorData(this.currentServer, id)
-	// }
-
-	// getColorByNick(nickname) {
-	// 	// let color = this.getUserByNick(nickname).colorString
-	// 	// if (color) return color;
-	// 	// else return "";
-	// 	return this.getColorData(this.currentServer, nickname)
-	// }
-
 	colorize() {
 		this.colorizeTyping()
 		this.colorizeVoice()
@@ -285,10 +338,9 @@ class Plugin {
 
 	colorizeAccountStatus() {
 		if (!this.settings.account.username && !this.settings.account.discriminator) return;
-		let server = this.getCurrentServer()
-		let account = document.querySelector('.accountDetails-15i-_e')
-		let user = this.getReactInstance(account).getReactProperty('_hostParent => _currentElement => props => children => 1 => props => user => id')
-		let color = this.getUserColor(user)
+		let account = document.querySelector('.accountDetails-15i-_e').parentElement
+		let user = this.getReactKey({node: account, key: "user"})
+		let color = this.getUserColor(user.id)
 		if (this.settings.account.username) account.querySelector(".username").style.setProperty("color", color, "important");
 		if (this.settings.account.discriminator) {
 			account.querySelector(".discriminator").style.setProperty("color", color, "important");
@@ -298,8 +350,7 @@ class Plugin {
 
 	colorizeTyping() {
 		if (!this.settings.modules.typing || !document.querySelector('.typing')) return;
-		let server = this.getCurrentServer()
-		var typingUsers = this.getReactInstance(document.querySelector('.typing').parentElement).getReactProperty('_renderedChildren=>[".1"]=>_instance=>state=>typingUsers')
+		var typingUsers = this.getReactKey({node: document.querySelector('.typing').parentElement, key: "typingUsers"})
 		delete typingUsers[this.currentUser]
 		var sorted = Object.keys(typingUsers).sort(function(a,b){return typingUsers[a]-typingUsers[b]})
 	    document.querySelectorAll(".typing strong").forEach((elem, index) => {
@@ -311,28 +362,26 @@ class Plugin {
 
 	colorizeVoice() {
 		if (!this.settings.modules.voice) return;
-		let server = this.getCurrentServer()
 	    document.querySelectorAll(".draggable-3SphXU").forEach((elem, index) => {
-	        var user = this.getReactInstance(elem).getReactProperty('_currentElement => props => children => props => user => id')
-	        console.log(user)
-			//$(elem).find(".avatarContainer-303pFz").siblings().first().css("color", this.getColorByID(user));
-			elem.querySelector('[class*="name"]').style.setProperty("color", this.getUserColor(user))
+	        var user = this.getReactKey({node: elem, key: "user"})
+			elem.querySelector('[class*="name"]').style.setProperty("color", this.getUserColor(user.id))
 	    });
 	}
 
 	colorizeMentions(node) {
 		if (!this.settings.modules.mentions) return;
-		let server = this.getCurrentServer()
-		// var searchSpace = node === undefined ? document : node
 	    document.querySelectorAll(".message-group .message").forEach((elem, index) => {
+	    	var messages = this.getReactKey({node: elem.parentElement.parentElement, key: "messages"})
+	    	if (!messages || !messages.length) return true;
 	    	var messageNum = this.indexInParent(elem)
-	    	var instance = this.getReactInstance(elem)
+	    	var mentions = messages[messageNum]
+	    	if (!mentions || !mentions.mentions) return true;
 	    	var mentionNum = 0
+	    	mentions = mentions.mentions
 	    	elem.querySelectorAll('.message-text > .markup > .mention').forEach((elem, index) => {
-	    		if (elem.textContent.indexOf("@") == -1) return;
-	        	var users = instance.getReactProperty(`_hostParent => _currentElement => props => children => 0 => ${messageNum} => props => message => content`).match(/<@!?[0-9]+>/g)
-	        	if (!users) return true;
-	        	var user = users[mentionNum]
+	        	var isUserMention = this.getReactKey({node: elem, key: "name", value: "bound handleUserContextMenu", default: ""})
+	        	if (!isUserMention) return true;
+	        	var user = mentions[mentionNum]
 	        	if (!user) return true;
 	        	user = user.replace(/<|@|!|>/g, "")
 	        	var textColor = this.getUserColor(user)
@@ -350,18 +399,17 @@ class Plugin {
 						e.target.style.setProperty("background", this.rgbToAlpha(textColor,0.1));
 					})
 				}
-			mentionNum += 1;
+				mentionNum += 1;
 	    	})
 	    });
 	}
 
 	colorizePopout() {
 		if (!this.settings.popouts.username && !this.settings.popouts.discriminator && !this.settings.popouts.nickname) return;
-		let server = this.getCurrentServer()
 	    let popout = document.querySelector('.userPopout-4pfA0d')
-        var user = this.getReactInstance(popout).getReactProperty('_hostParent => _currentElement => props => children => props => user => id')
+        var user = this.getReactKey({node: popout, key: "user"})
         if (!user) return true;
-        let color = this.getUserColor(user)
+        let color = this.getUserColor(user.id)
         var hasNickname = Boolean(popout.querySelector('.headerName-2N8Pdz'))
         if ((color && this.settings.popouts.username) || (!hasNickname && this.settings.popouts.fallback)) popout.querySelector('.headerTag-3zin_i span:first-child').style.setProperty("color", color, "important");
         if (color && this.settings.popouts.discriminator) popout.querySelector('.headerDiscriminator-3fLlCR').style.setProperty("color", color, "important");
@@ -370,24 +418,25 @@ class Plugin {
 
 	colorizeModal() {
 		if (!this.settings.modals.username && !this.settings.modals.discriminator) return;
-		let server = this.getCurrentServer()
 	    let modal = document.querySelector("#user-profile-modal")
-        var user = this.getReactInstance(modal).getReactProperty('_currentElement => props => children => 3 => props => user => id')
-        let color = this.getUserColor(user)
+        var user = this.getReactKey({node: modal, key: "user"})
+        let color = this.getUserColor(user.id)
         if (color && this.settings.modals.username) modal.querySelector('.username').style.setProperty("color", color, "important");
         if (color && this.settings.modals.discriminator) modal.querySelector('.discriminator').style.setProperty("color", color, "important");
 	}
 
 	colorizeAuditLog() {
 		if (!this.settings.auditLog.username && !this.settings.auditLog.discriminator) return;
-		let server = this.getReactInstance($('.guild-settings-audit-logs')[0]).getReactProperty('_currentElement => props => children => props => children => _owner => _currentElement => props => guildId')
-	    $(".userHook-DFT5u7").each((index, elem) => {
-	    	var index = $(elem).index() ? 2 : 0
-	        let user = this.getReactInstance(elem).getReactProperty(`_hostParent => _currentElement => props => children => ${index} => props => user => id`)
-	        let color = this.getUserColor(user)
-			if (this.settings.auditLog.username) $(elem).children().first().css("color", color);
-			if (this.settings.auditLog.discriminator) { $(elem).children(".discrim-xHdOK3").css("color", color).css("opacity", 1)}
+		this.getAllUsers()
+		const previous = this.currentServer;
+		this.currentServer = this.getCurrentServer();
+	    document.querySelectorAll('.userHook-DFT5u7').forEach((elem, index) => {
+	        var user = this.getReactKey({node: elem.parentElement, key: "discriminator", value: elem.querySelector(".discrim-xHdOK3").textContent.slice(1), returnParent: true})
+	        let color = this.getUserColor(user.id)
+			if (this.settings.auditLog.username) elem.children[0].style.color = color;
+			if (this.settings.auditLog.discriminator) { elem.querySelector(".discrim-xHdOK3").style.color = color;elem.querySelector(".discrim-xHdOK3").style.opacity = 1}
 	    });
+	    this.currentServer = previous;
 	}
 
 	decolorize() {
