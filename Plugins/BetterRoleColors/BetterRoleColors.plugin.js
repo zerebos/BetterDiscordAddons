@@ -68,7 +68,7 @@ class Plugin {
 	}
 
 	showUpdateNotice() {
-		const updateLink = "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/"+this.getName()
+		const updateLink = "https://betterdiscord.net/ghdl?url=https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/"+this.getName()+"/"+this.getName()+".plugin.js"
 		BdApi.clearCSS("pluginNoticeCSS")
 		BdApi.injectCSS("pluginNoticeCSS", "#pluginNotice span, #pluginNotice span a {-webkit-app-region: no-drag;color:#fff;} #pluginNotice span a:hover {text-decoration:underline;}")
 		let noticeElement = '<div class="notice notice-info" id="pluginNotice"><div class="notice-dismiss" id="pluginNoticeDismiss"></div>The following plugins have updates: &nbsp;<strong id="outdatedPlugins"></strong></div>'
@@ -77,9 +77,7 @@ class Plugin {
 			$('.win-buttons').addClass("win-buttons-notice")
 			$('#pluginNoticeDismiss').on('click', () => {
 				$('.win-buttons').animate({top: 0}, 400, "swing", () => {$('.win-buttons').css("top","").removeClass("win-buttons-notice")});
-				$('#pluginNotice').slideUp({complete: () => {
-					$('#pluginNotice').remove()
-				}})
+				$('#pluginNotice').slideUp({complete: () => {$('#pluginNotice').remove()}});
 			})
 		}
 		let pluginNoticeID = this.getName()+'-notice'

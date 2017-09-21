@@ -29,11 +29,7 @@ class ServerSorter {
 	}
 
 	checkForUpdate() {
-		const githubLink = "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/"+this.getName()
 		const githubRaw = "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/"+this.getName()+"/"+this.getName()+".plugin.js"
-		BdApi.clearCSS("pluginNoticeCSS")
-		BdApi.injectCSS("pluginNoticeCSS", "#pluginNotice span, #pluginNotice span a {-webkit-app-region: no-drag;color:#fff;} #pluginNotice span a:hover {text-decoration:underline;}")
-		let noticeElement = '<div class="notice notice-info" id="pluginNotice"><div class="notice-dismiss" id="pluginNoticeDismiss"></div>The following plugins have updates: &nbsp;<strong id="outdatedPlugins"></strong></div>'
 		$.get(githubRaw, (result) => {
 			var ver = result.match(/"[0-9]+\.[0-9]+\.[0-9]+"/i);
 			if (!ver) return;
@@ -46,25 +42,31 @@ class ServerSorter {
 			else if (ver[0]==lver[0] && ver[1]==lver[1] && ver[2] > lver[2]) this.hasUpdate = true;
 			else this.hasUpdate = false;
 			if (this.hasUpdate) {
-				if (!$('#pluginNotice').length)  {
-					$('.app.flex-vertical').children().first().before(noticeElement);
-					$('.win-buttons').addClass("win-buttons-notice")
-					$('#pluginNoticeDismiss').on('click', () => {
-						$('.win-buttons').animate({top: 0}, 400, "swing", () => {$('.win-buttons').css("top","").removeClass("win-buttons-notice")});
-						$('#pluginNotice').slideUp({complete: () => {
-							$('#pluginNotice').remove()
-						}})
-					})
-				}
-				let pluginNoticeID = this.getName()+'-notice'
-				let pluginNoticeElement = $('<span id="'+pluginNoticeID+'">')
-				pluginNoticeElement.html('<a href="'+githubLink+'" target="_blank">'+this.getName()+'</a>')
-				if (!$('#'+pluginNoticeID).length) {
-					if ($('#outdatedPlugins').children('span').length) pluginNoticeElement.html(', ' + pluginNoticeElement.html());
-					$('#outdatedPlugins').append(pluginNoticeElement)
-				}
+				this.showUpdateNotice()
 			}
 		});
+	}
+
+	showUpdateNotice() {
+		const updateLink = "https://betterdiscord.net/ghdl?url=https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/"+this.getName()+"/"+this.getName()+".plugin.js"
+		BdApi.clearCSS("pluginNoticeCSS")
+		BdApi.injectCSS("pluginNoticeCSS", "#pluginNotice span, #pluginNotice span a {-webkit-app-region: no-drag;color:#fff;} #pluginNotice span a:hover {text-decoration:underline;}")
+		let noticeElement = '<div class="notice notice-info" id="pluginNotice"><div class="notice-dismiss" id="pluginNoticeDismiss"></div>The following plugins have updates: &nbsp;<strong id="outdatedPlugins"></strong></div>'
+		if (!$('#pluginNotice').length)  {
+			$('.app.flex-vertical').children().first().before(noticeElement);
+			$('.win-buttons').addClass("win-buttons-notice")
+			$('#pluginNoticeDismiss').on('click', () => {
+				$('.win-buttons').animate({top: 0}, 400, "swing", () => {$('.win-buttons').css("top","").removeClass("win-buttons-notice")});
+				$('#pluginNotice').slideUp({complete: () => {$('#pluginNotice').remove()}});
+			})
+		}
+		let pluginNoticeID = this.getName()+'-notice'
+		let pluginNoticeElement = $('<span id="'+pluginNoticeID+'">')
+		pluginNoticeElement.html('<a href="'+updateLink+'" target="_blank">'+this.getName()+'</a>')
+		if (!$('#'+pluginNoticeID).length) {
+			if ($('#outdatedPlugins').children('span').length) pluginNoticeElement.html(', ' + pluginNoticeElement.html());
+			$('#outdatedPlugins').append(pluginNoticeElement)
+		}
 	}
 	
 	load(){this.checkForUpdate()}
@@ -121,7 +123,7 @@ class ServerSorter {
 
 		function searchKeyInReact (ele, depth) {
 			if (!ele || depth > maxDepth) return defaultValue;
-			var keys = Object.keys(ele);
+			var keys = Object.getOwnPropertyNames(ele);
 			var result = null;
 			for (var i = 0; result === null && i < keys.length; i++) {
 				var key = keys[i];
