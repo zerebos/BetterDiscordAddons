@@ -248,10 +248,12 @@ class BFRedux {
 	}
 
 	loadSettings() {
+		try { $.extend(true, this.settings, this.defaultSettings, bdPluginStorage.get(this.getShortName(), "settings")); }
 		catch (err) { console.warn(this.getShortName(), "unable to load settings:", err); loaded = this.defaultSettings; }
 	}
 
 	saveSettings() {
+		try { bdPluginStorage.set(this.getShortName(), "settings", this.settings) }
 		catch (err) { console.warn(this.getShortName(), "unable to save settings:", err) }
 	}
 	
