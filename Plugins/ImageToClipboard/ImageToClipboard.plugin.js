@@ -6,13 +6,16 @@ class Plugin {
 	getName(){return "ImageToClipboard"}
 	getShortName() {return "i2c"}
 	getDescription(){return "Copies images (png/jpg) directly to clipboard. Support Server: bit.ly/ZeresServer"}
-	getVersion(){return "0.2.4"}
+	getVersion(){return "0.2.5"}
 	getAuthor(){return "Zerebos"}
 
 	constructor() {
 		this.fs = require("fs");
 		this.nativeImage = require("electron").nativeImage;
 		this.clipboard = require("electron").clipboard;
+		this.path = require("path")
+		this.fileSystem = require("fs")
+		this.process = require("process")
 		this.link = '<a target="_blank" rel="noreferrer" class="download-button">Copy original</a>'
 		this.contextItem = '<div class="item"><span>Copy Image</span><div class="hint"></div></div>'
 	}
@@ -143,7 +146,15 @@ class Plugin {
 
 	copyToClipboard(url) {
 		this.getDataUri(url, (uri) => {
-			this.clipboard.write({image: this.nativeImage.createFromBuffer(new Buffer(uri.split(",")[1], 'base64'))});
+			if (this.process.platform === "win32" || this.process.platform === "darwin") {
+				this.clipboard.write({image: this.nativeImage.createFromBuffer(new Buffer(uri.split(",")[1], 'base64'))});
+			}
+			else {
+				var file = this.path.join(this.process.env[this.process.platform === "win32" ? "USERPROFILE" : "HOME"], "i2ctemp.png")
+				this.fileSystem.writeFileSync(file, uri.split(",")[1], 'base64');
+				this.clipboard.write({image: file});
+				this.fileSystem.unlinkSync(file)
+			}
 		});
 	}
 
