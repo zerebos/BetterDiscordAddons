@@ -1,12 +1,15 @@
 //META{"name":"BetterFormattingRedux"}*//
 
+/* global $ */
+/* global bdPluginStorage */
+/* global BdApi */
 var BetterFormattingRedux = (function() {
 
 class BFRedux {
 	getName() { return "BetterFormattingRedux" }
 	getShortName() { return "BFRedux" }
 	getDescription() { return "Enables different types of formatting in standard Discord chat. Support Server: bit.ly/ZeresServer" }
-	getVersion() { return "2.1.1" }
+	getVersion() { return "2.2.0" }
 	getAuthor() { return "Zerebos" }
 
 	constructor() {
@@ -23,17 +26,17 @@ class BFRedux {
 
 		this.toolbarString = `<div id="bfredux" class='bf-toolbar'><div class='bf-arrow'></div></div>`;
 		
-		this.discordWrappers = {bold: "**", italic: "*", underline: "__", strikethrough: "~~", code: "`"}
+		this.discordWrappers = {bold: "**", italic: "*", underline: "__", strikethrough: "~~", code: "`", codeblock: "```"}
 
-		this.defaultSettings = {toolbar: {bold: true, italic: true, underline: true, strikethrough: true, code: true, superscript: true, smallcaps: true, fullwidth: true, upsidedown: true, varied: true, leet: false},
-								toolbarOrder: ["bold", "italic", "underline", "strikethrough", "code", "superscript", "smallcaps", "fullwidth", "upsidedown", "varied", "leet"],
+		this.defaultSettings = {toolbar: {bold: true, italic: true, underline: true, strikethrough: true, code: true, codeblock: true, superscript: true, smallcaps: true, fullwidth: true, upsidedown: true, varied: true, leet: false},
+								toolbarOrder: ["bold", "italic", "underline", "strikethrough", "code", "codeblock", "superscript", "smallcaps", "fullwidth", "upsidedown", "varied", "leet"],
 								formats: {superscript: true, smallcaps: true, fullwidth: true, upsidedown: true, varied: true, leet: false},
 								wrappers: {superscript: "^^", smallcaps: "%%", fullwidth: "##", upsidedown: "&&", varied: "||", leet: "++"},
 								formatting: {fullWidthMap: true, reorderUpsidedown: true, startCaps: true},
 								plugin: {hoverOpen: true, closeOnSend: true, chainFormats: true},
 								style: {rightSide: true, opacity: 1, fontSize: "85%"}}
-		this.settings = {toolbar: {bold: true, italic: true, underline: true, strikethrough: true, code: true, superscript: true, smallcaps: true, fullwidth: true, upsidedown: true, varied: true, leet: false},
-						toolbarOrder: ["bold", "italic", "underline", "strikethrough", "code", "superscript", "smallcaps", "fullwidth", "upsidedown", "varied", "leet"],
+		this.settings = {toolbar: {bold: true, italic: true, underline: true, strikethrough: true, code: true, codeblock: true, superscript: true, smallcaps: true, fullwidth: true, upsidedown: true, varied: true, leet: false},
+						toolbarOrder: ["bold", "italic", "underline", "strikethrough", "code", "codeblock", "superscript", "smallcaps", "fullwidth", "upsidedown", "varied", "leet"],
 						formats: {superscript: true, smallcaps: true, fullwidth: true, upsidedown: true, varied: true, leet: false},
 						wrappers: {superscript: "^^", smallcaps: "%%", fullwidth: "##", upsidedown: "&&", varied: "||", leet: "++"},
 						formatting: {fullWidthMap: true, reorderUpsidedown: true, startCaps: true},
@@ -49,6 +52,7 @@ class BFRedux {
 			underline: {type: "native-format", displayName: "<u>Underline</u>"},
 			strikethrough: {type: "native-format", displayName: "<s>Strikethrough</s>"},
 			code: {type: "native-format", displayName: "<span style='font-family:monospace;'>Code</span>"},
+			codeblock: {type: "native-format", displayName: "<span style='font-family:monospace;text-decoration: underline overline;'>|CodeBlock|</span>"},
 			superscript: {type: "bfr-format", displayName: "ˢᵘᵖᵉʳˢᶜʳᶦᵖᵗ"},
 			smallcaps: {type: "bfr-format",	displayName: "SᴍᴀʟʟCᴀᴘs"},
 			fullwidth: {type: "bfr-format", displayName: "Ｆｕｌｌｗｉｄｔｈ"},
@@ -145,6 +149,11 @@ class BFRedux {
 
 .bf-toolbar .format.disabled {
 	display: none;
+}
+
+.bf-toolbar .format.ghost {
+	color: transparent;
+	background: rgba(0,0,0,.1);
 }
 
 .bf-toolbar .bf-arrow {
@@ -249,7 +258,7 @@ class BFRedux {
 
 	loadSettings() {
 		try { $.extend(true, this.settings, this.defaultSettings, bdPluginStorage.get(this.getShortName(), "settings")); }
-		catch (err) { console.warn(this.getShortName(), "unable to load settings:", err); loaded = this.defaultSettings; }
+		catch (err) { console.warn(this.getShortName(), "unable to load settings:", err); }
 	}
 
 	saveSettings() {
@@ -454,35 +463,72 @@ class BFRedux {
 		if (this.settings.plugin.closeOnSend) $(".bf-toolbar").removeClass('bf-visible');
 	}
 	
-	wrapSelection(textarea, wrapper) {
+	wrapSelection(textarea, wrapper, language) {
 		var text = textarea.value;
 		var start = textarea.selectionStart;
 		var len = text.substring(textarea.selectionStart, textarea.selectionEnd).length;
-		text = wrapper + text.substring(textarea.selectionStart, textarea.selectionEnd) + wrapper;
+		var lang = language ? language : "";
+		var newline = wrapper === "```" ? "\n" : "";
+		text = wrapper + lang + newline + text.substring(textarea.selectionStart, textarea.selectionEnd) + newline + wrapper;
 		textarea.focus();
 		document.execCommand("insertText", false, text);
-		textarea.selectionEnd = (textarea.selectionStart = start + wrapper.length) + len;
+		textarea.selectionEnd = (textarea.selectionStart = start + wrapper.length + lang.length + newline.length) + len;
 	}
 	
-	buildToolbar() {
+	getContextMenu(textarea) {
+		var allLanguages = {
+			C: {cpp: "C++", csharp: "C#", coffeescript: "CoffeeScript", css: "CSS"},
+			H: {html: "HTML/XML"},
+			J: {java: "Java", js: "JavaScript", json: "JSON"},
+			M: {markdown: "Markdown"},
+			P: {perl: "Perl", php: "PHP", py: "Python"},
+			R: {ruby: "Ruby"},
+			S: {sql: "SQL"},
+			V: {vbnet: "VB.NET", vhdl: "VHDL"}
+		}
+		var items = []
+		for (var letter in allLanguages) {
+			var subItems = []
+			for (var language in allLanguages[letter]) {
+				((language) => {
+					subItems.push(new ContextMenuItemText(allLanguages[letter][language], {callback: () => {this.wrapSelection(textarea[0], "```", language)}}))
+				})(language)
+			}
+			items.push(new ContextMenuItemSubMenu(letter, new ContextMenu(true).addItems(...subItems)))
+		}
+		return new ContextMenu().addItems(...items);
+	}
+	
+	buildToolbar(textarea) {
 		var toolbar = $(this.toolbarString)
 		for (var i=0; i<this.settings.toolbarOrder.length;i++) {
 			var button = $("<div>")
 			button.addClass("format")
 			button.addClass(this.toolbarData[this.settings.toolbarOrder[i]].type)
 			if (!this.settings.toolbar[this.settings.toolbarOrder[i]]) button.addClass("disabled");
+			if (this.settings.toolbarOrder[i] === "codeblock") {
+				var contextMenu = this.getContextMenu(textarea)
+				button.on("contextmenu", (e) => {
+					contextMenu.show(e.clientX, e.clientY)
+				})
+			}
 			button.attr("data-name", this.settings.toolbarOrder[i])
 			button.html(this.toolbarData[this.settings.toolbarOrder[i]].displayName)
 			toolbar.append(button)
 		}
-		toolbar.sortable({axis: "x", items: "> .format", stop: (event, ui) => {
-			ui.item.attr("style",  "")
-		},
-		update: (event, ui) => {
-			this.settings.toolbarOrder = toolbar.sortable("toArray", {attribute: "data-name"})
-			this.saveSettings()
-			// console.log(toolbar.sortable("toArray", {attribute: "data-name"}))
-		}})
+		module.exports.create(toolbar[0], {
+			draggable: ".format", // css-selector of elements, which can be sorted
+			ghostClass: "ghost",
+			onUpdate: (evt) => {
+				var buttons = toolbar.children(".format")
+				var order = []
+				for (var i=0; i<buttons.length; i++) {
+					order.push($(buttons[i]).data("name"))
+				}
+				this.settings.toolbarOrder = order;
+				this.saveSettings()
+			}
+		});
 		return toolbar
 	}
 	
@@ -494,7 +540,7 @@ class BFRedux {
 	}
 	
 	addToolbar(textarea) {
-		var toolbarElement = this.buildToolbar()
+		var toolbarElement = this.buildToolbar(textarea)
 		if (this.settings.plugin.hoverOpen == true) toolbarElement.addClass("bf-hover");
 		if (this.isOpen) toolbarElement.addClass("bf-visible");
 		
@@ -514,16 +560,6 @@ class BFRedux {
 				}
 			})
 		this.updateStyle()
-		
-			// .on("mousemove."+this.getShortName(), (e) => {
-			// 	var $this = $(e.currentTarget);
-			// 	var pos = e.pageX - $this.parent().offset().left;
-			// 	var diff = -$this.width();
-			// 	$this.children().each((index, elem) => {
-			// 		diff += $(elem).outerWidth();
-			// 	});
-			// 	$this.scrollLeft(pos / $this.width() * diff);
-			// })
 	}
 	
 	generateSettings(panel) {
@@ -534,6 +570,7 @@ class BFRedux {
 			new CheckboxSetting("Underline", "", this.settings.toolbar.underline, (checked) => {this.settings.toolbar.underline = checked}),
 			new CheckboxSetting("Strikethrough", "", this.settings.toolbar.strikethrough, (checked) => {this.settings.toolbar.strikethrough = checked}),
 			new CheckboxSetting("Code", "", this.settings.toolbar.code, (checked) => {this.settings.toolbar.code = checked}),
+			new CheckboxSetting("CodeBlock", "", this.settings.toolbar.codeblock, (checked) => {this.settings.toolbar.codeblock = checked}),
 			new CheckboxSetting("Smallcaps", "", this.settings.toolbar.smallcaps, (checked) => {this.settings.toolbar.smallcaps = checked}),
 			new CheckboxSetting("Full Width", "", this.settings.toolbar.fullwidth, (checked) => {this.settings.toolbar.fullwidth = checked}),
 			new CheckboxSetting("Upsidedown", "", this.settings.toolbar.upsidedown, (checked) => {this.settings.toolbar.upsidedown = checked}),
@@ -614,6 +651,165 @@ class BFRedux {
 		resetButton.attr("type","button")
 
 		panel.append(resetButton);
+	}
+}
+
+/*
+Options:
+scroll: Boolean — Determines if it should be a scroller context menu
+*/
+class ContextMenu {
+	constructor(scroll = false) {
+		this.theme = $('#app-mount > div > div > .theme-dark').length ? "theme-dark" : "theme-light";
+		this.element = $("<div>").addClass("context-menu").addClass("zere-context-menu").addClass(this.theme)
+		this.scroll = scroll;
+		if (scroll) {
+			this.element.append($("<div>").addClass("scroller-wrap").addClass(this.theme === "theme-dark" ? "dark" : "light").append($("<div>").addClass("scroller")))
+		}
+	}
+	
+	addGroup(contextGroup) {
+		if (this.scroll) this.element.find(".scroller").append(contextGroup.getElement());
+		else this.element.append(contextGroup.getElement())
+		return this;
+	}
+	
+	addItems(...contextItems) {
+		for (var i = 0; i < contextItems.length; i++) {
+			if (this.scroll) this.element.find(".scroller").append(contextItems[i].getElement());
+			else this.element.append(contextItems[i].getElement());
+		}
+		return this
+	}
+	
+	show(x, y) {
+		const maxWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+		const maxHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+		const mouseX = x;
+		const mouseY = y;
+		
+		var depth = this.element.parents(".zere-context-menu").length
+		if (depth == 0) this.element.insertBefore('#app-mount > div > div > span');
+		this.element.css("top", mouseY).css("left", mouseX)
+		
+		if (depth > 0) {
+			var top = this.element.parents(".zere-context-menu").last();
+			var closest = this.element.parents(".zere-context-menu").first();
+			var negate = closest.hasClass("invertChildX") ? -1 : 1
+			this.element.css("margin-left", negate*170 + closest.offset().left - top.offset().left);
+		}
+		
+		if (mouseY + this.element.outerHeight() >= maxHeight) {
+			this.element.addClass("invertY");
+			this.element.css("top", mouseY-this.element.outerHeight())
+			if (depth > 0) this.element.css("top", (mouseY+this.element.parent().outerHeight())-this.element.outerHeight());
+		}
+		if (this.element.offset().left + this.element.outerWidth() >= maxWidth) {
+			this.element.addClass("invertX");
+			this.element.css("left", mouseX-this.element.outerWidth())
+		}
+		if (this.element.offset().left + 2*this.element.outerWidth() >= maxWidth) {
+			this.element.addClass("invertChildX");
+		}
+
+		if (depth == 0) {
+			$(document).on("mousedown.zctx", (e) => {
+				if (!this.element.has(e.target).length && !this.element.is(e.target)) {
+					this.removeMenu()
+				}
+			})
+			$(document).on("click.zctx", (e) => {
+				if (this.element.has(e.target).length) {
+					if ($._data($(e.target).closest(".item")[0], 'events').click) {
+						this.removeMenu()
+					}
+				}
+			})
+			$(document).on("keyup.zctx", (e) => {
+				if (e.keyCode === 27) {
+					this.removeMenu()
+				}
+			})
+		}
+	}
+	
+	removeMenu() {
+		this.element.detach()
+		$(document).off(".zctx")
+	}
+	
+	attachTo(menuItem) {
+		this.menuItem = menuItem;
+		menuItem.on("mouseenter", ()=>{
+			this.element.appendTo(menuItem)
+			this.show(this.element.parents(".zere-context-menu").css("left"), menuItem.offset().top)
+		})
+		menuItem.on("mouseleave", ()=>{this.element.detach()})
+	}
+}
+
+class ContextMenuGroup {
+	constructor() {
+		this.element = $("<div>").addClass("item-group")
+	}
+	
+	addItems(...contextItems) {
+		for (var i = 0; i < contextItems.length; i++) {
+			this.element.append(contextItems[i].getElement())
+		}
+		return this
+	}
+	
+	getElement() {return this.element}
+}
+
+/*
+Options:
+danger: Boolean — Adds the danger class (for things like delete)
+callback: Function — Function to call back on click
+*/
+class ContextMenuItem {
+	constructor(label, options = {}) {
+		var {danger = false, callback} = options
+		this.element = $("<div>").addClass("item")
+		this.label = label
+		if (danger) this.element.addClass("danger");
+		if (typeof(callback) == 'function') {
+			this.element.on("click", callback)
+		}
+	}
+	getElement() {return this.element}
+}
+
+/*
+Additional Options:
+hint: String — Usually used for key combos
+*/
+class ContextMenuItemText extends ContextMenuItem {
+	constructor(label, options = {}) {
+		super(label, options)
+		var {hint = ""} = options
+		this.element.append($("<span>").text(label))
+		this.element.append($("<div>").addClass("hint").text(hint));
+	}
+}
+
+class ContextMenuItemImage extends ContextMenuItem {
+	constructor(label, imageSrc, options = {}) {
+		super(label, options)
+		this.element.addClass("item-image")
+		this.element.append($("<div>").addClass("label").text(label))
+		this.element.append($("<img>", {src: imageSrc}));
+	}
+}
+
+class ContextMenuItemSubMenu extends ContextMenuItem {
+	constructor(label, subMenu, options= {}) {
+		// if (!(subMenu instanceof ContextSubMenu)) throw "subMenu must be of ContextSubMenu type.";
+		super(label, options)
+		this.element.addClass("item-subMenu").text(label)
+		this.subMenu = subMenu
+		this.subMenu.attachTo(this.getElement())
 	}
 }
 
@@ -806,7 +1002,7 @@ class ColorSetting extends SettingField {
 			label.text($(this).val())
 		})
 		
-		this.setInputElement(SettingField.inputContainer().append(label,input));
+		this.setInputElement(SettingField.inputContainer().append(label, this.input));
 	}
 }
 
