@@ -6,7 +6,7 @@ class Plugin {
 	getName() { return "BetterRoleColors" }
 	getShortName() { return "BRC" }
 	getDescription() { return "Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer" }
-	getVersion() { return "0.5.2" }
+	getVersion() { return "0.5.3" }
 	getAuthor() { return "Zerebos" }
 	getGithubLink() { return "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js" }
 
@@ -14,12 +14,12 @@ class Plugin {
 		this.isOpen = false
 		this.hasUpdate = false
 		this.remoteVersion = ""
-		this.defaultSettings = {modules: {typing: true, voice: true, mentions: true},
+		this.defaultSettings = {modules: {typing: true, voice: true, mentions: true, botTags: true},
 								popouts: {username: false, discriminator: false, nickname: true, fallback: true},
 								modals: {username: true, discriminator: false},
 								auditLog: {username: true, discriminator: false},
 								account: {username: true, discriminator: false}}
-		this.settings = {modules: {typing: true, voice: true, mentions: true},
+		this.settings = {modules: {typing: true, voice: true, mentions: true, botTags: true},
 						 popouts: {username: false, discriminator: false, nickname: true, fallback: true},
 						 modals: {username: true, discriminator: false},
 						 auditLog: {username: true, discriminator: false},
@@ -263,11 +263,13 @@ class Plugin {
 
     	if (elem.classList.contains("message-group") || elem.classList.contains("messages-wrapper")) {
     		this.getAllMessageColors()
-        	this.colorizeMentions()
+			this.colorizeMentions()
+			this.colorizeBotTags()
     	}
 
     	if (elem.classList.contains("message")) {
-    		this.colorizeMentions()
+			this.colorizeMentions()
+			this.colorizeBotTags()
     	}
 	}
 	
@@ -337,6 +339,7 @@ class Plugin {
 		this.colorizeVoice()
 		this.colorizeMentions()
 		this.colorizeAccountStatus()
+		this.colorizeBotTags()
 	}
 
 	colorizeAccountStatus() {
@@ -442,6 +445,13 @@ class Plugin {
 	    this.currentServer = previous;
 	}
 
+	colorizeBotTags() {
+		if (!this.settings.modules.botTags) return;
+		document.querySelectorAll('.bot-tag').forEach(node => {
+			node.style.backgroundColor = node.previousSibling.style.color;
+		})
+	}
+
 	decolorize() {
 		this.decolorizeTyping()
 		this.decolorizeMentions()
@@ -450,6 +460,7 @@ class Plugin {
 		this.decolorizeModals()
 		this.decolorizeAuditLog()
 		this.decolorizeAccountStatus()
+		this.decolorizeBotTags()
 	}
 
 	decolorizeTyping() { $(".typing strong").each((index, elem)=>{$(elem).css("color","")}) }
@@ -481,6 +492,12 @@ class Plugin {
 		$('div[class*="accountDetails"]').find('.username').css("color","")
 		$('div[class*="accountDetails"]').find('.discriminator').css("color","").css("opacity", "")
 	}
+
+	decolorizeBotTags() {
+		document.querySelectorAll('.bot-tag').forEach(node => {
+			node.style.backgroundColor = "";
+		})
+	}
 	
 	getSettingsPanel() {
 		var panel = $("<form>").addClass("form").css("width", "100%");
@@ -500,9 +517,10 @@ class Plugin {
 		}
 
 		new ControlGroup("Module Settings", () => {this.saveSettings(); this.decolorize(); this.colorize();}).appendTo(panel).append(
-			new CheckboxSetting("Typing", "Toggles colorizing of typing notifications. Least reliable module due to discord issues and double saves data.", this.settings.modules.typing, (checked) => {this.settings.modules.typing = checked}),
-			new CheckboxSetting("Voice", "Toggles colorizing of voice users. Laggy at first on large servers.", this.settings.modules.voice, (checked) => {this.settings.modules.voice = checked}),
-			new CheckboxSetting("Mentions", "Toggles colorizing of user mentions in the current server.", this.settings.modules.mentions, (checked) => {this.settings.modules.mentions = checked})
+			new CheckboxSetting("Typing", "Toggles colorizing of typing notifications. Least reliable module.", this.settings.modules.typing, (checked) => {this.settings.modules.typing = checked}),
+			new CheckboxSetting("Voice", "Toggles colorizing of voice users.", this.settings.modules.voice, (checked) => {this.settings.modules.voice = checked}),
+			new CheckboxSetting("Mentions", "Toggles colorizing of user mentions in the current server.", this.settings.modules.mentions, (checked) => {this.settings.modules.mentions = checked}),
+			new CheckboxSetting("Bot Tags", "Toggles coloring the background of bot tags to match role.", this.settings.modules.botTags, (checked) => {this.settings.modules.botTags = checked})
 		)
 
 		new ControlGroup("Popout Options", () => {this.saveSettings()}).appendTo(panel).append(
