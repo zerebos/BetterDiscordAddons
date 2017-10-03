@@ -406,7 +406,7 @@ PluginSettings.Checkbox = class Checkbox extends PluginSettings.SettingField {
 }
 
 // True is right side
-PluginSettings.PillButton = class PillButton extends PluginSettings.CheckboxSetting {
+PluginSettings.PillButton = class PillButton extends PluginSettings.Checkbox {
 	constructor(label, help, leftLabel, rightLabel, isChecked, callback, disabled) {
 		super(label, help, isChecked, callback, disabled);
 		
