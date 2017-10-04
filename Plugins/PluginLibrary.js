@@ -1,4 +1,65 @@
+var PluginUtilities = {}
+var PluginSettings = {}
 var PluginContextMenu = {}
+
+PluginUtilities.loadData = function(name, key, defaultData) {
+    try { return $.extend(true, defaultData ? defaultData : {}, bdPluginStorage.get(name, key)) }
+    catch (err) { console.warn(name, "unable to load data:", err) }
+}
+
+PluginUtilities.saveData = function(name, key, data) {
+    try { bdPluginStorage.set(name, key, data) }
+    catch (err) { console.warn(name, "unable to save data:", err) }
+}
+
+PluginUtilities.loadSettings = function(name, defaultSettings) {
+    return PluginUtilities.loadData(name, "settings", defaultSettings)
+}
+
+PluginUtilities.saveSettings = function(name, data) {
+    PluginUtilities.saveData(name, "settings", data)
+}
+
+PluginUtilities.checkForUpdate = function(pluginName, currentVersion) {
+    const githubRaw = "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/"+pluginName+"/"+pluginName+".plugin.js"
+    $.get(githubRaw, (result) => {
+        var ver = result.match(/"[0-9]+\.[0-9]+\.[0-9]+"/i);
+        if (!ver) return;
+        ver = ver.toString().replace(/"/g, "")
+        ver = ver.split(".")
+        var lver = currentVersion.split(".")
+        var hasUpdate = false
+        if (ver[0] > lver[0]) hasUpdate = true;
+        else if (ver[0]==lver[0] && ver[1] > lver[1]) hasUpdate = true;
+        else if (ver[0]==lver[0] && ver[1]==lver[1] && ver[2] > lver[2]) hasUpdate = true;
+        else hasUpdate = false;
+        if (hasUpdate) {
+            PluginUtilities.showUpdateNotice(pluginName)
+        }
+    });
+}
+
+PluginUtilities.showUpdateNotice = function(pluginName) {
+    const updateLink = "https://betterdiscord.net/ghdl?url=https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/"+pluginName+"/"+pluginName+".plugin.js"
+    BdApi.clearCSS("pluginNoticeCSS")
+    BdApi.injectCSS("pluginNoticeCSS", "#pluginNotice span, #pluginNotice span a {-webkit-app-region: no-drag;color:#fff;} #pluginNotice span a:hover {text-decoration:underline;}")
+    let noticeElement = '<div class="notice notice-info" id="pluginNotice"><div class="notice-dismiss" id="pluginNoticeDismiss"></div>The following plugins have updates: &nbsp;<strong id="outdatedPlugins"></strong></div>'
+    if (!$('#pluginNotice').length)  {
+        $('.app.flex-vertical').children().first().before(noticeElement);
+        $('.win-buttons').addClass("win-buttons-notice")
+        $('#pluginNoticeDismiss').on('click', () => {
+            $('.win-buttons').animate({top: 0}, 400, "swing", () => {$('.win-buttons').css("top","").removeClass("win-buttons-notice")});
+            $('#pluginNotice').slideUp({complete: () => {$('#pluginNotice').remove()}});
+        })
+    }
+    let pluginNoticeID = pluginName+'-notice'
+    let pluginNoticeElement = $('<span id="'+pluginNoticeID+'">')
+    pluginNoticeElement.html('<a href="'+updateLink+'" target="_blank">'+pluginName+'</a>')
+    if (!$('#'+pluginNoticeID).length) {
+        if ($('#outdatedPlugins').children('span').length) pluginNoticeElement.html(', ' + pluginNoticeElement.html());
+        $('#outdatedPlugins').append(pluginNoticeElement)
+    }
+}
 
 /*
 Options:
@@ -160,8 +221,6 @@ PluginContextMenu.SubMenuItem = class SubMenuItem extends PluginContextMenu.Menu
 	}
 }
 
-var PluginSettings = {}
-
 PluginSettings.getAccentColor = function() {
     var bg = $('<div class="ui-switch-item"><div class="ui-switch-wrapper"><input type="checkbox" checked="checked" class="ui-switch-checkbox"><div class="ui-switch checked">')
     bg.appendTo($("#bd-settingspane-container"))
@@ -173,84 +232,7 @@ PluginSettings.getAccentColor = function() {
 }
 
 PluginSettings.getCSS = function() {
-    return `/* Settings CSS */
-.plugin-controls input:focus {
-outline: 0;
-}
-
-.plugin-controls input[type=range] {
--webkit-appearance: none;
-border: none!important;
-border-radius: 5px;
-height: 5px;
-cursor: pointer;
-}
-
-.plugin-controls input[type=range]::-webkit-slider-runnable-track {
-background: 0 0!important;
-}
-
-.plugin-controls input[type=range]::-webkit-slider-thumb {
--webkit-appearance: none;
-background: #f6f6f7;
-width: 10px;
-height: 20px;
-}
-
-.plugin-controls input[type=range]::-webkit-slider-thumb:hover {
-box-shadow: 0 2px 10px rgba(0,0,0,.5);
-}
-
-.plugin-controls input[type=range]::-webkit-slider-thumb:active {
-box-shadow: 0 2px 10px rgba(0,0,0,1);
-}
-
-.plugin-setting-label {
-color: #f6f6f7;
-font-weight: 500;
-}
-
-.plugin-setting-input-row {
-padding-right: 5px!important;
-}
-
-.plugin-setting-input-container {
-display: flex;
-align-items: center;
-justify-content: center;
-}
-
-.plugin-control-group .button-collapse {
-background:url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxOS4wLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iQ2FscXVlXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSItOTUwIDUzMiAxOCAxOCIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAtOTUwIDUzMiAxOCAxODsiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHN0eWxlIHR5cGU9InRleHQvY3NzIj4NCgkuc3Qwe2ZpbGw6bm9uZTt9DQoJLnN0MXtmaWxsOm5vbmU7c3Ryb2tlOiNGRkZGRkY7c3Ryb2tlLXdpZHRoOjEuNTtzdHJva2UtbWl0ZXJsaW1pdDoxMDt9DQo8L3N0eWxlPg0KPHBhdGggY2xhc3M9InN0MCIgZD0iTS05MzIsNTMydjE4aC0xOHYtMThILTkzMnoiLz4NCjxwb2x5bGluZSBjbGFzcz0ic3QxIiBwb2ludHM9Ii05MzYuNiw1MzguOCAtOTQxLDU0My4yIC05NDUuNCw1MzguOCAiLz4NCjwvc3ZnPg0K);
-height: 16px;
-width: 16px;
-display: inline-block;
-vertical-align: bottom;
-transition: transform 300ms ease;
-transform: rotate(0deg);
-}
-
-.plugin-control-group .button-collapse.collapsed {
-transition: transform 300ms ease;
-transform: rotate(-90deg);
-}
-
-.plugin-control-group h2 {
-font-size: 14px;
-}
-
-.plugin-controls .ui-switch-wrapper, .plugin-controls .plugin-setting-input-container {
-margin-top: 5px;
-}
-
-.plugin-controls.collapsed {
-display: none;
-}
-
-.plugin-controls {
-display: block;
-}
-    `;
+    return ".plugin-controls input:focus{outline:0}.plugin-controls input[type=range]{-webkit-appearance:none;border:none!important;border-radius:5px;height:5px;cursor:pointer}.plugin-controls input[type=range]::-webkit-slider-runnable-track{background:0 0!important}.plugin-controls input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;background:#f6f6f7;width:10px;height:20px}.plugin-controls input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 2px 10px rgba(0,0,0,.5)}.plugin-controls input[type=range]::-webkit-slider-thumb:active{box-shadow:0 2px 10px rgba(0,0,0,1)}.plugin-setting-label{color:#f6f6f7;font-weight:500}.plugin-setting-input-row{padding-right:5px!important}.plugin-setting-input-container{display:flex;align-items:center;justify-content:center}.plugin-control-group .button-collapse{background:url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxOS4wLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iQ2FscXVlXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSItOTUwIDUzMiAxOCAxOCIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAtOTUwIDUzMiAxOCAxODsiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHN0eWxlIHR5cGU9InRleHQvY3NzIj4NCgkuc3Qwe2ZpbGw6bm9uZTt9DQoJLnN0MXtmaWxsOm5vbmU7c3Ryb2tlOiNGRkZGRkY7c3Ryb2tlLXdpZHRoOjEuNTtzdHJva2UtbWl0ZXJsaW1pdDoxMDt9DQo8L3N0eWxlPg0KPHBhdGggY2xhc3M9InN0MCIgZD0iTS05MzIsNTMydjE4aC0xOHYtMThILTkzMnoiLz4NCjxwb2x5bGluZSBjbGFzcz0ic3QxIiBwb2ludHM9Ii05MzYuNiw1MzguOCAtOTQxLDU0My4yIC05NDUuNCw1MzguOCAiLz4NCjwvc3ZnPg0K);height:16px;width:16px;display:inline-block;vertical-align:bottom;transition:transform .3s ease;transform:rotate(0)}.plugin-control-group .button-collapse.collapsed{transition:transform .3s ease;transform:rotate(-90deg)}.plugin-control-group h2{font-size:14px}.plugin-controls .plugin-setting-input-container,.plugin-controls .ui-switch-wrapper{margin-top:5px}.plugin-controls.collapsed{display:none}.plugin-controls{display:block}";
 }
 
 PluginSettings.createInputContainer = function() { return $('<div class="plugin-setting-input-container">');}
@@ -375,7 +357,7 @@ PluginSettings.Slider = class Slider extends PluginSettings.SettingField {
 			this.setBackground()
 		})
 		
-		this.setInputElement(SettingField.createInputContainer().append(this.label,this.input));
+		this.setInputElement(PluginSettings.createInputContainer().append(this.label,this.input));
 	}
 	
 	getPercent() {return ((this.value-this.min)/this.max)*100;}
@@ -434,6 +416,6 @@ PluginSettings.PillButton = class PillButton extends PluginSettings.Checkbox {
 			}
 		})
 		
-		this.setInputElement(SettingField.createInputContainer().append(labelLeft, this.checkboxWrap.detach(), labelRight));
+		this.setInputElement(PluginSettings.createInputContainer().append(labelLeft, this.checkboxWrap.detach(), labelRight));
 	}
 }
