@@ -1,6 +1,80 @@
+
+var ReactUtilities = {}
 var PluginUtilities = {}
 var PluginSettings = {}
 var PluginContextMenu = {}
+
+ReactUtilities.getReactInstance = function(node) {
+    var domNode = node instanceof HTMLElement ? node : node[0];
+    return domNode[Object.keys(domNode).find((key) => key.startsWith("__reactInternalInstance"))];
+}
+
+ReactUtilities.getReactProperty = function(node, path) {
+    path = path.replace(/\["?([^"]*)"?\]/g, "$1")
+    var value = path.split(/\s?=>\s?/).reduce(function(obj, prop) {
+        return obj && obj[prop];
+    }, ReactUtilities.getReactInstance(node));
+    return value;
+}
+
+ReactUtilities.getReactKey = function(config) {
+    if (config === undefined) return null;
+    if (config.node === undefined || config.key === undefined) return null;
+    var defaultValue = config.default ? config.default : null;
+    
+    var inst = this.getReactInstance(config.node);
+    if (!inst) return defaultValue;
+    
+    
+    // to avoid endless loops (parentnode > childnode > parentnode ...)
+    var maxDepth = config.depth === undefined ? 30 : config.depth;
+        
+    var keyWhiteList = typeof config.whiteList === "object" ? config.whiteList : {
+        "_currentElement":true,
+        "_renderedChildren":true,
+        "_instance":true,
+        "_owner":true,
+        "props":true,
+        "state":true,
+        "user":true,
+        "guild":true,
+        "onContextMenu":true,
+        "stateNode":true,
+        "refs":true,
+        "updater":true,
+        "children":true,
+        "type":true,
+        "memoizedProps":true,
+        "memoizedState":true,
+        "child":true,
+        "firstEffect":true,
+        "return":true
+    };
+    
+    var keyBlackList = typeof config.blackList === "object" ? config.blackList : {};
+    
+    
+
+    var searchKeyInReact = (ele, depth) => {
+        if (!ele || this.getReactInstance(ele) || depth > maxDepth) return defaultValue;
+        var keys = Object.getOwnPropertyNames(ele);
+        var result = null;
+        for (var i = 0; result === null && i < keys.length; i++) {
+            var key = keys[i];
+            var value = ele[keys[i]];
+            
+            if (config.key === key && (config.value === undefined || config.value === value)) {
+                result = config.returnParent ? ele : value;
+            }
+            else if ((typeof value === "object" || typeof value === "function") && ((keyWhiteList[key] && !keyBlackList[key]) || key[0] == "." || !isNaN(key[0]))) {
+                result = searchKeyInReact(value, depth++);
+            }
+        }
+        return result;
+    }
+
+    return searchKeyInReact(inst, 0);
+};
 
 PluginUtilities.loadData = function(name, key, defaultData) {
     try { return $.extend(true, defaultData ? defaultData : {}, bdPluginStorage.get(name, key)) }
