@@ -1,11 +1,75 @@
+BdApi.injectCSS("PluginLibrary", PluginSettings.getCSS());
 
+var ColorUtilities = {}
+var DOMUtilities = {}
 var ReactUtilities = {}
 var PluginUtilities = {}
 var PluginSettings = {}
 var PluginContextMenu = {}
 
+window.ZeresLibrary = {
+    ColorUtilities: ColorUtilities,
+    DOMUtilities: DOMUtilities,
+    ReactUtilities: ReactUtilities,
+    PluginUtilities: PluginUtilities,
+    PluginSettings: PluginSettings,
+    ContextMenu: PluginContextMenu
+}
+
+ColorUtilities.getRGB = function(color) {
+    var result;
+    if (result = /rgb\(\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*\)/.exec(color)) return [parseInt(result[1]), parseInt(result[2]), parseInt(result[3])];
+    if (result = /rgb\(\s*([0-9]+(?:\.[0-9]+)?)\%\s*,\s*([0-9]+(?:\.[0-9]+)?)\%\s*,\s*([0-9]+(?:\.[0-9]+)?)\%\s*\)/.exec(color)) return [parseFloat(result[1]) * 2.55, parseFloat(result[2]) * 2.55, parseFloat(result[3]) * 2.55];
+    if (result = /#([a-fA-F0-9]{2})([a-fA-F0-9]{2})([a-fA-F0-9]{2})/.exec(color)) return [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)];
+    if (result = /#([a-fA-F0-9])([a-fA-F0-9])([a-fA-F0-9])/.exec(color)) return [parseInt(result[1] + result[1], 16), parseInt(result[2] + result[2], 16), parseInt(result[3] + result[3], 16)];
+}
+
+ColorUtilities.darkenColor = function(color, percent) {
+    var rgb = ColorUtilities.getRGB(color);
+    
+    for(var i = 0; i < rgb.length; i++){
+        rgb[i] = Math.round(Math.max(0, rgb[i] - rgb[i]*(percent/100)));
+    }
+    
+    return 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
+}
+
+ColorUtilities.lightenColor = function(color, percent) {
+    var rgb = ColorUtilities.getRGB(color);
+    
+    for(var i = 0; i < rgb.length; i++){
+        rgb[i] = Math.round(Math.min(255, rgb[i] + rgb[i]*(percent/100)));
+    }
+    
+    return 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
+}
+
+ColorUtilities.rgbToAlpha = function(color, alpha) {
+    var rgb = ColorUtilities.getRGB(color);	    
+    return 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + alpha + ')';
+}
+
+
+
+DOMUtilities.getParents = function(selector) {
+    var parents = [];
+    while (element = element.parentElement.closest(selector))
+        parents.push(element);
+    return parents
+}
+
+DOMUtilities.indexInParent = function(node) {
+    var children = node.parentNode.childNodes;
+    var num = 0;
+    for (var i=0; i<children.length; i++) {
+         if (children[i]==node) return num;
+         if (children[i].nodeType==1) num++;
+    }
+    return -1;
+}
+
 ReactUtilities.getReactInstance = function(node) {
-    var domNode = node instanceof HTMLElement ? node : node[0];
+    var domNode = node instanceof jQuery ? node[0] : node;
     return domNode[Object.keys(domNode).find((key) => key.startsWith("__reactInternalInstance"))];
 }
 
@@ -17,17 +81,16 @@ ReactUtilities.getReactProperty = function(node, path) {
     return value;
 }
 
+// This is a slightly modified version of DevilBro's https://github.com/mwittrien/BetterDiscordAddons
 ReactUtilities.getReactKey = function(config) {
     if (config === undefined) return null;
     if (config.node === undefined || config.key === undefined) return null;
-    var defaultValue = config.default ? config.default : null;
     
-    var inst = this.getReactInstance(config.node);
-    if (!inst) return defaultValue;
+    var inst = ReactUtilities.getReactInstance(config.node);
+    if (!inst) return null;
     
     
-    // to avoid endless loops (parentnode > childnode > parentnode ...)
-    var maxDepth = config.depth === undefined ? 30 : config.depth;
+    var maxDepth = config.depth === undefined ? 15 : config.depth;
         
     var keyWhiteList = typeof config.whiteList === "object" ? config.whiteList : {
         "_currentElement":true,
@@ -36,9 +99,6 @@ ReactUtilities.getReactKey = function(config) {
         "_owner":true,
         "props":true,
         "state":true,
-        "user":true,
-        "guild":true,
-        "onContextMenu":true,
         "stateNode":true,
         "refs":true,
         "updater":true,
@@ -47,8 +107,7 @@ ReactUtilities.getReactKey = function(config) {
         "memoizedProps":true,
         "memoizedState":true,
         "child":true,
-        "firstEffect":true,
-        "return":true
+        "firstEffect":true
     };
     
     var keyBlackList = typeof config.blackList === "object" ? config.blackList : {};
@@ -56,7 +115,7 @@ ReactUtilities.getReactKey = function(config) {
     
 
     var searchKeyInReact = (ele, depth) => {
-        if (!ele || this.getReactInstance(ele) || depth > maxDepth) return defaultValue;
+        if (!ele || ReactUtilities.getReactInstance(ele) || depth > maxDepth) return null;
         var keys = Object.getOwnPropertyNames(ele);
         var result = null;
         for (var i = 0; result === null && i < keys.length; i++) {
@@ -74,7 +133,32 @@ ReactUtilities.getReactKey = function(config) {
     }
 
     return searchKeyInReact(inst, 0);
-};
+}
+
+PluginUtilities.getCurrentServer = function() {
+    var auditLog = document.querySelector('.guild-settings-audit-logs');
+    if (auditLog) return ReactUtilities.getReactKey({node: auditLog, key: "guildId"});
+    else return ReactUtilities.getReactKey({node: document.querySelector('.channels-wrap'), key: "guildId", whiteList: {
+        "_currentElement":true,
+        "_instance":true,
+        "_owner":true,
+        "props":true,
+        "children":true,
+        "memoizedProps":true
+    }});
+}
+
+PluginUtilities.isServer = function() { return PluginUtilities.getCurrentServer() ? true : false}
+
+PluginUtilities.getCurrentUser = function() {
+    return ReactUtilities.getReactKey({node: $('div[class*="accountDetails"]')[0].parentElement, key: "user", whiteList: {
+        "_currentElement": true,
+        "props": true,
+        "children": true,
+        "child": true,
+        "memoizedProps": true
+    }});
+}
 
 PluginUtilities.loadData = function(name, key, defaultData) {
     try { return $.extend(true, defaultData ? defaultData : {}, bdPluginStorage.get(name, key)) }
