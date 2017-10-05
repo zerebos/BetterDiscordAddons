@@ -5,7 +5,7 @@ var PluginUtilities = {}
 var PluginSettings = {}
 var PluginContextMenu = {}
 
-window.ZeresLibrary = {
+window["ZeresLibrary"] = {
     ColorUtilities: ColorUtilities,
     DOMUtilities: DOMUtilities,
     ReactUtilities: ReactUtilities,
