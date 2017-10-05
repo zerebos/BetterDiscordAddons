@@ -1,5 +1,3 @@
-BdApi.injectCSS("PluginLibrary", PluginSettings.getCSS());
-
 var ColorUtilities = {}
 var DOMUtilities = {}
 var ReactUtilities = {}
@@ -577,3 +575,5 @@ PluginSettings.PillButton = class PillButton extends PluginSettings.Checkbox {
 		this.setInputElement(PluginSettings.createInputContainer().append(labelLeft, this.checkboxWrap.detach(), labelRight));
 	}
 }
+
+BdApi.injectCSS("PluginLibrary", PluginSettings.getCSS());
