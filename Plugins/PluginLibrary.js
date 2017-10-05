@@ -5,15 +5,6 @@ var PluginUtilities = {}
 var PluginSettings = {}
 var PluginContextMenu = {}
 
-window["ZeresLibrary"] = {
-    ColorUtilities: ColorUtilities,
-    DOMUtilities: DOMUtilities,
-    ReactUtilities: ReactUtilities,
-    PluginUtilities: PluginUtilities,
-    PluginSettings: PluginSettings,
-    ContextMenu: PluginContextMenu
-}
-
 ColorUtilities.getRGB = function(color) {
     var result;
     if (result = /rgb\(\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*\)/.exec(color)) return [parseInt(result[1]), parseInt(result[2]), parseInt(result[3])];
@@ -574,6 +565,15 @@ PluginSettings.PillButton = class PillButton extends PluginSettings.Checkbox {
 		
 		this.setInputElement(PluginSettings.createInputContainer().append(labelLeft, this.checkboxWrap.detach(), labelRight));
 	}
+}
+
+window["ZeresLibrary"] = {
+    ColorUtilities: ColorUtilities,
+    DOMUtilities: DOMUtilities,
+    ReactUtilities: ReactUtilities,
+    PluginUtilities: PluginUtilities,
+    PluginSettings: PluginSettings,
+    ContextMenu: PluginContextMenu
 }
 
 BdApi.injectCSS("PluginLibrary", PluginSettings.getCSS());
