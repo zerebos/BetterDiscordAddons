@@ -576,4 +576,4 @@ PluginSettings.PillButton = class PillButton extends PluginSettings.Checkbox {
 	}
 }
 
-//BdApi.injectCSS("PluginLibrary", PluginSettings.getCSS());
+BdApi.injectCSS("PluginLibrary", PluginSettings.getCSS());
