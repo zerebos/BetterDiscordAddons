@@ -75,34 +75,18 @@ class Plugin {
 	getReactKey(config) {
 		if (config === undefined) return null;
 		if (config.node === undefined || config.key === undefined) return null;
-		var defaultValue = config.default ? config.default : null;
 		
 		var inst = this.getReactInstance(config.node);
-		if (!inst) return defaultValue;
+		if (!inst) return null;
 		
 		
 		// to avoid endless loops (parentnode > childnode > parentnode ...)
-		var maxDepth = config.depth === undefined ? 30 : config.depth;
+		var maxDepth = config.depth === undefined ? 5 : config.depth;
 			
 		var keyWhiteList = typeof config.whiteList === "object" ? config.whiteList : {
-			"_currentElement":true,
-			"_renderedChildren":true,
-			"_instance":true,
-			"_owner":true,
 			"props":true,
-			"state":true,
-			"user":true,
-			"guild":true,
-			"stateNode":true,
-			"refs":true,
-			"updater":true,
 			"children":true,
-			"type":true,
-			"memoizedProps":true,
-			"memoizedState":true,
-			"child":true,
-			"firstEffect":true,
-			"return":true
+			"memoizedProps":true
 		};
 		
 		var keyBlackList = typeof config.blackList === "object" ? config.blackList : {};
@@ -110,7 +94,7 @@ class Plugin {
 		return searchKeyInReact(inst, 0);
 
 		function searchKeyInReact (ele, depth) {
-			if (!ele || depth > maxDepth) return defaultValue;
+			if (!ele || depth > maxDepth) return null;
 			var keys = Object.getOwnPropertyNames(ele);
 			var result = null;
 			for (var i = 0; result === null && i < keys.length; i++) {
@@ -159,21 +143,18 @@ class Plugin {
 	}
 
 	bindMenu(context) {
-		var displayName = this.getReactKey({node: context, key: "displayName", value: "NativeLinkGroup"});
 		var imageLink = this.getReactKey({node: context, key: "href"});
-		if (imageLink) {
-			var imageLinkLower = imageLink.toLowerCase()
-			if (imageLinkLower.endsWith('.png') || imageLinkLower.endsWith('.jpg') || imageLinkLower.endsWith('.jpeg')) {
+		var imageLinkLower = imageLink ? imageLink.toLowerCase() : ""
+		if (imageLinkLower.endsWith('.png') || imageLinkLower.endsWith('.jpg') || imageLinkLower.endsWith('.jpeg')) {
 				var item = $(this.contextItem).on("click."+this.getShortName(), ()=>{$(context).hide();this.copyToClipboard(imageLink);});
 				$(context).find('.item:contains("Copy Link")').after(item)
-			}
 		}
 		else {
 			imageLink = this.getReactKey({node: context, key: "src"});
 			if (!imageLink) return;
-			imageLink = imageLink.match(/https?\/.*(\.png|\.jpg|\.jpeg)/g)
+			imageLink = imageLink.match(/https?\/.*(\.png|\.jpg|\.jpeg)\??/g)
 			if (!imageLink) return;
-			imageLink = imageLink[0].replace("http/", "http://").replace("https/", "https://")
+			imageLink = imageLink[0].replace("http/", "http://").replace("https/", "https://").replace('?', '')
 			imageLinkLower = imageLink.toLowerCase()
 			if (imageLinkLower.endsWith('.png') || imageLinkLower.endsWith('.jpg') || imageLinkLower.endsWith('.jpeg')) {
 				var item = $(this.contextItem).on("click."+this.getShortName(), ()=>{$(context).hide();this.copyToClipboard(imageLink);});

@@ -149,6 +149,22 @@ PluginUtilities.getCurrentUser = function() {
     }});
 }
 
+PluginUtilities.getAllUsers = function() {
+    if (!document.querySelector('.channel-members') || document.querySelector('.private-channels')) return [];
+    let groups = ReactUtilities.getReactKey({node: document.querySelector('.channel-members').parentElement.parentElement.parentElement.parentElement, key: "memberGroups", whiteList: {
+        "child": true,
+        "sibling": true,
+        "memoizedState": true
+    }})
+    var users = []
+    for (let g=0; g<groups.length; g++) {
+        for (let u=0; u<groups[g].users.length; u++) {
+            users.push(groups[g].users[u])
+        }
+    }
+    return users;
+}
+
 PluginUtilities.loadData = function(name, key, defaultData) {
     try { return $.extend(true, defaultData ? defaultData : {}, bdPluginStorage.get(name, key)) }
     catch (err) { console.warn(name, "unable to load data:", err) }
@@ -170,7 +186,7 @@ PluginUtilities.saveSettings = function(name, data) {
 PluginUtilities.checkForUpdate = function(pluginName, currentVersion) {
     const githubRaw = "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/"+pluginName+"/"+pluginName+".plugin.js"
     $.get(githubRaw, (result) => {
-        var ver = result.match(/"[0-9]+\.[0-9]+\.[0-9]+"/i);
+        var ver = result.match(/['"][0-9]+\.[0-9]+\.[0-9]+['"]/i);
         if (!ver) return;
         ver = ver.toString().replace(/"/g, "")
         ver = ver.split(".")
