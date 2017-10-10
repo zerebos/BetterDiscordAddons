@@ -1,4 +1,6 @@
-# Always Typing - [Download](https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AlwaysTyping/AlwaysTyping.plugin.js)
+# THIS PLUGIN HAS BEEN DISCONTINUED FOR SEVERAL REASONS
+
+# Always Typing
 
 Makes people think you're always typing, even when you're not.
 
