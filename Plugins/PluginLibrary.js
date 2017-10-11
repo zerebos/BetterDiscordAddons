@@ -63,8 +63,8 @@ ReactUtilities.getReactInstance = function(node) {
 }
 
 ReactUtilities.getReactProperty = function(node, path) {
-    //path = path.replace(/\["?([^"]*)"?\]/g, "$1")
-    var value = path.split(/\s?\.\s?/).reduce(function(obj, prop) {
+    path = path.replace(/\["?([^"]*)"?\]/g, "$1")
+    var value = path.split(/\s?=>\s?/).reduce(function(obj, prop) {
         return obj && obj[prop];
     }, ReactUtilities.getReactInstance(node));
     return value;
