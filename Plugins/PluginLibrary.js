@@ -584,7 +584,7 @@ PluginSettings.PillButton = class PillButton extends PluginSettings.Checkbox {
 	}
 }
 
-PluginToolip.Tooltip = class Tooltip {
+PluginTooltip.Tooltip = class Tooltip {
 	constructor(node, tip) {
 		this.node = node;
 		this.tip = tip;
