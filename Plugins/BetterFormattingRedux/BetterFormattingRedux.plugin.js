@@ -1,21 +1,17 @@
 //META{"name":"BetterFormattingRedux"}*//
 
-/* global $ */
-/* global bdPluginStorage */
-/* global BdApi */
-var BetterFormattingRedux = (function() {
+/* global PluginSettings:false, PluginUtilities:false, PluginContextMenu:false, BdApi:false */
 
-class BFRedux {
-	getName() { return "BetterFormattingRedux" }
-	getShortName() { return "BFRedux" }
-	getDescription() { return "Enables different types of formatting in standard Discord chat. Support Server: bit.ly/ZeresServer" }
-	getVersion() { return "2.2.1" }
-	getAuthor() { return "Zerebos" }
+class BetterFormattingRedux {
+	getName() { return "BetterFormattingRedux"; }
+	getShortName() { return "BFRedux"; }
+	getDescription() { return "Enables different types of formatting in standard Discord chat. Support Server: bit.ly/ZeresServer"; }
+	getVersion() { return "2.2.2"; }
+	getAuthor() { return "Zerebos"; }
 
 	constructor() {
-		this.isOpen = false
-		this.initialized = false
-		this.remoteVersion = ""
+		this.isOpen = false;
+		this.initialized = false;
 		this.replaceList = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}";
 		this.smallCapsList = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`ᴀʙᴄᴅᴇғɢʜɪᴊᴋʟᴍɴᴏᴘǫʀsᴛᴜᴠᴡxʏᴢ{|}";
 		this.superscriptList = " !\"#$%&'⁽⁾*⁺,⁻./⁰¹²³⁴⁵⁶⁷⁸⁹:;<⁼>?@ᴬᴮᶜᴰᴱᶠᴳᴴᴵᴶᴷᴸᴹᴺᴼᴾQᴿˢᵀᵁⱽᵂˣʸᶻ[\\]^_`ᵃᵇᶜᵈᵉᶠᵍʰᶦʲᵏˡᵐⁿᵒᵖᑫʳˢᵗᵘᵛʷˣʸᶻ{|}";
@@ -25,19 +21,19 @@ class BFRedux {
 
 		this.toolbarString = `<div id="bfredux" class='bf-toolbar'><div class='bf-arrow'></div></div>`;
 		
-		this.discordWrappers = {bold: "**", italic: "*", underline: "__", strikethrough: "~~", code: "`", codeblock: "```"}
+		this.discordWrappers = {bold: "**", italic: "*", underline: "__", strikethrough: "~~", code: "`", codeblock: "```"};
 
 		this.defaultSettings = {toolbar: {bold: {enabled: true, order: 0}, italic: {enabled: true, order: 1}, underline: {enabled: true, order: 2}, strikethrough: {enabled: true, order: 3},
-										  code: {enabled: true, order: 4}, codeblock: {enabled: true, order: 5}, superscript: {enabled: true, order: 6}, smallcaps: {enabled: true, order: 7},
-										  fullwidth: {enabled: true, order: 8}, upsidedown: {enabled: true, order: 9}, varied: {enabled: true, order: 10}, leet: {enabled: false, order: 11}},
+										code: {enabled: true, order: 4}, codeblock: {enabled: true, order: 5}, superscript: {enabled: true, order: 6}, smallcaps: {enabled: true, order: 7},
+										fullwidth: {enabled: true, order: 8}, upsidedown: {enabled: true, order: 9}, varied: {enabled: true, order: 10}, leet: {enabled: false, order: 11}},
 								formats: {superscript: true, smallcaps: true, fullwidth: true, upsidedown: true, varied: true, leet: false},
 								wrappers: {superscript: "^^", smallcaps: "%%", fullwidth: "##", upsidedown: "&&", varied: "||", leet: "++"},
 								formatting: {fullWidthMap: true, reorderUpsidedown: true, startCaps: true},
 								plugin: {hoverOpen: true, closeOnSend: true, chainFormats: true},
-								style: {rightSide: true, opacity: 1, fontSize: "85%"}}
+								style: {rightSide: true, opacity: 1, fontSize: "85%"}};
 		this.settings = this.defaultSettings;
 						
-		this.customWrappers = Object.keys(this.defaultSettings.wrappers)
+		this.customWrappers = Object.keys(this.defaultSettings.wrappers);
 		
 		
 		this.toolbarData = {
@@ -53,7 +49,18 @@ class BFRedux {
 			upsidedown: {type: "bfr-format", displayName: "uʍopǝpᴉsd∩"},
 			varied: {type: "bfr-format", displayName: "VaRiEd CaPs"},
 			leet: {type: "bfr-format", displayName: "1337"}
-		}
+		};
+
+		this.allLanguages = {
+			C: {cpp: "C++", csharp: "C#", coffeescript: "CoffeeScript", css: "CSS"},
+			H: {html: "HTML/XML"},
+			J: {java: "Java", js: "JavaScript", json: "JSON"},
+			M: {markdown: "Markdown"},
+			P: {perl: "Perl", php: "PHP", py: "Python"},
+			R: {ruby: "Ruby"},
+			S: {sql: "SQL"},
+			V: {vbnet: "VB.NET", vhdl: "VHDL"}
+		};
 		
 		
 		// CSS is a modified form of the CSS used in
@@ -247,7 +254,7 @@ class BFRedux {
     background: rgba(255,255,255,.1);
     color: rgba(255,255,255,.9);
 }
-`
+`;
 	}
 
 	loadSettings() {
@@ -259,72 +266,76 @@ class BFRedux {
 	}
 	
 	escape(s) {
-		return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+		return s.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
 	}
 
 	checkForUpdate() { PluginUtilities.checkForUpdate(this.getName(), this.getVersion()); }
 	
 	load() {}
 
-	unload() {};
+	unload() {}
 	
 	start() {
 
 		if (typeof window.ZeresLibrary === "undefined" || !$("#zeresLibraryScript").length) {
 			var libraryScript = document.createElement("script");
-			libraryScript.setAttribute("type", "text/javascript")
-			libraryScript.setAttribute("src", "//rawgit.com/rauenzi/BetterDiscordAddons/master/Plugins/PluginLibrary.js?"+performance.now());
-			libraryScript.setAttribute("id", "zeresLibraryScript")
+			libraryScript.setAttribute("type", "text/javascript");
+			libraryScript.setAttribute("src", "//rawgit.com/rauenzi/BetterDiscordAddons/master/Plugins/PluginLibrary.js?" + performance.now());
+			libraryScript.setAttribute("id", "zeresLibraryScript");
 			document.head.appendChild(libraryScript);
 		}
 
-		this.sortableScript = document.createElement("script");
-		this.sortableScript.setAttribute("type", "text/javascript")
-		this.sortableScript.setAttribute("src", "//cdn.rawgit.com/rauenzi/BetterDiscordAddons/master/Plugins/Sortable.js");
-		this.sortableScript.setAttribute("id", "sortableScript")
-		document.head.appendChild(this.sortableScript);
-
-		if (typeof window.Sortable !== "undefined" && typeof window.ZeresLibrary !== "undefined") {
+		if (typeof window.ZeresLibrary !== "undefined") {
 			this.initialize();
 		}
 		else {
-			document.getElementById('zeresLibraryScript').addEventListener("load", () => {this.initialize()})
+			document.getElementById('zeresLibraryScript').addEventListener("load", () => {this.initialize();});
 		}
 	}
 
 	initialize() {
 
-		var sortableScript = document.createElement("script");
-		sortableScript.setAttribute("type", "text/javascript")
-		sortableScript.setAttribute("src", "//cdn.rawgit.com/rauenzi/BetterDiscordAddons/master/Plugins/Sortable.js");
-		sortableScript.setAttribute("id", "sortableScript")
-		document.head.appendChild(sortableScript);
-		sortableScript.addEventListener("load", () => {
-			this.initialized = true;
-			this.loadSettings();
-			BdApi.injectCSS(this.getShortName()+"-style", this.mainCSS);
-			this.sortableScriptLoaded = true;
-			this.setupToolbar();
-		})
+		this.sortableScript = document.createElement("script");
+		this.sortableScript.setAttribute("type", "text/javascript");
+		this.sortableScript.setAttribute("src", "//cdn.rawgit.com/rauenzi/BetterDiscordAddons/master/Plugins/Sortable.js");
+		this.sortableScript.setAttribute("id", "sortableScript");
+		document.head.appendChild(this.sortableScript);
+
+		if (typeof window.Sortable !== "undefined") {
+			this.secondaryInitialize();
+		}
+		else {
+			this.sortableScript.addEventListener("load", () => {this.secondaryInitialize();});
+		}
+	}
+
+	secondaryInitialize() {
+		this.initialized = true;
+		PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
+		this.loadSettings();
+		BdApi.injectCSS(this.getShortName()  + "-style", this.mainCSS);
+		this.sortableScriptLoaded = true;
+		this.setupToolbar();
 	}
 	
 	stop() {
-		$("*").off("."+this.getShortName());
+		this.initialized = false;
+		$("*").off("." + this.getShortName());
 		$(".bf-toolbar").remove();
 		this.sortableScript.remove();
-		BdApi.clearCSS(this.getShortName()+"-style");
+		BdApi.clearCSS(this.getShortName() + "-style");
 	}
 	
-	onSwitch() {};
+	onSwitch() {}
 	
 	observer(e) {
-		if (!e.addedNodes.length) return;
+		if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element) || !this.initialized) return;
 
-		var $elem = $(e.addedNodes[0]);
+		var elem = e.addedNodes[0];
 		
-		if ($elem.find(".channelTextArea-1HTP3C").length || $elem.closest(".channelTextArea-1HTP3C").length && this.initialized) {
-			var $textarea = $elem.find("textarea");
-			this.addToolbar($textarea);
+		if (elem.querySelector("textarea") && this.initialized) {
+			var textarea = elem.querySelector("textarea");
+			this.addToolbar($(textarea));
 		}
 	}
 	
@@ -335,22 +346,22 @@ class BFRedux {
 	}
 
 	updateStyle() {
-		this.updateSide()
-		this.updateOpacity()
-		this.updateFontSize()
+		this.updateSide();
+		this.updateOpacity();
+		this.updateFontSize();
 	}
 	
 	updateSide() {
-		if (this.settings.style.rightSide) { $(".bf-toolbar").removeClass("bf-left") }
-		else { $(".bf-toolbar").addClass("bf-left") }
+		if (this.settings.style.rightSide) { $(".bf-toolbar").removeClass("bf-left"); }
+		else { $(".bf-toolbar").addClass("bf-left"); }
 	}
 	
 	updateOpacity() {
-		$(".bf-toolbar").css("opacity", this.settings.style.opacity)
+		$(".bf-toolbar").css("opacity", this.settings.style.opacity);
 	}
 
 	updateFontSize() {
-		$(".bf-toolbar").css("font-size", this.settings.style.fontSize)
+		$(".bf-toolbar").css("font-size", this.settings.style.fontSize);
 	}
 	
 	openClose() {
@@ -361,31 +372,30 @@ class BFRedux {
 	doFormat(text, wrapper, offset) {
 
 		// If this is not a wrapper, return original
-		if (text.substring(offset, offset+wrapper.length) != wrapper) return text;
+		if (text.substring(offset, offset + wrapper.length) != wrapper) return text;
 		
-		var returnText = text, len = text.length
+		var returnText = text, len = text.length;
 		var begin = text.indexOf(wrapper, offset);
 		
-		if (text[begin-1] == "\\") return text; // If the wrapper is escaped, remove the backslash and return the text
+		if (text[begin - 1] == "\\") return text; // If the wrapper is escaped, remove the backslash and return the text
 		
 		var end = text.indexOf(wrapper, begin + wrapper.length);
-		if (end != -1) end += wrapper.length-1;
+		if (end != -1) end += wrapper.length - 1;
 		
 		// Making it to this point means that we have found a full wrapper
 		// This block performs inner chaining
 		if (this.settings.plugin.chainFormats) {
-			for (var w=0; w<this.customWrappers.length; w++) {
-				var newText = this.doFormat(returnText, this.settings.wrappers[this.customWrappers[w]], begin+wrapper.length);
+			for (var w = 0; w < this.customWrappers.length; w++) {
+				var newText = this.doFormat(returnText, this.settings.wrappers[this.customWrappers[w]], begin + wrapper.length);
 				if (returnText != newText) {
 					returnText = newText;
-					end = end - this.settings.wrappers[this.customWrappers[w]].length*2
+					end = end - this.settings.wrappers[this.customWrappers[w]].length * 2;
 				}
 			}
 		}
 		
 		returnText = returnText.replace(new RegExp(`([^]{${begin}})${this.escape(wrapper)}([^]*)${this.escape(wrapper)}([^]{${len - end - 1}})`), (match, before, middle, after) => {
 			var letterNum = 0;
-			var previousLetter = "";
 			middle = middle.replace(/./g, letter => {
 				var index = this.replaceList.indexOf(letter);
 				letterNum += 1;
@@ -403,8 +413,7 @@ class BFRedux {
 					return index != -1 ? letterNum % 2 == compare ? letter.toUpperCase() : letter.toLowerCase() : letter;
 				}
 				else {return letter;}
-				previousLetter = letter;
-			})
+			});
 			if (wrapper == this.settings.wrappers.upsidedown && this.settings.formatting.reorderUpsidedown) return before + middle.split("").reverse().join("") + after;
 			else return before + middle + after;
 		});
@@ -423,23 +432,23 @@ class BFRedux {
 					i = next;
 			}
 			else if (text[i] == "@") {
-				var match = /@.*#[0-9]*/.exec(text.substring(i))
+				var match = /@.*#[0-9]*/.exec(text.substring(i));
 				if(match && match.index == 0) i += match[0].length - 1;
 			}
 			else {
-				for (var w=0; w<this.customWrappers.length; w++) {
+				for (var w = 0; w < this.customWrappers.length; w++) {
 					if (!this.settings.formats[this.customWrappers[w]]) continue;
 					var newText = this.doFormat(text, this.settings.wrappers[this.customWrappers[w]], i);
 					if (text != newText) {
 						text = newText;
-						i = i - this.settings.wrappers[this.customWrappers[w]].length*2
+						i = i - this.settings.wrappers[this.customWrappers[w]].length * 2;
 					}
 				}
 			}
 		}
 		var txt = textarea[0];
-		txt.selectionStart = 0
-		txt.selectionEnd = txt.value.length
+		txt.selectionStart = 0;
+		txt.selectionEnd = txt.value.length;
 		document.execCommand("insertText", false, text);
 		if (this.settings.plugin.closeOnSend) $(".bf-toolbar").removeClass('bf-visible');
 	}
@@ -457,64 +466,53 @@ class BFRedux {
 	}
 	
 	getContextMenu(textarea) {
-		var allLanguages = {
-			C: {cpp: "C++", csharp: "C#", coffeescript: "CoffeeScript", css: "CSS"},
-			H: {html: "HTML/XML"},
-			J: {java: "Java", js: "JavaScript", json: "JSON"},
-			M: {markdown: "Markdown"},
-			P: {perl: "Perl", php: "PHP", py: "Python"},
-			R: {ruby: "Ruby"},
-			S: {sql: "SQL"},
-			V: {vbnet: "VB.NET", vhdl: "VHDL"}
-		}
-		var items = []
-		for (var letter in allLanguages) {
-			var subItems = []
-			for (var language in allLanguages[letter]) {
+		var items = [];
+		for (var letter in this.allLanguages) {
+			var subItems = [];
+			for (var language in this.allLanguages[letter]) {
 				((language) => {
-					subItems.push(new PluginContextMenu.TextItem(allLanguages[letter][language], {callback: () => {this.wrapSelection(textarea[0], "```", language)}}))
-				})(language)
+					subItems.push(new PluginContextMenu.TextItem(this.allLanguages[letter][language], {callback: () => {this.wrapSelection(textarea[0], "```", language);}}));
+				})(language);
 			}
-			items.push(new PluginContextMenu.SubMenuItem(letter, new PluginContextMenu.Menu(true).addItems(...subItems)))
+			items.push(new PluginContextMenu.SubMenuItem(letter, new PluginContextMenu.Menu(true).addItems(...subItems)));
 		}
 		return new PluginContextMenu.Menu().addItems(...items);
 	}
 	
 	buildToolbar(textarea) {
-		var toolbar = $(this.toolbarString)
+		var toolbar = $(this.toolbarString);
 		if (typeof this.settings.toolbar.bold === "boolean") {
-			this.settings.toolbar = this.defaultSettings.toolbar
+			this.settings.toolbar = this.defaultSettings.toolbar;
 			this.saveSettings();
 		}
-		var sorted = Object.keys(this.settings.toolbar).sort((a,b) => {return this.settings.toolbar[a].order-this.settings.toolbar[b].order})
-		for (var i = 0; i<sorted.length; i++) {
-			var button = $("<div>")
-			button.addClass("format")
-			button.addClass(this.toolbarData[sorted[i]].type)
+		var sorted = Object.keys(this.settings.toolbar).sort((a,b) => {return this.settings.toolbar[a].order - this.settings.toolbar[b].order;});
+		for (var i = 0; i < sorted.length; i++) {
+			var button = $("<div>");
+			button.addClass("format");
+			button.addClass(this.toolbarData[sorted[i]].type);
 			if (!this.settings.toolbar[sorted[i]].enabled) button.addClass("disabled");
 			if (sorted[i] === "codeblock") {
-				let contextMenu = this.getContextMenu(textarea)
+				let contextMenu = this.getContextMenu(textarea);
 				button.on("contextmenu", (e) => {
-					contextMenu.show(e.clientX, e.clientY)
-				})
+					contextMenu.show(e.clientX, e.clientY);
+				});
 			}
-			button.attr("data-name", sorted[i])
-			button.html(this.toolbarData[sorted[i]].displayName)
-			toolbar.append(button)
+			button.attr("data-name", sorted[i]);
+			button.html(this.toolbarData[sorted[i]].displayName);
+			toolbar.append(button);
 		}
 		window.Sortable.create(toolbar[0], {
 			draggable: ".format", // css-selector of elements, which can be sorted
 			ghostClass: "ghost",
-			onUpdate: (evt) => {
-				var buttons = toolbar.children(".format")
-				var order = {}
-				for (var i=0; i<buttons.length; i++) {
-					this.settings.toolbar[$(buttons[i]).data("name")].order = i
+			onUpdate: () => {
+				var buttons = toolbar.children(".format");
+				for (var i = 0; i < buttons.length; i++) {
+					this.settings.toolbar[$(buttons[i]).data("name")].order = i;
 				}
-				this.saveSettings()
+				this.saveSettings();
 			}
 		});
-		return toolbar
+		return toolbar;
 	}
 	
 	setupToolbar() {
@@ -525,14 +523,14 @@ class BFRedux {
 	}
 	
 	addToolbar(textarea) {
-		var toolbarElement = this.buildToolbar(textarea)
+		var toolbarElement = this.buildToolbar(textarea);
 		if (this.settings.plugin.hoverOpen == true) toolbarElement.addClass("bf-hover");
 		if (this.isOpen) toolbarElement.addClass("bf-visible");
 		
-		textarea.on("keypress."+this.getShortName(), (e) => {this.format(e)})
+		textarea.on("keypress." + this.getShortName(), (e) => {this.format(e);})
 			.parent().after(toolbarElement)
 			.siblings(".bf-toolbar")
-			.on("click."+this.getShortName(), "div", e => {
+			.on("click." + this.getShortName(), "div", e => {
 				var button = $(e.currentTarget);
 				if (button.hasClass("bf-arrow")) {
 					if (!this.settings.plugin.hoverOpen) this.openClose();
@@ -543,100 +541,97 @@ class BFRedux {
 					else wrapper = this.settings.wrappers[button.data("name")];
 					this.wrapSelection(textarea[0], wrapper);	
 				}
-			})
-		this.updateStyle()
+			});
+		this.updateStyle();
 	}
 	
 	generateSettings(panel) {
 		
-		new PluginSettings.ControlGroup("Toolbar Buttons", () => {this.saveSettings(); this.setupToolbar()}).appendTo(panel).append(
-			new PluginSettings.Checkbox("Bold", "", this.settings.toolbar.bold.enabled, (checked) => {this.settings.toolbar.bold.enabled = checked}),
-			new PluginSettings.Checkbox("Italic", "", this.settings.toolbar.italic.enabled, (checked) => {this.settings.toolbar.italic.enabled = checked}),
-			new PluginSettings.Checkbox("Underline", "", this.settings.toolbar.underline.enabled, (checked) => {this.settings.toolbar.underline.enabled = checked}),
-			new PluginSettings.Checkbox("Strikethrough", "", this.settings.toolbar.strikethrough.enabled, (checked) => {this.settings.toolbar.strikethrough.enabled = checked}),
-			new PluginSettings.Checkbox("Code", "", this.settings.toolbar.code.enabled, (checked) => {this.settings.toolbar.code.enabled = checked}),
-			new PluginSettings.Checkbox("CodeBlock", "", this.settings.toolbar.codeblock.enabled, (checked) => {this.settings.toolbar.codeblock.enabled = checked}),
-			new PluginSettings.Checkbox("Smallcaps", "", this.settings.toolbar.smallcaps.enabled, (checked) => {this.settings.toolbar.smallcaps.enabled = checked}),
-			new PluginSettings.Checkbox("Full Width", "", this.settings.toolbar.fullwidth.enabled, (checked) => {this.settings.toolbar.fullwidth.enabled = checked}),
-			new PluginSettings.Checkbox("Upsidedown", "", this.settings.toolbar.upsidedown.enabled, (checked) => {this.settings.toolbar.upsidedown.enabled = checked}),
-			new PluginSettings.Checkbox("Varied Caps", "", this.settings.toolbar.varied.enabled, (checked) => {this.settings.toolbar.varied.enabled = checked}),
-			new PluginSettings.Checkbox("Leet (1337)", "", this.settings.toolbar.leet.enabled, (checked) => {this.settings.toolbar.leet.enabled = checked})
-		)
+		new PluginSettings.ControlGroup("Toolbar Buttons", () => {this.saveSettings(); this.setupToolbar();}).appendTo(panel).append(
+			new PluginSettings.Checkbox("Bold", "", this.settings.toolbar.bold.enabled, (checked) => {this.settings.toolbar.bold.enabled = checked;}),
+			new PluginSettings.Checkbox("Italic", "", this.settings.toolbar.italic.enabled, (checked) => {this.settings.toolbar.italic.enabled = checked;}),
+			new PluginSettings.Checkbox("Underline", "", this.settings.toolbar.underline.enabled, (checked) => {this.settings.toolbar.underline.enabled = checked;}),
+			new PluginSettings.Checkbox("Strikethrough", "", this.settings.toolbar.strikethrough.enabled, (checked) => {this.settings.toolbar.strikethrough.enabled = checked;}),
+			new PluginSettings.Checkbox("Code", "", this.settings.toolbar.code.enabled, (checked) => {this.settings.toolbar.code.enabled = checked;}),
+			new PluginSettings.Checkbox("CodeBlock", "", this.settings.toolbar.codeblock.enabled, (checked) => {this.settings.toolbar.codeblock.enabled = checked;}),
+			new PluginSettings.Checkbox("Smallcaps", "", this.settings.toolbar.smallcaps.enabled, (checked) => {this.settings.toolbar.smallcaps.enabled = checked;}),
+			new PluginSettings.Checkbox("Full Width", "", this.settings.toolbar.fullwidth.enabled, (checked) => {this.settings.toolbar.fullwidth.enabled = checked;}),
+			new PluginSettings.Checkbox("Upsidedown", "", this.settings.toolbar.upsidedown.enabled, (checked) => {this.settings.toolbar.upsidedown.enabled = checked;}),
+			new PluginSettings.Checkbox("Varied Caps", "", this.settings.toolbar.varied.enabled, (checked) => {this.settings.toolbar.varied.enabled = checked;}),
+			new PluginSettings.Checkbox("Leet (1337)", "", this.settings.toolbar.leet.enabled, (checked) => {this.settings.toolbar.leet.enabled = checked;})
+		);
 		
-		new PluginSettings.ControlGroup("Active Formats", () => {this.saveSettings()}).appendTo(panel).append(
-			new PluginSettings.Checkbox("Superscript", "", this.settings.formats.superscript, (checked) => {this.settings.formats.superscript = checked}),
-			new PluginSettings.Checkbox("Smallcaps", "", this.settings.formats.smallcaps, (checked) => {this.settings.formats.smallcaps = checked}),
-			new PluginSettings.Checkbox("Full Width", "", this.settings.formats.fullwidth, (checked) => {this.settings.formats.fullwidth = checked}),
-			new PluginSettings.Checkbox("Upsidedown", "", this.settings.formats.upsidedown, (checked) => {this.settings.formats.upsidedown = checked}),
-			new PluginSettings.Checkbox("Varied Caps", "", this.settings.formats.varied, (checked) => {this.settings.formats.varied = checked}),
-			new PluginSettings.Checkbox("Leet (1337)", "", this.settings.formats.leet, (checked) => {this.settings.formats.leet = checked})
-		)
+		new PluginSettings.ControlGroup("Active Formats", () => {this.saveSettings();}).appendTo(panel).append(
+			new PluginSettings.Checkbox("Superscript", "", this.settings.formats.superscript, (checked) => {this.settings.formats.superscript = checked;}),
+			new PluginSettings.Checkbox("Smallcaps", "", this.settings.formats.smallcaps, (checked) => {this.settings.formats.smallcaps = checked;}),
+			new PluginSettings.Checkbox("Full Width", "", this.settings.formats.fullwidth, (checked) => {this.settings.formats.fullwidth = checked;}),
+			new PluginSettings.Checkbox("Upsidedown", "", this.settings.formats.upsidedown, (checked) => {this.settings.formats.upsidedown = checked;}),
+			new PluginSettings.Checkbox("Varied Caps", "", this.settings.formats.varied, (checked) => {this.settings.formats.varied = checked;}),
+			new PluginSettings.Checkbox("Leet (1337)", "", this.settings.formats.leet, (checked) => {this.settings.formats.leet = checked;})
+		);
 		
-		new PluginSettings.ControlGroup("Wrapper Options", () => {this.saveSettings()}).appendTo(panel).append(
+		new PluginSettings.ControlGroup("Wrapper Options", () => {this.saveSettings();}).appendTo(panel).append(
 			new PluginSettings.Textbox("Superscript", "The wrapper for superscripted text.", this.settings.wrappers.superscript, this.defaultSettings.wrappers.superscript,
-							(text) => {this.settings.wrappers.superscript = text != "" ? text : this.defaultSettings.wrappers.superscript}),
+							(text) => {this.settings.wrappers.superscript = text != "" ? text : this.defaultSettings.wrappers.superscript;}),
 			new PluginSettings.Textbox("Smallcaps", "The wrapper to make Smallcaps.", this.settings.wrappers.smallcaps, this.defaultSettings.wrappers.smallcaps,
-							(text) => {this.settings.wrappers.smallcaps = text != "" ? text : this.defaultSettings.wrappers.smallcaps}),
+							(text) => {this.settings.wrappers.smallcaps = text != "" ? text : this.defaultSettings.wrappers.smallcaps;}),
 			new PluginSettings.Textbox("Full Width", "The wrapper for E X P A N D E D  T E X T.", this.settings.wrappers.fullwidth, this.defaultSettings.wrappers.fullwidth,
-							(text) => {this.settings.wrappers.fullwidth = text != "" ? text : this.defaultSettings.wrappers.fullwidth}),
+							(text) => {this.settings.wrappers.fullwidth = text != "" ? text : this.defaultSettings.wrappers.fullwidth;}),
 			new PluginSettings.Textbox("Upsidedown", "The wrapper to flip the text upsidedown.", this.settings.wrappers.upsidedown, this.defaultSettings.wrappers.upsidedown,
-							(text) => {this.settings.wrappers.upsidedown = text != "" ? text : this.defaultSettings.wrappers.upsidedown}),
+							(text) => {this.settings.wrappers.upsidedown = text != "" ? text : this.defaultSettings.wrappers.upsidedown;}),
 			new PluginSettings.Textbox("Varied Caps", "The wrapper to VaRy the capitalization.", this.settings.wrappers.varied, this.defaultSettings.wrappers.varied,
-							(text) => {this.settings.wrappers.varied = text != "" ? text : this.defaultSettings.wrappers.varied}),
+							(text) => {this.settings.wrappers.varied = text != "" ? text : this.defaultSettings.wrappers.varied;}),
 			new PluginSettings.Textbox("LeetSpeak", "The wrapper to talk in 13375p34k.", this.settings.wrappers.leet, this.defaultSettings.wrappers.leet,
-							(text) => {this.settings.wrappers.leet = text != "" ? text : this.defaultSettings.wrappers.leet})
-		)
+							(text) => {this.settings.wrappers.leet = text != "" ? text : this.defaultSettings.wrappers.leet;})
+		);
 		
-		new PluginSettings.ControlGroup("Formatting Options", () => {this.saveSettings()}).appendTo(panel).append(
+		new PluginSettings.ControlGroup("Formatting Options", () => {this.saveSettings();}).appendTo(panel).append(
 			new PluginSettings.PillButton("Fullwidth Style", "Which style of fullwidth formatting should be used.", "T H I S", "ｔｈｉｓ",
-								this.settings.formatting.fullWidthMap, (checked) => {this.settings.formatting.fullWidthMap = checked}), 
+								this.settings.formatting.fullWidthMap, (checked) => {this.settings.formatting.fullWidthMap = checked;}), 
 			new PluginSettings.Checkbox("Reorder Upsidedown Text", "Having this enabled reorders the upside down text to make it in-order.",
-								this.settings.formatting.reorderUpsidedown, (checked) => {this.settings.formatting.reorderUpsidedown = checked}),
+								this.settings.formatting.reorderUpsidedown, (checked) => {this.settings.formatting.reorderUpsidedown = checked;}),
 			new PluginSettings.Checkbox("Start VaRiEd Caps With Capital", "Enabling this starts a varied text string with a capital.",
-								this.settings.formatting.startCaps, (checked) => {this.settings.formatting.startCaps = checked})
-		)
+								this.settings.formatting.startCaps, (checked) => {this.settings.formatting.startCaps = checked;})
+		);
 		
-		new PluginSettings.ControlGroup("Plugin Options", () => {this.saveSettings()}).appendTo(panel).append(
+		new PluginSettings.ControlGroup("Plugin Options", () => {this.saveSettings();}).appendTo(panel).append(
 			new PluginSettings.Checkbox("Open On Hover", "Enabling this makes you able to open the menu just by hovering the arrow instead of clicking it.", this.settings.plugin.hoverOpen,
 				(checked) => {
-					 this.settings.plugin.hoverOpen = checked;
-					 if (checked) {
-						$(".bf-toolbar").removeClass('bf-visible')
-						$(".bf-toolbar").addClass('bf-hover')
-					 }
-					 else {
-						 $(".bf-toolbar").removeClass('bf-hover')
-					 }
+					this.settings.plugin.hoverOpen = checked;
+					if (checked) {
+						$(".bf-toolbar").removeClass('bf-visible');
+						$(".bf-toolbar").addClass('bf-hover');
+					}
+					else {
+						$(".bf-toolbar").removeClass('bf-hover');
+					}
 				}
 			),
 			new PluginSettings.Checkbox("Close On Send", "This option will close the toolbar when the message is sent when \"Open On Hover\" is disabled.",
 								this.settings.plugin.closeOnSend, (checked) => {this.settings.plugin.closeOnSend = checked;}),
 			new PluginSettings.PillButton("Format Chaining", "Swaps priority of wrappers between inner first and outer first. Check the GitHub for more info.", "Inner", "Outer",
 								this.settings.plugin.chainFormats, (checked) => {this.settings.plugin.chainFormats = checked;})
-		)
+		);
 		
-		new PluginSettings.ControlGroup("Style Options", () => {this.saveSettings()}).appendTo(panel).append(
+		new PluginSettings.ControlGroup("Style Options", () => {this.saveSettings();}).appendTo(panel).append(
 			new PluginSettings.PillButton("Toolbar Location", "This option enables swapping toolbar from right side to left side.", "Left", "Right",
 							this.settings.style.rightSide, (checked) => {this.settings.style.rightSide = checked; this.updateSide();}),
 			new PluginSettings.Slider("Opacity", "This allows the toolbar to be partially seethrough.", 0, 1, 0.01, this.settings.style.opacity, (val) => {this.settings.style.opacity = val; this.updateOpacity();}),
-			new PluginSettings.Slider("Font Size", "Adjust the font size between 0 and 100%.", 0, 100, 1, this.settings.style.fontSize, (val) => {this.settings.style.fontSize = val+"%"; this.updateFontSize();}).setLabelUnit("%")
-		)
+			new PluginSettings.Slider("Font Size", "Adjust the font size between 0 and 100%.", 0, 100, 1, this.settings.style.fontSize, (val) => {this.settings.style.fontSize = val + "%"; this.updateFontSize();}).setLabelUnit("%")
+		);
 			
 		var resetButton = $("<button>");
 		resetButton.on("click", () => {
-			this.settings = bfr.defaultSettings;
+			this.settings = this.defaultSettings;
 			this.saveSettings();
 			this.setupToolbar();
-			panel.empty()
-			this.generateSettings(panel)
+			panel.empty();
+			this.generateSettings(panel);
 		});
 		resetButton.text("Reset To Defaults");
 		resetButton.css("float", "right");
-		resetButton.attr("type","button")
+		resetButton.attr("type","button");
 
 		panel.append(resetButton);
 	}
 }
-
-return BFRedux;
-})();
