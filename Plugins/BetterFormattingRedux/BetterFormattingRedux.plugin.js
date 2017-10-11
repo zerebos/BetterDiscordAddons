@@ -335,36 +335,30 @@ class BetterFormattingRedux {
 	unload() {}
 	
 	start() {
+		var libraryScript = document.getElementById('zeresLibraryScript');
+		if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
+		libraryScript = document.createElement("script");
+		libraryScript.setAttribute("type", "text/javascript");
+		libraryScript.setAttribute("src", "//rawgit.com/rauenzi/BetterDiscordAddons/master/Plugins/PluginLibrary.js?" + performance.now());
+		libraryScript.setAttribute("id", "zeresLibraryScript");
+		document.head.appendChild(libraryScript);
 
-		if (typeof window.ZeresLibrary === "undefined" || !$("#zeresLibraryScript").length) {
-			var libraryScript = document.createElement("script");
-			libraryScript.setAttribute("type", "text/javascript");
-			libraryScript.setAttribute("src", "//rawgit.com/rauenzi/BetterDiscordAddons/master/Plugins/PluginLibrary.js?" + performance.now());
-			libraryScript.setAttribute("id", "zeresLibraryScript");
-			document.head.appendChild(libraryScript);
-		}
-
-		if (typeof window.ZeresLibrary !== "undefined") {
-			this.initialize();
-		}
-		else {
-			document.getElementById('zeresLibraryScript').addEventListener("load", () => {this.initialize();});
-		}
+		if (typeof window.ZeresLibrary !== "undefined") this.initialize();
+		else libraryScript.addEventListener("load", () => { this.initialize(); });
 	}
 
 	initialize() {
-
-		this.sortableScript = document.createElement("script");
-		this.sortableScript.setAttribute("type", "text/javascript");
-		this.sortableScript.setAttribute("src", "//cdn.rawgit.com/rauenzi/BetterDiscordAddons/master/Plugins/Sortable.js");
-		this.sortableScript.setAttribute("id", "sortableScript");
-		document.head.appendChild(this.sortableScript);
+		var sortableScript = document.createElement("script");
+		sortableScript.setAttribute("type", "text/javascript");
+		sortableScript.setAttribute("src", "//cdn.rawgit.com/rauenzi/BetterDiscordAddons/master/Plugins/Sortable.js");
+		sortableScript.setAttribute("id", "sortableScript");
+		document.head.appendChild(sortableScript);
 
 		if (typeof window.Sortable !== "undefined") {
 			this.secondaryInitialize();
 		}
 		else {
-			this.sortableScript.addEventListener("load", () => {this.secondaryInitialize();});
+			sortableScript.addEventListener("load", () => {this.secondaryInitialize();});
 		}
 	}
 
@@ -381,7 +375,8 @@ class BetterFormattingRedux {
 		this.initialized = false;
 		$("*").off("." + this.getShortName());
 		$(".bf-toolbar").remove();
-		this.sortableScript.remove();
+		var sortableScript = document.getElementById('sortableScript');
+		sortableScript.parentElement.removeChild("sortableScript");
 		BdApi.clearCSS(this.getShortName() + "-style");
 	}
 	

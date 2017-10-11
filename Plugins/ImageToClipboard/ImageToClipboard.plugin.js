@@ -25,20 +25,16 @@ class ImageToClipboard {
 	unload() {}
 	
 	start() {
-		if (typeof window.ZeresLibrary === "undefined" || !$("#zeresLibraryScript").length) {
-			var libraryScript = document.createElement("script");
-			libraryScript.setAttribute("type", "text/javascript");
-			libraryScript.setAttribute("src", "//rawgit.com/rauenzi/BetterDiscordAddons/master/Plugins/PluginLibrary.js?" + performance.now());
-			libraryScript.setAttribute("id", "zeresLibraryScript");
-			document.head.appendChild(libraryScript);
-		}
+		var libraryScript = document.getElementById('zeresLibraryScript');
+		if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
+		libraryScript = document.createElement("script");
+		libraryScript.setAttribute("type", "text/javascript");
+		libraryScript.setAttribute("src", "//rawgit.com/rauenzi/BetterDiscordAddons/master/Plugins/PluginLibrary.js?" + performance.now());
+		libraryScript.setAttribute("id", "zeresLibraryScript");
+		document.head.appendChild(libraryScript);
 
-		if (typeof window.ZeresLibrary !== "undefined") {
-			this.initialize();
-		}
-		else {
-			document.getElementById('zeresLibraryScript').addEventListener("load", () => {this.initialize();});
-		}
+		if (typeof window.ZeresLibrary !== "undefined") this.initialize();
+		else libraryScript.addEventListener("load", () => { this.initialize(); });
 	}
 
 	stop() {

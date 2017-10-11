@@ -10,6 +10,7 @@ class BlurNSFW {
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
+		this.initialized = false;
 		this.style = `:root {--blur-nsfw: 10px; --blur-nsfw-time: 200ms;}
 		.attachment-image img.blur:hover, .embed-thumbnail img.blur:hover, .attachment-image canvas.blur:hover, .embed-thumbnail canvas.blur:hover, .attachment-image video.blur:hover, .embed-thumbnail video.blur:hover {
 			transition: var(--blur-nsfw-time) cubic-bezier(.2, .11, 0, 1) !important;
@@ -26,23 +27,20 @@ class BlurNSFW {
 	unload() {}
 	
 	start() {
-		if (typeof window.ZeresLibrary === "undefined" || !$("#zeresLibraryScript").length) {
-			var libraryScript = document.createElement("script");
-			libraryScript.setAttribute("type", "text/javascript");
-			libraryScript.setAttribute("src", "//rawgit.com/rauenzi/BetterDiscordAddons/master/Plugins/PluginLibrary.js?" + performance.now());
-			libraryScript.setAttribute("id", "zeresLibraryScript");
-			document.head.appendChild(libraryScript);
-		}
+		var libraryScript = document.getElementById('zeresLibraryScript');
+		if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
+		libraryScript = document.createElement("script");
+		libraryScript.setAttribute("type", "text/javascript");
+		libraryScript.setAttribute("src", "//rawgit.com/rauenzi/BetterDiscordAddons/master/Plugins/PluginLibrary.js?" + performance.now());
+		libraryScript.setAttribute("id", "zeresLibraryScript");
+		document.head.appendChild(libraryScript);
 
-		if (typeof window.ZeresLibrary !== "undefined") {
-			this.initialize();
-		}
-		else {
-			document.getElementById('zeresLibraryScript').addEventListener("load", () => {this.initialize();});
-		}
+		if (typeof window.ZeresLibrary !== "undefined") this.initialize();
+		else libraryScript.addEventListener("load", () => { this.initialize(); });
 	}
 
 	initialize() {
+		this.initialized = true;
 		PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
 		BdApi.injectCSS(this.getShortName(), this.style);
 		this.blurStuff();
@@ -87,7 +85,7 @@ class BlurNSFW {
 
 	observer(e){
 
-		if (!e.addedNodes.length) return;
+		if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element) || !this.initialized) return;
 		var elem = $(e.addedNodes[0]);
 
 		if (elem.parents(".messages.scroller").length || elem.find(".message-group").parents(".messages.scroller").length) {
