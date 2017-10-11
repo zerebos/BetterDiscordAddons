@@ -58,12 +58,12 @@ DOMUtilities.indexInParent = function(node) {
 }
 
 ReactUtilities.getReactInstance = function(node) {
+	if (!(node instanceof jQuery) && !(node instanceof Element)) return undefined;
     var domNode = node instanceof jQuery ? node[0] : node;
     return domNode[Object.keys(domNode).find((key) => key.startsWith("__reactInternalInstance"))];
 }
 
 ReactUtilities.getReactProperty = function(node, path) {
-    //path = path.replace(/\["?([^"]*)"?\]/g, "$1")
     var value = path.split(/\s?\.\s?/).reduce(function(obj, prop) {
         return obj && obj[prop];
     }, ReactUtilities.getReactInstance(node));
