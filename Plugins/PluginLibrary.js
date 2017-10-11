@@ -4,6 +4,7 @@ var ReactUtilities = {}
 var PluginUtilities = {}
 var PluginSettings = {}
 var PluginContextMenu = {}
+var PluginTooltip = {}
 
 ColorUtilities.getRGB = function(color) {
     var result;
@@ -583,13 +584,46 @@ PluginSettings.PillButton = class PillButton extends PluginSettings.Checkbox {
 	}
 }
 
+PluginToolip.Tooltip = class Tooltip {
+	constructor(node, tip) {
+		this.node = node;
+		this.tip = tip;
+		//add to .tooltips
+		this.tooltip = $('<div class="tooltip tooltip-black">');
+		this.tooltip.text(tip);
+
+		node.on('mouseenter.tooltip', () => {
+			this.show();
+		});
+
+		node.on('mouseleave.tooltip', () => {
+			this.tooltip.detach();
+		});
+	}
+
+	show() {
+		this.tooltip.appendTo('.tooltips');
+		if (this.node.offset().top - this.tooltip.outerHeight() <= 0) {
+			this.tooltip.addClass("tooltip-bottom");
+			this.tooltip.css("top", this.node.offset().top + this.node.outerHeight());
+		}
+		else {
+			this.tooltip.addClass("tooltip-top");
+			this.tooltip.css("top", this.node.offset().top - this.tooltip.outerHeight());
+		}
+		var nodecenter = this.node.offset().left + (this.node.outerWidth() / 2);
+		this.tooltip.css("left", nodecenter - (this.tooltip.outerWidth() / 2));
+	}
+}
+
 window["ZeresLibrary"] = {
     ColorUtilities: ColorUtilities,
     DOMUtilities: DOMUtilities,
     ReactUtilities: ReactUtilities,
     PluginUtilities: PluginUtilities,
     PluginSettings: PluginSettings,
-    ContextMenu: PluginContextMenu
+	ContextMenu: PluginContextMenu,
+	Tooltip: PluginTooltip
 }
 
 BdApi.injectCSS("PluginLibrary", PluginSettings.getCSS());
