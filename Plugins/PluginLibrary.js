@@ -626,5 +626,6 @@ window["ZeresLibrary"] = {
 	Tooltip: PluginTooltip
 }
 
+BdApi.clearCSS("PluginLibrary");
 BdApi.injectCSS("PluginLibrary", PluginSettings.getCSS());
 jQuery.extend(jQuery.easing, { easeInSine: function (x, t, b, c, d) { return -c * Math.cos(t/d * (Math.PI/2)) + c + b; }});
