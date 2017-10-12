@@ -6,7 +6,7 @@ class BetterRoleColors {
 	getName() { return "BetterRoleColors"; }
 	getShortName() { return "BRC"; }
 	getDescription() { return "Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.5.5"; }
+	getVersion() { return "0.5.6"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -49,7 +49,7 @@ class BetterRoleColors {
 		if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
 		libraryScript = document.createElement("script");
 		libraryScript.setAttribute("type", "text/javascript");
-		libraryScript.setAttribute("src", "//rawgit.com/rauenzi/BetterDiscordAddons/master/Plugins/PluginLibrary.js?" + performance.now());
+		libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
 		libraryScript.setAttribute("id", "zeresLibraryScript");
 		document.head.appendChild(libraryScript);
 
@@ -79,8 +79,11 @@ class BetterRoleColors {
 	onSwitch() {
 		if (this.currentServer == PluginUtilities.getCurrentServer()) return;
 		this.currentServer = PluginUtilities.getCurrentServer();
-		this.getAllUserColors();
 		this.colorize();
+		setTimeout(() => {
+			this.getAllUserColors();
+			this.colorize();
+		}, 500);
 	}
 	
 	observer(e) {
@@ -88,7 +91,8 @@ class BetterRoleColors {
 		if (e.removedNodes.length && e.removedNodes[0] instanceof Element) {
 			var removed = e.removedNodes[0];
 			if (removed.classList.contains("spinner") || removed.tagName == "STRONG") {
-				this.colorizeTyping();
+				setTimeout(() => { this.colorizeTyping(); }, 25);
+				// setImmediate(() => {setImmediate(() => { this.colorizeTyping(); });});
 			}
 
 			if (removed.querySelector("#friends") || removed.id == "friends") this.onSwitch();
@@ -106,7 +110,8 @@ class BetterRoleColors {
 		}
 
 		if (elem.querySelector("strong") || elem.querySelector(".spinner") || elem.classList.contains("typing") || elem.tagName == "STRONG") {
-			this.colorizeTyping();
+			setTimeout(() => { this.colorizeTyping(); }, 25);
+			// setImmediate(() => {setImmediate(() => { this.colorizeTyping(); });});
 		}
 
 		if (elem.querySelector(".guild-settings-audit-logs") || elem.classList.contains("guild-settings-audit-logs") || elem.querySelector(".userHook-DFT5u7") || elem.classList.contains("userHook-DFT5u7")) {
@@ -128,6 +133,7 @@ class BetterRoleColors {
 
 		if (elem.classList.contains("message") && !elem.classList.contains("message-sending")) {
 			this.colorizeMentions(elem);
+			
 		}
 
 		if (elem.classList.contains("messages-wrapper")) {
@@ -148,6 +154,7 @@ class BetterRoleColors {
 
 		for (let u = 0; u < users.length; u++) {
 			let user = users[u];
+			//if (!user.colorString) console.log("No color");
 			this.addColorData(this.currentServer, user.user.id, user.colorString ? user.colorString : "");
 		}
 		this.saveData();
@@ -204,7 +211,7 @@ class BetterRoleColors {
 		var typingUsers = ReactUtilities.getReactProperty(document.querySelector('.typing'), "return.memoizedState.typingUsers");
 		if (typeof typingUsers === "undefined" || Object.getOwnPropertyNames(typingUsers).length === 0) return;
 		if (typingUsers[this.currentUser]) delete typingUsers[this.currentUser];
-		var sorted = Object.keys(typingUsers).sort(function(a,b){return typingUsers[a] - typingUsers[b];});
+		var sorted = Object.keys(typingUsers);
 		document.querySelectorAll(".typing strong").forEach((elem, index) => {
 			var ID = sorted[index];
 			elem.style.setProperty("color", this.getUserColor(ID));
@@ -226,16 +233,18 @@ class BetterRoleColors {
 			let messages = ReactUtilities.getReactProperty(elem.parentElement.parentElement, "return.memoizedProps.messages");
 			if (!messages || !messages.length) return true;
 			var messageNum = DOMUtilities.indexInParent(elem);
-			var mentions = messages[messageNum];
-			if (!mentions || !mentions.mentions) return true;
+			if (!messages[messageNum] || !messages[messageNum].content) return true;
+			var mentions = messages[messageNum].content.match(/<@&?!?[0-9]+>/g);
+			if (!mentions || !mentions.length) return true;
 			var mentionNum = 0;
-			mentions = mentions.mentions;
+			mentions.forEach((mention, number, self) => {
+				self[number] = mention.replace(/<|@|&|!|>/g, "");
+			});
 			elem.querySelectorAll('.message-text > .markup > .mention').forEach((elem) => {
 				let isUserMention = ReactUtilities.getReactProperty(elem, "memoizedProps.onContextMenu.name") == "bound handleUserContextMenu";
-				if (!isUserMention) return true;
 				var user = mentions[mentionNum];
-				if (!user) return true;
-				user = user.replace(/<|@|!|>/g, "");
+				mentionNum += 1;
+				if (!user || !isUserMention) return true;
 				var textColor = this.getUserColor(user);
 				if (textColor) {
 					elem.style.setProperty("color", textColor);
@@ -250,7 +259,6 @@ class BetterRoleColors {
 						e.target.style.setProperty("background", ColorUtilities.rgbToAlpha(textColor,0.1));
 					});
 				}
-				mentionNum += 1;
 			});
 		});
 	}
