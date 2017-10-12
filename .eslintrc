@@ -1,0 +1,16 @@
+{
+	"extends": "eslint:recommended",
+	"env": {
+        "browser": true,
+        "node": true,
+		"jquery": true,
+    },
+    "parserOptions": {
+        "ecmaVersion": 6
+    },
+    "rules": {
+        "semi": 2,
+		"space-infix-ops": ["error", {"int32Hint": false}],
+		no-console: ["error", { allow: ["warn", "error"] }]
+    }
+}
