@@ -227,7 +227,8 @@ PluginUtilities.showUpdateNotice = function(pluginName) {
 PluginUtilities.removeUpdateNotice = function(pluginName) {
     let notice = $('#'+pluginName+'-notice');
 	if (notice.length) {
-        if (notice.next('.separator').length) notice.next().remove();
+		if (notice.next('.separator').length) notice.next().remove();
+		else if (notice.prev('.separator').length) notice.prev().remove();
         notice.remove();
     }
 	if (!$('#outdatedPlugins').children('span').length) $('#pluginNoticeDismiss').click();
