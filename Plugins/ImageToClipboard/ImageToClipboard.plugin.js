@@ -29,7 +29,7 @@ class ImageToClipboard {
 		if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
 		libraryScript = document.createElement("script");
 		libraryScript.setAttribute("type", "text/javascript");
-		libraryScript.setAttribute("src", "//rawgit.com/rauenzi/BetterDiscordAddons/master/Plugins/PluginLibrary.js?" + performance.now());
+		libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
 		libraryScript.setAttribute("id", "zeresLibraryScript");
 		document.head.appendChild(libraryScript);
 
