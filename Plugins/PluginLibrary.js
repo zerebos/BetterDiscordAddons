@@ -197,9 +197,8 @@ PluginUtilities.checkForUpdate = function(pluginName, currentVersion) {
         else if (ver[0]==lver[0] && ver[1] > lver[1]) hasUpdate = true;
         else if (ver[0]==lver[0] && ver[1]==lver[1] && ver[2] > lver[2]) hasUpdate = true;
         else hasUpdate = false;
-        if (hasUpdate) {
-            PluginUtilities.showUpdateNotice(pluginName)
-        }
+		if (hasUpdate) PluginUtilities.showUpdateNotice(pluginName);
+		else PluginUtilities.removeUpdateNotice(pluginName);
     });
 }
 
@@ -223,6 +222,12 @@ PluginUtilities.showUpdateNotice = function(pluginName) {
         if ($('#outdatedPlugins').children('span').length) pluginNoticeElement.html(', ' + pluginNoticeElement.html());
         $('#outdatedPlugins').append(pluginNoticeElement)
     }
+}
+
+PluginUtilities.removeUpdateNotice = function(pluginName) {
+	let pluginNoticeID = pluginName+'-notice';
+	if ($('#'+pluginNoticeID).length) $('#'+pluginNoticeID).remove();
+	if (!$('#outdatedPlugins').children('span').length) $('#pluginNoticeDismiss').click();
 }
 
 /*
