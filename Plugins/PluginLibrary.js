@@ -361,7 +361,7 @@ PluginUtilities.showUpdateNotice = function(pluginName) {
     let pluginNoticeID = pluginName + '-notice';
     if (!$('#' + pluginNoticeID).length) {
 		let pluginNoticeElement = $('<span id="' + pluginNoticeID + '">');
-		pluginNoticeElement.html('<a href="' + updateLink + '" target="_blank">' + pluginName + '</a>');
+		pluginNoticeElement.html('<a href="' + updateLink + '" target="_blank" referrer="UpdateNotice">' + pluginName + '</a>');
         if ($('#outdatedPlugins').children('span').length) $('#outdatedPlugins').append("<span class='separator'>, </span>");
         $('#outdatedPlugins').append(pluginNoticeElement);
     }
