@@ -2,9 +2,9 @@
 
 Allows you to view a user's permissions. Thanks to Noodlebox for the idea! For support and update announcements you can visit [Zere's server](https://bit.ly/ZeresServer).
 
-![Demo](https://i.zackrauen.com/w9FfAS.gif)
+![Preview](https://i.zackrauen.com/BymIHO.png)
 
-Click here if the GIF doesn't load: http://i.zackrauen.com/w9FfAS.gif
+Click here for a GIF demo of all features: http://i.zackrauen.com/w9FfAS.gif
 
 ## Features
 
