@@ -1,6 +1,6 @@
-# Better Role Colors - [Download](https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js)
+# BetterRoleColors - [Download](https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js)
 
-Adds server-based role colors to typing, voice, popouts, modals and more! For support and update announcements you can visit [Zere's server](http://discord.zackrauen.com/).
+Adds server-based role colors to typing, voice, popouts, modals and more! For support and update announcements you can visit [Zere's server](https://bit.ly/ZeresServer).
 
 ## What's New
 

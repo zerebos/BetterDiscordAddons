@@ -1,6 +1,6 @@
-# Server Sorter - [Download](https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSorter/ServerSorter.plugin.js)
+# ServerSorter - [Download](https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSorter/ServerSorter.plugin.js)
 
-Adds the ability to do some basic sorting of your servers. For support and update announcements you can visit [Zere's server](http://discord.zackrauen.com/).
+Adds the ability to do some basic sorting of your servers. For support and update announcements you can visit [Zere's server](https://bit.ly/ZeresServer).
 
 **Note:** This is currently in beta and does not save the order of the servers on restart. It also will not update the order across devices.
 
