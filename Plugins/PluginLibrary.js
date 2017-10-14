@@ -5,6 +5,7 @@ var PluginUtilities = {};
 var PluginSettings = {};
 var PluginContextMenu = {};
 var PluginTooltip = {};
+var DiscordPermissions = {};
 
 /* global bdPluginStorage:false, BdApi:false, Symbol:false */
 
