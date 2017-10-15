@@ -1,12 +1,12 @@
 //META{"name":"PermissionsViewer","pname":"PermissionsViewer"}*//
 
-/* global DiscordPermissions:false, ReactUtilities:false, PluginUtilities:false, BdApi:false */
+/* global DiscordPermissions:false, ReactUtilities:false, PluginUtilities:false, PluginSettings:false, BdApi:false */
 
 class PermissionsViewer {
 	getName() { return "PermissionsViewer"; }
-	getShortName() { return "perms"; }
+	getShortName() { return "PermissionsViewer"; }
 	getDescription() { return "Allows you to view a user's permissions. Thanks to Noodlebox for the idea! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.1"; }
+	getVersion() { return "0.0.2"; }
     getAuthor() { return "Zerebos"; }
     
     constructor() {
@@ -281,12 +281,12 @@ class PermissionsViewer {
         }
         `;
 
-        this.listHTML = `<div class="flex-lFgbSz flex-3B1Tl4 horizontal-2BEEBe horizontal-2VE-Fw directionRow-yNbSvJ justifyStart-2yIZo0 alignCenter-3VxkQP noWrap-v6g9vO bodyTitle-yehI7c marginBottom8-1mABJ4" style="flex: 1 1 auto;">
-                            <svg name="Shield" width="24" height="24" viewBox="0 0 24 24" class="bodyTitleIconForeground-itKW-t" fill="currentColor">
+        this.listHTML = `<div class="member-perms-header flex-lFgbSz flex-3B1Tl4 horizontal-2BEEBe horizontal-2VE-Fw directionRow-yNbSvJ justifyStart-2yIZo0 alignCenter-3VxkQP noWrap-v6g9vO bodyTitle-yehI7c marginBottom8-1mABJ4" style="flex: 1 1 auto;">
+                            <svg name="Shield" width="24" height="24" viewBox="0 0 24 24" class="bodyTitleIconForeground-itKW-t member-perms-icon" fill="currentColor">
                                 <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
                                 <path d="M0 0h24v24H0z" fill="none"/>
                             </svg>
-                            <div class="bodyTitleText-hSiL7d">Permissions</div>
+                            <div class="bodyTitleText-hSiL7d member-perms-title">Permissions</div>
                             <span class="perm-details">
                                 <svg name="Details" viewBox="0 0 24 24" class="bodyTitleIconForeground-itKW-t perm-details-button" fill="currentColor">
                                     <path d="M0 0h24v24H0z" fill="none"/>
@@ -299,13 +299,6 @@ class PermissionsViewer {
         this.itemHTML = `<component class="member-perm">
                             <span class="name"></span>
                         </component>`;
-
-        this.detailsButton = `<li class="member-perm member-perm-details">
-                                <svg name="Details" viewBox="0 0 24 24" class="member-perm-details-button" fill="currentColor">
-                                    <path d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M22 3H7c-.69 0-1.23.35-1.59.88L0 12l5.41 8.11c.36.53.97.89 1.66.89H22c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 13.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm5 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm5 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
-                                </svg>
-                            </li>`;
         
         this.modalHTML = `<div id="permissions-modal-wrapper">
                             <div class="callout-backdrop"></div>
@@ -331,7 +324,7 @@ class PermissionsViewer {
                         </div>`;
         
         this.modalButton = `<div class="role-item">
-                                <div class="role-name"></div>
+                                <span class="role-name"></span>
                             </div>`;
 
         this.permAllowedIcon = `<svg height="24" viewBox="0 0 24 24" width="24">
@@ -349,10 +342,22 @@ class PermissionsViewer {
                         </div>`;
 
         this.contextItem = '<div class="item"><span>Permissions</span><div class="hint"></div></div>';
+
+        this.initialized = false;
+        this.defaultSettings = {plugin: {popouts: true, contextMenus: true}};
+        this.settings = this.defaultSettings;
     }
 	
 	load() {}
     unload() {}
+
+    loadSettings() {
+		this.settings = PluginUtilities.loadSettings(this.getShortName(), this.defaultSettings);
+	}
+
+	saveSettings() {
+		PluginUtilities.saveSettings(this.getShortName(), this.settings);
+	}
     
     start() {
 		var libraryScript = document.getElementById('zeresLibraryScript');
@@ -370,23 +375,39 @@ class PermissionsViewer {
 	initialize() {
         PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
         BdApi.injectCSS(this.getShortName(), this.css);
+        this.loadSettings();
         this.contextListener = (e) => {
             this.bindMenu(document.querySelector('.context-menu'), e.target);
         };
-        document.addEventListener('contextmenu', this.contextListener);
         this.popoutObserver = new MutationObserver((changes) => {
             for (let change in changes) this.observePopout(changes[change]);
         });
-        this.popoutObserver.observe(document.querySelector('.app'), {childList: true, subtree: true});
+        if (this.settings.plugin.popouts) this.bindPopouts();
+        if (this.settings.plugin.contextMenus) this.bindContextMenus();
+        this.initialized = true;
 	}
 
 	stop() {
         BdApi.clearCSS(this.getShortName());
-        document.removeEventListener("contextmenu", this.contextListener);
-        this.popoutObserver.disconnect();
+        this.unbindPopouts();
+        this.unbindContextMenus();
     }
 
-    observer() {}
+    bindContextMenus() {
+        document.addEventListener('contextmenu', this.contextListener);
+    }
+
+    unbindContextMenus() {
+        document.removeEventListener("contextmenu", this.contextListener);
+    }
+
+    bindPopouts() {
+        this.popoutObserver.observe(document.querySelector('.app'), {childList: true, subtree: true});
+    }
+
+    unbindPopouts() {
+        this.popoutObserver.disconnect();
+    }
 	
     observePopout(e) {
         if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element) || !e.addedNodes[0].classList) return;
@@ -394,15 +415,17 @@ class PermissionsViewer {
         let popout = elem.querySelector('.userPopout-4pfA0d');
         
         if (popout) {
-            let user = ReactUtilities.getReactProperty(popout, 'return.memoizedProps.guildMember');
-            let guild = ReactUtilities.getReactProperty(popout, 'return.memoizedProps.guild');
-            if (!user || !guild) return;
+            let {user, guild, name} = this.getInfoFromPopout(popout);
+            if (!user || !guild || !name) return;
+            let modal = this.createModal(name, user, guild);
+
             let userRoles = user.roles.slice(0);
             userRoles.push(guild.id);
             let perms = user.userId == guild.ownerId ? DiscordPermissions.FullPermissions : 0;
             userRoles.forEach((role) => {
                 perms = perms | guild.roles[role].permissions;
             });
+
             $('.member-roles').after(this.listHTML);
             let userPerms = new DiscordPermissions(perms);
             for (let perm of userPerms) {
@@ -418,17 +441,44 @@ class PermissionsViewer {
                 let shift = (jPopout.offset().top + jPopout.outerHeight() - maxHeight) + 20;
                 popout.style.setProperty("transform", "translateY(-" + shift + "px)");
             }
-            let name = user.nick ? user.nick : ReactUtilities.getReactProperty(popout, 'return.memoizedProps.user.username');
-            let modal = this.createModal(name, guild.roles, userRoles);
 
             $('.perm-details-button').on('click', () => {
-                jPopout.hide();
-                $('.app').next('.theme-dark').append(modal);
+                this.showModal(modal);
             });
         }
     }
 
-    createModal(name, guildRoles, userRoles) {
+    getInfoFromPopout(popout) {
+        let user = ReactUtilities.getReactProperty(popout, 'return.memoizedProps.guildMember');
+        let guild = ReactUtilities.getReactProperty(popout, 'return.memoizedProps.guild');
+        let name = user.nick ? user.nick : ReactUtilities.getReactProperty(popout, 'return.memoizedProps.user.username');
+        return {user: user, guild: guild, name: name};
+    }
+
+    bindMenu(context, target) {
+        let contextType = ReactUtilities.getReactProperty(context, "return.memoizedProps.type");
+        if (contextType != "USER_CHANNEL_MEMBERS" && contextType != "USER_CHANNEL_MESSAGE" && contextType != "USER_CHANNEL_MENTION") return;
+
+        let item = $(this.contextItem);
+        item.on("click." + this.getShortName(), () => {
+            $(context).hide();
+            $(target).click();
+            let popout = $('.userPopout-4pfA0d');
+            popout.hide();
+            let {user, guild, name} = this.getInfoFromPopout(popout);
+            if (!user || !guild || !name) return;
+            this.showModal(this.createModal(name, user, guild));
+            
+        });
+        $(context).find('.item:contains("Profile")').after(item);
+    }
+
+    showModal(modal) {
+        $('.userPopout-4pfA0d').hide();
+        $('.app').next('.theme-dark').append(modal);
+    }
+
+    createModal(name, user, guild) {
         let modal = $(this.modalHTML);
         modal.find('.callout-backdrop').on('click', () => {
             modal.addClass('closing');
@@ -436,6 +486,15 @@ class PermissionsViewer {
         });
 
         modal.find('#permissions-modal .title').text(name + "'s Permissions");
+
+        let userRoles = user.roles.slice(0);
+        userRoles.push(guild.id);
+
+        let guildRoles = JSON.parse(JSON.stringify(guild.roles));
+        if (user.userId == guild.ownerId) {
+            userRoles.push(user.userId);
+            guildRoles[user.userId] = {name: "@Owner", permissions: DiscordPermissions.FullPermissions};
+        }
 
         for (let role of userRoles) {
             let item = $(this.modalButton);
@@ -468,25 +527,34 @@ class PermissionsViewer {
         return modal;
     }
 
-    bindMenu(context, target) {
-        let contextType = ReactUtilities.getReactProperty(context, "return.memoizedProps.type");
-        if (contextType != "USER_CHANNEL_MEMBERS" && contextType != "USER_CHANNEL_MESSAGE" && contextType != "USER_CHANNEL_MENTION") return;
-
-        let item = $(this.contextItem);
-        item.on("click." + this.getShortName(), () => {
-            $(context).hide();
-            $(target).click();
-            $('.userPopout-4pfA0d').hide();
-            setImmediate(() => { $('.perm-details-button').click(); });
-            
-        });
-        $(context).find('.item:contains("Profile")').after(item);
-	}
-
     readablePermName(perm) {
         let rest = perm.slice(1);
         let first = perm[0].toUpperCase();
         rest = rest.replace(/([A-Z][a-z])|([A-Z][A-Z][A-Z])/g, " $&");
         return first + rest;
     }
+
+    getSettingsPanel() {
+		var panel = $("<form>").addClass("form").css("width", "100%");
+		if (this.initialized) this.generateSettings(panel);
+		return panel[0];
+	}
+
+    generateSettings(panel) {
+		
+		new PluginSettings.ControlGroup("Plugin Options", () => {this.saveSettings();}, {shown: true}).appendTo(panel).append(
+			new PluginSettings.Checkbox("Show In Popouts", "Shows a user's total permissions in their popout similar to roles.",
+								this.settings.plugin.popouts, (checked) => {
+                                    this.settings.plugin.popouts = checked;
+                                    if (checked) this.bindPopouts();
+                                    else this.unbindPopouts();
+                                }),
+            new PluginSettings.Checkbox("Context Menu Button", "Adds a button to view the permissions modal to select context menus.",
+								this.settings.plugin.contextMenus, (checked) => {
+                                    this.settings.plugin.contextMenus = checked;
+                                    if (checked) this.bindContextMenus();
+                                    else this.unbindContextMenus();
+                                })
+		);
+	}
 }
