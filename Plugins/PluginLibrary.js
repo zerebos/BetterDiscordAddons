@@ -328,8 +328,70 @@ PluginUtilities.saveSettings = function(name, data) {
 };
 
 PluginUtilities.checkForUpdate = function(pluginName, currentVersion) {
-    const githubRaw = "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/" + pluginName + "/" + pluginName + ".plugin.js";
-    $.get(githubRaw, (result) => {
+	var updateLink = "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/" + pluginName + "/" + pluginName + ".plugin.js";
+	var downloadLink = "https://betterdiscord.net/ghdl?url=https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/" + pluginName + "/" + pluginName + ".plugin.js";
+	PluginUtilities.checkUpdate(pluginName, currentVersion, updateLink, downloadLink);
+	
+	if (typeof window.PluginUpdates === "undefined") window.PluginUpdates = {plugins:{}};
+	window.PluginUpdates.plugins[updateLink] = {name: pluginName, raw: updateLink, download: downloadLink, version: currentVersion};
+	
+	if (typeof window.PluginUpdates.interval === "undefined") {
+		window.PluginUpdates.interval = setInterval(() => {
+			window.PluginUpdates.checkAll();
+		}, 7200000);
+	}
+
+	if (typeof window.PluginUpdates.checkAll === "undefined") {
+		window.PluginUpdates.checkAll = function() {
+			for (let key in this.plugins) {
+				let plugin = this.plugins[key];
+				PluginUtilities.checkUpdate(plugin.name, plugin.raw, plugin.download, plugin.version);
+			}
+		};
+	}
+
+	if (typeof window.PluginUpdates.observer === "undefined") {
+		window.PluginUpdates.observer = new MutationObserver((changes, _) => {
+			changes.forEach(
+				(change) => {
+					if (change.addedNodes) {
+						change.addedNodes.forEach((node) => {
+							if (node && node.tagName && node.getAttribute("layer-id") == "user-settings") {
+								var settingsObserver = new MutationObserver((changes2) => {
+									changes2.forEach(
+										(change2) => {
+											if (change2.addedNodes) {
+												change2.addedNodes.forEach((node2) => {
+													if (!document.querySelector(".bd-updatebtn")) {
+														if (node2 && node2.tagName && node2.querySelector(".bd-pfbtn")) {
+															var updateButton = document.createElement("button");
+															updateButton.className = "bd-pfbtn bd-updatebtn";
+															updateButton.innerText = "Check for Updates";
+															updateButton.style.left = "220px";
+															updateButton.onclick = function () {
+																window.PluginUpdates.checkAll();
+															};
+															node2.querySelector(".bd-pfbtn").parentElement.insertBefore(updateButton, node2.querySelector(".bda-slist"));
+														}
+													}
+												});
+											}
+										}
+									);
+								});
+								settingsObserver.observe(node, {childList:true, subtree:true});
+							}
+						});
+					}
+				}
+			);
+		});
+		window.PluginUpdates.observer.observe(document.querySelector(".layers"), {childList:true});
+	}
+};
+
+PluginUtilities.checkUpdate = function(pluginName, currentVersion, updateLink, downloadLink) {
+    $.get(updateLink, (result) => {
         var ver = result.match(/['"][0-9]+\.[0-9]+\.[0-9]+['"]/i);
         if (!ver) return;
         ver = ver.toString().replace(/"/g, "");
@@ -340,13 +402,12 @@ PluginUtilities.checkForUpdate = function(pluginName, currentVersion) {
         else if (ver[0] == lver[0] && ver[1] > lver[1]) hasUpdate = true;
         else if (ver[0] == lver[0] && ver[1] == lver[1] && ver[2] > lver[2]) hasUpdate = true;
         else hasUpdate = false;
-		if (hasUpdate) PluginUtilities.showUpdateNotice(pluginName);
+		if (hasUpdate) PluginUtilities.showUpdateNotice(pluginName, downloadLink);
 		else PluginUtilities.removeUpdateNotice(pluginName);
     });
 };
 
-PluginUtilities.showUpdateNotice = function(pluginName) {
-    const updateLink = "https://betterdiscord.net/ghdl?url=https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/" + pluginName + "/" + pluginName + ".plugin.js";
+PluginUtilities.showUpdateNotice = function(pluginName, downloadLink) {
     BdApi.clearCSS("pluginNoticeCSS");
     BdApi.injectCSS("pluginNoticeCSS", "#pluginNotice span, #pluginNotice span a {-webkit-app-region: no-drag;color:#fff;} #pluginNotice span a:hover {text-decoration:underline;}");
     let noticeElement = '<div class="notice notice-info" id="pluginNotice"><div class="notice-dismiss" id="pluginNoticeDismiss"></div>The following plugins have updates: &nbsp;<strong id="outdatedPlugins"></strong></div>';
@@ -361,7 +422,7 @@ PluginUtilities.showUpdateNotice = function(pluginName) {
     let pluginNoticeID = pluginName + '-notice';
     if (!$('#' + pluginNoticeID).length) {
 		let pluginNoticeElement = $('<span id="' + pluginNoticeID + '">');
-		pluginNoticeElement.html('<a href="' + updateLink + '" target="_blank" referrer="UpdateNotice">' + pluginName + '</a>');
+		pluginNoticeElement.html('<a href="' + downloadLink + '" target="_blank" referrer="UpdateNotice">' + pluginName + '</a>');
         if ($('#outdatedPlugins').children('span').length) $('#outdatedPlugins').append("<span class='separator'>, </span>");
         $('#outdatedPlugins').append(pluginNoticeElement);
     }
