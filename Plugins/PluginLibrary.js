@@ -818,7 +818,21 @@ PluginTooltip.Tooltip = class Tooltip {
 		this.tooltip.text(tip);
 
 		node.on('mouseenter.tooltip', () => {
-			this.show();
+            this.show();
+			
+			var observer = new MutationObserver((mutations) => {
+				mutations.forEach((mutation) => {
+					var nodes = Array.from(mutation.removedNodes);
+					var directMatch = nodes.indexOf(node[0]) > -1;
+					var parentMatch = nodes.some(parent => parent.contains(node[0]));
+					if (directMatch || parentMatch) {
+						this.tooltip.detach();
+						observer.disconnect();
+					}
+				});
+			});
+
+			observer.observe(document.body, {subtree: true, childList: true});
 		});
 
 		node.on('mouseleave.tooltip', () => {
