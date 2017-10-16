@@ -5,6 +5,6 @@ Blurs images in NSFW channels until you hover over it. For support and update an
 ![Demo](https://thumbs.gfycat.com/BlackDependableHairstreakbutterfly-size_restricted.gif)
 
 
-## Known Bugs and Issues
- - ~~If you go back and forth quickly between images it sometimes doesn't unblur~~ Fixed
+## Coming Soon
+ - Ability to add custom channels and DMs to the list to blur.
 

@@ -2,12 +2,6 @@
 
 Adds server-based role colors to typing, voice, popouts, modals and more! For support and update announcements you can visit [Zere's server](https://bit.ly/ZeresServer).
 
-## What's New
-
-### Updated Method
-
-After exploring some react data with DevilBro (Mirco)#4401 I was able to come up with a new way to collect and process the role color data. This release should be much much faster.
-
 ### Mentions
 
 Now you can optionally color mentions for users to match their roles in the server.
@@ -69,10 +63,4 @@ Able to change which portions of the modal gets colored.
 Able to change which portions of the modal gets colored.
 
 ![Audit Log Options](http://discord.zackrauen.com/BetterRoleColors/auditlog_settings.png)
-
-## Coming Soon
- - Make a suggestion
-
-## Known Bugs and Issues
- - ~~Joining a server with a large number in voice chat for the firs time can be laggy~~
 

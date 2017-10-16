@@ -7,4 +7,3 @@ Allows you to resize the detached CustomCSS window. Useful for development and c
 
 ## Known Bugs and Issues
  - Reloading with inspector open, then detaching custom css and closing inspector can cause odd clipping issues (edge case)
-
