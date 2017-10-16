@@ -194,8 +194,8 @@ DOMUtilities.indexInParent = function(node) {
 	var children = node.parentNode.childNodes;
 	var num = 0;
 	for (var i = 0; i < children.length; i++) {
-		 if (children[i] == node) return num;
-		 if (children[i].nodeType == 1) num++;
+		if (children[i] == node) return num;
+		if (children[i].nodeType == 1) num++;
 	}
 	return -1;
 };
@@ -436,6 +436,13 @@ PluginUtilities.removeUpdateNotice = function(pluginName) {
 		notice.remove();
 	}
 	if (!$('#outdatedPlugins').children('span').length) $('#pluginNoticeDismiss').click();
+};
+
+PluginUtilities.formatString = function(string, values) {
+	for (let val in values) {
+		string = string.replace(new RegExp(`\\$\\{${val}\\}`, 'g'), values[val]);
+	}
+	return string;
 };
 
 /*
