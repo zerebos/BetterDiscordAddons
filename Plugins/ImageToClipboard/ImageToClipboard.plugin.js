@@ -6,19 +6,19 @@ class ImageToClipboard {
 	getName() { return "ImageToClipboard"; }
 	getShortName() { return "i2c"; }
 	getDescription() { return "Copies images (png/jpg) directly to clipboard. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.2.6"; }
+	getVersion() { return "0.2.7"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
 		this.initialized = false;
-		this.fs = require("fs");
+		this.request = require('request');
 		this.nativeImage = require("electron").nativeImage;
 		this.clipboard = require("electron").clipboard;
 		this.path = require("path");
 		this.fileSystem = require("fs");
 		this.process = require("process");
 		this.link = '<a target="_blank" rel="noreferrer" class="download-button">Copy original</a>';
-		this.contextItem = '<div class="item"><span>Copy Image</span><div class="hint"></div></div>';
+		this.contextItem = '<div class="item-group i2c-group"><div class="item i2c-item"><span>Copy Image</span><div class="hint"></div></div></div>';
 	}
 	
 	load() {}
@@ -45,31 +45,17 @@ class ImageToClipboard {
 		PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
 	}
 
-	getDataUri(targetUrl, callback) {
-		var xhr = new XMLHttpRequest();
-		xhr.onload = function () {
-			var reader = new FileReader();
-			reader.onloadend = function () {
-				callback(reader.result);
-				};
-			reader.readAsDataURL(xhr.response);
-		};
-		var proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-		xhr.open('GET', proxyUrl + targetUrl);
-		xhr.responseType = 'blob';
-		xhr.send();
-	}
-
 	copyToClipboard(url) {
-		this.getDataUri(url, (uri) => {
+		this.request({url: url, encoding: null}, (error, response, buffer) => {
+			if (error) return;
 			if (this.process.platform === "win32" || this.process.platform === "darwin") {
-				this.clipboard.write({image: this.nativeImage.createFromBuffer(new Buffer(uri.split(",")[1], 'base64'))});
+				this.clipboard.write({image: this.nativeImage.createFromBuffer(buffer)});
 			}
 			else {
-				var file = this.path.join(this.process.env[this.process.platform === "win32" ? "USERPROFILE" : "HOME"], "i2ctemp.png");
-				this.fileSystem.writeFileSync(file, uri.split(",")[1], 'base64');
-				this.clipboard.write({image: file});
-				this.fileSystem.unlinkSync(file);
+					var file = this.path.join(this.process.env["HOME"], "i2ctemp.png");
+					this.fileSystem.writeFileSync(file, buffer, {encoding: null});
+					this.clipboard.write({image: file});
+					this.fileSystem.unlinkSync(file);
 			}
 		});
 	}
@@ -80,7 +66,7 @@ class ImageToClipboard {
 		var item = "";
 		if (imageLinkLower.endsWith('.png') || imageLinkLower.endsWith('.jpg') || imageLinkLower.endsWith('.jpeg')) {
 				item = $(this.contextItem).on("click." + this.getShortName(), ()=>{$(context).hide(); this.copyToClipboard(imageLink);});
-				$(context).find('.item:contains("Copy Link")').after(item);
+				$(context).prepend(item);
 		}
 		else {
 			imageLink = ReactUtilities.getReactProperty(context, "return.memoizedProps.src");
@@ -91,12 +77,12 @@ class ImageToClipboard {
 			imageLinkLower = imageLink.toLowerCase();
 			if (imageLinkLower.endsWith('.png') || imageLinkLower.endsWith('.jpg') || imageLinkLower.endsWith('.jpeg')) {
 				item = $(this.contextItem).on("click." + this.getShortName(), ()=>{$(context).hide();this.copyToClipboard(imageLink);});
-				$(context).find('.item:contains("Copy Link")').after(item);
+				$(context).prepend(item);
 			}
 		}
 	}
 
-	observer(e){
+	observer(e) {
 		if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element) || !this.initialized) return;
 		var elem = $(e.addedNodes[0]);
 

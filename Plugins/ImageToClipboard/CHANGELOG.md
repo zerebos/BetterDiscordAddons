@@ -1,5 +1,10 @@
 # ImageToClipboard Changelog
 
+### 0.2.7
+
+ - Use request instead of cors-anywhere
+ - Append to front of context menu (avoid language conflict)
+
 ### 0.2.6
 
  - Connect to lib
