@@ -376,6 +376,7 @@ PluginUtilities.checkForUpdate = function(pluginName, currentVersion) {
 															updateButton.onmouseover = function () {
 																document.querySelector(".tooltips").appendChild(tooltip);
 																tooltip.className = "tooltip tooltip-right tooltip-black";
+																tooltip.innerText = "Checks for updates of plugins that support this feature. Right-click for a list.";
 																tooltip.style.maxWidth = "";
 																tooltip.style.left = $(updateButton).offset().left + $(updateButton).outerWidth() + "px";
 																tooltip.style.top = $(updateButton).offset().top + ($(updateButton).outerHeight() - $(tooltip).outerHeight()) / 2 + "px";
