@@ -6,7 +6,7 @@ class BetterRoleColors {
 	getName() { return "BetterRoleColors"; }
 	getShortName() { return "BRC"; }
 	getDescription() { return "Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.5.6"; }
+	getVersion() { return "0.5.7"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -144,7 +144,8 @@ class BetterRoleColors {
 
 	getAllUserColors() {
 		if (!document.querySelector('.channel-members') || document.querySelector('.private-channels')) return [];
-		let groups = ReactUtilities.getReactProperty(document.querySelector('.channel-members-wrap'), "return.return.memoizedState.memberGroups");
+		let groups = ReactUtilities.getReactProperty(document.querySelector('.channel-members-wrap'), "return.return.return.memoizedState.memberGroups");
+		if (!groups) return;
 		var users = [];
 		for (let g = 0; g < groups.length; g++) {
 			for (let u = 0; u < groups[g].users.length; u++) {
@@ -154,7 +155,6 @@ class BetterRoleColors {
 
 		for (let u = 0; u < users.length; u++) {
 			let user = users[u];
-			//if (!user.colorString) console.log("No color");
 			this.addColorData(this.currentServer, user.user.id, user.colorString ? user.colorString : "");
 		}
 		this.saveData();
@@ -267,21 +267,21 @@ class BetterRoleColors {
 		if (!this.settings.popouts.username && !this.settings.popouts.discriminator && !this.settings.popouts.nickname) return;
 		let popout = document.querySelector('.userPopout-4pfA0d');
 		let user = ReactUtilities.getReactProperty(popout, "return.memoizedProps.user");
-        if (!user) return true;
-        let color = this.getUserColor(user.id);
-        var hasNickname = Boolean(popout.querySelector('.headerName-2N8Pdz'));
-        if ((color && this.settings.popouts.username) || (!hasNickname && this.settings.popouts.fallback)) popout.querySelector('.headerTag-3zin_i span:first-child').style.setProperty("color", color, "important");
-        if (color && this.settings.popouts.discriminator) popout.querySelector('.headerDiscriminator-3fLlCR').style.setProperty("color", color, "important");
-        if (color && this.settings.popouts.nickname && hasNickname) popout.querySelector('.headerName-2N8Pdz').style.setProperty("color", color, "important");
+		if (!user) return true;
+		let color = this.getUserColor(user.id);
+		var hasNickname = Boolean(popout.querySelector('.headerName-2N8Pdz'));
+		if ((color && this.settings.popouts.username) || (!hasNickname && this.settings.popouts.fallback)) popout.querySelector('.headerTag-3zin_i span:first-child').style.setProperty("color", color, "important");
+		if (color && this.settings.popouts.discriminator) popout.querySelector('.headerDiscriminator-3fLlCR').style.setProperty("color", color, "important");
+		if (color && this.settings.popouts.nickname && hasNickname) popout.querySelector('.headerName-2N8Pdz').style.setProperty("color", color, "important");
 	}
 
 	colorizeModal() {
 		if (!this.settings.modals.username && !this.settings.modals.discriminator) return;
 		let modal = document.querySelector("#user-profile-modal");
-        let user = ReactUtilities.getReactProperty(modal, "return.memoizedProps.user");
-        let color = this.getUserColor(user.id);
-        if (color && this.settings.modals.username) modal.querySelector('.username').style.setProperty("color", color, "important");
-        if (color && this.settings.modals.discriminator) modal.querySelector('.discriminator').style.setProperty("color", color, "important");
+		let user = ReactUtilities.getReactProperty(modal, "return.memoizedProps.user");
+		let color = this.getUserColor(user.id);
+		if (color && this.settings.modals.username) modal.querySelector('.username').style.setProperty("color", color, "important");
+		if (color && this.settings.modals.discriminator) modal.querySelector('.discriminator').style.setProperty("color", color, "important");
 	}
 
 	colorizeAuditLog() {

@@ -1,5 +1,10 @@
 # BetterRoleColors Changelog
 
+### 0.5.7
+
+ - Update for some small react changes
+ - More error checks
+
 ### 0.5.6
 
  - Adjust color data grabbing
