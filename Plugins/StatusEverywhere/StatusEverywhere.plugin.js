@@ -6,7 +6,7 @@ class StatusEverywhere {
 	getName() { return "StatusEverywhere"; }
 	getShortName() { return "StatusEverywhere"; }
 	getDescription() { return "Adds user status everywhere Discord doesn't. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.1.4"; }
+	getVersion() { return "0.1.5"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -58,27 +58,31 @@ class StatusEverywhere {
 	onSwitch() {
 		if (this.currentServer == PluginUtilities.getCurrentServer()) return;
 		this.currentServer = PluginUtilities.getCurrentServer();
-		this.getAllUsers();
+		setTimeout(() => {
+			this.getAllUsers();
+		}, 500);
 	}
 
 	getAllUsers() {
 		this.users = [];
 		var usersToAdd = [];
 		if (document.querySelector('.channel-members')) {
-			let groups = ReactUtilities.getReactProperty(document.querySelector('.channel-members-wrap'), "return.return.memoizedState.memberGroups");
+			let groups = ReactUtilities.getReactProperty(document.querySelector('.channel-members-wrap'), "return.return.return.memoizedState.memberGroups");
 			if (groups) usersToAdd = groups;
 		}
 		if (!usersToAdd.length && document.querySelector('.channel-members')) {
 			usersToAdd = [{users: []}];
 			document.querySelectorAll('.member').forEach((elem) => {
 				let props = ReactUtilities.getReactProperty(elem, "child.memoizedProps");
+				if (!props) return;
 				usersToAdd[0].users.push({user: props.user, status: props.status});
 			});
 		}
 		if (!usersToAdd.length && !document.querySelector('.channel-members') && !document.querySelector('#friends') && document.querySelector('.title .channel-private')) {
 			var other = ReactUtilities.getReactProperty(document.querySelector('.title'), "child.sibling");
-			other = {user: {id: other.memoizedProps.userId}, status: other.memoizedState.status};
 			var user = ReactUtilities.getReactProperty(document.querySelector('.container-iksrDt'), "return.memoizedProps");
+			if (!other || !user) return;
+			other = {user: {id: other.memoizedProps.userId}, status: other.memoizedState.status};
 			user = {user: user.currentUser, status: user.status};
 			usersToAdd = [{users: [other, user]}];
 		}

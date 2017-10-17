@@ -1,5 +1,10 @@
 # StatusEverywhere Changelog
 
+### 0.1.5
+
+ - Update for small react changes
+ - More error checking
+
 ### 0.1.4
 
  - Remove usage of jQuery as much as possible
