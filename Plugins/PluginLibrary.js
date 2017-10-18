@@ -271,7 +271,7 @@ ReactUtilities.getReactKey = function(config) {
 PluginUtilities.getCurrentServer = function() {
 	var auditLog = document.querySelector('.guild-settings-audit-logs');
 	if (auditLog) return ReactUtilities.getReactKey({node: auditLog, key: "guildId"});
-	else return ReactUtilities.getReactKey({node: document.querySelector('.channels-wrap'), key: "guildId", whiteList: {
+	else return ReactUtilities.getReactKey({node: document.querySelector(".channels-wrap") || document.querySelector('.channels-3g2vYe'), key: "guildId", whiteList: {
 		"_currentElement":true,
 		"_instance":true,
 		"_owner":true,
