@@ -429,7 +429,9 @@ PluginUtilities.checkForUpdate = function(pluginName, currentVersion) {
 };
 
 PluginUtilities.checkUpdate = function(pluginName, currentVersion, updateLink, downloadLink) {
-	$.get(updateLink, (result) => {
+	let request = require("request");
+	request(updateLink, (error, responde, result) => {
+		if (error) return;
 		var ver = result.match(/['"][0-9]+\.[0-9]+\.[0-9]+['"]/i);
 		if (!ver) return;
 		ver = ver.toString().replace(/"/g, "");
