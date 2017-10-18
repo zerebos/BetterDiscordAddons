@@ -486,7 +486,7 @@ class PermissionsViewer {
 
 	showModal(modal) {
 		$('.userPopout-4pfA0d').hide();
-		$('.app').next('.theme-dark').append(modal);
+		$('.app').next().append(modal);
 	}
 
 	createModal(name, user, guild) {
