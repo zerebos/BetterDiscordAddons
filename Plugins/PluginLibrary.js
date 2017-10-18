@@ -447,7 +447,7 @@ PluginUtilities.checkUpdate = function(pluginName, currentVersion, updateLink, d
 
 PluginUtilities.showUpdateNotice = function(pluginName, downloadLink) {
 	BdApi.clearCSS("pluginNoticeCSS");
-	BdApi.injectCSS("pluginNoticeCSS", "#pluginNotice span, #pluginNotice span a {-webkit-app-region: no-drag;color:#fff;} #pluginNotice span a:hover {text-decoration:underline;}");
+	BdApi.injectCSS("pluginNoticeCSS", "#pluginNotice {-webkit-app-region: drag;} #pluginNotice span, #pluginNotice span a {-webkit-app-region: no-drag;color:#fff;} #pluginNotice span a:hover {text-decoration:underline;}");
 	let noticeElement = '<div class="notice notice-info" id="pluginNotice"><div class="notice-dismiss" id="pluginNoticeDismiss"></div>The following plugins have updates: &nbsp;<strong id="outdatedPlugins"></strong></div>';
 	if (!$('#pluginNotice').length)  {
 		$('.app.flex-vertical').children().first().before(noticeElement);
@@ -481,6 +481,18 @@ PluginUtilities.formatString = function(string, values) {
 		string = string.replace(new RegExp(`\\$\\{${val}\\}`, 'g'), values[val]);
 	}
 	return string;
+};
+
+// Based on Mirco's version
+PluginUtilities.createSwitchObserver = function(plugin) {
+	let switchObserver = new MutationObserver((changes) => {
+		changes.forEach((change) => {
+			if (change.addedNodes.length && change.addedNodes[0] instanceof Element && (change.addedNodes[0].classList.contains("messages-wrapper") || change.addedNodes[0].id === "friends")) plugin.onChannelSwitch();
+			if (change.removedNodes.length && change.removedNodes[0] instanceof Element && change.removedNodes[0].id === "friends") plugin.onChannelSwitch();
+		});
+	});
+	switchObserver.observe((document.querySelector('.chat') || document.querySelector('#friends')).parentElement, {childList: true, subtree:true});
+	return switchObserver;
 };
 
 /*
