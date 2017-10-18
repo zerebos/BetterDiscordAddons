@@ -98,13 +98,13 @@ class BetterRoleColors {
 				// setImmediate(() => {setImmediate(() => { this.colorizeTyping(); });});
 			}
 
-			if (removed.querySelector("#friends") || removed.id == "friends") this.onSwitch();
+			if (removed.querySelector("#friends") || removed.id == "friends") this.onChannelSwitch();
 		}
 
 		if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element)) return;
 		var elem = e.addedNodes[0];
 
-		if (elem.querySelector("#friends") || elem.id == "friends") this.onSwitch();
+		if (elem.querySelector("#friends") || elem.id == "friends") this.onChannelSwitch();
 
 		if (elem.classList.contains("message-group")) this.getMessageColor(elem);
 
