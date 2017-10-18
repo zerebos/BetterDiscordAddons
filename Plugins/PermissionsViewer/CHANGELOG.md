@@ -1,5 +1,11 @@
 # PermissionsViewer Changelog
 
+### 0.0.4
+
+ - Add additional classes for theming
+ - Add some more classes to make themes fit better without adjustments
+ - Fix for canary
+
 ### 0.0.3
 
  - Change context menus to observers from listeners

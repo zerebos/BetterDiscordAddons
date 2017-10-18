@@ -6,7 +6,7 @@ class PermissionsViewer {
 	getName() { return "PermissionsViewer"; }
 	getShortName() { return "PermissionsViewer"; }
 	getDescription() { return "Allows you to view a user's permissions. Thanks to Noodlebox for the idea! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.3"; }
+	getVersion() { return "0.0.4"; }
 	getAuthor() { return "Zerebos"; }
 	
 	constructor() {
@@ -298,9 +298,9 @@ class PermissionsViewer {
 						</component>`;
 		
 		this.modalHTML = `<div id="permissions-modal-wrapper">
-							<div class="callout-backdrop"></div>
-							<div class="modal-wrapper">
-								<div id="permissions-modal">
+							<div class="callout-backdrop backdrop-2ohBEd"></div>
+							<div class="modal-wrapper modal-2LIEKY">
+								<div id="permissions-modal" class="inner-1_1f7b">
 									<div class="header"><div class="title">\${header}</div></div>
 									<div class="modal-body">
 										<div class="role-side">
@@ -410,7 +410,8 @@ class PermissionsViewer {
 		if (!context) return;
 
 		let isUserContext = ReactUtilities.getReactProperty(context, "return.memoizedProps.user");
-		if (!isUserContext) return;
+		let isGuildContext = ReactUtilities.getReactProperty(context, "return.memoizedProps.guildId");
+		if (!(isUserContext && isGuildContext)) return;
 
 		let target = ReactUtilities.getReactProperty(context, "return.memoizedProps.target");
 
@@ -506,6 +507,8 @@ class PermissionsViewer {
 			guildRoles[user.userId] = {name: this.strings.modal.owner, permissions: DiscordPermissions.FullPermissions};
 		}
 
+		//let channelOverrides = this.getSelectedChannel().permissionOverwrites;
+
 		for (let role of userRoles) {
 			let item = $(this.modalButton);
 			item.css("color", guildRoles[role].colorString);
@@ -515,6 +518,10 @@ class PermissionsViewer {
 				modal.find('.role-item').removeClass('selected');
 				item.addClass('selected');
 				let perms = new DiscordPermissions(guildRoles[role].permissions);
+				// if (channelOverrides[role]) {
+				// 	perms.allowPermission(channelOverrides[role].allow);
+				// 	perms.denyPermission(channelOverrides[role].deny);
+				// }
 				let permList = modal.find('.perm-scroller');
 				permList.empty();
 				for (let perm of perms) {
@@ -536,6 +543,22 @@ class PermissionsViewer {
 		modal.find('.role-item').first().click();
 
 		return modal;
+	}
+
+	getSelectedChannel() {
+		let selectedChannel = ReactUtilities.getReactProperty(document.querySelector(".channels-wrap") || document.querySelector('.channels-3g2vYe'), "child.memoizedState.selectedChannelId");
+		return this.getTextChannels()[selectedChannel];
+	}
+
+	getTextChannels() {
+		let reactChannels = ReactUtilities.getReactProperty(document.querySelector(".channels-wrap") || document.querySelector('.channels-3g2vYe'), "child.memoizedState.channels.0");
+		let channels = {};
+
+		for (let instance of reactChannels) {
+			channels[instance.channel.id] = instance.channel;
+		}
+
+		return channels;
 	}
 
 	readablePermName(perm) {
