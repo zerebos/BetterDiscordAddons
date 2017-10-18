@@ -1,5 +1,9 @@
 # BetterRoleColors Changelog
 
+### 0.5.8
+
+ - Update for canary changes
+
 ### 0.5.7
 
  - Update for some small react changes

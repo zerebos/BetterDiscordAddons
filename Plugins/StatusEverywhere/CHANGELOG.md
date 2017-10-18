@@ -1,5 +1,9 @@
 # StatusEverywhere Changelog
 
+### 0.1.6
+
+ - Update for canary changes
+
 ### 0.1.5
 
  - Update for small react changes

@@ -6,7 +6,7 @@ class StatusEverywhere {
 	getName() { return "StatusEverywhere"; }
 	getShortName() { return "StatusEverywhere"; }
 	getDescription() { return "Adds user status everywhere Discord doesn't. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.1.5"; }
+	getVersion() { return "0.1.6"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -21,6 +21,8 @@ class StatusEverywhere {
 			opacity: 0;
 		}
 		`;
+
+		this.switchObserver = new MutationObserver(() => {});
 	}
 	
 	load(){}
@@ -44,18 +46,20 @@ class StatusEverywhere {
 			if ($(elem).find('.status').length) $(elem).empty();
 		});
 		BdApi.clearCSS(this.getShortName() + "-style");
+		this.switchObserver.disconnect();
 	}
 
 	initialize() {
 		this.initialized = true;
 		BdApi.injectCSS(this.getShortName()  + "-style", this.css);
+		this.switchObserver = PluginUtilities.createSwitchObserver(this);
 		PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
 		this.currentServer = PluginUtilities.getCurrentServer();
 		this.getAllUsers();
 		this.attachStatuses();
 	}
 
-	onSwitch() {
+	onChannelSwitch() {
 		if (this.currentServer == PluginUtilities.getCurrentServer()) return;
 		this.currentServer = PluginUtilities.getCurrentServer();
 		setTimeout(() => {

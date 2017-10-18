@@ -6,7 +6,7 @@ class BetterRoleColors {
 	getName() { return "BetterRoleColors"; }
 	getShortName() { return "BRC"; }
 	getDescription() { return "Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.5.7"; }
+	getVersion() { return "0.5.8"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -19,6 +19,7 @@ class BetterRoleColors {
 		this.settings = this.defaultSettings;
 
 		this.colorData = {};
+		this.switchObserver = new MutationObserver(() => {});
 	}
 	
 	loadSettings() {
@@ -62,6 +63,7 @@ class BetterRoleColors {
 		this.checkForUpdate();
 		this.loadData();
 		this.loadSettings();
+		this.switchObserver = PluginUtilities.createSwitchObserver(this);
 		this.currentServer = PluginUtilities.getCurrentServer();
 		this.currentUser = PluginUtilities.getCurrentUser().id;
 		this.getAllUserColors();
@@ -74,9 +76,10 @@ class BetterRoleColors {
 		this.decolorize();
 		this.saveSettings();
 		$("*").off("." + this.getShortName());
+		this.switchObserver.disconnect();
 	}
 	
-	onSwitch() {
+	onChannelSwitch() {
 		if (this.currentServer == PluginUtilities.getCurrentServer()) return;
 		this.currentServer = PluginUtilities.getCurrentServer();
 		this.colorize();
