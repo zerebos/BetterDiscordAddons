@@ -484,7 +484,7 @@ PluginUpdateUtilities.downloadPlugin = function(pluginName, updateLink) {
         remoteVersion = remoteVersion.toString().replace(/['"]/g, "");
         let filename = updateLink.split('/');
         filename = filename[filename.length - 1];
-        var file = path.join(window.PluginUtils.getPluginsFolder(), filename);
+        var file = path.join(PluginUtilities.getPluginsFolder(), filename);
         fileSystem.writeFileSync(file, body);
         PluginUtilities.showToast(`${pluginName} ${window.PluginUpdates.plugins[updateLink].version} has been replaced by ${pluginName} ${remoteVersion}`);
         if (!window.bdplugins["Restart-No-More"] || !window.bdplugins["Restart-No-More"].enabled) {
