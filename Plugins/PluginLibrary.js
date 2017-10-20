@@ -2,6 +2,7 @@ var ColorUtilities = {};
 var DOMUtilities = {};
 var ReactUtilities = {};
 var PluginUtilities = {};
+var PluginUpdateUtilities = {};
 var PluginSettings = {};
 var PluginContextMenu = {};
 var PluginTooltip = {};
@@ -328,12 +329,12 @@ PluginUtilities.saveSettings = function(name, data) {
 };
 
 PluginUtilities.checkForUpdate = function(pluginName, currentVersion) {
-	var updateLink = "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/" + pluginName + "/" + pluginName + ".plugin.js";
-	var downloadLink = "https://betterdiscord.net/ghdl?url=https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/" + pluginName + "/" + pluginName + ".plugin.js";
-	PluginUtilities.checkUpdate(pluginName, currentVersion, updateLink, downloadLink);
+	let updateLink = "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/" + pluginName + "/" + pluginName + ".plugin.js";
 	
 	if (typeof window.PluginUpdates === "undefined") window.PluginUpdates = {plugins:{}};
-	window.PluginUpdates.plugins[updateLink] = {name: pluginName, raw: updateLink, download: downloadLink, version: currentVersion};
+	window.PluginUpdates.plugins[updateLink] = {name: pluginName, raw: updateLink, version: currentVersion};
+
+	PluginUpdateUtilities.checkUpdate(pluginName, updateLink);
 	
 	if (typeof window.PluginUpdates.interval === "undefined") {
 		window.PluginUpdates.interval = setInterval(() => {
@@ -345,7 +346,7 @@ PluginUtilities.checkForUpdate = function(pluginName, currentVersion) {
 		window.PluginUpdates.checkAll = function() {
 			for (let key in this.plugins) {
 				let plugin = this.plugins[key];
-				PluginUtilities.checkUpdate(plugin.name, plugin.raw, plugin.download, plugin.version);
+				PluginUpdateUtilities.checkUpdate(plugin.name, plugin.raw);
 			}
 		};
 	}
@@ -428,32 +429,34 @@ PluginUtilities.checkForUpdate = function(pluginName, currentVersion) {
 	}
 };
 
-PluginUtilities.checkUpdate = function(pluginName, currentVersion, updateLink, downloadLink) {
+PluginUpdateUtilities.getCSS = function () {
+	return "#pluginNotice {-webkit-app-region: drag;} #pluginNotice #outdatedPlugins span {-webkit-app-region: no-drag;color:#fff;cursor:pointer;} #pluginNotice #outdatedPlugins span:hover {text-decoration:underline;}";
+};
+
+PluginUpdateUtilities.checkUpdate = function(pluginName, updateLink) {
 	let request = require("request");
-	request(updateLink, (error, responde, result) => {
+	request(updateLink, (error, response, result) => {
 		if (error) return;
-		var ver = result.match(/['"][0-9]+\.[0-9]+\.[0-9]+['"]/i);
-		if (!ver) return;
-		ver = ver.toString().replace(/"/g, "");
-		ver = ver.split(".");
-		var lver = currentVersion.split(".");
+		var remoteVersion = result.match(/['"][0-9]+\.[0-9]+\.[0-9]+['"]/i);
+		if (!remoteVersion) return;
+		remoteVersion = remoteVersion.toString().replace(/['"]/g, "");
+		var ver = remoteVersion.split(".");
+		var lver = window.PluginUpdates.plugins[updateLink].version.split(".");
 		var hasUpdate = false;
 		if (ver[0] > lver[0]) hasUpdate = true;
 		else if (ver[0] == lver[0] && ver[1] > lver[1]) hasUpdate = true;
 		else if (ver[0] == lver[0] && ver[1] == lver[1] && ver[2] > lver[2]) hasUpdate = true;
 		else hasUpdate = false;
-		if (hasUpdate) PluginUtilities.showUpdateNotice(pluginName, downloadLink);
-		else PluginUtilities.removeUpdateNotice(pluginName);
+		if (hasUpdate) PluginUpdateUtilities.showUpdateNotice(pluginName, updateLink);
+		else PluginUpdateUtilities.removeUpdateNotice(pluginName);
 	});
 };
 
-PluginUtilities.showUpdateNotice = function(pluginName, downloadLink) {
-	BdApi.clearCSS("pluginNoticeCSS");
-	BdApi.injectCSS("pluginNoticeCSS", "#pluginNotice {-webkit-app-region: drag;} #pluginNotice span, #pluginNotice span a {-webkit-app-region: no-drag;color:#fff;} #pluginNotice span a:hover {text-decoration:underline;}");
-	let noticeElement = '<div class="notice notice-info" id="pluginNotice"><div class="notice-dismiss" id="pluginNoticeDismiss"></div>The following plugins have updates: &nbsp;<strong id="outdatedPlugins"></strong></div>';
+PluginUpdateUtilities.showUpdateNotice = function(pluginName, updateLink) {
+	let noticeElement = '<div class="notice notice-info" id="pluginNotice"><div class="notice-dismiss" id="pluginNoticeDismiss"></div><span class="notice-message">The following plugins have updates:</span>&nbsp;&nbsp;<strong id="outdatedPlugins"></strong></div>';
 	if (!$('#pluginNotice').length)  {
 		$('.app.flex-vertical').children().first().before(noticeElement);
-		$('.win-buttons').addClass("win-buttons-notice");
+        $('.win-buttons').addClass("win-buttons-notice");
 		$('#pluginNoticeDismiss').on('click', () => {
 			$('.win-buttons').animate({top: 0}, 400, "swing", () => { $('.win-buttons').css("top","").removeClass("win-buttons-notice"); });
 			$('#pluginNotice').slideUp({complete: () => { $('#pluginNotice').remove(); }});
@@ -462,20 +465,182 @@ PluginUtilities.showUpdateNotice = function(pluginName, downloadLink) {
 	let pluginNoticeID = pluginName + '-notice';
 	if (!$('#' + pluginNoticeID).length) {
 		let pluginNoticeElement = $('<span id="' + pluginNoticeID + '">');
-		pluginNoticeElement.html('<a href="' + downloadLink + '" target="_blank" referrer="UpdateNotice">' + pluginName + '</a>');
+        pluginNoticeElement.text(pluginName);
+        pluginNoticeElement.on('click', () => {
+            PluginUpdateUtilities.downloadPlugin(pluginName, updateLink);
+        });
 		if ($('#outdatedPlugins').children('span').length) $('#outdatedPlugins').append("<span class='separator'>, </span>");
 		$('#outdatedPlugins').append(pluginNoticeElement);
 	}
 };
 
-PluginUtilities.removeUpdateNotice = function(pluginName) {
+PluginUpdateUtilities.downloadPlugin = function(pluginName, updateLink) {
+    let request = require("request");
+    let fileSystem = require("fs");
+    let path = require("path");
+    request(updateLink, (error, response, body) => {
+        if (error) return console.warn("Unable to get update for " + pluginName);
+        let remoteVersion = body.match(/['"][0-9]+\.[0-9]+\.[0-9]+['"]/i);
+        remoteVersion = remoteVersion.toString().replace(/['"]/g, "");
+        let filename = updateLink.split('/');
+        filename = filename[filename.length - 1];
+        var file = path.join(window.PluginUtils.getPluginsFolder(), filename);
+        fileSystem.writeFileSync(file, body);
+        PluginUtilities.showToast(`${pluginName} ${window.PluginUpdates.plugins[updateLink].version} has been replaced by ${pluginName} ${remoteVersion}`);
+        if (!window.bdplugins["Restart-No-More"] || !window.bdplugins["Restart-No-More"].enabled) {
+            if (!window.PluginUpdates.downloaded) {
+                window.PluginUpdates.downloaded = [];
+                let button = $('<button class="btn btn-reload">Reload</button>');
+                button.on('click', (e) => {
+                    e.preventDefault();
+                    window.location.reload(false);
+                });
+                var tooltip = document.createElement("div");
+                tooltip.className = "tooltip tooltip-bottom tooltip-black";
+                tooltip.style.maxWidth = "400px";
+                button.on('mouseenter', () => {
+                    document.querySelector(".tooltips").appendChild(tooltip);
+                    tooltip.innerText = window.PluginUpdates.downloaded.join(", ");
+                    tooltip.style.left = button.offset().left + (button.outerWidth() / 2) - ($(tooltip).outerWidth() / 2) + "px";
+                    tooltip.style.top = button.offset().top + button.outerHeight() + "px";
+                });
+    
+                button.on('mouseleave', () => {
+                    tooltip.remove();
+                });
+    
+                button.appendTo($('#pluginNotice'));
+            }
+            window.PluginUpdates.plugins[updateLink].version = remoteVersion;
+            window.PluginUpdates.downloaded.push(pluginName);
+            PluginUpdateUtilities.removeUpdateNotice(pluginName);
+        }
+    });
+};
+
+PluginUpdateUtilities.removeUpdateNotice = function(pluginName) {
 	let notice = $('#' + pluginName + '-notice');
 	if (notice.length) {
 		if (notice.next('.separator').length) notice.next().remove();
 		else if (notice.prev('.separator').length) notice.prev().remove();
 		notice.remove();
-	}
-	if (!$('#outdatedPlugins').children('span').length) $('#pluginNoticeDismiss').click();
+    }
+
+	if (!$('#outdatedPlugins').children('span').length && !$('#pluginNotice .btn-reload').length) {
+        $('#pluginNoticeDismiss').click();
+    } 
+    else if (!$('#outdatedPlugins').children('span').length && $('#pluginNotice .btn-reload').length) {
+        $('#pluginNotice .notice-message').text("To finish updating you need to reload.");
+    }
+};
+
+PluginUtilities.getToastCSS = function() {
+	return `/* Toast CSS */
+	
+		.toasts {
+			position: fixed;
+			display: flex;
+			top: 0;
+			flex-direction: column;
+			align-items: center;
+			justify-content: flex-end;
+			pointer-events: none;
+		}
+	
+		@keyframes toast-up {
+			from {
+				transform: translateY(0);
+				opacity: 0;
+			}
+			to {
+				transform: translateY(-10px);
+				opacity: 1;
+			}
+		}
+		
+		.toast {
+			animation: toast-up 300ms ease;
+			animation-fill-mode: forwards;
+			transform: translateY(0);
+			background: #36393F; /* #2F3136, #36393F */
+			padding: 10px;
+			border-radius: 5px;
+			box-shadow: 0 0 0 1px rgba(32,34,37,.6), 0 2px 10px 0 rgba(0,0,0,.2);
+			color: #dcddde;
+			user-select: text;
+			font-size: 14px;
+			opacity: 0;
+			margin-top: 10px;
+			pointer-events: auto;
+		}
+	
+		@keyframes toast-down {
+			from {
+				transform: translateY(-10px);
+				opacity: 1;
+			}
+			to {
+				transform: translateY(0px);
+				opacity: 0;
+			}
+		}
+	
+		.toast.closing {
+			animation: toast-down 300ms ease;
+			animation-fill-mode: forwards;
+			opacity: 1;
+			transform: translateY(-10px);
+		}    
+		`;
+};
+
+PluginUtilities.showToast = function(content) {
+    if (!$('.toasts').length) {
+        let toastWrapper = $('<div class="toasts">');
+        toastWrapper.css("left", $('.chat form').offset().left);
+        toastWrapper.css("width", $('.chat form').outerWidth());
+        toastWrapper.css("bottom", $('.chat form').outerHeight());
+        toastWrapper.appendTo('.app');
+    }
+    let toastHTML = `<div class="toast toast-info">`;
+    let toastElem = $(toastHTML);
+    toastElem.text(content);
+    toastElem.appendTo('.toasts');
+    setTimeout(() => {
+        toastElem.addClass('closing');
+        setTimeout(() => {
+            toastElem.remove();
+            if (!$('.toasts .toast').length) $('.toasts').remove();
+        }, 300);
+    }, 3000);
+};
+
+
+// Plugins/Themes folder resolver from Square
+PluginUtilities.getPluginsFolder = function() {
+    let process = require("process");
+    let path = require("path");
+    switch (process.platform) {
+        case "win32":
+        return path.resolve(process.env.appdata, "BetterDiscord/plugins/");
+        case "darwin":
+        return path.resolve(process.env.HOME, "Library/Preferences/", "BetterDiscord/plugins/");
+        default:
+        return path.resolve(process.env.HOME, ".config/", "BetterDiscord/plugins/");
+    }
+};
+
+PluginUtilities.getThemesFolder = function() {
+    let process = require("process");
+    let path = require("path");
+    switch (process.platform) {
+        case "win32":
+        return path.resolve(process.env.appdata, "BetterDiscord/themes/");
+        case "darwin":
+        return path.resolve(process.env.HOME, "Library/Preferences/", "BetterDiscord/themes/");
+        default:
+        return path.resolve(process.env.HOME, ".config/", "BetterDiscord/themes/");
+    }
 };
 
 PluginUtilities.formatString = function(string, values) {
@@ -912,6 +1077,7 @@ window["ZeresLibrary"] = {
 	DOMUtilities: DOMUtilities,
 	ReactUtilities: ReactUtilities,
 	PluginUtilities: PluginUtilities,
+	PluginUpdateUtilities: PluginUpdateUtilities,
 	PluginSettings: PluginSettings,
 	ContextMenu: PluginContextMenu,
 	Tooltip: PluginTooltip,
@@ -919,5 +1085,9 @@ window["ZeresLibrary"] = {
 };
 
 BdApi.clearCSS("PluginLibrary");
+BdApi.clearCSS("ToastCSS");
+BdApi.clearCSS("UpdateNotice");
 BdApi.injectCSS("PluginLibrary", PluginSettings.getCSS());
+BdApi.injectCSS("ToastCSS", PluginUtilities.getToastCSS());
+BdApi.injectCSS("UpdateNotice", PluginUpdateUtilities.getCSS());
 jQuery.extend(jQuery.easing, { easeInSine: function (x, t, b, c, d) { return -c * Math.cos(t / d * (Math.PI / 2)) + c + b; }});
