@@ -545,6 +545,7 @@ PluginUtilities.getToastCSS = function() {
 			align-items: center;
 			justify-content: flex-end;
 			pointer-events: none;
+			z-index: 4000;
 		}
 	
 		@keyframes toast-up {
