@@ -328,8 +328,9 @@ PluginUtilities.saveSettings = function(name, data) {
 	PluginUtilities.saveData(name, "settings", data);
 };
 
-PluginUtilities.checkForUpdate = function(pluginName, currentVersion) {
+PluginUtilities.checkForUpdate = function(pluginName, currentVersion, updateURL) {
 	let updateLink = "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/" + pluginName + "/" + pluginName + ".plugin.js";
+	if (updateURL) updateLink = updateURL;
 	
 	if (typeof window.PluginUpdates === "undefined") window.PluginUpdates = {plugins:{}};
 	window.PluginUpdates.plugins[updateLink] = {name: pluginName, raw: updateLink, version: currentVersion};
