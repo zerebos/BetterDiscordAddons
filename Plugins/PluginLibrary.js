@@ -586,7 +586,7 @@ PluginUtilities.getToastCSS = function() {
 		}
 	
 		.toast.closing {
-			animation: toast-down 300ms ease;
+			animation: toast-down 200ms ease;
 			animation-fill-mode: forwards;
 			opacity: 1;
 			transform: translateY(-10px);
@@ -597,9 +597,9 @@ PluginUtilities.getToastCSS = function() {
 PluginUtilities.showToast = function(content) {
     if (!$('.toasts').length) {
         let toastWrapper = $('<div class="toasts">');
-        toastWrapper.css("left", $('.chat form').offset().left);
-        toastWrapper.css("width", $('.chat form').outerWidth());
-        toastWrapper.css("bottom", $('.chat form').outerHeight());
+        toastWrapper.css("left", $('.chat form, #friends').offset().left);
+        toastWrapper.css("width", $('.chat form, #friends').outerWidth());
+        toastWrapper.css("bottom", document.querySelector('.chat form') ? $('.chat form').outerHeight() : 80);
         toastWrapper.appendTo('.app');
     }
     let toastHTML = `<div class="toast toast-info">`;
