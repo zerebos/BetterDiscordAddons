@@ -1,5 +1,11 @@
 # PermissionsViewer Changelog
 
+### 0.0.5
+
+ - Fix blurring issue for popouts
+ - Change the way it adds the modal
+ - Change the observer initialization
+
 ### 0.0.4
 
  - Add additional classes for theming

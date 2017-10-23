@@ -6,7 +6,7 @@ class PermissionsViewer {
 	getName() { return "PermissionsViewer"; }
 	getShortName() { return "PermissionsViewer"; }
 	getDescription() { return "Allows you to view a user's permissions. Thanks to Noodlebox for the idea! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.4"; }
+	getVersion() { return "0.0.5"; }
 	getAuthor() { return "Zerebos"; }
 	
 	constructor() {
@@ -344,6 +344,13 @@ class PermissionsViewer {
 		this.defaultSettings = {plugin: {popouts: true, contextMenus: true}};
 		this.settings = this.defaultSettings;
 		this.strings = this.getStrings();
+
+		this.popoutObserver = new MutationObserver((changes) => {
+			for (let change in changes) this.observePopouts(changes[change]);
+		});
+		this.contextObserver = new MutationObserver((changes) => {
+			for (let change in changes) this.observeContextMenus(changes[change]);
+		});
 	}
 	
 	load() {}
@@ -378,15 +385,10 @@ class PermissionsViewer {
 		this.contextListener = () => {
 			this.bindMenu(document.querySelector('.context-menu'));
 		};
-		this.popoutObserver = new MutationObserver((changes) => {
-			for (let change in changes) this.observePopouts(changes[change]);
-		});
-		this.contextObserver = new MutationObserver((changes) => {
-			for (let change in changes) this.observeContextMenus(changes[change]);
-		});
 		if (this.settings.plugin.popouts) this.bindPopouts();
 		if (this.settings.plugin.contextMenus) this.bindContextMenus();
 		this.initialized = true;
+		PluginUtilities.showToast(this.getName() + " " + this.getVersion() + " has initialized.");
 	}
 
 	stop() {
@@ -468,7 +470,7 @@ class PermissionsViewer {
 		const maxHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 		let jPopout = $(elem).find('.userPopout-4pfA0d');
 		if (jPopout.offset().top + jPopout.outerHeight() >= maxHeight) {
-			let shift = (jPopout.offset().top + jPopout.outerHeight() - maxHeight) + 20;
+			let shift = Math.round((jPopout.offset().top + jPopout.outerHeight() - maxHeight) + 20);
 			popout.style.setProperty("transform", "translateY(-" + shift + "px)");
 		}
 
@@ -486,7 +488,7 @@ class PermissionsViewer {
 
 	showModal(modal) {
 		$('.userPopout-4pfA0d').hide();
-		$('.app').next().append(modal);
+		$('.app').siblings('[class*="theme-"]').first().append(modal);
 	}
 
 	createModal(name, user, guild) {
