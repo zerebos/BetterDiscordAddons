@@ -657,6 +657,65 @@ class PermissionsViewer {
 					}
 				}
 			};
+			case "pt": // Portuguese
+			return {
+				contextMenu: {
+					label: "Permissões",
+				},
+				popout: {
+					label: "Permissões",
+				},
+				modal: {
+					header: "Permissões de ${name}",
+					rolesLabel: "Cargos",
+					permissionsLabel: "Permissões",
+					owner: "@dono"
+				},
+				permissions: {
+					administrator: {name: "Administrador", short: "Administrador"},
+					viewAuditLog: {name: "Ver Audit Log", short: "Audit Log"},
+					manageServer: {name: "Gerenciar servidor", short: "Gerenciar servidor"},
+					manageRoles: {name: "Gerenciar cargos", short: "Gerenciar cargos"},
+					manageChannels: {name: "Gerenciar canais", short: "Gerenciar canais"},
+					kickMembers: {name: "Expulsar membros", short: "Expulsar"},
+					banMembers: {name: "Banir membros", short: "Banir"},
+					createInvite: {name: "Criar convite instantâneo", short: "Criar convite"},
+					changeNickname: {name: "Mudar apelido", short: "Apelido"},
+					manageNicknames: {name: "Gerenciar apelidos", short: "Gerenciar apelidos"},
+					manageEmojis: {name: "Gerenciar emojis", short: "Gerenciar emojis"},
+					manageWebhooks: {name: "Gerenciar webhooks", short: "Gerenciar webhooks"},
+					readMessages: {name: "Ler mensagens", short: "Ler"},
+					sendTTSMessages: {name: "Enviar mensagens em TTS", short: "TTS"},
+					embedLinks: {name: "Inserir links", short: "Links"},
+					readMessageHistory: {name: "Ver histórico de mensagens", short: "Ver histórico"},
+					useExternalEmojis: {name: "Usar emojis externos", short: "Emojis externos"},
+					sendMessages: {name: "Enviar mensagens", short: "Enviar"},
+					manageMessages: {name: "Gerenciar mensagens", short: "Gerenciar mensagens"},
+					attachFiles: {name: "Anexar arquivos", short: "Anexar"},
+					mentionEveryone: {name: "Mencionar todos", short: "Mencionar todos"},
+					addReactions: {name: "Adicionar reações", short: "Reações"},
+					viewChannel: {name: "Ver canais de voz", short: "Ver canais de voz"},
+					connect: {name: "Conectar", short: "Conectar"},
+					muteMembers: {name: "Silenciar membros", short: "Silenciar"},
+					moveMembers: {name: "Mover membros", short: "Mover"},
+					speak: {name: "Falar", short: "Falar"},
+					deafenMembers: {name: "Ensurdecer membros", short: "Ensurdecer"},
+					useVoiceActivity: {name: "User detecção de voz", short: "Detecção de voz"},
+				},
+				settings: {
+					pluginOptions: {
+						label: "Opções do Plugin",
+						popouts: {
+							label: "Mostrar em Popouts",
+							description: "Mostrar los permisos de usuario en popouts como los roles."
+						},
+						contextMenus: {
+							label: "Botão do menu de contexto",
+							description: "Adicionar um botão parar ver permissões ao menu de contexto."
+						}
+					}
+				}
+			};
 			case "de": // German
 			return {
 				contextMenu: {
