@@ -399,7 +399,7 @@ class PermissionsViewer {
 	}
 
 	bindContextMenus() {
-		this.contextObserver.observe(document.querySelector('#app-mount'), {childList: true, subtree: true});
+		this.contextObserver.observe(document.querySelector('.app'), {childList: true, subtree: true});
 	}
 
 	unbindContextMenus() {
@@ -435,7 +435,7 @@ class PermissionsViewer {
 	}
 
 	bindPopouts() {
-		this.popoutObserver.observe(document.querySelector('#app-mount'), {childList: true, subtree: true});
+		this.popoutObserver.observe(document.querySelector('.popouts') || document.querySelector('#app-mount'), {childList: true, subtree: true});
 	}
 
 	unbindPopouts() {
