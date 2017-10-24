@@ -6,7 +6,7 @@ class PermissionsViewer {
 	getName() { return "PermissionsViewer"; }
 	getShortName() { return "PermissionsViewer"; }
 	getDescription() { return "Allows you to view a user's permissions. Thanks to Noodlebox for the idea! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.5"; }
+	getVersion() { return "0.0.6"; }
 	getAuthor() { return "Zerebos"; }
 	
 	constructor() {
@@ -366,12 +366,13 @@ class PermissionsViewer {
 	
 	start() {
 		var libraryScript = document.getElementById('zeresLibraryScript');
-		if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
-		libraryScript = document.createElement("script");
-		libraryScript.setAttribute("type", "text/javascript");
-		libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
-		libraryScript.setAttribute("id", "zeresLibraryScript");
-		document.head.appendChild(libraryScript);
+		if (!libraryScript) {
+			libraryScript = document.createElement("script");
+			libraryScript.setAttribute("type", "text/javascript");
+			libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
+			libraryScript.setAttribute("id", "zeresLibraryScript");
+			document.head.appendChild(libraryScript);
+		}
 
 		if (typeof window.ZeresLibrary !== "undefined") this.initialize();
 		else libraryScript.addEventListener("load", () => { this.initialize(); });
@@ -388,7 +389,7 @@ class PermissionsViewer {
 		if (this.settings.plugin.popouts) this.bindPopouts();
 		if (this.settings.plugin.contextMenus) this.bindContextMenus();
 		this.initialized = true;
-		PluginUtilities.showToast(this.getName() + " " + this.getVersion() + " has initialized.");
+		PluginUtilities.showToast(this.getName() + " " + this.getVersion() + " has started.");
 	}
 
 	stop() {
@@ -398,7 +399,7 @@ class PermissionsViewer {
 	}
 
 	bindContextMenus() {
-		this.contextObserver.observe(document.querySelector('.app'), {childList: true, subtree: true});
+		this.contextObserver.observe(document.querySelector('#app-mount'), {childList: true, subtree: true});
 	}
 
 	unbindContextMenus() {
@@ -434,7 +435,7 @@ class PermissionsViewer {
 	}
 
 	bindPopouts() {
-		this.popoutObserver.observe(document.querySelector('.app'), {childList: true, subtree: true});
+		this.popoutObserver.observe(document.querySelector('#app-mount'), {childList: true, subtree: true});
 	}
 
 	unbindPopouts() {
@@ -488,7 +489,8 @@ class PermissionsViewer {
 
 	showModal(modal) {
 		$('.userPopout-4pfA0d').hide();
-		$('.app').siblings('[class*="theme-"]').first().append(modal);
+		if (document.querySelector('.app-XZYfmp')) $('.app-XZYfmp').siblings('[class*="theme-"]:not(.popouts)').first().append(modal);
+		else $('.app').siblings('[class*="theme-"]').first().append(modal);
 	}
 
 	createModal(name, user, guild) {

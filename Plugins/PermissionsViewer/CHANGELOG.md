@@ -1,5 +1,9 @@
 # PermissionsViewer Changelog
 
+### 0.0.6
+
+ - Why does discord keep rearranging
+
 ### 0.0.5
 
  - Fix blurring issue for popouts
