@@ -6,7 +6,7 @@ class PermissionsViewer {
 	getName() { return "PermissionsViewer"; }
 	getShortName() { return "PermissionsViewer"; }
 	getDescription() { return "Allows you to view a user's permissions. Thanks to Noodlebox for the idea! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.6"; }
+	getVersion() { return "0.0.7"; }
 	getAuthor() { return "Zerebos"; }
 	
 	constructor() {
@@ -599,64 +599,64 @@ class PermissionsViewer {
 	getStrings() {
 		switch (document.documentElement.getAttribute('lang').split('-')[0]) {
 			case "es": // Spanish
-			return {
-				contextMenu: {
-					label: "Permisos",
-				},
-				popout: {
-					label: "Permisos",
-				},
-				modal: {
-					header: "Permisos de ${name}",
-					rolesLabel: "Roles",
-					permissionsLabel: "Permisos",
-					owner: "@propietario"
-				},
-				permissions: {
-					administrator: {name: "Administrador", short: "Admin"},
-					viewAuditLog: {name: "Ver el Registro de Auditoría", short: "Registro de Auditoría"},
-					manageServer: {name: "Administrar el Servidor", short: "Administrar el Servidor"},
-					manageRoles: {name: "Administrar Roles", short: "Administrar Roles"},
-					manageChannels: {name: "Administrar Canales", short: "Administrar Canales"},
-					kickMembers: {name: "Expulsar Miembros", short: "Expulsar"},
-					banMembers: {name: "Bloquear Miembros", short: "Bloquear"},
-					createInvite: {name: "Crear Invitación Instantánea", short: "Crear Invitación"},
-					changeNickname: {name: "Cambiar Apodo", short: "Apodo"},
-					manageNicknames: {name: "Administrar Apodos", short: "Administrar Apodos"},
-					manageEmojis: {name: "Administrar Emojis", short: "Administrar Emojis"},
-					manageWebhooks: {name: "Administrar Webhooks", short: "Administrar Webhooks"},
-					readMessages: {name: "Leer Mensajes", short: "Leer"},
-					sendTTSMessages: {name: "Enviar Mensajes de TTS", short: "TTS"},
-					embedLinks: {name: "Insertar Enlaces", short: "Enlaces"},
-					readMessageHistory: {name: "Leer el Historial de Mensajes", short: "Leer el Historial"},
-					useExternalEmojis: {name: "Usar Emojis Externos", short: "Emojis Externos"},
-					sendMessages: {name: "Enviar Mensajes", short: "Enviar"},
-					manageMessages: {name: "Administrar Mensajes", short: "Administrar mensajes"},
-					attachFiles: {name: "Adjuntar Archivos", short: "Adjuntar"},
-					mentionEveryone: {name: "Mencionar a Todos", short: "Mencionar a todos"},
-					addReactions: {name: "Añadir Reacciones", short: "Reacciones"},
-					viewChannel: {name: "Ver Canales de Voz", short: "Ver Canales de Voz"},
-					connect: {name: "Conectar", short: "Conectar"},
-					muteMembers: {name: "Silenciar Miembros", short: "Silenciar"},
-					moveMembers: {name: "Mover Miembros", short: "Mover"},
-					speak: {name: "Hablar", short: "Hablar"},
-					deafenMembers: {name: "Ensordecer Miembros", short: "Ensordecer"},
-					useVoiceActivity: {name: "Usar la actividad de voz", short: "Actividad de Voz"},
-				},
-				settings: {
-					pluginOptions: {
-						label: "Opciones de Plugin",
-						popouts: {
-							label: "Mostrar en Popouts",
-							description: "Mostrar los permisos de usuario en popouts como los roles."
-						},
-						contextMenus: {
-							label: "Botón de menú contextual",
-							description: "Añadir un botón para ver permisos en los menús contextuales."
+				return {
+					contextMenu: {
+						label: "Permisos",
+					},
+					popout: {
+						label: "Permisos",
+					},
+					modal: {
+						header: "Permisos de ${name}",
+						rolesLabel: "Roles",
+						permissionsLabel: "Permisos",
+						owner: "@propietario"
+					},
+					permissions: {
+						administrator: {name: "Administrador", short: "Admin"},
+						viewAuditLog: {name: "Ver el Registro de Auditoría", short: "Registro de Auditoría"},
+						manageServer: {name: "Administrar el Servidor", short: "Administrar el Servidor"},
+						manageRoles: {name: "Administrar Roles", short: "Administrar Roles"},
+						manageChannels: {name: "Administrar Canales", short: "Administrar Canales"},
+						kickMembers: {name: "Expulsar Miembros", short: "Expulsar"},
+						banMembers: {name: "Bloquear Miembros", short: "Bloquear"},
+						createInvite: {name: "Crear Invitación Instantánea", short: "Crear Invitación"},
+						changeNickname: {name: "Cambiar Apodo", short: "Apodo"},
+						manageNicknames: {name: "Administrar Apodos", short: "Administrar Apodos"},
+						manageEmojis: {name: "Administrar Emojis", short: "Administrar Emojis"},
+						manageWebhooks: {name: "Administrar Webhooks", short: "Administrar Webhooks"},
+						readMessages: {name: "Leer Mensajes", short: "Leer"},
+						sendTTSMessages: {name: "Enviar Mensajes de TTS", short: "TTS"},
+						embedLinks: {name: "Insertar Enlaces", short: "Enlaces"},
+						readMessageHistory: {name: "Leer el Historial de Mensajes", short: "Leer el Historial"},
+						useExternalEmojis: {name: "Usar Emojis Externos", short: "Emojis Externos"},
+						sendMessages: {name: "Enviar Mensajes", short: "Enviar"},
+						manageMessages: {name: "Administrar Mensajes", short: "Administrar mensajes"},
+						attachFiles: {name: "Adjuntar Archivos", short: "Adjuntar"},
+						mentionEveryone: {name: "Mencionar a Todos", short: "Mencionar a todos"},
+						addReactions: {name: "Añadir Reacciones", short: "Reacciones"},
+						viewChannel: {name: "Ver Canales de Voz", short: "Ver Canales de Voz"},
+						connect: {name: "Conectar", short: "Conectar"},
+						muteMembers: {name: "Silenciar Miembros", short: "Silenciar"},
+						moveMembers: {name: "Mover Miembros", short: "Mover"},
+						speak: {name: "Hablar", short: "Hablar"},
+						deafenMembers: {name: "Ensordecer Miembros", short: "Ensordecer"},
+						useVoiceActivity: {name: "Usar la actividad de voz", short: "Actividad de Voz"},
+					},
+					settings: {
+						pluginOptions: {
+							label: "Opciones de Plugin",
+							popouts: {
+								label: "Mostrar en Popouts",
+								description: "Mostrar los permisos de usuario en popouts como los roles."
+							},
+							contextMenus: {
+								label: "Botón de menú contextual",
+								description: "Añadir un botón para ver permisos en los menús contextuales."
+							}
 						}
 					}
-				}
-			};
+				};
 			case "pt": // Portuguese
 			return {
 				contextMenu: {
@@ -707,7 +707,7 @@ class PermissionsViewer {
 						label: "Opções do Plugin",
 						popouts: {
 							label: "Mostrar em Popouts",
-							description: "Mostrar los permisos de usuario en popouts como los roles."
+							description: "Mostrar as permissões em popouts como os cargos."
 						},
 						contextMenus: {
 							label: "Botão do menu de contexto",
@@ -717,64 +717,64 @@ class PermissionsViewer {
 				}
 			};
 			case "de": // German
-			return {
-				contextMenu: {
-					label: "Berechtigungen",
-				},
-				popout: {
-					label: "Berechtigungen",
-				},
-				modal: {
-					header: "${name}s Berechtigungen",
-					rolesLabel: "Rollen",
-					permissionsLabel: "Berechtigungen",
-					owner: "@eigentümer"
-				},
-				permissions: {
-					administrator: {name: "Administrator", short: "Administrator"},
-					viewAuditLog: {name: "Audit-Log anzeigen", short: "Audit-Log"},
-					manageServer: {name: "Server Verwalten", short: "Server Verwalten"},
-					manageRoles: {name: "Rollen Verwalten", short: "Rollen Verwalten"},
-					manageChannels: {name: "Kanäle Verwalten", short: "Kanäle Verwalten"},
-					kickMembers: {name: "Mitglieder Kicken", short: "Kicken"},
-					banMembers: {name: "Mitglieder Bannen", short: "Bannen"},
-					createInvite: {name: "Soforteinladung Erstellen", short: "Soforteinladung erstellen"},
-					changeNickname: {name: "Nickname ändern", short: "Nickname"},
-					manageNicknames: {name: "Nicknamen Verwalten", short: "Nicknamen Verwalten"},
-					manageEmojis: {name: "Emojis Verwalten", short: "Emojis Verwalten"},
-					manageWebhooks: {name: "WebHooks Verwalten", short: "WebHooks Verwalten"},
-					readMessages: {name: "Nachrichten Lesen", short: "Lesen"},
-					sendTTSMessages: {name: "Verschicke Text-zu-Sprache-Nachrichten", short: "Text-zu-Sprache"},
-					embedLinks: {name: "Links einbinden", short: "Einbinden"},
-					readMessageHistory: {name: "Nachrichtenverlauf Lesen", short: "Nachrichtenverlauf lesen"},
-					useExternalEmojis: {name: "Benutzerdefinierte Emojis verwenden", short: "Benutzerdefinierte Emojis verwenden"},
-					sendMessages: {name: "Nachrichten Versenden", short: "Versenden"},
-					manageMessages: {name: "Nachrichten Verwalten", short: "Nachrichten Verwalten"},
-					attachFiles: {name: "Dateien Anhängen", short: "Anhängen"},
-					mentionEveryone: {name: "Alle Erwähnen", short: "Alle erwähnen"},
-					addReactions: {name: "Reaktionen hinzufügen", short: "Reaktionen hinzufügen"},
-					viewChannel: {name: "Kanal Ansehen", short: "Kanal ansehen"},
-					connect: {name: "Verbinden", short: "Verbinden"},
-					muteMembers: {name: "Mitglieder Stumm Schalten", short: "Mitglieder stumm schalten"},
-					moveMembers: {name: "Mitglieder Taub Schalten", short: "Mitglieder taub schalten"},
-					speak: {name: "Sprechen", short: "Sprechen"},
-					deafenMembers: {name: "Mitglieder verschieben", short: "Mitglieder verschieben"},
-					useVoiceActivity: {name: "Sprachaktivierung verwenden", short: "Sprachaktivierung verwenden"},
-				},
-				settings: {
-					pluginOptions: {
-						label: "Plugin-Optionen",
-						popouts: {
-							label: "In Popouts anzeigen",
-							description: "Zeigt die Gesamtberechtigungen eines Benutzers in seinem Popup ähnlich den Rollen an."
-						},
-						contextMenus: {
-							label: "Kontextmenü-Schaltfläche",
-							description: "Fügt eine Schaltfläche hinzu, um die Berechtigungen mithilfe von Kontextmenüs anzuzeigen."
+				return {
+					contextMenu: {
+						label: "Berechtigungen",
+					},
+					popout: {
+						label: "Berechtigungen",
+					},
+					modal: {
+						header: "${name}s Berechtigungen",
+						rolesLabel: "Rollen",
+						permissionsLabel: "Berechtigungen",
+						owner: "@eigentümer"
+					},
+					permissions: {
+						administrator: {name: "Administrator", short: "Administrator"},
+						viewAuditLog: {name: "Audit-Log anzeigen", short: "Audit-Log"},
+						manageServer: {name: "Server Verwalten", short: "Server Verwalten"},
+						manageRoles: {name: "Rollen Verwalten", short: "Rollen Verwalten"},
+						manageChannels: {name: "Kanäle Verwalten", short: "Kanäle Verwalten"},
+						kickMembers: {name: "Mitglieder Kicken", short: "Kicken"},
+						banMembers: {name: "Mitglieder Bannen", short: "Bannen"},
+						createInvite: {name: "Soforteinladung Erstellen", short: "Soforteinladung erstellen"},
+						changeNickname: {name: "Nickname ändern", short: "Nickname"},
+						manageNicknames: {name: "Nicknamen Verwalten", short: "Nicknamen Verwalten"},
+						manageEmojis: {name: "Emojis Verwalten", short: "Emojis Verwalten"},
+						manageWebhooks: {name: "WebHooks Verwalten", short: "WebHooks Verwalten"},
+						readMessages: {name: "Nachrichten Lesen", short: "Lesen"},
+						sendTTSMessages: {name: "Verschicke Text-zu-Sprache-Nachrichten", short: "Text-zu-Sprache"},
+						embedLinks: {name: "Links einbinden", short: "Einbinden"},
+						readMessageHistory: {name: "Nachrichtenverlauf Lesen", short: "Nachrichtenverlauf lesen"},
+						useExternalEmojis: {name: "Benutzerdefinierte Emojis verwenden", short: "Benutzerdefinierte Emojis verwenden"},
+						sendMessages: {name: "Nachrichten Versenden", short: "Versenden"},
+						manageMessages: {name: "Nachrichten Verwalten", short: "Nachrichten Verwalten"},
+						attachFiles: {name: "Dateien Anhängen", short: "Anhängen"},
+						mentionEveryone: {name: "Alle Erwähnen", short: "Alle erwähnen"},
+						addReactions: {name: "Reaktionen hinzufügen", short: "Reaktionen hinzufügen"},
+						viewChannel: {name: "Kanal Ansehen", short: "Kanal ansehen"},
+						connect: {name: "Verbinden", short: "Verbinden"},
+						muteMembers: {name: "Mitglieder Stumm Schalten", short: "Mitglieder stumm schalten"},
+						moveMembers: {name: "Mitglieder Taub Schalten", short: "Mitglieder taub schalten"},
+						speak: {name: "Sprechen", short: "Sprechen"},
+						deafenMembers: {name: "Mitglieder verschieben", short: "Mitglieder verschieben"},
+						useVoiceActivity: {name: "Sprachaktivierung verwenden", short: "Sprachaktivierung verwenden"},
+					},
+					settings: {
+						pluginOptions: {
+							label: "Plugin-Optionen",
+							popouts: {
+								label: "In Popouts anzeigen",
+								description: "Zeigt die Gesamtberechtigungen eines Benutzers in seinem Popup ähnlich den Rollen an."
+							},
+							contextMenus: {
+								label: "Kontextmenü-Schaltfläche",
+								description: "Fügt eine Schaltfläche hinzu, um die Berechtigungen mithilfe von Kontextmenüs anzuzeigen."
+							}
 						}
 					}
-				}
-			};
+				};
 			default: // English
 				return {
 					contextMenu: {
