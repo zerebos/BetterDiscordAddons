@@ -702,7 +702,7 @@ PluginUtilities.showToast = function(content, options = {}) {
     let toastElem = document.createElement("div");
     toastElem.classList.add("toast");
 	if (type) toastElem.classList.add("toast-" + type);
-	if (icon) toastElem.classList.add("icon");
+	if (type && icon) toastElem.classList.add("icon");
     toastElem.innerText = content;
     document.querySelector('.toasts').appendChild(toastElem);
     setTimeout(() => {
