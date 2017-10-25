@@ -8,7 +8,7 @@ var PluginContextMenu = {};
 var PluginTooltip = {};
 var DiscordPermissions = {};
 
-/* global bdPluginStorage:false, BdApi:false, Symbol:false */
+/* global bdPluginStorage:false, BdApi:false, Symbol:false, webpackJsonp:false, _:false */
 
 DiscordPermissions = class DiscordPermissions {
 	constructor(perms) {
@@ -268,6 +268,64 @@ ReactUtilities.getReactKey = function(config) {
 
 	return searchKeyInReact(inst, 0);
 };
+
+
+// getOwnerInstance for Nirewen from Samogot/Noodlebox
+ReactUtilities.getOwnerInstance = function(e, {include, exclude = ["Popout", "Tooltip", "Scroller", "BackgroundFlash"]} = {}) {
+	if (e === undefined)
+		return undefined;
+	const excluding = include === undefined;
+	const filter = excluding ? exclude : include;
+	function getDisplayName(owner) {
+		const type = owner.type;
+		return type.displayName || type.name || null;
+	}
+	function classFilter(owner) {
+		const name = getDisplayName(owner);
+		return (name !== null && !!(filter.includes(name) ^ excluding));
+	}
+	
+	for (let curr = this.getInternalInstance(e).return; !_.isNil(curr); curr = curr.return) {
+		if (_.isNil(curr))
+			continue;
+		let owner = curr.stateNode;
+		if (!_.isNil(owner) && !(owner instanceof HTMLElement) && classFilter(curr))
+			return owner;
+	}
+	
+	return null;
+};
+
+// getOwnerInstance for Nirewen from Samogot/Noodlebox
+PluginUtilities.WebpackModules = (() => {
+	const req = webpackJsonp([], {
+		'__extra_id__': (module, exports, req) => exports.default = req
+	}, ['__extra_id__']).default;
+	delete req.m['__extra_id__'];
+	delete req.c['__extra_id__'];
+	const find = (filter) => {
+		for (let i in req.c) {
+			if (req.c.hasOwnProperty(i)) {
+				let m = req.c[i].exports;
+				if (m && m.__esModule && m.default) m = m.default;
+				if (m && filter(m)) return m;
+			}
+		}
+		console.warn('Cannot find loaded module in cache. Loading all modules may have unexpected side effects');
+		for (let i = 0; i < req.m.length; ++i) {
+			let m = req(i);
+			if (m && m.__esModule && m.default) m = m.default;
+			if (m && filter(m)) return m;
+		}
+		console.warn('Cannot find module');
+		return null;
+	};
+	
+	const findByUniqueProperties = (propNames) => find(module => propNames.every(prop => module[prop] !== undefined));
+	const findByDisplayName = (displayName) => find(module => module.displayName === displayName);
+		
+	return {find, findByUniqueProperties, findByDisplayName};
+})();
 
 PluginUtilities.getCurrentServer = function() {
 	var auditLog = document.querySelector('.guild-settings-audit-logs');
@@ -587,21 +645,46 @@ PluginUtilities.getToastCSS = function() {
 	}
 	
 	
+	.toast.icon {
+		padding-left: 30px;
+		background-size: 20px 20px;
+		background-repeat: no-repeat;
+		background-position: 6px 50%;
+	}
+	
 	.toast.toast-info {
-		background: #4a90e2;
+		background-color: #4a90e2;
+	}
+	
+	.toast.toast-info.icon {
+		background-image: url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTAgMGgyNHYyNEgweiIgZmlsbD0ibm9uZSIvPiAgICA8cGF0aCBkPSJNMTIgMkM2LjQ4IDIgMiA2LjQ4IDIgMTJzNC40OCAxMCAxMCAxMCAxMC00LjQ4IDEwLTEwUzE3LjUyIDIgMTIgMnptMSAxNWgtMnYtNmgydjZ6bTAtOGgtMlY3aDJ2MnoiLz48L3N2Zz4=);
 	}
 	
 	.toast.toast-success {
-		background: #43b581;
+		background-color: #43b581;
 	}
 	
-	.toast.toast-danger, .toast.toast-error {
-		background: #f04747;
+	.toast.toast-success.icon {
+		background-image: url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTAgMGgyNHYyNEgweiIgZmlsbD0ibm9uZSIvPiAgICA8cGF0aCBkPSJNMTIgMkM2LjQ4IDIgMiA2LjQ4IDIgMTJzNC40OCAxMCAxMCAxMCAxMC00LjQ4IDEwLTEwUzE3LjUyIDIgMTIgMnptLTIgMTVsLTUtNSAxLjQxLTEuNDFMMTAgMTQuMTdsNy41OS03LjU5TDE5IDhsLTkgOXoiLz48L3N2Zz4=);
 	}
-
-	.toast.toast-warning {
-		background: #FFC107;
-		color: black;
+	.toast.toast-danger, .toast.toast-error {
+		background-color: #f04747;
+	}
+	
+	.toast.toast-danger.icon,
+	.toast.toast-error.icon {
+		background-image: url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTAgMGgyNHYyNEgweiIgZmlsbD0ibm9uZSIvPiAgICA8cGF0aCBkPSJNMTIgMkM2LjQ4IDIgMiA2LjQ4IDIgMTJzNC40OCAxMCAxMCAxMCAxMC00LjQ4IDEwLTEwUzE3LjUyIDIgMTIgMnptMSAxNWgtMnYtMmgydjJ6bTAtNGgtMlY3aDJ2NnoiLz48L3N2Zz4=);
+	}
+	
+	.toast.toast-warning,
+	.toast.toast-warn {
+		background-color: #FFA600;
+		color: white;
+	}
+	
+	.toast.toast-warning.icon,
+	.toast.toast-warn.icon {
+		background-image: url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTAgMGgyNHYyNEgweiIgZmlsbD0ibm9uZSIvPiAgICA8cGF0aCBkPSJNMSAyMWgyMkwxMiAyIDEgMjF6bTEyLTNoLTJ2LTJoMnYyem0wLTRoLTJ2LTRoMnY0eiIvPjwvc3ZnPg==);
 	}
 		`;
 };
@@ -615,10 +698,11 @@ PluginUtilities.showToast = function(content, options = {}) {
         toastWrapper.style.setProperty("bottom", (document.querySelector('.chat form') ? document.querySelector('.chat form').offsetHeight : 80) + "px");
         document.querySelector('.app').appendChild(toastWrapper);
     }
-    const {type = "", timeout = 3000} = options;
+    const {type = "", icon = true, timeout = 3000} = options;
     let toastElem = document.createElement("div");
     toastElem.classList.add("toast");
-    if (type) toastElem.classList.add("toast-" + type);
+	if (type) toastElem.classList.add("toast-" + type);
+	if (icon) toastElem.classList.add("icon");
     toastElem.innerText = content;
     document.querySelector('.toasts').appendChild(toastElem);
     setTimeout(() => {
