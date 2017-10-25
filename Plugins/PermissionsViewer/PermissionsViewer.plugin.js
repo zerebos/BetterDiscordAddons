@@ -6,7 +6,7 @@ class PermissionsViewer {
 	getName() { return "PermissionsViewer"; }
 	getShortName() { return "PermissionsViewer"; }
 	getDescription() { return "Allows you to view a user's permissions. Thanks to Noodlebox for the idea! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.7"; }
+	getVersion() { return "0.0.6"; }
 	getAuthor() { return "Zerebos"; }
 	
 	constructor() {
