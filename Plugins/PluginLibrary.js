@@ -538,83 +538,96 @@ PluginUpdateUtilities.removeUpdateNotice = function(pluginName) {
 PluginUtilities.getToastCSS = function() {
 	return `/* Toast CSS */
 	
-		.toasts {
-			position: fixed;
-			display: flex;
-			top: 0;
-			flex-direction: column;
-			align-items: center;
-			justify-content: flex-end;
-			pointer-events: none;
-			z-index: 4000;
-		}
+	.toasts {
+		position: fixed;
+		display: flex;
+		top: 0;
+		flex-direction: column;
+		align-items: center;
+		justify-content: flex-end;
+		pointer-events: none;
+		z-index: 4000;
+	}
 	
-		@keyframes toast-up {
-			from {
-				transform: translateY(0);
-				opacity: 0;
-			}
-			to {
-				transform: translateY(-10px);
-				opacity: 1;
-			}
-		}
-		
-		.toast {
-			animation: toast-up 300ms ease;
-			animation-fill-mode: forwards;
+	@keyframes toast-up {
+		from {
 			transform: translateY(0);
-			background: #36393F; /* #2F3136, #36393F */
-			padding: 10px;
-			border-radius: 5px;
-			box-shadow: 0 0 0 1px rgba(32,34,37,.6), 0 2px 10px 0 rgba(0,0,0,.2);
-			color: #dcddde;
-			user-select: text;
-			font-size: 14px;
 			opacity: 0;
-			margin-top: 10px;
-			pointer-events: auto;
 		}
+	}
 	
-		@keyframes toast-down {
-			from {
-				transform: translateY(-10px);
-				opacity: 1;
-			}
-			to {
-				transform: translateY(0px);
-				opacity: 0;
-			}
+	.toast {
+		animation: toast-up 300ms ease;
+		transform: translateY(-10px);
+		background: #36393F;
+		padding: 10px;
+		border-radius: 5px;
+		box-shadow: 0 0 0 1px rgba(32,34,37,.6), 0 2px 10px 0 rgba(0,0,0,.2);
+		font-weight: 500;
+		color: #fff;
+		user-select: text;
+		font-size: 14px;
+		opacity: 1;
+		margin-top: 10px;
+		pointer-events: auto;
+	}
+	
+	@keyframes toast-down {
+		to {
+			transform: translateY(0px);
+			opacity: 0;
 		}
+	}
 	
-		.toast.closing {
-			animation: toast-down 200ms ease;
-			animation-fill-mode: forwards;
-			opacity: 1;
-			transform: translateY(-10px);
-		}    
+	.toast.closing {
+		animation: toast-down 200ms ease;
+		animation-fill-mode: forwards;
+		opacity: 1;
+		transform: translateY(-10px);
+	}
+	
+	
+	.toast.toast-info {
+		background: #4a90e2;
+	}
+	
+	.toast.toast-success {
+		background: #43b581;
+	}
+	
+	.toast.toast-danger, .toast.toast-error {
+		background: #f04747;
+	}
+
+	.toast.toast-warning {
+		background: #FFC107;
+		color: black;
+	}
 		`;
 };
 
-PluginUtilities.showToast = function(content) {
-    if (!$('.toasts').length) {
-        let toastWrapper = $('<div class="toasts">');
-        toastWrapper.css("left", $('.chat form, #friends').offset().left);
-        toastWrapper.css("width", $('.chat form, #friends').outerWidth());
-        toastWrapper.css("bottom", document.querySelector('.chat form') ? $('.chat form').outerHeight() : 80);
-        toastWrapper.appendTo('.app');
+PluginUtilities.showToast = function(content, options = {}) {
+    if (!document.querySelector('.toasts')) {
+        let toastWrapper = document.createElement("div");
+        toastWrapper.classList.add("toasts");
+        toastWrapper.style.setProperty("left", document.querySelector('.chat form, #friends').getBoundingClientRect().left + "px");
+        toastWrapper.style.setProperty("width", document.querySelector('.chat form, #friends').offsetWidth + "px");
+        toastWrapper.style.setProperty("bottom", (document.querySelector('.chat form') ? document.querySelector('.chat form').offsetHeight : 80) + "px");
+        document.querySelector('.app').appendChild(toastWrapper);
     }
-    let toastHTML = `<div class="toast toast-info">`;
-    let toastElem = $(toastHTML);
-    toastElem.text(content);
-    toastElem.appendTo('.toasts');
+    const {type = "", timeout = 3000} = options;
+    let toastElem = document.createElement("div");
+    toastElem.classList.add("toast");
+    if (type) toastElem.classList.add("toast-" + type);
+    toastElem.innerText = content;
+    document.querySelector('.toasts').appendChild(toastElem);
     setTimeout(() => {
-        toastElem.addClass('closing');
+        toastElem.classList.add('closing');
         setTimeout(() => {
             toastElem.remove();
-            if (!$('.toasts .toast').length) $('.toasts').remove();
+            if (!document.querySelectorAll('.toasts .toast').length) document.querySelector('.toasts').remove();
         }, 300);
-    }, 3000);
+    }, timeout);
 };
 
 
