@@ -6,7 +6,7 @@ class ImageToClipboard {
 	getName() { return "ImageToClipboard"; }
 	getShortName() { return "i2c"; }
 	getDescription() { return "Copies images (png/jpg) directly to clipboard. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.2.8"; }
+	getVersion() { return "0.2.9"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -133,11 +133,11 @@ class ImageToClipboard {
 				};
 			case "pt": // Portuguese
 				return {
-					startMessage: "${pluginName} ${version} iniciado.",
-					contextMenuLabel: "Copy Imagem",
-					modalLabel: "Copiar Original",
-					copySuccess: "Imagem copiada para a área de transferência.",
-					copyFailed: "Houve uma questão de copiar a imagem."
+					startMessage: "${pluginName} ${version} iniciado",
+					contextMenuLabel: "Copiar imagem",
+					modalLabel: "Copiar original",
+					copySuccess: "Imagem copiada para a área de transferência",
+					copyFailed: "Houve um problema ao copiar a imagem"
 				};
 			case "de": // German
 				return {
