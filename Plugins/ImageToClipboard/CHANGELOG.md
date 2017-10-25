@@ -1,5 +1,10 @@
 # ImageToClipboard Changelog
 
+### 0.2.8
+
+ - Add translations
+ - Use the new toasts to let people know the image was copied
+
 ### 0.2.7
 
  - Use request instead of cors-anywhere

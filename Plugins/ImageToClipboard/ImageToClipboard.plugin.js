@@ -6,7 +6,7 @@ class ImageToClipboard {
 	getName() { return "ImageToClipboard"; }
 	getShortName() { return "i2c"; }
 	getDescription() { return "Copies images (png/jpg) directly to clipboard. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.2.7"; }
+	getVersion() { return "0.2.8"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -17,8 +17,9 @@ class ImageToClipboard {
 		this.path = require("path");
 		this.fileSystem = require("fs");
 		this.process = require("process");
-		this.link = '<a target="_blank" rel="noreferrer" class="download-button">Copy original</a>';
-		this.contextItem = '<div class="item-group i2c-group"><div class="item i2c-item"><span>Copy Image</span><div class="hint"></div></div></div>';
+		this.link = '<a target="_blank" rel="noreferrer" class="download-button">${modalLabel}</a>';
+		this.contextItem = '<div class="item-group i2c-group"><div class="item i2c-item"><span>${contextMenuLabel}</span><div class="hint"></div></div></div>';
+		this.strings = this.getStrings();
 	}
 	
 	load() {}
@@ -26,12 +27,13 @@ class ImageToClipboard {
 	
 	start() {
 		var libraryScript = document.getElementById('zeresLibraryScript');
-		if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
-		libraryScript = document.createElement("script");
-		libraryScript.setAttribute("type", "text/javascript");
-		libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
-		libraryScript.setAttribute("id", "zeresLibraryScript");
-		document.head.appendChild(libraryScript);
+		if (!libraryScript) {
+			libraryScript = document.createElement("script");
+			libraryScript.setAttribute("type", "text/javascript");
+			libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
+			libraryScript.setAttribute("id", "zeresLibraryScript");
+			document.head.appendChild(libraryScript);
+		}
 
 		if (typeof window.ZeresLibrary !== "undefined") this.initialize();
 		else libraryScript.addEventListener("load", () => { this.initialize(); });
@@ -41,13 +43,18 @@ class ImageToClipboard {
 	}
 
 	initialize() {
+		this.localize();
 		this.initialized = true;
 		PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
+		PluginUtilities.showToast(this.strings.startMessage);
 	}
 
 	copyToClipboard(url) {
 		this.request({url: url, encoding: null}, (error, response, buffer) => {
-			if (error) return;
+			if (error) {
+				PluginUtilities.showToast(this.strings.copyFailed, {type: "danger"});
+				return;
+			}
 			if (this.process.platform === "win32" || this.process.platform === "darwin") {
 				this.clipboard.write({image: this.nativeImage.createFromBuffer(buffer)});
 			}
@@ -57,6 +64,7 @@ class ImageToClipboard {
 					this.clipboard.write({image: file});
 					this.fileSystem.unlinkSync(file);
 			}
+			PluginUtilities.showToast(this.strings.copySuccess, {type: "success"});
 		});
 	}
 
@@ -103,4 +111,50 @@ class ImageToClipboard {
 	}
 
 	getSettingsPanel() {}
+
+	localize() {
+		this.strings = this.getStrings();
+		this.contextItem = PluginUtilities.formatString(this.contextItem, this.strings);
+		this.link = PluginUtilities.formatString(this.link, this.strings);
+		this.strings.startMessage = PluginUtilities.formatString(this.strings.startMessage, {pluginName: this.getName(), version: this.getVersion()});
+	}
+
+	getStrings() {
+		let lang = "";
+		if (document.documentElement.getAttribute('lang')) lang = document.documentElement.getAttribute('lang').split('-')[0];
+		switch (lang) {
+			case "es": // Spanish
+				return {
+					startMessage: "${pluginName} ${version} ha empezado.",
+					contextMenuLabel: "Copiar Imagen",
+					modalLabel: "Copiar Original",
+					copySuccess: "Imagen copiada al portapapeles.",
+					copyFailed: "Hubo un problema al copiar la imagen."
+				};
+			case "pt": // Portuguese
+				return {
+					startMessage: "${pluginName} ${version} iniciado.",
+					contextMenuLabel: "Copy Imagem",
+					modalLabel: "Copiar Original",
+					copySuccess: "Imagem copiada para a área de transferência.",
+					copyFailed: "Houve uma questão de copiar a imagem."
+				};
+			case "de": // German
+				return {
+					startMessage: "${pluginName} ${version} hat begonnen.",
+					contextMenuLabel: "Kopiere das Bild",
+					modalLabel: "Original Kopieren",
+					copySuccess: "Bild in die Zwischenablage kopiert.",
+					copyFailed: "Beim Kopieren des Bildes ist ein Problem aufgetreten."
+				};
+			default: // English
+				return {
+					startMessage: "${pluginName} ${version} has started.",
+					contextMenuLabel: "Copy Image",
+					modalLabel: "Copy Original",
+					copySuccess: "Image copied to clipboard.",
+					copyFailed: "There was an issue copying the image."
+				};
+		}
+	}
 }
