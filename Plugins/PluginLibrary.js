@@ -993,6 +993,8 @@ PluginSettings.SettingField = class SettingField {
 		this.help = $("<div>").addClass("ui-form-text style-description margin-top-4").css("flex", "1 1 auto").text(helptext);
 		
 		this.top.append(this.settingLabel);
+		this.inputWrapper = $("<div>", {class: "input-wrapper"});
+		this.top.append(this.inputWrapper);
 		this.row.append(this.top, this.help);
 		
 		inputData.disabled = disabled;
@@ -1006,10 +1008,13 @@ PluginSettings.SettingField = class SettingField {
 				callback(returnVal);
 			}
 		});
+
+		this.setInputElement(this.input);
 	}
 	
 	setInputElement(node) {
-		this.top.append(node);
+		this.inputWrapper.empty();
+		this.inputWrapper.append(node);
 	}
 	
 	getElement() { return this.row; }
