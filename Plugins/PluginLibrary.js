@@ -970,7 +970,8 @@ PluginSettings.ControlGroup = class ControlGroup {
 	
 	append(...nodes) {
 		for (var i = 0; i < nodes.length; i++) {
-			this.controls.append(nodes[i].getElement());
+			if (nodes[i] instanceof jQuery || nodes[i] instanceof Element) this.controls.append(nodes[i]);
+			else if (nodes[i] instanceof PluginSettings.SettingField) this.controls.append(nodes[i].getElement());
 		}
 		return this;
 	}
