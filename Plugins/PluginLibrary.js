@@ -753,8 +753,8 @@ PluginUtilities.formatString = function(string, values) {
 PluginUtilities.createSwitchObserver = function(plugin) {
 	let switchObserver = new MutationObserver((changes) => {
 		changes.forEach((change) => {
-			if (change.addedNodes.length && change.addedNodes[0] instanceof Element && (change.addedNodes[0].classList.contains("messages-wrapper") || change.addedNodes[0].id === "friends")) plugin.onChannelSwitch();
-			if (change.removedNodes.length && change.removedNodes[0] instanceof Element && change.removedNodes[0].id === "friends") plugin.onChannelSwitch();
+			if (change.addedNodes.length && change.addedNodes[0] instanceof Element && (change.addedNodes[0].classList.contains("messages-wrapper") || change.addedNodes[0].classList.contains("activityFeed-HeiGwL") || change.addedNodes[0].id === "friends")) plugin.onChannelSwitch();
+			if (change.removedNodes.length && change.removedNodes[0] instanceof Element && (change.removedNodes[0].classList.contains("activityFeed-HeiGwL") || change.removedNodes[0].id === "friends")) plugin.onChannelSwitch();
 		});
 	});
 	switchObserver.observe((document.querySelector('.chat') || document.querySelector('#friends')).parentElement, {childList: true, subtree:true});
