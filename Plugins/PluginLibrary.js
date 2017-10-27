@@ -285,7 +285,7 @@ ReactUtilities.getOwnerInstance = function(e, {include, exclude = ["Popout", "To
 		return (name !== null && !!(filter.includes(name) ^ excluding));
 	}
 	
-	for (let curr = this.getInternalInstance(e).return; !_.isNil(curr); curr = curr.return) {
+	for (let curr = ReactUtilities.getReactInstance(e).return; !_.isNil(curr); curr = curr.return) {
 		if (_.isNil(curr))
 			continue;
 		let owner = curr.stateNode;
