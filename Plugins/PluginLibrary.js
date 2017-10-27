@@ -545,8 +545,10 @@ PluginUpdateUtilities.downloadPlugin = function(pluginName, updateLink) {
         filename = filename[filename.length - 1];
         var file = path.join(PluginUtilities.getPluginsFolder(), filename);
         fileSystem.writeFileSync(file, body);
-        PluginUtilities.showToast(`${pluginName} ${window.PluginUpdates.plugins[updateLink].version} has been replaced by ${pluginName} ${remoteVersion}`);
-        if (!window.bdplugins["Restart-No-More"] || !window.bdplugins["Restart No More"] || !window.pluginCookie["Restart-No-More"] || !window.pluginCookie["Restart No More"]) {
+		PluginUtilities.showToast(`${pluginName} ${window.PluginUpdates.plugins[updateLink].version} has been replaced by ${pluginName} ${remoteVersion}`);
+		let oldRNM = window.bdplugins["Restart-No-More"] && window.pluginCookie["Restart-No-More"];
+		let newRNM = window.bdplugins["Restart No More"] && window.pluginCookie["Restart No More"];
+        if (!(oldRNM || newRNM)) {
             if (!window.PluginUpdates.downloaded) {
                 window.PluginUpdates.downloaded = [];
                 let button = $('<button class="btn btn-reload">Reload</button>');
