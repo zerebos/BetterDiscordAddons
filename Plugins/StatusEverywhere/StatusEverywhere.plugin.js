@@ -66,6 +66,7 @@ class StatusEverywhere {
 		this.currentServer = PluginUtilities.getCurrentServer();
 		setTimeout(() => {
 			this.getAllUsers();
+			this.attachStatuses();
 		}, 500);
 	}
 
