@@ -987,7 +987,7 @@ PluginSettings.ControlGroup = class ControlGroup {
 };
 
 PluginSettings.SettingField = class SettingField {
-	constructor(name, helptext, inputData, callback, disabled = false) {
+	constructor(name, helptext, inputData, callback) {
 		this.name = name;
 		this.helptext = helptext;
 		this.row = $("<div>").addClass("ui-flex flex-vertical flex-justify-start flex-align-stretch flex-nowrap ui-switch-item").css("margin-top", 0);
@@ -1000,8 +1000,6 @@ PluginSettings.SettingField = class SettingField {
 		this.inputWrapper = $("<div>", {class: "input-wrapper"});
 		this.top.append(this.inputWrapper);
 		this.row.append(this.top, this.help);
-		
-		inputData.disabled = disabled;
 		
 		this.input = $("<input>", inputData);
 		this.getValue = () => {return this.input.val();};
@@ -1025,16 +1023,21 @@ PluginSettings.SettingField = class SettingField {
 };
 
 PluginSettings.Textbox = class Textbox extends PluginSettings.SettingField {
-	constructor(label, help, value, placeholder, callback, disabled) {
-		super(label, help, {type: "text", placeholder: placeholder, value: value}, callback, disabled);
+	constructor(label, help, value, placeholder, callback, options = {}) {
+		options.type = "text";
+		options.placeholder = placeholder;
+		options.value = value;
+		super(label, help, options, callback);
 		
 		this.setInputElement(this.input);
 	}
 };
 
 PluginSettings.ColorPicker = class ColorPicker extends PluginSettings.SettingField {
-	constructor(label, help, value, callback, disabled) {
-		super(label, help, {type: "color", value: value}, callback, disabled);
+	constructor(label, help, value, callback, options = {}) {
+		options.type = "color";
+		options.value = value;
+		super(label, help, options, callback);
 		this.input.css("margin-left", "10px");
 		
 		var settingLabel = $('<span class="plugin-setting-label">').text(value);
@@ -1048,8 +1051,13 @@ PluginSettings.ColorPicker = class ColorPicker extends PluginSettings.SettingFie
 };
 
 PluginSettings.Slider = class Slider extends PluginSettings.SettingField {
-	constructor(settingLabel, help, min, max, step, value, callback, disabled) {
-		super(settingLabel, help, {type: "range", min: min, max: max, step: step, value: parseFloat(value)}, callback, disabled);
+	constructor(settingLabel, help, min, max, step, value, callback, options = {}) {
+		options.type = "range";
+		options.min = min;
+		options.max = max;
+		options.step = step;
+		options.value = parseFloat(value);
+		super(settingLabel, help, options, callback);
 		this.value = parseFloat(value); this.min = min; this.max = max;
 		
 		this.getValue = () => { return parseFloat(this.input.val()); };
@@ -1081,8 +1089,10 @@ PluginSettings.Slider = class Slider extends PluginSettings.SettingField {
 };
 
 PluginSettings.Checkbox = class Checkbox extends PluginSettings.SettingField {
-	constructor(label, help, isChecked, callback, disabled) {
-		super(label, help, {type: "checkbox", checked: isChecked}, callback, disabled);
+	constructor(label, help, isChecked, callback, options = {}) {
+		options.type = "checkbox";
+		options.checked = isChecked;
+		super(label, help, options, callback);
 		this.getValue = () => { return this.input.prop("checked"); };
 		this.input.addClass("ui-switch-checkbox");
 
@@ -1104,8 +1114,8 @@ PluginSettings.Checkbox = class Checkbox extends PluginSettings.SettingField {
 
 // True is right side
 PluginSettings.PillButton = class PillButton extends PluginSettings.Checkbox {
-	constructor(label, help, leftLabel, rightLabel, isChecked, callback, disabled) {
-		super(label, help, isChecked, callback, disabled);
+	constructor(label, help, leftLabel, rightLabel, isChecked, callback, options = {}) {
+		super(label, help, isChecked, callback, options);
 		
 		this.checkboxWrap.css("margin","0 9px");
 		
