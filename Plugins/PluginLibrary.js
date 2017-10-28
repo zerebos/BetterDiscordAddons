@@ -936,7 +936,108 @@ PluginSettings.getAccentColor = function() {
 };
 
 PluginSettings.getCSS = function() {
-	return ".plugin-controls input:focus{outline:0}.plugin-controls input[type=range]{-webkit-appearance:none;border:none!important;border-radius:5px;height:5px;cursor:pointer}.plugin-controls input[type=range]::-webkit-slider-runnable-track{background:0 0!important}.plugin-controls input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;background:#f6f6f7;width:10px;height:20px}.plugin-controls input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 2px 10px rgba(0,0,0,.5)}.plugin-controls input[type=range]::-webkit-slider-thumb:active{box-shadow:0 2px 10px rgba(0,0,0,1)}.plugin-setting-label{color:#f6f6f7;font-weight:500}.plugin-setting-input-row{padding-right:5px!important}.plugin-setting-input-container{display:flex;align-items:center;justify-content:center}.plugin-control-group .button-collapse{background:url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxOS4wLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iQ2FscXVlXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSItOTUwIDUzMiAxOCAxOCIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAtOTUwIDUzMiAxOCAxODsiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHN0eWxlIHR5cGU9InRleHQvY3NzIj4NCgkuc3Qwe2ZpbGw6bm9uZTt9DQoJLnN0MXtmaWxsOm5vbmU7c3Ryb2tlOiNGRkZGRkY7c3Ryb2tlLXdpZHRoOjEuNTtzdHJva2UtbWl0ZXJsaW1pdDoxMDt9DQo8L3N0eWxlPg0KPHBhdGggY2xhc3M9InN0MCIgZD0iTS05MzIsNTMydjE4aC0xOHYtMThILTkzMnoiLz4NCjxwb2x5bGluZSBjbGFzcz0ic3QxIiBwb2ludHM9Ii05MzYuNiw1MzguOCAtOTQxLDU0My4yIC05NDUuNCw1MzguOCAiLz4NCjwvc3ZnPg0K);height:16px;width:16px;display:inline-block;vertical-align:bottom;transition:transform .3s ease;transform:rotate(0)}.plugin-control-group .button-collapse.collapsed{transition:transform .3s ease;transform:rotate(-90deg)}.plugin-control-group h2{font-size:14px}.plugin-controls .plugin-setting-input-container,.plugin-controls .ui-switch-wrapper{margin-top:5px}.plugin-controls.collapsed{display:none}.plugin-controls{display:block}";
+	return `/* Plugin Settings CSS */
+
+	.plugin-controls input {
+		-webkit-box-flex: 1;
+		background-color: transparent;
+		border: none;
+		color: #fff;
+		flex: 1;
+		line-height: 52px;
+		padding: 0;
+		z-index: 1;
+		-webkit-box-align: center;
+		-webkit-box-direction: normal;
+		-webkit-box-orient: horizontal;
+		align-items: center;
+		border: 1px solid rgba(0,0,0,.2);
+		background-color: rgba(0,0,0,0.3);
+		border-radius: 3px;
+		display: flex;
+		flex-direction: row;
+		height: 40px;
+		padding: 0 16px;
+		position: relative;
+	}
+
+	.plugin-controls input:focus {
+		outline: 0;
+	}
+	
+	.plugin-controls input[type=range] {
+		-webkit-appearance: none;
+		border: none!important;
+		border-radius: 5px;
+		height: 5px;
+		cursor: pointer;
+	}
+	
+	.plugin-controls input[type=range]::-webkit-slider-runnable-track {
+		background: 0 0!important;
+	}
+	
+	.plugin-controls input[type=range]::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		background: #f6f6f7;
+		width: 10px;
+		height: 20px;
+	}
+	
+	.plugin-controls input[type=range]::-webkit-slider-thumb:hover {
+		box-shadow: 0 2px 10px rgba(0,0,0,.5);
+	}
+	
+	.plugin-controls input[type=range]::-webkit-slider-thumb:active {
+		box-shadow: 0 2px 10px rgba(0,0,0,1);
+	}
+	
+	.plugin-setting-label {
+		color: #f6f6f7;
+		font-weight: 500;
+	}
+	
+	.plugin-setting-input-row {
+		padding-right: 5px!important;
+	}
+	
+	.plugin-setting-input-container {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	
+	.plugin-control-group .button-collapse {
+		background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxOS4wLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iQ2FscXVlXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSItOTUwIDUzMiAxOCAxOCIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAtOTUwIDUzMiAxOCAxODsiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHN0eWxlIHR5cGU9InRleHQvY3NzIj4NCgkuc3Qwe2ZpbGw6bm9uZTt9DQoJLnN0MXtmaWxsOm5vbmU7c3Ryb2tlOiNGRkZGRkY7c3Ryb2tlLXdpZHRoOjEuNTtzdHJva2UtbWl0ZXJsaW1pdDoxMDt9DQo8L3N0eWxlPg0KPHBhdGggY2xhc3M9InN0MCIgZD0iTS05MzIsNTMydjE4aC0xOHYtMThILTkzMnoiLz4NCjxwb2x5bGluZSBjbGFzcz0ic3QxIiBwb2ludHM9Ii05MzYuNiw1MzguOCAtOTQxLDU0My4yIC05NDUuNCw1MzguOCAiLz4NCjwvc3ZnPg0K);
+		height: 16px;
+		width: 16px;
+		display: inline-block;
+		vertical-align: bottom;
+		transition: transform .3s ease;
+		transform: rotate(0);
+	}
+	
+	.plugin-control-group .button-collapse.collapsed {
+		transition: transform .3s ease;
+		transform: rotate(-90deg);
+	}
+	
+	.plugin-control-group h2 {
+		font-size: 14px;
+	}
+	
+	.plugin-controls .plugin-setting-input-container,.plugin-controls .ui-switch-wrapper {
+		margin-top: 5px;
+	}
+	
+	.plugin-controls.collapsed {
+		display: none;
+	}
+	
+	.plugin-controls {
+		display: block;
+	}
+	`;
 };
 
 PluginSettings.createInputContainer = function() { return $('<div class="plugin-setting-input-container">');};
@@ -1002,6 +1103,7 @@ PluginSettings.SettingField = class SettingField {
 		this.row.append(this.top, this.help);
 		
 		this.input = $("<input>", inputData);
+		this.input.addClass('plugin-input');
 		this.getValue = () => {return this.input.val();};
 		this.processValue = (value) => {return value;};
 		this.input.on("keyup change", () => {
@@ -1028,6 +1130,7 @@ PluginSettings.Textbox = class Textbox extends PluginSettings.SettingField {
 		options.placeholder = placeholder;
 		options.value = value;
 		super(label, help, options, callback);
+		this.input.addClass('plugin-input-text');
 		
 		this.setInputElement(this.input);
 	}
@@ -1039,6 +1142,7 @@ PluginSettings.ColorPicker = class ColorPicker extends PluginSettings.SettingFie
 		options.value = value;
 		super(label, help, options, callback);
 		this.input.css("margin-left", "10px");
+		this.input.addClass('plugin-input-color');
 		
 		var settingLabel = $('<span class="plugin-setting-label">').text(value);
 		
@@ -1065,6 +1169,7 @@ PluginSettings.Slider = class Slider extends PluginSettings.SettingField {
 		this.accentColor = PluginSettings.getAccentColor();
 		this.setBackground();
 		this.input.css("margin-left", "10px").css("float", "right");
+		this.input.addClass('plugin-input-range');
 		
 		this.labelUnit = "";
 		this.label = $('<span class="plugin-setting-label">').text(this.value + this.labelUnit);
@@ -1095,6 +1200,7 @@ PluginSettings.Checkbox = class Checkbox extends PluginSettings.SettingField {
 		super(label, help, options, callback);
 		this.getValue = () => { return this.input.prop("checked"); };
 		this.input.addClass("ui-switch-checkbox");
+		this.input.addClass('plugin-input-checkbox');
 
 		this.input.on("change", function() {
 			if ($(this).prop("checked")) switchDiv.addClass("checked");
@@ -1118,6 +1224,7 @@ PluginSettings.PillButton = class PillButton extends PluginSettings.Checkbox {
 		super(label, help, isChecked, callback, options);
 		
 		this.checkboxWrap.css("margin","0 9px");
+		this.input.addClass('plugin-input-pill');
 		
 		var labelLeft = $('<span class="plugin-setting-label left">');
 		labelLeft.text(leftLabel);
