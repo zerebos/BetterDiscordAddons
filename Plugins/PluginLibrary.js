@@ -329,27 +329,17 @@ PluginUtilities.WebpackModules = (() => {
 
 PluginUtilities.getCurrentServer = function() {
 	var auditLog = document.querySelector('.guild-settings-audit-logs');
-	if (auditLog) return ReactUtilities.getReactKey({node: auditLog, key: "guildId"});
-	else return ReactUtilities.getReactKey({node: document.querySelector(".channels-wrap") || document.querySelector('.channels-3g2vYe'), key: "guildId", whiteList: {
-		"_currentElement":true,
-		"_instance":true,
-		"_owner":true,
-		"props":true,
-		"children":true,
-		"memoizedProps":true
-	}});
+    if (auditLog) return ReactUtilities.getReactKey({node: auditLog, key: "guildId"});
+    if (document.querySelector(".activityFeed-HeiGwL") || document.querySelector('#friends')) return null;
+    let title = document.querySelector('.title-qAcLxz');
+    if (document.querySelector('.private-channels')) return ReactUtilities.getReactProperty(title, "child.memoizedProps.1.props.channel.id");
+    else return ReactUtilities.getReactProperty(title, "child.memoizedProps.1.props.guild.id");
 };
 
 PluginUtilities.isServer = function() { return PluginUtilities.getCurrentServer() ? true : false; };
 
 PluginUtilities.getCurrentUser = function() {
-	return ReactUtilities.getReactKey({node: $('div[class*="accountDetails"]')[0].parentElement, key: "user", whiteList: {
-		"_currentElement": true,
-		"props": true,
-		"children": true,
-		"child": true,
-		"memoizedProps": true
-	}});
+	return ReactUtilities.getReactProperty(document.querySelector('.accountDetails-15i-_e'), "return.memoizedProps.user.id");
 };
 
 PluginUtilities.getAllUsers = function() {
