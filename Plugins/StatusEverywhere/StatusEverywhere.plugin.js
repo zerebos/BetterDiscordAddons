@@ -6,7 +6,7 @@ class StatusEverywhere {
 	getName() { return "StatusEverywhere"; }
 	getShortName() { return "StatusEverywhere"; }
 	getDescription() { return "Adds user status everywhere Discord doesn't. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.1.6"; }
+	getVersion() { return "0.1.7"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -30,12 +30,13 @@ class StatusEverywhere {
 	
 	start(){
 		var libraryScript = document.getElementById('zeresLibraryScript');
-		if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
-		libraryScript = document.createElement("script");
-		libraryScript.setAttribute("type", "text/javascript");
-		libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
-		libraryScript.setAttribute("id", "zeresLibraryScript");
-		document.head.appendChild(libraryScript);
+		if (!libraryScript) {
+			libraryScript = document.createElement("script");
+			libraryScript.setAttribute("type", "text/javascript");
+			libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
+			libraryScript.setAttribute("id", "zeresLibraryScript");
+			document.head.appendChild(libraryScript);
+		}
 
 		if (typeof window.ZeresLibrary !== "undefined") this.initialize();
 		else libraryScript.addEventListener("load", () => { this.initialize(); });
@@ -57,6 +58,7 @@ class StatusEverywhere {
 		this.currentServer = PluginUtilities.getCurrentServer();
 		this.getAllUsers();
 		this.attachStatuses();
+		PluginUtilities.showToast(this.getName() + " " + this.getVersion() + " has started.");
 	}
 
 	onChannelSwitch() {
@@ -82,8 +84,8 @@ class StatusEverywhere {
 				usersToAdd[0].users.push({user: props.user, status: props.status});
 			});
 		}
-		if (!usersToAdd.length && !document.querySelector('.channel-members') && !document.querySelector('#friends') && document.querySelector('.title .channel-private')) {
-			var other = ReactUtilities.getReactProperty(document.querySelector('.title'), "child.sibling");
+		if (!usersToAdd.length && !document.querySelector('.channel-members') && !document.querySelector('#friends') && document.querySelector('.chat.private')) {
+			var other = ReactUtilities.getReactProperty(document.querySelector('.title-qAcLxz .status'), "return");
 			var user = ReactUtilities.getReactProperty(document.querySelector('.container-iksrDt'), "return.memoizedProps");
 			if (!other || !user) return;
 			other = {user: {id: other.memoizedProps.userId}, status: other.memoizedState.status};
@@ -126,10 +128,6 @@ class StatusEverywhere {
 	observer(e){
 		if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element) || !this.initialized) return;
 		var elem = e.addedNodes[0];
-
-		if (elem.classList.contains("messages-wrapper")) {
-			this.attachStatuses();
-		}
 
 		if (elem.classList.contains("message-group") && !elem.querySelector('.message-sending')) {
 			this.attachStatuses(elem);
