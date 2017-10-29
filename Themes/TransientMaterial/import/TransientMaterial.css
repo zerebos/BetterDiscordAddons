@@ -12,8 +12,13 @@
 	--tm-selected-item: rgba(30,30,30, 0.7); /* Selected Channel/Server Color */
 	--tm-hover: rgba(255,255,255,0.05); /* Hover Channel/Server Color */
 	--tm-active: rgba(255,255,255,0.1); /* Clicking Channel/Server Color */
-	--tm-version: "TransientMaterial v1.2.2"; /* Current Version */
+	--tm-version: "TransientMaterial v1.2.3"; /* Current Version */
 	--tm-solo: 0;
+}
+
+#app-mount, #pubslayerroot .layer .ui-standard-sidebar-view {
+	background-size: cover !important;
+	background-position: center !important;
 }
 
 /* Fixes nonsense glitches */
@@ -21,24 +26,29 @@ html, span:not(.spinner-item) {
     backface-visibility: hidden;
 }
 
-.callout-backdrop, .bda-backdrop {
+.backdrop-2ohBEd, .bda-backdrop {
 	background: #000 !important;
 	opacity: 0.9 !important;
 }
 
 [class*="theme-"] .layers, [class*="theme-"] .layer, [class*="theme-"] .ui-standard-sidebar-view,
-[class*="theme-"] .chat, .chat>.title-wrap>.title, .messages.scroller, 
+[class*="theme-"] .chat, .chat>.titleWrapper-3Vi_wz>.title-qAcLxz, .messages.scroller, 
 .messages-wrapper .messages .message-group:not(.has-divider),
 [class*="theme-"] .messages-wrapper, #friends .friends-table,
 .container-3NvGrL, [class*="theme-"] .chat>.content,
 .flex-horizontal>.flex-spacer:not(.private-channel-call-participants),
-.channels-wrap, .container-RYiLUQ,
-[class*="theme-"] .inner-3if5cm, .theme-dark .inner-3if5cm {
+.channels-3g2vYe, .container-RYiLUQ,
+[class*="theme-"] .inner-3if5cm, .theme-dark .inner-3if5cm,
+.container-2OU7Cz, .appMount-14L89u {
     background: transparent !important;
 }
 
 /* Title Bar + Account Status */
-.chat .title-wrap, #friends .friends-header, .header-1tSljs, .container-iksrDt {
+.titleBar-3_fDwJ {
+	background: rgba(25,25,25, var(--tm-titlebar-opacity)) !important;
+}
+
+.chat .titleWrapper-3Vi_wz, #friends .friends-header, .header-1tSljs, .container-iksrDt {
     background: rgba(20,20,20, var(--tm-titlebar-opacity)) !important;
 }
 
@@ -160,7 +170,7 @@ html, span:not(.spinner-item) {
 
 
 /* Channel List */
-.channels-wrap .scroller-fzNley {
+.channels-3g2vYe .scroller-fzNley {
 	background: rgba(33,33,33, var(--tm-channels-opacity)) !important;   
 }
 
@@ -260,9 +270,9 @@ html, span:not(.spinner-item) {
     margin: 30px 6px 30px 20px;
 }
 
-.horizontal-2VE-Fw {
+/* .horizontal-2VE-Fw {
     align-items: center;
-}
+} */
 
 /* .textArea-20yzAH {
 	padding: 26px 0px;
@@ -597,7 +607,7 @@ html, span:not(.spinner-item) {
 .modal-3HOjGZ .reactors-2PjMP0 .scroller-fzNley::-webkit-scrollbar-thumb,
 .scroller-fzNley.sidebar-region-scroller::-webkit-scrollbar-thumb,
 .private-channels .scroller::-webkit-scrollbar-thumb,
-.channels-wrap .scroller-NXV0-d::-webkit-scrollbar-thumb,
+.channels-3g2vYe .scroller-NXV0-d::-webkit-scrollbar-thumb,
 .emoji-picker .scroller::-webkit-scrollbar-thumb,
 .channel-members::-webkit-scrollbar-thumb,
 .scroller-fzNley.scroller-NXV0-d::-webkit-scrollbar-thumb,
@@ -619,7 +629,7 @@ html, span:not(.spinner-item) {
 .modal-3HOjGZ .reactors-2PjMP0 .scroller-fzNley::-webkit-scrollbar-thumb:active,
 .scroller-fzNley.sidebar-region-scroller::-webkit-scrollbar-thumb:active,
 .private-channels .scroller::-webkit-scrollbar-thumb:active,
-.channels-wrap .scroller-NXV0-d::-webkit-scrollbar-thumb:active,
+.channels-3g2vYe .scroller-NXV0-d::-webkit-scrollbar-thumb:active,
 .emoji-picker .scroller::-webkit-scrollbar-thumb:active,
 .channel-members::-webkit-scrollbar-thumb:active,
 .scroller-fzNley.scroller-NXV0-d::-webkit-scrollbar-thumb:active,
@@ -637,7 +647,7 @@ html, span:not(.spinner-item) {
 .modal-3HOjGZ .reactors-2PjMP0 .scroller-fzNley::-webkit-scrollbar-track-piece,
 .scroller-fzNley.sidebar-region-scroller::-webkit-scrollbar-track-piece,
 .private-channels .scroller::-webkit-scrollbar-track-piece,
-.channels-wrap .scroller-NXV0-d::-webkit-scrollbar-track-piece,
+.channels-3g2vYe .scroller-NXV0-d::-webkit-scrollbar-track-piece,
 .emoji-picker .scroller::-webkit-scrollbar-track-piece,
 .channel-members::-webkit-scrollbar-track-piece,
 .scroller-fzNley.scroller-NXV0-d::-webkit-scrollbar-track-piece,
@@ -656,7 +666,7 @@ html, span:not(.spinner-item) {
 .modal-3HOjGZ .reactors-2PjMP0 .scroller-fzNley::-webkit-scrollbar,
 .scroller-fzNley.sidebar-region-scroller::-webkit-scrollbar,
 .private-channels .scroller::-webkit-scrollbar,
-.channels-wrap .scroller-NXV0-d::-webkit-scrollbar,
+.channels-3g2vYe .scroller-NXV0-d::-webkit-scrollbar,
 .emoji-picker .scroller::-webkit-scrollbar,
 .channel-members::-webkit-scrollbar,
 .channel-members-wrap .channel-members::-webkit-scrollbar,

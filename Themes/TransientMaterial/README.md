@@ -16,13 +16,11 @@ For support and update announcements you can visit [Zere's server](http://discor
 
 ## Instructions
 
-Either open this theme and change all the background urls to your image (https) or put this in CustomCSS:
+Either open this theme and change the background url to your image (https) or put this in CustomCSS:
 
 ```css
-.app, #pubslayerroot .layer .ui-standard-sidebar-view {
+#app-mount, #pubslayerroot .layer .ui-standard-sidebar-view {
     background-image: url("YOUR_IMAGE") !important;
-    background-size: cover !important;
-    background-position: center !important;
 }
 ```
 
