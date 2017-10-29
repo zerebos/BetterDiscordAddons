@@ -1279,11 +1279,11 @@ PluginSettings.PillButton = class PillButton extends PluginSettings.Checkbox {
 };
 
 PluginTooltip.Tooltip = class Tooltip {
-	constructor(node, tip) {
+	constructor(node, tip, style = "black") {
 		this.node = node;
 		this.tip = tip;
 		//add to .tooltips
-		this.tooltip = $('<div class="tooltip tooltip-black">');
+		this.tooltip = $(`<div class="tooltip tooltip-${style}">`);
 		this.tooltip.text(tip);
 
 		node.on('mouseenter.tooltip', () => {
