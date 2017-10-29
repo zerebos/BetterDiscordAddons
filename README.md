@@ -2,6 +2,7 @@
 A series of plugins and themes for BetterDiscord. For support or announcements on any of them visit [my (Zere's) server](http://discord.zackrauen.com/).
 
 ## Plugins
+ - [BDContextMenu](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu) - Adds BD shortcuts to the settings context menu.
  - [BetterFormattingRedux](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux) - A rewrite of Anxeal's BetterFormatting that includes new options and settings.
  - [BetterRoleColors](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors) - Adds server-based role colors to typing, voice, popouts, modals and more!
  - [BlurNSFW](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BlurNSFW) - Blurs images in NSFW channels until you hover over it.
