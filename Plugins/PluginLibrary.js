@@ -799,13 +799,14 @@ PluginContextMenu.Menu = class Menu {
 		const mouseX = x;
 		const mouseY = y;
 		
-		var depth = this.element.parents(".plugin-context-menu").length;
+		let type = this.element.parents(".plugin-context-menu").length > this.element.parents(".context-menu").length ? ".plugin-context-menu" : ".context-menu";
+		var depth = this.element.parents(type).length;
 		if (depth == 0) this.element.appendTo('.app');
 		this.element.css("top", mouseY).css("left", mouseX);
 		
 		if (depth > 0) {
-			var top = this.element.parents(".plugin-context-menu").last();
-			var closest = this.element.parents(".plugin-context-menu").first();
+			var top = this.element.parents(type).last();
+			var closest = this.element.parents(type).first();
 			var negate = closest.hasClass("invertChildX") ? -1 : 1;
 			this.element.css("margin-left", negate * 170 + closest.offset().left - top.offset().left);
 		}
@@ -845,8 +846,9 @@ PluginContextMenu.Menu = class Menu {
 	}
 	
 	removeMenu() {
+		let type = this.element.parents(".plugin-context-menu").length > this.element.parents(".context-menu").length ? ".plugin-context-menu" : ".context-menu";
 		this.element.detach();
-		this.element.find(".plugin-context-menu").detach();
+		this.element.find(type).detach();
 		$(document).off(".zctx");
 	}
 	
@@ -854,7 +856,8 @@ PluginContextMenu.Menu = class Menu {
 		this.menuItem = menuItem;
 		menuItem.on("mouseenter", () => {
 			this.element.appendTo(menuItem);
-			this.show(this.element.parents(".plugin-context-menu").css("left"), menuItem.offset().top);
+			let type = this.element.parents(".plugin-context-menu").length > this.element.parents(".context-menu").length ? ".plugin-context-menu" : ".context-menu";
+			this.show(this.element.parents(type).css("left"), menuItem.offset().top);
 		});
 		menuItem.on("mouseleave", () => { this.element.detach(); });
 	}
