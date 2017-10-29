@@ -24,18 +24,18 @@
     border-radius: inherit !important;
     height: 100%!important;
     transition: all 200ms ease !important;
-    top: calc(-1*var(--rs-spacing) + -1*var(--rs-width)) !important;
-    right: calc(-1*var(--rs-spacing) + -1*var(--rs-width)) !important;
-    bottom: calc(-1*var(--rs-spacing) + -1*var(--rs-width)) !important;
-    left: calc(-1*var(--rs-spacing) + -1*var(--rs-width)) !important;
-    padding: var(--rs-spacing) !important;
-    transition: all 200ms ease !important;
-    border: var(--rs-width) solid #636b75 !important;
-    margin: 0 !important;
+	top: calc(-1*var(--rs-spacing) + -1*var(--rs-width)) !important;
+	right: calc(-1*var(--rs-spacing) + -1*var(--rs-width)) !important;
+	bottom: calc(-1*var(--rs-spacing) + -1*var(--rs-width)) !important;
+	left: calc(-1*var(--rs-spacing) + -1*var(--rs-width)) !important;
+	padding: var(--rs-spacing) !important;
+	transition: all 200ms ease !important;
+	border: var(--rs-width) solid #636b75 !important;
+	margin: 0 !important;
 }
 
 [class*="user-info"] [class*="status"] {
-    border: none !important;
+	border: none !important;
 }
 
 [class*="theme-"] [class*="avatar-"] [class*="idle"],
@@ -76,36 +76,40 @@
 }
 
 .channel-members .member.member-status-offline .status {
-    display: flex !important;
+	display: flex !important;
 }
 
 [class*="avatar-"] [class*="status"].status-typing {
     width: 100% !important;
     background-color: rgba(0, 0, 0, 0.4) !important;
-    right: 0 !important;
+	right: 0 !important;
 }
 [class*="avatar-"] [class*="status"].status-typing .spinner .spinner-inner {
     left: 1px !important;
     top: 1px !important;
 }
 
+[class*="userPopout-"] .imageWithStatus-38BCk3 {
+    -webkit-mask: none;
+    mask: none;
+}
+
 [class*="theme-"] [class*="userPopout-"] [class*="avatar-"],
 [class*="theme-"] #user-profile-modal .avatar-profile {
     border: none;
 }
-/*     --rs-popout-spacing: 3px;
-    --rs-popout-width: 4px; */
+
 [class*="theme-"] .userPopout-4pfA0d .avatar-1BXaQj.popout-UKvsJt [class*="status"],
 [class*="theme-"] #user-profile-modal .avatar-profile .status {
-    border-width: var(--rs-popout-width) !important;
+	border-width: var(--rs-popout-width) !important;
     top: calc(-1*var(--rs-popout-spacing) + -1*var(--rs-popout-width)) !important;
     right: calc(-1*var(--rs-popout-spacing) + -1*var(--rs-popout-width)) !important;
     bottom: calc(-1*var(--rs-popout-spacing) + -1*var(--rs-popout-width)) !important;
     left: calc(-1*var(--rs-popout-spacing) + -1*var(--rs-popout-width)) !important;
-    padding: var(--rs-popout-spacing) !important;
-    -webkit-box-shadow: none !important;
-    box-shadow: none !important;
-    box-sizing: content-box;
+	padding: var(--rs-popout-spacing) !important;
+	-webkit-box-shadow: none !important;
+	box-shadow: none !important;
+	box-sizing: content-box;
 }
 
 [class*="theme-"] #user-profile-modal .avatar-profile .status {
@@ -114,6 +118,6 @@
 }
 
 .channel-members .member, #user-profile-modal .guilds .guild {
-    padding-bottom: calc((var(--rs-spacing) + var(--rs-width))*2) !important;
-    padding-top: calc((var(--rs-spacing) + var(--rs-width))*2) !important;
+	padding-bottom: calc((var(--rs-spacing) + var(--rs-width))*2) !important;
+	padding-top: calc((var(--rs-spacing) + var(--rs-width))*2) !important;
 }
