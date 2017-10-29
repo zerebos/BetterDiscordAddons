@@ -1,12 +1,12 @@
 //META{"name":"BDContextMenu"}*//
 
-/* global PluginUtilities:false, PluginContextMenu:false, BdApi:false */
+/* global PluginUtilities:false, PluginContextMenu:false */
 
 class BDContextMenu {
 	getName() { return "BDContextMenu"; }
 	getShortName() { return "BDContextMenu"; }
 	getDescription() { return "Adds BD shortcuts to the settings context menu. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.1"; }
+	getVersion() { return "0.0.2"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -64,24 +64,103 @@ class BDContextMenu {
         if (!isContext) return;
         let contextMenu = $(elem);
 
-        let items = ['Core', 'Emotes', 'CustomCSS', 'Plugins', 'Themes'];
-        let menuItems = [];
+        let coreMenu = new PluginContextMenu.Menu(true);
+        let emoteMenu = new PluginContextMenu.Menu(true);
+        let pluginMenu = new PluginContextMenu.Menu(true);
+        let themeMenu = new PluginContextMenu.Menu(true);
 
-        items.forEach((val, i) => {
-            ((i) => {
-                menuItems.push(new PluginContextMenu.TextItem(items[i], {callback: () => {
-                    contextMenu.hide();
-                    this.openMenu(i);
-                }}));
-            })(i);
-        });
-        let menu = new PluginContextMenu.SubMenuItem("BetterDiscord", new PluginContextMenu.Menu(false).addItems(...menuItems));
+        for (let setting in window.settings) {
+            ((setting) => {
+                if (window.settings[setting].implemented && !window.settings[setting].hidden && window.settings[setting].cat === "core")
+                    coreMenu.addItems(new PluginContextMenu.ToggleItem(setting, window.settingsCookie[window.settings[setting].id], {callback: () => { this.changeBDSetting(window.settings[setting].id); }}));
+            })(setting);
+        }
+
+        for (let setting in window.settings) {
+            ((setting) => {
+                if (window.settings[setting].implemented && !window.settings[setting].hidden && window.settings[setting].cat === "emote")
+                    emoteMenu.addItems(new PluginContextMenu.ToggleItem(setting, window.settingsCookie[window.settings[setting].id], {callback: () => { this.changeBDSetting(window.settings[setting].id); }}));
+            })(setting);
+        }
+
+        for (let plugin in window.bdplugins) {
+            ((plugin) => {
+                pluginMenu.addItems(new PluginContextMenu.ToggleItem(plugin, window.pluginCookie[plugin], {callback: () => { this.togglePlugin(plugin); }}));
+            })(plugin);
+        }
+        
+        for (let theme in window.bdthemes) {
+            ((theme) => {
+                themeMenu.addItems(new PluginContextMenu.ToggleItem(theme, window.themeCookie[theme], {callback: () => { this.toggleTheme(theme); }}));
+            })(theme);
+        }
+
+        let menu = new PluginContextMenu.SubMenuItem("BetterDiscord", new PluginContextMenu.Menu(false).addItems(
+            new PluginContextMenu.SubMenuItem("Core", coreMenu, {callback: () => { contextMenu.hide(); this.openMenu(0); }}),
+            new PluginContextMenu.SubMenuItem("Emotes", emoteMenu, {callback: () => { contextMenu.hide(); this.openMenu(1); }}),
+            new PluginContextMenu.TextItem("Custom CSS", {callback: () => { contextMenu.hide(); this.openMenu(2); }}),
+            new PluginContextMenu.SubMenuItem("Plugins", pluginMenu, {callback: () => { contextMenu.hide(); this.openMenu(3); }}),
+            new PluginContextMenu.SubMenuItem("Themes", themeMenu, {callback: () => { contextMenu.hide(); this.openMenu(4); }})
+        ));
         contextMenu.append(new PluginContextMenu.ItemGroup().addItems(menu).getElement());
         contextMenu.css("top", "-=" + menu.getElement().outerHeight());
 
 
         this.unbindContextMenus();
 
+    }
+
+    changeBDSetting(setting) {
+        window.settingsCookie[setting] = !window.settingsCookie[setting];
+        window.settingsPanel.v2SettingsPanel.updateSettings();
+    }
+
+    enablePlugin(plugin) {
+        let enabled = window.pluginCookie[plugin];
+        if (!enabled) this.togglePlugin(plugin);
+    }
+
+    disablePlugin(plugin) {
+        let enabled = window.pluginCookie[plugin];
+        if (enabled) this.togglePlugin(plugin);
+    }
+
+    togglePlugin(plugin) {
+        let enabled = window.pluginCookie[plugin];
+        if (enabled) {
+            try {window.bdplugins[plugin].plugin.stop(); }
+            catch (e) { PluginUtilities.showToast("There was an issue stopping " + plugin, {type: "error"}); }
+        }
+        else {
+            try { window.bdplugins[plugin].plugin.start(); }
+            catch (e) { PluginUtilities.showToast("There was an issue starting " + plugin, {type: "error"}); }
+        }
+        window.pluginCookie[plugin] = !window.pluginCookie[plugin];
+        window.pluginModule.savePluginData();
+    }
+
+    enableTheme(theme) {
+        let enabled = window.themeCookie[theme];
+        if (!enabled) this.toggleTheme(theme);
+    }
+
+    disableTheme(theme) {
+        let enabled = window.themeCookie[theme];
+        if (enabled) this.toggleTheme(theme);
+    }
+
+    toggleTheme(theme) {
+        let enabled = window.themeCookie[theme];
+        if (enabled) {
+            let elem = document.getElementById(theme);
+            if (elem) elem.remove();
+        }
+        else {
+            $("<style>", {id: theme, html: unescape(window.bdthemes[theme].css)}).appendTo(document.head);
+            PluginUtilities.showToast(theme + " was successfully applied!", {type: "success"});
+        }
+        window.themeCookie[theme] = !window.themeCookie[theme];
+        window.themeModule.saveThemeData();
     }
 
     openMenu(index) {
