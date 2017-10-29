@@ -63,8 +63,8 @@ class BDContextMenu {
 		let isContext = elem.classList.contains('context-menu');
         if (!isContext) return;
         let contextMenu = $(elem);
-        let items = ['Core', 'Emotes', 'CustomCSS', 'Plugins', 'Themes'];
 
+        let items = ['Core', 'Emotes', 'CustomCSS', 'Plugins', 'Themes'];
         let menuItems = [];
 
         items.forEach((val, i) => {
@@ -76,9 +76,10 @@ class BDContextMenu {
             })(i);
         });
         let menu = new PluginContextMenu.SubMenuItem("BetterDiscord", new PluginContextMenu.Menu(false).addItems(...menuItems));
-        contextMenu.append(menu.getElement());
+        contextMenu.append(new PluginContextMenu.ItemGroup().addItems(menu).getElement());
         contextMenu.css("top", "-=" + menu.getElement().outerHeight());
-        //document.querySelectorAll('#bd-settings-sidebar .ui-tab-bar-item')[2].click()
+
+
         this.unbindContextMenus();
 
     }
