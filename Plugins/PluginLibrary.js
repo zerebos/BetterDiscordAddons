@@ -339,7 +339,7 @@ PluginUtilities.getCurrentServer = function() {
 PluginUtilities.isServer = function() { return PluginUtilities.getCurrentServer() ? true : false; };
 
 PluginUtilities.getCurrentUser = function() {
-	return ReactUtilities.getReactProperty(document.querySelector('.accountDetails-15i-_e'), "return.memoizedProps.user.id");
+	return ReactUtilities.getReactProperty(document.querySelector('.accountDetails-15i-_e'), "return.memoizedProps.user");
 };
 
 PluginUtilities.getAllUsers = function() {
