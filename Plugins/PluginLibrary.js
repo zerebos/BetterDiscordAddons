@@ -890,7 +890,10 @@ PluginContextMenu.MenuItem = class MenuItem {
 		this.label = label;
 		if (danger) this.element.addClass("danger");
 		if (typeof(callback) == 'function') {
-			this.element.on("click", callback);
+			this.element.on("click", (event) => {
+				event.stopPropagation();
+				callback(event);
+			});
 		}
 	}
 	getElement() { return this.element;}
@@ -925,6 +928,26 @@ PluginContextMenu.SubMenuItem = class SubMenuItem extends PluginContextMenu.Menu
 		this.element.addClass("item-subMenu").text(label);
 		this.subMenu = subMenu;
 		this.subMenu.attachTo(this.getElement());
+	}
+};
+
+PluginContextMenu.ToggleItem = class ToggleItem extends PluginContextMenu.MenuItem {
+	constructor(label, checked, options = {}) {
+        var {onChange} = options;
+		super(label, options);
+		this.element.addClass("item-toggle");
+        this.element.append($("<div>").addClass("label").text(label));
+        this.checkbox = $("<div>", {class: "checkbox"});
+        this.checkbox.append($("<div>", {class: "checkbox-inner"}));
+        this.checkbox.append("<span>");
+        this.input = $("<input>", {type: "checkbox", checked: checked, value: "on"});
+        this.checkbox.find('.checkbox-inner').append(this.input).append("<span>");
+        this.element.append(this.checkbox);
+        this.element.on('click', (e) => {
+            e.stopPropagation();
+            this.input.prop("checked", !this.input.prop("checked"));
+            if (typeof(onChange) == 'function') onChange(this.input.prop("checked"));
+        });
 	}
 };
 
