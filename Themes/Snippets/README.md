@@ -86,7 +86,7 @@ Underlines and centers the headers in userlist, channel list, and DM list.
 	display: block;
 	height: 1px;
 	width: 100%;
-	border-bottom: 2px solid var(--accent-color);
+	border-bottom: 2px solid white;
 	padding-bottom: 10px;
 }
 
