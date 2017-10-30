@@ -91,7 +91,7 @@ Underlines and centers the headers in userlist, channel list, and DM list.
 }
 
 /* underline labels in channellist */
-.channels-wrap .wrapperDefault-1Dl4SS, .channels-wrap .wrapperHovered-1KDCyZ {
+.channels-3g2vYe .wrapperDefault-1Dl4SS, .channels-3g2vYe .wrapperHovered-1KDCyZ {
 	padding-top: 28px;
 	padding-right: 8px;
 	padding-left: 18px;
@@ -100,8 +100,8 @@ Underlines and centers the headers in userlist, channel list, and DM list.
 	margin: 28px 8px 4px 18px;
 	border-bottom: 2px solid white;
 }
-.channels-wrap .nameDefault-Lnjrwm, .channels-wrap .nameHovered-1YFSWq {text-align: center;}
-.channels-wrap .wrapperDefault-1Dl4SS .flex-lFgbSz, .channels-wrap .wrapperHovered-1KDCyZ .flex-lFgbSz {margin-right:0;}
+.channels-3g2vYe .nameDefault-Lnjrwm, .channels-3g2vYe .nameHovered-1YFSWq {text-align: center;}
+.channels-3g2vYe .wrapperDefault-1Dl4SS .flex-lFgbSz, .channels-3g2vYe .wrapperHovered-1KDCyZ .flex-lFgbSz {margin-right:0;}
 ```
 
 ## Alternate Speaking Notification
