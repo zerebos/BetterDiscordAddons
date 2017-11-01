@@ -6,7 +6,7 @@ class BetterFormattingRedux {
 	getName() { return "BetterFormattingRedux"; }
 	getShortName() { return "BFRedux"; }
 	getDescription() { return "Enables different types of formatting in standard Discord chat. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "2.2.4"; }
+	getVersion() { return "2.2.5"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -106,64 +106,63 @@ class BetterFormattingRedux {
 		this.mainCSS =  `/* CSS STUFF */
 		
 .bf-toolbar {
-    user-select: none;
-    white-space: nowrap;
-    font-size:85%;
+	user-select: none;
+	white-space: nowrap;
+	font-size:85%;
 	display:block;
-    position: absolute;
-    color: rgba(255, 255, 255, .5);
-    width:auto!important;
-    right:0;
-    bottom:auto;
-    border-radius:3px;
-    margin:0!important;
-    height:27px!important;
-    top:0px;
-    transform:translate(0,-100%);
-    opacity:1;
-    overflow: hidden!important;
-    pointer-events: none;
-    padding:10px 30px 15px 5px;
-    margin-right:5px!important;
+	position: absolute;
+	color: rgba(255, 255, 255, .5);
+	width:auto!important;
+	right:0;
+	bottom:auto;
+	border-radius:3px;
+	height:27px!important;
+	top:0px;
+	transform:translate(0,-100%);
+	opacity:1;
+	overflow: hidden!important;
+	pointer-events: none;
+	padding:10px 30px 15px 5px;
+	margin: 0 5px 0 0;
 }
 
 .bf-toolbar.bf-visible,
 .bf-toolbar.bf-hover:hover{
-    pointer-events: initial;
+	pointer-events: initial;
 }
 
 .bf-toolbar:before {
-    content:"";
-    display: block;
-    width:100%;
-    height:calc(100% - 15px);
-    position: absolute;
-    z-index: -1;
-    background:#424549;
-    pointer-events: initial;
-    left:0px;
-    top:5px;
-    border-radius:3px;
-    transform:translate(0,55px);
-    transition:all 200ms ease;
+	content:"";
+	display: block;
+	width:100%;
+	height:calc(100% - 15px);
+	position: absolute;
+	z-index: -1;
+	background:#424549;
+	pointer-events: initial;
+	left:0px;
+	top:5px;
+	border-radius:3px;
+	transform:translate(0,55px);
+	transition:all 200ms ease;
 }
 
 .bf-toolbar.bf-visible:before,
 .bf-toolbar.bf-hover:hover:before {
-    transform:translate(0,0px);
-    transition:all 200ms cubic-bezier(0,0,0,1);
+	transform:translate(0,0px);
+	transition:all 200ms cubic-bezier(0,0,0,1);
 }
 
 .bf-toolbar .format {
-    display: inline;
-    padding: 7px 5px;
-    cursor: pointer;
-    display : inline-flex;
-    align-items : center;
-    transform:translate(0,55px);
-    transition:all 50ms,transform 200ms ease;
-    position:relative;
-    pointer-events: initial;
+	display: inline;
+	padding: 7px 5px;
+	cursor: pointer;
+	display : inline-flex;
+	align-items : center;
+	transform:translate(0,55px);
+	transition:all 50ms,transform 200ms ease;
+	position:relative;
+	pointer-events: initial;
 	border-radius:2px;
 	max-height: 27px;
 	box-sizing: border-box;
@@ -182,19 +181,19 @@ class BetterFormattingRedux {
 }
 
 .bf-toolbar .format:hover{
-    background:rgba(255,255,255,.1);
-    color:rgba(255,255,255,.9);
+	background:rgba(255,255,255,.1);
+	color:rgba(255,255,255,.9);
 }
 
 .bf-toolbar .format:active{
-    background:rgba(0,0,0,.1)!important;
-    transition:all 0ms,transform 200ms ease;
+	background:rgba(0,0,0,.1)!important;
+	transition:all 0ms,transform 200ms ease;
 }
 
 .bf-toolbar.bf-visible .format,
 .bf-toolbar.bf-hover:hover .format{
-    transform:translate(0,0);
-    transition:all 50ms,transform 200ms cubic-bezier(0,0,0,1);
+	transform:translate(0,0);
+	transition:all 50ms,transform 200ms cubic-bezier(0,0,0,1);
 }
 
 .bf-toolbar .format.disabled {
@@ -211,31 +210,31 @@ class BetterFormattingRedux {
 }
 
 .bf-toolbar .bf-arrow {
-    content:"";
-    display:block;
-    background:url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTcuNDEgMTUuNDFMMTIgMTAuODNsNC41OSA0LjU4TDE4IDE0bC02LTYtNiA2eiIvPiAgICA8cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PC9zdmc+);
-    height:30px;
-    width:30px;
-    right:5px;
-    position: absolute;
-    pointer-events: initial;
-    bottom:0;
-    background-repeat: no-repeat;
-    background-position: 50%;
-    transition:all 200ms ease;
-    opacity: .3;
-    cursor:pointer;
+	content:"";
+	display:block;
+	background:url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTcuNDEgMTUuNDFMMTIgMTAuODNsNC41OSA0LjU4TDE4IDE0bC02LTYtNiA2eiIvPiAgICA8cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PC9zdmc+);
+	height:30px;
+	width:30px;
+	right:5px;
+	position: absolute;
+	pointer-events: initial;
+	bottom:0;
+	background-repeat: no-repeat;
+	background-position: 50%;
+	transition:all 200ms ease;
+	opacity: .3;
+	cursor:pointer;
 }
 .bf-toolbar.bf-visible .bf-arrow,
 .bf-toolbar.bf-hover:hover .bf-arrow {
-    transform:translate(0,-14px)rotate(-90deg);
-    transition:all 200ms cubic-bezier(0,0,0,1);
-    opacity: .9;
+	transform:translate(0,-14px)rotate(-90deg);
+	transition:all 200ms cubic-bezier(0,0,0,1);
+	opacity: .9;
 }
 
 .message-group .bf-toolbar{
-    padding: 10px 5px 15px 5px;
-    animation:slide-up 300ms cubic-bezier(0,0,0,1), opacity 300ms ease
+	padding: 10px 5px 15px 5px;
+	animation:slide-up 300ms cubic-bezier(0,0,0,1), opacity 300ms ease
 }
 .upload-modal .bf-toolbar {
 	position: relative;
@@ -250,20 +249,20 @@ class BetterFormattingRedux {
 	display: none;
 }
 .upload-modal .bf-toolbar .format:hover{
-    background:rgba(255,255,255,.1);
+	background:rgba(255,255,255,.1);
 }
 .upload-modal .bf-toolbar .format:active{
-    background:rgba(0,0,0,.1);
+	background:rgba(0,0,0,.1);
 }
 .upload-modal .bf-toolbar .format,
 .upload-modal .bf-toolbar:before,
 .message-group .bf-toolbar .format,
 .message-group .bf-toolbar:before{
-    transform:translate(0,0);
+	transform:translate(0,0);
 }
 .upload-modal .bf-toolbar .bf-arrow,
 .message-group .bf-toolbar .bf-arrow{
-    display: none;
+	display: none;
 }
 
 .bf-toolbar.bf-left {
@@ -309,8 +308,8 @@ class BetterFormattingRedux {
 }
 
 .bf-languages div:hover {
-    background: rgba(255,255,255,.1);
-    color: rgba(255,255,255,.9);
+	background: rgba(255,255,255,.1);
+	color: rgba(255,255,255,.9);
 }
 `;
 
@@ -369,6 +368,7 @@ class BetterFormattingRedux {
 		BdApi.injectCSS(this.getShortName()  + "-style", this.mainCSS);
 		this.sortableScriptLoaded = true;
 		this.setupToolbar();
+		PluginUtilities.showToast(this.getName() + " " + this.getVersion() + " has started.");
 	}
 	
 	stop() {
@@ -501,6 +501,7 @@ class BetterFormattingRedux {
 			}
 		}
 		var txt = textarea[0];
+		txt.focus();
 		txt.selectionStart = 0;
 		txt.selectionEnd = txt.value.length;
 		document.execCommand("insertText", false, text);
@@ -521,6 +522,16 @@ class BetterFormattingRedux {
 	
 	getContextMenu(textarea) {
 		var items = [];
+		// items.push(new PluginContextMenu.SubMenuItem("Test", new PluginContextMenu.Menu(false).addItems(
+		// 	new PluginContextMenu.TextItem("TESTY"),
+		// 	new PluginContextMenu.TextItem("TESTY"),
+		// 	new PluginContextMenu.SubMenuItem("Test", new PluginContextMenu.Menu(false).addItems(
+		// 		new PluginContextMenu.TextItem("TESTY"),
+		// 		new PluginContextMenu.TextItem("TESTY"),
+		// 		new PluginContextMenu.TextItem("TESTY")
+		// 	)),
+		// 	new PluginContextMenu.TextItem("TESTY")
+		// )));
 		for (var letter in this.allLanguages) {
 			var subItems = [];
 			for (var language in this.allLanguages[letter]) {
@@ -530,6 +541,16 @@ class BetterFormattingRedux {
 			}
 			items.push(new PluginContextMenu.SubMenuItem(letter, new PluginContextMenu.Menu(true).addItems(...subItems)));
 		}
+		// items.push(new PluginContextMenu.SubMenuItem("Test", new PluginContextMenu.Menu(false).addItems(
+		// 	new PluginContextMenu.TextItem("TESTY"),
+		// 	new PluginContextMenu.TextItem("TESTY"),
+		// 	new PluginContextMenu.SubMenuItem("Test", new PluginContextMenu.Menu(false).addItems(
+		// 		new PluginContextMenu.TextItem("TESTY"),
+		// 		new PluginContextMenu.TextItem("TESTY"),
+		// 		new PluginContextMenu.TextItem("TESTY")
+		// 	)),
+		// 	new PluginContextMenu.TextItem("TESTY")
+		// )));
 		return new PluginContextMenu.Menu().addItems(...items);
 	}
 
@@ -622,6 +643,7 @@ class BetterFormattingRedux {
 			new PluginSettings.Checkbox("Strikethrough", "", this.settings.toolbar.strikethrough.enabled, (checked) => {this.settings.toolbar.strikethrough.enabled = checked;}),
 			new PluginSettings.Checkbox("Code", "", this.settings.toolbar.code.enabled, (checked) => {this.settings.toolbar.code.enabled = checked;}),
 			new PluginSettings.Checkbox("CodeBlock", "", this.settings.toolbar.codeblock.enabled, (checked) => {this.settings.toolbar.codeblock.enabled = checked;}),
+			new PluginSettings.Checkbox("Superscript", "", this.settings.toolbar.superscript.enabled, (checked) => {this.settings.toolbar.superscript.enabled = checked;}),
 			new PluginSettings.Checkbox("Smallcaps", "", this.settings.toolbar.smallcaps.enabled, (checked) => {this.settings.toolbar.smallcaps.enabled = checked;}),
 			new PluginSettings.Checkbox("Full Width", "", this.settings.toolbar.fullwidth.enabled, (checked) => {this.settings.toolbar.fullwidth.enabled = checked;}),
 			new PluginSettings.Checkbox("Upsidedown", "", this.settings.toolbar.upsidedown.enabled, (checked) => {this.settings.toolbar.upsidedown.enabled = checked;}),

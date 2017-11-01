@@ -1,5 +1,10 @@
 # BetterFormattingRedux Changelog
 
+### 2.2.5
+
+ - Add missing setting
+ - Fix incompatibility with sendbutton
+
 ### 2.2.4
 
  - Create a tooltip object that emulates discord's
