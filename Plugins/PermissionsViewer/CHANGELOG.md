@@ -1,5 +1,12 @@
 # PermissionsViewer Changelog
 
+### 0.0.7
+
+ - I hate discord
+ - Portuguese translation (thanks Nirewen)
+ - Fix german translation
+ - Added role colors to applicable permissions in popouts
+
 ### 0.0.6
 
  - Why does discord keep rearranging
