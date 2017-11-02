@@ -308,13 +308,13 @@ class PermissionsViewer {
 											<div class="role-scroller">
 							
 											</div>
-											<div class="switch-wrapper">
+											<!--<div class="switch-wrapper">
 												<span class="switch-label">Channel Overrides</span>
 												<div class="switch">
 													<input id="cmn-toggle-7" class="cmn-toggle cmn-toggle-yes-no" type="checkbox">
 													<label for="cmn-toggle-7" data-on="on" data-off="off"></label>
 												</div>
-											</div>
+											</div>-->
 										</div>
 										<div class="perm-side">
 											<span class="scroller-title perm-list-title">\${permissionsLabel}</span>
