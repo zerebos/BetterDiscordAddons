@@ -1157,8 +1157,6 @@ PluginSettings.Textbox = class Textbox extends PluginSettings.SettingField {
 		options.value = value;
 		super(label, help, options, callback);
 		this.input.addClass('plugin-input-text');
-		
-		this.setInputElement(this.input);
 	}
 };
 
