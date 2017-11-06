@@ -734,7 +734,7 @@ class PermissionsViewer {
 						moveMembers: {name: "Mover membros", short: "Mover"},
 						speak: {name: "Falar", short: "Falar"},
 						deafenMembers: {name: "Ensurdecer membros", short: "Ensurdecer"},
-						useVoiceActivity: {name: "User detecção de voz", short: "Detecção de voz"},
+						useVoiceActivity: {name: "Usar detecção de voz", short: "Detecção de voz"},
 					},
 					settings: {
 						pluginOptions: {
