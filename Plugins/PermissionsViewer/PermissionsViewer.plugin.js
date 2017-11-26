@@ -350,7 +350,6 @@ class PermissionsViewer {
 		this.initialized = false;
 		this.defaultSettings = {plugin: {popouts: true, contextMenus: true}};
 		this.settings = this.defaultSettings;
-		this.strings = this.getStrings();
 
 		this.popoutObserver = new MutationObserver((changes) => {
 			for (let change in changes) this.observePopouts(changes[change]);
@@ -388,7 +387,6 @@ class PermissionsViewer {
 		PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
 		BdApi.injectCSS(this.getShortName(), this.css);
 		this.loadSettings();
-		this.strings = this.getStrings();
 		this.contextListener = () => {
 			this.bindMenu(document.querySelector('.context-menu'));
 		};
@@ -630,8 +628,10 @@ class PermissionsViewer {
 		);
 	}
 
-	getStrings() {
-		switch (document.documentElement.getAttribute('lang').split('-')[0]) {
+	get strings() {
+		let lang = "";
+		if (document.documentElement.getAttribute('lang')) lang = document.documentElement.getAttribute('lang').split('-')[0];
+		switch (lang) {
 			case "es": // Spanish
 				return {
 					contextMenu: {
