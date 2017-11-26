@@ -19,7 +19,6 @@ class ImageToClipboard {
 		this.process = require("process");
 		this.link = '<a target="_blank" rel="noreferrer" class="download-button">${modalLabel}</a>';
 		this.contextItem = '<div class="item-group i2c-group"><div class="item i2c-item"><span>${contextMenuLabel}</span><div class="hint"></div></div></div>';
-		this.strings = this.getStrings();
 	}
 	
 	load() {}
@@ -39,14 +38,12 @@ class ImageToClipboard {
 		else libraryScript.addEventListener("load", () => { this.initialize(); });
 	}
 
-	stop() {
-	}
+	stop() {}
 
 	initialize() {
-		this.localize();
 		this.initialized = true;
 		PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
-		PluginUtilities.showToast(this.strings.startMessage);
+		PluginUtilities.showToast(PluginUtilities.formatString(this.strings.startMessage, {pluginName: this.getName(), version: this.getVersion()}));
 	}
 
 	copyToClipboard(url) {
@@ -73,7 +70,7 @@ class ImageToClipboard {
 		var imageLinkLower = imageLink ? imageLink.toLowerCase() : "";
 		var item = "";
 		if (imageLinkLower.endsWith('.png') || imageLinkLower.endsWith('.jpg') || imageLinkLower.endsWith('.jpeg')) {
-				item = $(this.contextItem).on("click." + this.getShortName(), ()=>{$(context).hide(); this.copyToClipboard(imageLink);});
+				item = $(PluginUtilities.formatString(this.contextItem, this.strings)).on("click." + this.getShortName(), ()=>{$(context).hide(); this.copyToClipboard(imageLink);});
 				$(context).prepend(item);
 		}
 		else {
@@ -84,7 +81,7 @@ class ImageToClipboard {
 			imageLink = imageLink[0].replace("http/", "http://").replace("https/", "https://").replace('?', '');
 			imageLinkLower = imageLink.toLowerCase();
 			if (imageLinkLower.endsWith('.png') || imageLinkLower.endsWith('.jpg') || imageLinkLower.endsWith('.jpeg')) {
-				item = $(this.contextItem).on("click." + this.getShortName(), ()=>{$(context).hide();this.copyToClipboard(imageLink);});
+				item = $(PluginUtilities.formatString(this.contextItem, this.strings)).on("click." + this.getShortName(), ()=>{$(context).hide();this.copyToClipboard(imageLink);});
 				$(context).prepend(item);
 			}
 		}
@@ -95,9 +92,10 @@ class ImageToClipboard {
 		var elem = $(e.addedNodes[0]);
 
 		if (elem.hasClass("modal-image").length || elem.find(".modal-image").length) {
-			var linkElement = $(this.link);
+			var linkElement = $(PluginUtilities.formatString(this.link, this.strings));
 			var openElement = $('.modal-image a');
 			var imageLink = openElement.attr("href");
+			imageLink = imageLink.replace(/:large$/, '').split('?')[0];
 			if (imageLink.endsWith('.png') || imageLink.endsWith('.jpg') || imageLink.endsWith('.jpeg')) {
 				openElement.after($('<span class="download-button"> | </span>'),linkElement);
 				linkElement.on("click", () => { this.copyToClipboard(imageLink); });
@@ -112,14 +110,7 @@ class ImageToClipboard {
 
 	getSettingsPanel() {}
 
-	localize() {
-		this.strings = this.getStrings();
-		this.contextItem = PluginUtilities.formatString(this.contextItem, this.strings);
-		this.link = PluginUtilities.formatString(this.link, this.strings);
-		this.strings.startMessage = PluginUtilities.formatString(this.strings.startMessage, {pluginName: this.getName(), version: this.getVersion()});
-	}
-
-	getStrings() {
+	get strings() {
 		let lang = "";
 		if (document.documentElement.getAttribute('lang')) lang = document.documentElement.getAttribute('lang').split('-')[0];
 		switch (lang) {
