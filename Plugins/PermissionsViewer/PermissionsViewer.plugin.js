@@ -22,10 +22,10 @@ class PermissionsViewer {
 		}
 		
 		.member-perms .member-perm {
-			background-color: #f3f3f3;
-			border: 1px solid #dbdde1;
+			background-color: #2f3136;
+			border: 1px solid #72767d;
 			border-radius: 3px;
-			color: #737f8d;
+			color: #b9bbbe;
 			display: inline-block;
 			font-size: 12px;
 			font-weight: 500;

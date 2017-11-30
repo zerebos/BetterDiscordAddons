@@ -4,6 +4,7 @@
 
  - Update for latest popout changes
  - Fix trying to change language too quickly
+ - Use dark theme styling, thanks Zerthox
 
 ### 0.0.7
 
