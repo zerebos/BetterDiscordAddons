@@ -6,11 +6,15 @@ class PermissionsViewer {
 	getName() { return "PermissionsViewer"; }
 	getShortName() { return "PermissionsViewer"; }
 	getDescription() { return "Allows you to view a user's permissions. Thanks to Noodlebox for the idea! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.7"; }
+	getVersion() { return "0.0.8"; }
 	getAuthor() { return "Zerebos"; }
 	
 	constructor() {
 		this.css = `/* PermissionsViewer */
+		.member-perms-header {
+			display: flex;
+		}
+
 		.member-perms {
 			margin-top: 2px;
 			max-height: 160px;
@@ -33,6 +37,7 @@ class PermissionsViewer {
 
 		.perm-details-button {
 			cursor: pointer;
+			height: 12px;
 		}
 
 		.perm-details {
@@ -278,12 +283,8 @@ class PermissionsViewer {
 		}
 		`;
 
-		this.listHTML = `<div class="member-perms-header flex-lFgbSz flex-3B1Tl4 horizontal-2BEEBe horizontal-2VE-Fw directionRow-yNbSvJ justifyStart-2yIZo0 alignCenter-3VxkQP noWrap-v6g9vO bodyTitle-yehI7c marginBottom8-1mABJ4" style="flex: 1 1 auto;">
-							<svg name="Shield" width="24" height="24" viewBox="0 0 24 24" class="bodyTitleIconForeground-itKW-t member-perms-icon" fill="currentColor">
-								<path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
-								<path d="M0 0h24v24H0z" fill="none"/>
-							</svg>
-							<div class="bodyTitleText-hSiL7d member-perms-title">\${label}</div>
+		this.listHTML = `<div class="member-perms-header bodyTitle-yehI7c marginBottom8-1mABJ4 size12-1IGJl9 weightBold-2qbcng ">
+							<div class="member-perms-title">\${label}</div>
 							<span class="perm-details">
 								<svg name="Details" viewBox="0 0 24 24" class="bodyTitleIconForeground-itKW-t perm-details-button" fill="currentColor">
 									<path d="M0 0h24v24H0z" fill="none"/>

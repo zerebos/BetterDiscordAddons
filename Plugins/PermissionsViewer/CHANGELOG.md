@@ -1,5 +1,10 @@
 # PermissionsViewer Changelog
 
+### 0.0.8
+
+ - Update for latest popout changes
+ - Fix trying to change language too quickly
+
 ### 0.0.7
 
  - I hate discord
