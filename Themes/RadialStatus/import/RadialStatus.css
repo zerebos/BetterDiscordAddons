@@ -17,8 +17,7 @@
     --radial-status: 1;
 }
 
-[class*="avatar-"] [class*="status"],
-#user-profile-modal .status {
+[class*="avatar-"] [class*="status"] {
     width:100%!important;
     background: transparent;
     border-radius: inherit !important;
@@ -40,38 +39,38 @@
 
 [class*="theme-"] [class*="avatar-"] [class*="idle"],
 [class*="theme-"] [class*="avatar-"] [class*="Idle"],
-#user-profile-modal [class*="idle"] {
+.root-2sNHUF [class*="idle"] {
     border-color: var(--rs-idle-color) !important;
 }
 
 [class*="theme-"] [class*="avatar-"] [class*="dnd"],
 [class*="theme-"] [class*="avatar-"] [class*="Dnd"],
-#user-profile-modal [class*="dnd"] {
+.root-2sNHUF [class*="dnd"] {
     border-color: var(--rs-dnd-color) !important;
 }
 
 [class*="theme-"] [class*="avatar-"] [class*="streaming"],
 [class*="theme-"] [class*="avatar-"] [class*="Streaming"],
-#user-profile-modal [class*="streaming"]{
+.root-2sNHUF [class*="streaming"]{
     animation: streaming-flash 1.5s linear infinite !important;
     border-color: var(--rs-streaming-color) !important;
 }
 
 [class*="theme-"] [class*="avatar-"] [class*="online"],
 [class*="theme-"] [class*="avatar-"] [class*="Online"],
-#user-profile-modal [class*="online"] {
+.root-2sNHUF [class*="online"] {
     border-color: var(--rs-online-color) !important;
 }
 
 [class*="theme-"] [class*="avatar-"] [class*="invisible"],
 [class*="theme-"] [class*="avatar-"] [class*="Invisible"],
-#user-profile-modal [class*="invisible"] {
+.root-2sNHUF [class*="invisible"] {
     border-color: var(--rs-invisible-color) !important;
 }
 
 [class*="theme-"] [class*="avatar-"] [class*="offline"],
 [class*="theme-"] [class*="avatar-"] [class*="Offline"],
-#user-profile-modal [class*="offline"] {
+.root-2sNHUF [class*="offline"] {
     border-color: var(--rs-offline-color) !important;
 }
 
@@ -89,18 +88,19 @@
     top: 1px !important;
 }
 
-[class*="userPopout-"] .mask-2vyqAW {
+.root-2sNHUF .mask-2vyqAW,
+.userPopout-4pfA0d .mask-2vyqAW {
     -webkit-mask: none;
     mask: none;
 }
 
-[class*="theme-"] [class*="userPopout-"] [class*="avatar-"],
-[class*="theme-"] #user-profile-modal .avatar-profile {
+[class*="theme-"] .userPopout-4pfA0d [class*="avatar-"],
+[class*="theme-"] .root-2sNHUF [class*="avatar-"] {
     border: none;
 }
 
 [class*="theme-"] .userPopout-4pfA0d .avatar-1BXaQj.popout-UKvsJt [class*="status"],
-[class*="theme-"] #user-profile-modal .avatar-profile .status {
+[class*="theme-"] .root-2sNHUF [class*="avatar-"] [class*="status"] {
 	border-width: var(--rs-popout-width) !important;
     top: calc(-1*var(--rs-popout-spacing) + -1*var(--rs-popout-width)) !important;
     right: calc(-1*var(--rs-popout-spacing) + -1*var(--rs-popout-width)) !important;
@@ -112,12 +112,12 @@
 	box-sizing: content-box;
 }
 
-[class*="theme-"] #user-profile-modal .avatar-profile .status {
+[class*="theme-"] .root-2sNHUF [class*="avatar-"] [class*="status"] {
     border-width: var(--rs-profile-width) !important;
     padding: var(--rs-profile-spacing) !important;
 }
 
-.channel-members .member, #user-profile-modal .guilds .guild {
+.channel-members .member, .root-2sNHUF .guilds .guild {
 	padding-bottom: calc((var(--rs-spacing) + var(--rs-width))*2) !important;
 	padding-top: calc((var(--rs-spacing) + var(--rs-width))*2) !important;
 }

@@ -1,4 +1,4 @@
-[class*="theme-"] #user-profile-modal .avatar-profile .status {
+[class*="theme-"] .root-2sNHUF [class*="avatar-"] [class*="status"] {
     -ms-transform: none !important;
     transform: none !important;
     border-width: calc(var(--rs-profile-width) * 2) !important;
@@ -20,10 +20,10 @@
     transform: scale(1) !important;
 }
 
-#user-profile-modal .header .header-info .profile-badge {
+.root-2sNHUF .header .header-info .profile-badge {
     left: 177px !important;
 }
 
-#user-profile-modal .header .profile-badge+.header-info-inner .discord-tag {
+.root-2sNHUF .header .profile-badge+.header-info-inner .discord-tag {
     margin-left: 40px !important;
 }
