@@ -117,6 +117,14 @@
     padding: var(--rs-profile-spacing) !important;
 }
 
+[class*="theme-"] .root-2sNHUF [class*="avatar-"] > a {
+	width: inherit;
+    height: inherit;
+	border-radius: inherit;
+    position: absolute;
+    z-index: 1;
+}
+
 .channel-members .member, .root-2sNHUF .guilds .guild {
 	padding-bottom: calc((var(--rs-spacing) + var(--rs-width))*2) !important;
 	padding-top: calc((var(--rs-spacing) + var(--rs-width))*2) !important;
