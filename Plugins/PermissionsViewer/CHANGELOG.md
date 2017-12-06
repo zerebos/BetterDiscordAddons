@@ -1,5 +1,11 @@
 # PermissionsViewer Changelog
 
+### 0.0.9
+
+ - More popout changes
+ - Role/perm styling changes
+ - Style the default scrollbar
+
 ### 0.0.8
 
  - Update for latest popout changes

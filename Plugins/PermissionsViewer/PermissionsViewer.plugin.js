@@ -6,7 +6,7 @@ class PermissionsViewer {
 	getName() { return "PermissionsViewer"; }
 	getShortName() { return "PermissionsViewer"; }
 	getDescription() { return "Allows you to view a user's permissions. Thanks to Noodlebox for the idea! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.8"; }
+	getVersion() { return "0.0.9"; }
 	getAuthor() { return "Zerebos"; }
 	
 	constructor() {
@@ -16,23 +16,39 @@ class PermissionsViewer {
 		}
 
 		.member-perms {
+			display: flex;
+			flex-wrap: wrap;
 			margin-top: 2px;
 			max-height: 160px;
-			overflow-y:auto;
+			overflow-y: auto;
 		}
 		
 		.member-perms .member-perm {
-			background-color: #2f3136;
-			border: 1px solid #72767d;
-			border-radius: 3px;
-			color: #b9bbbe;
-			display: inline-block;
+			display: flex;
+			align-items: center;
 			font-size: 12px;
-			font-weight: 500;
-			line-height: 12px;
+			font-weight: 600;
+			border: 1px solid;
+			border-radius: 11px;
+			box-sizing: border-box;
+			height: 22px;
+			margin: 0 4px 4px 0;
+			padding: 4px;
+		}
+
+		.member-perms .member-perm .perm-circle {
+			border-radius: 50%;
+			height: 12px;
 			margin-right: 4px;
-			margin-bottom: 4px;
-			padding: 4px 6px;
+			width: 12px;
+		}
+
+		.member-perms .member-perm .name {
+			margin-right: 4px;
+			max-width: 200px;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
 		}
 
 		.perm-details-button {
@@ -251,7 +267,7 @@ class PermissionsViewer {
 		}
 
 
-
+		.member-perms::-webkit-scrollbar-thumb, .member-perms::-webkit-scrollbar-track,
 		#permissions-modal-wrapper *::-webkit-scrollbar-thumb, #permissions-modal-wrapper *::-webkit-scrollbar-track {
 			background-clip: padding-box;
 			border-radius: 7.5px;
@@ -260,16 +276,19 @@ class PermissionsViewer {
 			visibility: hidden;
 		}
 
+		.member-perms:hover::-webkit-scrollbar-thumb, .member-perms:hover::-webkit-scrollbar-track,
 		#permissions-modal-wrapper *:hover::-webkit-scrollbar-thumb, #permissions-modal-wrapper *:hover::-webkit-scrollbar-track {
 			visibility: visible;
 		}
 
+		.member-perms::-webkit-scrollbar-track,
 		#permissions-modal-wrapper *::-webkit-scrollbar-track {
 			border-width: initial;
 			background-color: transparent;
 			border: 2px solid transparent;
 		}
 
+		.member-perms::-webkit-scrollbar-thumb,
 		#permissions-modal-wrapper *::-webkit-scrollbar-thumb {
 			border: 2px solid transparent;
 			border-radius: 4px;
@@ -277,6 +296,7 @@ class PermissionsViewer {
 			background-color: rgba(32,34,37,.6);
 		}
 
+		.member-perms::-webkit-scrollbar,
 		#permissions-modal-wrapper *::-webkit-scrollbar {
 			height: 8px;
 			width: 8px;
@@ -297,7 +317,12 @@ class PermissionsViewer {
 		this.itemHTML = `<component class="member-perm">
 							<span class="name"></span>
 						</component>`;
-		
+						
+		this.itemHTML = `<li class="member-perm role-3rahR_">
+							<div class="perm-circle roleCircle-3-vPZq"></div>
+							<div class="name roleName-DUQZ9m"></div>
+						</li>`;
+
 		this.modalHTML = `<div id="permissions-modal-wrapper">
 							<div class="callout-backdrop backdrop-2ohBEd"></div>
 							<div class="modal-wrapper modal-2LIEKY">
@@ -463,7 +488,7 @@ class PermissionsViewer {
 		perms = 0;
 
 
-		$('.member-roles').after(PluginUtilities.formatString(this.listHTML, {label: this.strings.popout.label}));
+		$('.root-uMQa_6').after(PluginUtilities.formatString(this.listHTML, {label: this.strings.popout.label}));
 		
 		userRoles.reverse();
 		userRoles.forEach((role) => {
@@ -478,11 +503,10 @@ class PermissionsViewer {
 					let roleColor = guild.roles[role].colorString;
 					element.find('.name').text(permName);
 					element.attr("data-name", permName);
-					if (roleColor) {
-						element.css("color", roleColor);
-						element.css("background-color", ColorUtilities.rgbToAlpha(roleColor, 0.1));
-						element.css("border-color", ColorUtilities.rgbToAlpha(roleColor, 0.5));
-					}
+					if (!roleColor) roleColor = "#B9BBBE";
+					// element.css("color", roleColor);
+					element.find('.perm-circle').css("background-color", ColorUtilities.rgbToAlpha(roleColor, 1));
+					element.css("border-color", ColorUtilities.rgbToAlpha(roleColor, 0.6));
 					$('.member-perms').append(element);
 				}
 			}
