@@ -5,6 +5,7 @@
  - More popout changes
  - Role/perm styling changes
  - Style the default scrollbar
+ - Proper role sorting for modal
 
 ### 0.0.8
 

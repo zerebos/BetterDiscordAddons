@@ -553,9 +553,10 @@ class PermissionsViewer {
 		//modal.find('#permissions-modal .title').text(PluginUtilities.formatString(this.strings.modal.header, {name: name}));
 
 		let userRoles = user.roles.slice(0);
-		userRoles.push(guild.id);
-
 		let guildRoles = JSON.parse(JSON.stringify(guild.roles));
+		userRoles.push(guild.id);
+		userRoles.sort((a, b) => { return guildRoles[b].position - guildRoles[a].position; });
+
 		if (user.userId == guild.ownerId) {
 			userRoles.push(user.userId);
 			guildRoles[user.userId] = {name: this.strings.modal.owner, permissions: DiscordPermissions.FullPermissions};
