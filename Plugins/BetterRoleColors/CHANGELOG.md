@@ -1,5 +1,9 @@
 # BetterRoleColors Changelog
 
+### 0.6.0
+
+ - Switch from collecting and searching colors to using internals cache
+
 ### 0.5.8
 
  - Update for canary changes

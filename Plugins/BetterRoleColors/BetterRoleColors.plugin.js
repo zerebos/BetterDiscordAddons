@@ -6,7 +6,7 @@ class BetterRoleColors {
 	getName() { return "BetterRoleColors"; }
 	getShortName() { return "BRC"; }
 	getDescription() { return "Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.5.8"; }
+	getVersion() { return "0.6.0"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -18,8 +18,10 @@ class BetterRoleColors {
 								account: {username: true, discriminator: false}};
 		this.settings = this.defaultSettings;
 
-		this.colorData = {};
 		this.switchObserver = new MutationObserver(() => {});
+		this.documentObserver = new MutationObserver((changes) => {
+			for (let change in changes) this.observe(changes[change]);
+		});
 	}
 	
 	loadSettings() {
@@ -29,18 +31,6 @@ class BetterRoleColors {
 	saveSettings() {
 		PluginUtilities.saveSettings(this.getShortName(), this.settings);
 	}
-
-
-	loadData() {
-		this.colorData = PluginUtilities.loadData(this.getShortName(), "color-data", this.colorData);
-	}
-
-	saveData() {
-		PluginUtilities.saveData(this.getShortName(), "color-data", this.colorData);
-	}
-
-
-	checkForUpdate() { PluginUtilities.checkForUpdate(this.getName(), this.getVersion()); }
 	
 	load() {}
 	unload() {}
@@ -59,42 +49,38 @@ class BetterRoleColors {
 	}
 
 	initialize() {
-		this.initialized = true;
-		this.checkForUpdate();
-		this.loadData();
+		this.GuildStore = PluginUtilities.WebpackModules.findByUniqueProperties(['getMembers']);
+		PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
 		this.loadSettings();
 		this.switchObserver = PluginUtilities.createSwitchObserver(this);
+		this.documentObserver.observe(document.querySelector('#app-mount'), {childList: true, subtree: true});
 		this.currentServer = PluginUtilities.getCurrentServer();
 		this.currentUser = PluginUtilities.getCurrentUser().id;
-		this.getAllUserColors();
 		this.colorize();
+		PluginUtilities.showToast(this.getName() + " " + this.getVersion() + " has started.");
+		this.initialized = true;
 	}
 	
 	stop() {
-		this.saveData();
-		delete this.colorData;
 		this.decolorize();
 		this.saveSettings();
 		$("*").off("." + this.getShortName());
 		this.switchObserver.disconnect();
+		this.documentObserver.disconnect();
 	}
 	
 	onChannelSwitch() {
 		if (this.currentServer == PluginUtilities.getCurrentServer()) return;
 		this.currentServer = PluginUtilities.getCurrentServer();
 		this.colorize();
-		setTimeout(() => {
-			this.getAllUserColors();
-			this.colorize();
-		}, 500);
 	}
 	
-	observer(e) {
+	observe(e) {
 
 		if (e.removedNodes.length && e.removedNodes[0] instanceof Element) {
 			var removed = e.removedNodes[0];
 			if (removed.classList.contains("spinner") || removed.tagName == "STRONG") {
-				setTimeout(() => { this.colorizeTyping(); }, 25);
+				this.colorizeTyping();
 				// setImmediate(() => {setImmediate(() => { this.colorizeTyping(); });});
 			}
 
@@ -106,14 +92,12 @@ class BetterRoleColors {
 
 		if (elem.querySelector("#friends") || elem.id == "friends") this.onChannelSwitch();
 
-		if (elem.classList.contains("message-group")) this.getMessageColor(elem);
-
 		if (elem.querySelector(".draggable-3SphXU") || elem.classList.contains("draggable-3SphXU")) {
 			this.colorizeVoice();
 		}
 
 		if (elem.querySelector("strong") || elem.querySelector(".spinner") || elem.classList.contains("typing") || elem.tagName == "STRONG") {
-			setTimeout(() => { this.colorizeTyping(); }, 25);
+			this.colorizeTyping();
 			// setImmediate(() => {setImmediate(() => { this.colorizeTyping(); });});
 		}
 
@@ -130,7 +114,6 @@ class BetterRoleColors {
 		}
 
 		if (elem.classList.contains("message-group")) {
-			this.getMessageColor(elem);
 			this.colorizeMentions(elem.querySelector('.message'));
 		}
 
@@ -145,45 +128,14 @@ class BetterRoleColors {
 		}
 	}
 
-	getAllUserColors() {
-		if (!document.querySelector('.channel-members') || document.querySelector('.private-channels')) return [];
-		let groups = ReactUtilities.getReactProperty(document.querySelector('.channel-members-wrap'), "return.return.return.memoizedState.memberGroups");
-		if (!groups) return;
-		var users = [];
-		for (let g = 0; g < groups.length; g++) {
-			for (let u = 0; u < groups[g].users.length; u++) {
-				users.push(groups[g].users[u]);
-			}
-		}
-
-		for (let u = 0; u < users.length; u++) {
-			let user = users[u];
-			this.addColorData(this.currentServer, user.user.id, user.colorString ? user.colorString : "");
-		}
-		this.saveData();
-	}
-
-	getAllMessageColors() {
-		document.querySelectorAll(".message-group > .message").forEach((elem) => { this.getMessageColor(elem); });
-	}
-
-	getMessageColor(message) {
-		if (!PluginUtilities.isServer()) return;
-		let msg = ReactUtilities.getReactProperty(message.querySelector('.message'), "return.memoizedProps.message");
-		if (!msg) return;
-		this.addColorData(this.currentServer, msg.author.id, msg.colorString ? msg.colorString : "");
-	}
-
-	addColorData(server, user, color) {
-		if (!server || !user || !color) return;
-		if (this.colorData[server] === undefined) this.colorData[server] = {};
-		if (color) this.colorData[server][user] = color;
-		else if (this.colorData[server][user] !== undefined) delete this.colorData[server][user];
-	}
+	// getColorData(server, user) {
+	// 	if (!server || !user || !this.colorData[server] || !this.colorData[server][user]) return "";
+	// 	else return this.colorData[server][user];
+	// }
 
 	getColorData(server, user) {
-		if (!server || !user || !this.colorData[server] || !this.colorData[server][user]) return "";
-		else return this.colorData[server][user];
+		if (!server || !user || !this.GuildStore.getMember(server, user)) return "";
+		else return this.GuildStore.getMember(server, user).colorString;
 	}
 
 	getUserColor(user) {
@@ -201,6 +153,7 @@ class BetterRoleColors {
 	colorizeAccountStatus() {
 		if (!this.settings.account.username && !this.settings.account.discriminator) return;
 		let account = document.querySelector('.accountDetails-15i-_e');
+		if (!account) return;
 		let color = this.getUserColor(this.currentUser);
 		if (this.settings.account.username) account.querySelector(".username").style.setProperty("color", color, "important");
 		if (this.settings.account.discriminator) {
