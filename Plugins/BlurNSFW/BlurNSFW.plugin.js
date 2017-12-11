@@ -6,21 +6,21 @@ class BlurNSFW {
 	getName() { return "BlurNSFW"; }
 	getShortName() { return "bnsfw"; }
 	getDescription() { return "Blurs images in NSFW channels until you hover over it. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.1.7"; }
+	getVersion() { return "0.1.8"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
 		this.initialized = false;
 		this.style = `:root {--blur-nsfw: 10px; --blur-nsfw-time: 200ms;}
-		.attachment-image img.blur:hover, .embed-thumbnail img.blur:hover, .attachment-image canvas.blur:hover, .embed-thumbnail canvas.blur:hover, .attachment-image video.blur:hover, .embed-thumbnail video.blur:hover, .embed-rich-thumb.blur:hover {
+		.attachment-image img.blur:hover, .embed-thumbnail img.blur:hover, .attachment-image canvas.blur:hover, .embed-thumbnail canvas.blur:hover, .attachment-image video.blur:hover, .embed-thumbnail video.blur:hover {
 			transition: var(--blur-nsfw-time) cubic-bezier(.2, .11, 0, 1) !important;
 			filter: blur(0px) !important;
 		}
-		.attachment-image img.blur, .embed-thumbnail img.blur, .attachment-image canvas.blur, .embed-thumbnail canvas.blur, .attachment-image video.blur, .embed-thumbnail video.blur, .embed-rich-thumb.blur {
+		.attachment-image img.blur, .embed-thumbnail img.blur, .attachment-image canvas.blur, .embed-thumbnail canvas.blur, .attachment-image video.blur, .embed-thumbnail video.blur {
 			filter: blur(var(--blur-nsfw)) !important;
 			transition: var(--blur-nsfw-time) cubic-bezier(.2, .11, 0, 1) !important;
 		}`;
-		this.selectors = ['.attachment-image img', '.attachment-image canvas', '.attachment-image video', '.embed-thumbnail img', '.embed-thumbnail canvas', '.embed-thumbnail video', '.embed-rich-thumb'];
+		this.selectors = ['.attachment-image img', '.attachment-image canvas', '.attachment-image video', '.embed-thumbnail img', '.embed-thumbnail canvas', '.embed-thumbnail video'];
 	}
 	
 	load() {}
@@ -36,7 +36,7 @@ class BlurNSFW {
 		document.head.appendChild(libraryScript);
 
 		if (typeof window.ZeresLibrary !== "undefined") this.initialize();
-		else libraryScript.addEventListener("load", () => { this.initialize(); });
+		else libraryScript.addEventListener("load", () => { this.initialize(); })
 	}
 
 	initialize() {
@@ -44,6 +44,7 @@ class BlurNSFW {
 		PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
 		BdApi.injectCSS(this.getShortName(), this.style);
 		this.blurStuff();
+		PluginUtilities.showToast(this.getName() + " " + this.getVersion() + " has started.");
 	}
 
 	stop() {
@@ -52,7 +53,9 @@ class BlurNSFW {
 	}
 
 	isNSFWChannel() {
+		if (!document.querySelector('.chat')) return false;
 		let channel = ReactUtilities.getReactProperty(document.querySelector('.chat'), "return.memoizedState.channel");
+		if (!channel) return false;
 		let channelName = channel.name;
 		let isNSFW = channel.nsfw;
 		if (channelName !== undefined && channelName !== null) channelName = channelName.toLowerCase().indexOf("nsfw") !== -1;

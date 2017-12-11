@@ -1,5 +1,9 @@
 # BlurNSFW Changelog
 
+### 0.1.8
+
+ - Update some selectors
+
 ### 0.1.7
 
  - Connect to lib
