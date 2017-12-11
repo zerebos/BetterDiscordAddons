@@ -1,5 +1,13 @@
 # StatusEverywhere Changelog
 
+### 0.2.0
+
+ - Start using internal UserStore to get statuses
+
+### 0.1.7
+
+ - Changes made it to stable
+
 ### 0.1.6
 
  - Update for canary changes
