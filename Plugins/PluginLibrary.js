@@ -1,15 +1,15 @@
 var ColorUtilities = {version: "0.0.2"};
 var DOMUtilities = {version: "0.0.1"};
 var ReactUtilities = {version: "0.0.4"};
-var PluginUtilities = {version: "0.2.1"};
+var PluginUtilities = {version: "0.2.2"};
 var PluginUpdateUtilities = {version: "0.0.2"};
 var PluginSettings = {version: "1.0.5"};
 var PluginContextMenu = {version: "0.0.5"};
 var PluginTooltip = {version: "0.0.2"};
 var DiscordPermissions = {version: "0.0.1"};
-var InternalUtilities = {version: "0.0.1"};
+var InternalUtilities = {version: "0.0.2"};
 
-/* global bdPluginStorage:false, BdApi:false, Symbol:false, webpackJsonp:false, _:false */
+/* global Set:false, bdPluginStorage:false, BdApi:false, Symbol:false, webpackJsonp:false, _:false */
 
 DiscordPermissions = class DiscordPermissions {
 	constructor(perms) {
@@ -297,14 +297,19 @@ ReactUtilities.getOwnerInstance = function(e, {include, exclude = ["Popout", "To
 	return null;
 };
 
+PluginUtilities.suppressErrors = (method, desiption) => (...params) => {
+	try { return method(...params);	}
+	catch (e) { console.error('Error occurred in ' + desiption, e); }
+};
+
 
 InternalUtilities.monkeyPatch = (what, methodName, options) => {
 	const {before, after, instead, once = false, silent = false} = options;
 	const displayName = options.displayName || what.displayName || what.name || what.constructor.displayName || what.constructor.name;
-	if (!silent) console.log('patch', methodName, 'of', displayName);
+	if (!silent) console.log('patch', methodName, 'of', displayName); // eslint-disable-line no-console
 	const origMethod = what[methodName];
 	const cancel = () => {
-		if (!silent) console.log('unpatch', methodName, 'of', displayName);
+		if (!silent) console.log('unpatch', methodName, 'of', displayName); // eslint-disable-line no-console
 		what[methodName] = origMethod;
 	};
 	what[methodName] = function() {
@@ -316,14 +321,14 @@ InternalUtilities.monkeyPatch = (what, methodName, options) => {
 			callOriginalMethod: () => data.returnValue = data.originalMethod.apply(data.thisObject, data.methodArguments)
 		};
 		if (instead) {
-			const tempRet = suppressErrors(instead, '`instead` callback of ' + what[methodName].displayName)(data);
+			const tempRet = PluginUtilities.suppressErrors(instead, '`instead` callback of ' + what[methodName].displayName)(data);
 			if (tempRet !== undefined)
 				data.returnValue = tempRet;
 		}
 		else {
-			if (before) suppressErrors(before, '`before` callback of ' + what[methodName].displayName)(data);
+			if (before) PluginUtilities.suppressErrors(before, '`before` callback of ' + what[methodName].displayName)(data);
 			data.callOriginalMethod();
-			if (after) suppressErrors(after, '`after` callback of ' + what[methodName].displayName)(data);
+			if (after) PluginUtilities.suppressErrors(after, '`after` callback of ' + what[methodName].displayName)(data);
 		}
 		if (once) cancel();
 		return data.returnValue;
@@ -360,7 +365,9 @@ InternalUtilities.WebpackModules = (() => {
 				if (m && m.__esModule && m.default && filter(m.default)) return m.default;
 				if (m && filter(m))	return m;
 			}
-			catch (e) {}
+			catch (e) {
+				console.error(e);
+			}
 		}
 		console.warn('Cannot find module');
 		return null;
@@ -408,13 +415,13 @@ InternalUtilities.addInternalListener = function(internalModule, moduleFunction,
 
 	if (!internalModule.__listenerPatches[moduleFunction]) {
 		if (internalModule[moduleFunction].__monkeyPatched) console.warn(`Function ${moduleFunction} of module ${moduleName} has already been patched by someone else.`);
-		internalModule.__listenerPatches[moduleFunction] = InternalUtilities.monkeyPatch(internalModule, moduleFunction, {after: (data) => {
+		internalModule.__listenerPatches[moduleFunction] = InternalUtilities.monkeyPatch(internalModule, moduleFunction, {after: () => {
 			for (let listener of internalModule.__internalListeners[moduleFunction]) listener();
 		}});
 	}
 
 	internalModule.__internalListeners[moduleFunction].add(callback);
-}
+};
 
 InternalUtilities.removeInternalListener = function(internalModule, moduleFunction, callback) {
 	const moduleName = internalModule.displayName || internalModule.name || internalModule.constructor.displayName || internalModule.constructor.name; // borrowed from Samogot
@@ -427,23 +434,23 @@ InternalUtilities.removeInternalListener = function(internalModule, moduleFuncti
 		internalModule.__listenerPatches[moduleFunction]();
 		delete internalModule.__listenerPatches[moduleFunction];
 	}
-}
+};
 
 InternalUtilities.addOnSwitchListener = function(callback) {
-	SelectedChannelStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getLastSelectedChannelId']);
+	let SelectedChannelStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getLastSelectedChannelId']);
 	InternalUtilities.addInternalListener(SelectedChannelStore._actionHandlers, "CHANNEL_SELECT", callback);
 
-	GuildActions = InternalUtilities.WebpackModules.findByUniqueProperties(['markGuildAsRead']);
+	let GuildActions = InternalUtilities.WebpackModules.findByUniqueProperties(['markGuildAsRead']);
 	InternalUtilities.addInternalListener(GuildActions, "nsfwAgree", callback);
-}
+};
 
 InternalUtilities.removeOnSwitchListener = function(callback) {
-	SelectedChannelStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getLastSelectedChannelId']);
+	let SelectedChannelStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getLastSelectedChannelId']);
 	InternalUtilities.removeInternalListener(SelectedChannelStore._actionHandlers, "CHANNEL_SELECT", callback);
 
-	GuildActions = InternalUtilities.WebpackModules.findByUniqueProperties(['markGuildAsRead']);
+	let GuildActions = InternalUtilities.WebpackModules.findByUniqueProperties(['markGuildAsRead']);
 	InternalUtilities.removeInternalListener(GuildActions, "nsfwAgree", callback);
-}
+};
 
 PluginUtilities.getCurrentServer = function() {
 	var auditLog = document.querySelector('.guild-settings-audit-logs');
@@ -1451,7 +1458,7 @@ window["ZeresLibrary"] = {
 	Tooltip: PluginTooltip,
 	DiscordPermissions: DiscordPermissions,
 	InternalUtilities: InternalUtilities,
-	version: "0.5.4"
+	version: "0.5.5"
 };
 
 BdApi.clearCSS("PluginLibraryCSS");
