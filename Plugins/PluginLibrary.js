@@ -1,12 +1,13 @@
-var ColorUtilities = {};
-var DOMUtilities = {};
-var ReactUtilities = {};
-var PluginUtilities = {};
-var PluginUpdateUtilities = {};
-var PluginSettings = {};
-var PluginContextMenu = {};
-var PluginTooltip = {};
-var DiscordPermissions = {};
+var ColorUtilities = {version: "0.0.2"};
+var DOMUtilities = {version: "0.0.1"};
+var ReactUtilities = {version: "0.0.4"};
+var PluginUtilities = {version: "0.2.1"};
+var PluginUpdateUtilities = {version: "0.0.2"};
+var PluginSettings = {version: "1.0.5"};
+var PluginContextMenu = {version: "0.0.5"};
+var PluginTooltip = {version: "0.0.2"};
+var DiscordPermissions = {version: "0.0.1"};
+var InternalUtilities = {version: "0.0.1"};
 
 /* global bdPluginStorage:false, BdApi:false, Symbol:false, webpackJsonp:false, _:false */
 
@@ -270,7 +271,7 @@ ReactUtilities.getReactKey = function(config) {
 };
 
 
-// getOwnerInstance for Nirewen from Samogot/Noodlebox
+/* The following functions come from Samogot's library https://github.com/samogot/betterdiscord-plugins */
 ReactUtilities.getOwnerInstance = function(e, {include, exclude = ["Popout", "Tooltip", "Scroller", "BackgroundFlash"]} = {}) {
 	if (e === undefined)
 		return undefined;
@@ -296,36 +297,153 @@ ReactUtilities.getOwnerInstance = function(e, {include, exclude = ["Popout", "To
 	return null;
 };
 
-// getOwnerInstance for Nirewen from Samogot/Noodlebox
-PluginUtilities.WebpackModules = (() => {
+
+InternalUtilities.monkeyPatch = (what, methodName, options) => {
+	const {before, after, instead, once = false, silent = false} = options;
+	const displayName = options.displayName || what.displayName || what.name || what.constructor.displayName || what.constructor.name;
+	if (!silent) console.log('patch', methodName, 'of', displayName);
+	const origMethod = what[methodName];
+	const cancel = () => {
+		if (!silent) console.log('unpatch', methodName, 'of', displayName);
+		what[methodName] = origMethod;
+	};
+	what[methodName] = function() {
+		const data = {
+			thisObject: this,
+			methodArguments: arguments,
+			cancelPatch: cancel,
+			originalMethod: origMethod,
+			callOriginalMethod: () => data.returnValue = data.originalMethod.apply(data.thisObject, data.methodArguments)
+		};
+		if (instead) {
+			const tempRet = suppressErrors(instead, '`instead` callback of ' + what[methodName].displayName)(data);
+			if (tempRet !== undefined)
+				data.returnValue = tempRet;
+		}
+		else {
+			if (before) suppressErrors(before, '`before` callback of ' + what[methodName].displayName)(data);
+			data.callOriginalMethod();
+			if (after) suppressErrors(after, '`after` callback of ' + what[methodName].displayName)(data);
+		}
+		if (once) cancel();
+		return data.returnValue;
+	};
+	what[methodName].__monkeyPatched = true;
+	what[methodName].displayName = 'patched ' + (what[methodName].displayName || methodName);
+	return cancel;
+};
+
+
+InternalUtilities.WebpackModules = (() => {
 	const req = webpackJsonp([], {
 		'__extra_id__': (module, exports, req) => exports.default = req
 	}, ['__extra_id__']).default;
 	delete req.m['__extra_id__'];
 	delete req.c['__extra_id__'];
-	const find = (filter) => {
+	const find = (filter, options = {}) => {
+		const {cacheOnly = true} = options;
 		for (let i in req.c) {
 			if (req.c.hasOwnProperty(i)) {
 				let m = req.c[i].exports;
-				if (m && m.__esModule && m.default) m = m.default;
-				if (m && filter(m)) return m;
+				if (m && m.__esModule && m.default && filter(m.default)) return m.default;
+				if (m && filter(m))	return m;
 			}
+		}
+		if (cacheOnly) {
+			console.warn('Cannot find loaded module in cache');
+			return null;
 		}
 		console.warn('Cannot find loaded module in cache. Loading all modules may have unexpected side effects');
 		for (let i = 0; i < req.m.length; ++i) {
-			let m = req(i);
-			if (m && m.__esModule && m.default) m = m.default;
-			if (m && filter(m)) return m;
+			try {
+				let m = req(i);
+				if (m && m.__esModule && m.default && filter(m.default)) return m.default;
+				if (m && filter(m))	return m;
+			}
+			catch (e) {}
 		}
 		console.warn('Cannot find module');
 		return null;
 	};
 	
-	const findByUniqueProperties = (propNames) => find(module => propNames.every(prop => module[prop] !== undefined));
-	const findByDisplayName = (displayName) => find(module => module.displayName === displayName);
+	const findByUniqueProperties = (propNames, options) => find(module => propNames.every(prop => module[prop] !== undefined), options);
+	const findByDisplayName = (displayName, options) => find(module => module.displayName === displayName, options);
 		
 	return {find, findByUniqueProperties, findByDisplayName};
 })();
+
+PluginUtilities.WebpackModules = InternalUtilities.WebpackModules; // Backwards compatibility
+
+InternalUtilities.Filters = {
+	byPrototypeFields: (fields, selector = x => x) => (module) => {
+		const component = selector(module);
+		if (!component) return false;
+		if (!component.prototype) return false;
+		for (const field of fields) {
+			if (!component.prototype[field]) return false;
+		}
+		return true;
+	},
+	byCode: (search, selector = x => x) => (module) => {
+		const method = selector(module);
+		if (!method) return false;
+		return method.toString().search(search) !== -1;
+	},
+	and: (...filters) => (module) => {
+		for (const filter of filters) {
+			if (!filter(module)) return false;
+		}
+		return true;
+	}
+};
+/* The previous functions come from Samogot's library https://github.com/samogot/betterdiscord-plugins */
+
+InternalUtilities.addInternalListener = function(internalModule, moduleFunction, callback) {
+	const moduleName = internalModule.displayName || internalModule.name || internalModule.constructor.displayName || internalModule.constructor.name; // borrowed from Samogot
+	if (!internalModule[moduleFunction] || typeof(internalModule[moduleFunction]) !== "function") return console.error(`Module ${moduleName} has no function ${moduleFunction}`);
+
+	if (!internalModule.__internalListeners) internalModule.__internalListeners = {};
+	if (!internalModule.__internalListeners[moduleFunction]) internalModule.__internalListeners[moduleFunction] = new Set();
+	if (!internalModule.__listenerPatches) internalModule.__listenerPatches = {};
+
+	if (!internalModule.__listenerPatches[moduleFunction]) {
+		if (internalModule[moduleFunction].__monkeyPatched) console.warn(`Function ${moduleFunction} of module ${moduleName} has already been patched by someone else.`);
+		internalModule.__listenerPatches[moduleFunction] = InternalUtilities.monkeyPatch(internalModule, moduleFunction, {after: (data) => {
+			for (let listener of internalModule.__internalListeners[moduleFunction]) listener();
+		}});
+	}
+
+	internalModule.__internalListeners[moduleFunction].add(callback);
+}
+
+InternalUtilities.removeInternalListener = function(internalModule, moduleFunction, callback) {
+	const moduleName = internalModule.displayName || internalModule.name || internalModule.constructor.displayName || internalModule.constructor.name; // borrowed from Samogot
+	if (!internalModule[moduleFunction] || typeof(internalModule[moduleFunction]) !== "function") return console.error(`Module ${moduleName} has no function ${moduleFunction}`);
+	if (!internalModule.__internalListeners || !internalModule.__internalListeners[moduleFunction] || !internalModule.__internalListeners[moduleFunction].size) return;
+	
+	internalModule.__internalListeners[moduleFunction].delete(callback);
+	
+	if (!internalModule.__internalListeners[moduleFunction].size) {
+		internalModule.__listenerPatches[moduleFunction]();
+		delete internalModule.__listenerPatches[moduleFunction];
+	}
+}
+
+InternalUtilities.addOnSwitchListener = function(callback) {
+	SelectedChannelStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getLastSelectedChannelId']);
+	InternalUtilities.addInternalListener(SelectedChannelStore._actionHandlers, "CHANNEL_SELECT", callback);
+
+	GuildActions = InternalUtilities.WebpackModules.findByUniqueProperties(['markGuildAsRead']);
+	InternalUtilities.addInternalListener(GuildActions, "nsfwAgree", callback);
+}
+
+InternalUtilities.removeOnSwitchListener = function(callback) {
+	SelectedChannelStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getLastSelectedChannelId']);
+	InternalUtilities.removeInternalListener(SelectedChannelStore._actionHandlers, "CHANNEL_SELECT", callback);
+
+	GuildActions = InternalUtilities.WebpackModules.findByUniqueProperties(['markGuildAsRead']);
+	InternalUtilities.removeInternalListener(GuildActions, "nsfwAgree", callback);
+}
 
 PluginUtilities.getCurrentServer = function() {
 	var auditLog = document.querySelector('.guild-settings-audit-logs');
@@ -1331,13 +1449,15 @@ window["ZeresLibrary"] = {
 	PluginSettings: PluginSettings,
 	ContextMenu: PluginContextMenu,
 	Tooltip: PluginTooltip,
-	DiscordPermissions: DiscordPermissions
+	DiscordPermissions: DiscordPermissions,
+	InternalUtilities: InternalUtilities,
+	version: "0.5.4"
 };
 
-BdApi.clearCSS("PluginLibrary");
-BdApi.clearCSS("ToastCSS");
-BdApi.clearCSS("UpdateNotice");
-BdApi.injectCSS("PluginLibrary", PluginSettings.getCSS());
-BdApi.injectCSS("ToastCSS", PluginUtilities.getToastCSS());
-BdApi.injectCSS("UpdateNotice", PluginUpdateUtilities.getCSS());
+BdApi.clearCSS("PluginLibraryCSS");
+//BdApi.clearCSS("ToastCSS");
+//BdApi.clearCSS("UpdateNotice");
+BdApi.injectCSS("PluginLibraryCSS", PluginSettings.getCSS() + PluginUtilities.getToastCSS() + PluginUpdateUtilities.getCSS());
+//BdApi.injectCSS("ToastCSS", PluginUtilities.getToastCSS());
+//BdApi.injectCSS("UpdateNotice", PluginUpdateUtilities.getCSS());
 jQuery.extend(jQuery.easing, { easeInSine: function (x, t, b, c, d) { return -c * Math.cos(t / d * (Math.PI / 2)) + c + b; }});
