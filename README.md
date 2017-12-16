@@ -6,6 +6,7 @@ A series of plugins and themes for BetterDiscord. For support or announcements o
  - [BetterFormattingRedux](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux) - A rewrite of Anxeal's BetterFormatting that includes new options and settings.
  - [BetterRoleColors](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors) - Adds server-based role colors to typing, voice, popouts, modals and more!
  - [BlurNSFW](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BlurNSFW) - Blurs images in NSFW channels until you hover over it.
+ - [HideIconBadge](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideIconBadge) - Hides the badge that appears on the taskbar icon.
  - [ImageToClipboard](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ImageToClipboard) - Allows you to copy images (png/jpg) directly to your system clipboard.
  - [PermissionsViewer](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer) - Allows you to view a user's permissions. Thanks to Noodlebox for the idea!
  - [ResizableCSS](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ResizableCSS) - Allows you to resize the detached CustomCSS window.
