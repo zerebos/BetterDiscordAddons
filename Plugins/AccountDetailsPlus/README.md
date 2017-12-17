@@ -1,4 +1,4 @@
-# HideIconBadge - [Download](https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AccountDetailsPlus/AccountDetailsPlus.plugin.js)
+# AccountDetailsPlus - [Download](https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AccountDetailsPlus/AccountDetailsPlus.plugin.js)
 
 Lets you view popout, nickname and more from your account panel at the bottom. For support and update announcements you can visit [Zere's server](https://bit.ly/ZeresServer).
 
