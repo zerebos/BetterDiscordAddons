@@ -112,3 +112,4 @@ class BlurNSFW {
 		return panel[0];
 	}
 }
+
