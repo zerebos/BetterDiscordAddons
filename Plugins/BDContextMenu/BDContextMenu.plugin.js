@@ -6,7 +6,7 @@ class BDContextMenu {
 	getName() { return "BDContextMenu"; }
 	getShortName() { return "BDContextMenu"; }
 	getDescription() { return "Adds BD shortcuts to the settings context menu. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.2"; }
+	getVersion() { return "0.0.3"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -65,6 +65,7 @@ class BDContextMenu {
         let contextMenu = $(elem);
 
         let coreMenu = new PluginContextMenu.Menu(true);
+		let forkMenu = new PluginContextMenu.Menu(true);
         let emoteMenu = new PluginContextMenu.Menu(true);
         let pluginMenu = new PluginContextMenu.Menu(true);
         let themeMenu = new PluginContextMenu.Menu(true);
@@ -75,6 +76,15 @@ class BDContextMenu {
                     coreMenu.addItems(new PluginContextMenu.ToggleItem(setting, window.settingsCookie[window.settings[setting].id], {callback: () => { this.changeBDSetting(window.settings[setting].id); }}));
             })(setting);
         }
+		
+		if (bbdVersion) {
+			for (let setting in window.settings) {
+				((setting) => {
+					if (window.settings[setting].implemented && !window.settings[setting].hidden && window.settings[setting].cat === "fork")
+						forkMenu.addItems(new PluginContextMenu.ToggleItem(setting, window.settingsCookie[window.settings[setting].id], {callback: () => { this.changeBDSetting(window.settings[setting].id); }}));
+				})(setting);
+			}
+		}
 
         for (let setting in window.settings) {
             ((setting) => {
@@ -95,13 +105,27 @@ class BDContextMenu {
             })(theme);
         }
 
-        let menu = new PluginContextMenu.SubMenuItem("BetterDiscord", new PluginContextMenu.Menu(false).addItems(
-            new PluginContextMenu.SubMenuItem("Core", coreMenu, {callback: () => { contextMenu.hide(); this.openMenu(0); }}),
-            new PluginContextMenu.SubMenuItem("Emotes", emoteMenu, {callback: () => { contextMenu.hide(); this.openMenu(1); }}),
-            new PluginContextMenu.TextItem("Custom CSS", {callback: () => { contextMenu.hide(); this.openMenu(2); }}),
-            new PluginContextMenu.SubMenuItem("Plugins", pluginMenu, {callback: () => { contextMenu.hide(); this.openMenu(3); }}),
-            new PluginContextMenu.SubMenuItem("Themes", themeMenu, {callback: () => { contextMenu.hide(); this.openMenu(4); }})
-        ));
+		
+		let menu = null;
+		if (bbdVersion) {
+			menu = new PluginContextMenu.SubMenuItem("BetterDiscord", new PluginContextMenu.Menu(false).addItems(
+				new PluginContextMenu.SubMenuItem("Core", coreMenu, {callback: () => { contextMenu.hide(); this.openMenu(0); }}),
+				new PluginContextMenu.SubMenuItem("Zere's Fork", forkMenu, {callback: () => { contextMenu.hide(); this.openMenu(1); }}),
+				new PluginContextMenu.SubMenuItem("Emotes", emoteMenu, {callback: () => { contextMenu.hide(); this.openMenu(2); }}),
+				new PluginContextMenu.TextItem("Custom CSS", {callback: () => { contextMenu.hide(); this.openMenu(3); }}),
+				new PluginContextMenu.SubMenuItem("Plugins", pluginMenu, {callback: () => { contextMenu.hide(); this.openMenu(4); }}),
+				new PluginContextMenu.SubMenuItem("Themes", themeMenu, {callback: () => { contextMenu.hide(); this.openMenu(5); }})
+			));
+		}
+		else {
+			menu = new PluginContextMenu.SubMenuItem("BetterDiscord", new PluginContextMenu.Menu(false).addItems(
+				new PluginContextMenu.SubMenuItem("Core", coreMenu, {callback: () => { contextMenu.hide(); this.openMenu(0); }}),
+				new PluginContextMenu.SubMenuItem("Emotes", emoteMenu, {callback: () => { contextMenu.hide(); this.openMenu(1); }}),
+				new PluginContextMenu.TextItem("Custom CSS", {callback: () => { contextMenu.hide(); this.openMenu(2); }}),
+				new PluginContextMenu.SubMenuItem("Plugins", pluginMenu, {callback: () => { contextMenu.hide(); this.openMenu(3); }}),
+				new PluginContextMenu.SubMenuItem("Themes", themeMenu, {callback: () => { contextMenu.hide(); this.openMenu(4); }})
+			));
+		}
         contextMenu.append(new PluginContextMenu.ItemGroup().addItems(menu).getElement());
         contextMenu.css("top", "-=" + menu.getElement().outerHeight());
 
@@ -112,7 +136,8 @@ class BDContextMenu {
 
     changeBDSetting(setting) {
         window.settingsCookie[setting] = !window.settingsCookie[setting];
-        window.settingsPanel.v2SettingsPanel.updateSettings();
+        if (window.settingsPanel.v2SettingsPanel) window.settingsPanel.v2SettingsPanel.updateSettings();
+		else window.settingsPanel.updateSettings();
     }
 
     enablePlugin(plugin) {

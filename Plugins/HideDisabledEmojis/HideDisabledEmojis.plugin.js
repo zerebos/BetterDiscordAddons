@@ -6,7 +6,7 @@ class HideDisabledEmojis {
 	getName() { return "HideDisabledEmojis"; }
 	getShortName() { return "hde"; }
 	getDescription() { return "Hides disabled emojis from the emoji picker. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.1"; }
+	getVersion() { return "0.0.2"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -50,7 +50,7 @@ class HideDisabledEmojis {
             for (let cat of cats) {
                 if (!newcats[cat.category]) cat.offsetTop = 999999;
                 else {
-                    cat.offsetTop = i == 0 ? i * 32 : (i + 1) * 32;
+                    cat.offsetTop = i * 32;
                     i += newcats[cat.category] + 1;
                 }
                 data.thisObject.categoryOffsets[cat.category] = cat.offsetTop;

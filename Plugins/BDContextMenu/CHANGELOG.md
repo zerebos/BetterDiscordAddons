@@ -1,5 +1,9 @@
 # BDContextMenu Changelog
 
+### 0.0.3
+
+ - Update to work with Zere's fork
+
 ### 0.0.2
 
  - Add item-group
