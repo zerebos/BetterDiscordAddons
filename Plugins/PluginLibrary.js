@@ -2,10 +2,10 @@ var ColorUtilities = {version: "0.0.2"};
 var DOMUtilities = {version: "0.0.1"};
 var ReactUtilities = {version: "0.0.4"};
 var PluginUtilities = {version: "0.2.2"};
-var PluginUpdateUtilities = {version: "0.0.2"};
+var PluginUpdateUtilities = {version: "0.0.3"};
 var PluginSettings = {version: "1.0.5"};
 var PluginContextMenu = {version: "0.0.5"};
-var PluginTooltip = {version: "0.0.2"};
+var PluginTooltip = {version: "0.0.3"};
 var DiscordPermissions = {version: "0.0.1"};
 var InternalUtilities = {version: "0.0.2"};
 
@@ -525,7 +525,7 @@ PluginUtilities.checkForUpdate = function(pluginName, currentVersion, updateURL)
 		};
 	}
 
-	if (typeof window.PluginUpdates.observer === "undefined") {
+	if (typeof window.PluginUpdates.observer === "undefined") {		
 		window.PluginUpdates.observer = new MutationObserver((changes) => {
 			changes.forEach(
 				(change) => {
@@ -538,53 +538,9 @@ PluginUtilities.checkForUpdate = function(pluginName, currentVersion, updateURL)
 											if (change2.addedNodes) {
 												change2.addedNodes.forEach((node2) => {
 													if (!document.querySelector(".bd-updatebtn")) {
-														if (node2 && node2.tagName && node2.querySelector(".bd-pfbtn")) {
-															var updateButton = document.createElement("button");
-															var tooltip = document.createElement("div");
-															var tooltipobserver = new MutationObserver(() => {});
-															updateButton.className = "bd-pfbtn bd-updatebtn";
-															updateButton.innerText = "Check for Updates";
-															updateButton.style.left = "220px";
-															updateButton.onclick = function () {
-																window.PluginUpdates.checkAll();
-															};
-															updateButton.onmouseover = function () {
-																document.querySelector(".tooltips").appendChild(tooltip);
-																tooltip.className = "tooltip tooltip-right tooltip-black";
-																tooltip.innerText = "Checks for updates of plugins that support this feature. Right-click for a list.";
-																tooltip.style.maxWidth = "";
-																tooltip.style.left = $(updateButton).offset().left + $(updateButton).outerWidth() + "px";
-																tooltip.style.top = $(updateButton).offset().top + ($(updateButton).outerHeight() - $(tooltip).outerHeight()) / 2 + "px";
-																tooltipobserver = new MutationObserver((mutations) => {
-																	mutations.forEach((mutation) => {
-																		var nodes = Array.from(mutation.removedNodes);
-																		var directMatch = nodes.indexOf(updateButton) > -1;
-																		var parentMatch = nodes.some(parent => parent.contains(updateButton));
-																		if (directMatch || parentMatch) {
-																			tooltipobserver.disconnect();
-																			tooltip.remove();
-																		}
-																	});
-																});
-																tooltipobserver.observe(document.body, {subtree: true, childList: true});
-															};		
-															updateButton.onmouseout = function () {
-																tooltipobserver.disconnect();
-																tooltip.remove();
-															};	
-															updateButton.oncontextmenu = function () {
-																if (window.PluginUpdates && window.PluginUpdates.plugins) {
-																	var list = [];
-																	for (var plugin in window.PluginUpdates.plugins) {
-																		list.push(window.PluginUpdates.plugins[plugin].name);
-																	}
-																	tooltip.innerText = list.join(", ");
-																	tooltip.style.maxWidth = "400px";
-																	tooltip.style.left = $(updateButton).offset().left + $(updateButton).outerWidth() + "px";
-																	tooltip.style.top = $(updateButton).offset().top + ($(updateButton).outerHeight() - $(tooltip).outerHeight()) / 2 + "px";
-																}
-														};
-															node2.querySelector(".bd-pfbtn").parentElement.insertBefore(updateButton, node2.querySelector(".bda-slist"));
+														if (node2 && node2.tagName && node2.querySelector(".bd-pfbtn") && node2.querySelector("h2") && node2.querySelector("h2").innerText.toLowerCase() === "plugins") {
+
+															node2.querySelector(".bd-pfbtn").parentElement.insertBefore(PluginUpdateUtilities.createUpdateButton(), node2.querySelector(".bd-pfbtn").nextSibling);
 														}
 													}
 												});
@@ -601,6 +557,35 @@ PluginUtilities.checkForUpdate = function(pluginName, currentVersion, updateURL)
 		});
 		window.PluginUpdates.observer.observe(document.querySelector(".layers"), {childList:true});
 	}
+	
+	var bdbutton = document.querySelector(".bd-pfbtn");
+	if (bdbutton && bdbutton.parentElement.querySelector("h2") && bdbutton.parentElement.querySelector("h2").innerText.toLowerCase() === "plugins") {
+		bdbutton.parentElement.insertBefore(PluginUpdateUtilities.createUpdateButton(), bdbutton.nextSibling);
+	}
+};
+
+PluginUpdateUtilities.createUpdateButton = function() {
+	var updateButton = document.createElement("button");
+	updateButton.className = "bd-pfbtn bd-updatebtn";
+	updateButton.innerText = "Check for Updates";
+	updateButton.style.left = "220px";
+	updateButton.onclick = function () {
+		window.PluginUpdates.checkAll();
+	};
+	let tooltip = new PluginTooltip.Tooltip($(updateButton), "Checks for updates of plugins that support this feature. Right-click for a list.")
+	updateButton.oncontextmenu = function () {
+		if (window.PluginUpdates && window.PluginUpdates.plugins) {
+			var list = [];
+			for (var plugin in window.PluginUpdates.plugins) {
+				list.push(window.PluginUpdates.plugins[plugin].name);
+			}
+			tooltip.tooltip.detach();
+			tooltip.tooltip.text(list.join(", "));
+			tooltip.show();
+			updateButton.onmouseout = function() { tooltip.tooltip.text(tooltip.tip); }
+		}
+	};
+	return updateButton;
 };
 
 PluginUpdateUtilities.getCSS = function () {
@@ -1433,6 +1418,8 @@ PluginTooltip.Tooltip = class Tooltip {
 	}
 
 	show() {
+		this.tooltip.removeClass("tooltip-bottom");
+		this.tooltip.removeClass("tooltip-top");
 		this.tooltip.appendTo('.tooltips');
 		if (this.node.offset().top - this.tooltip.outerHeight() <= 0) {
 			this.tooltip.addClass("tooltip-bottom");
