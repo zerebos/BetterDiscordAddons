@@ -6,7 +6,7 @@ class BDContextMenu {
 	getName() { return "BDContextMenu"; }
 	getShortName() { return "BDContextMenu"; }
 	getDescription() { return "Adds BD shortcuts to the settings context menu. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.3"; }
+	getVersion() { return "0.0.4"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -77,7 +77,7 @@ class BDContextMenu {
             })(setting);
         }
 		
-		if (bbdVersion) {
+		if (window.bbdVersion) {
 			for (let setting in window.settings) {
 				((setting) => {
 					if (window.settings[setting].implemented && !window.settings[setting].hidden && window.settings[setting].cat === "fork")
@@ -107,7 +107,7 @@ class BDContextMenu {
 
 		
 		let menu = null;
-		if (bbdVersion) {
+		if (window.bbdVersion) {
 			menu = new PluginContextMenu.SubMenuItem("BetterDiscord", new PluginContextMenu.Menu(false).addItems(
 				new PluginContextMenu.SubMenuItem("Core", coreMenu, {callback: () => { contextMenu.hide(); this.openMenu(0); }}),
 				new PluginContextMenu.SubMenuItem("Zere's Fork", forkMenu, {callback: () => { contextMenu.hide(); this.openMenu(1); }}),

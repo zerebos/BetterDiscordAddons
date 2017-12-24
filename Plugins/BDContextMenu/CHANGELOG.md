@@ -1,5 +1,9 @@
 # BDContextMenu Changelog
 
+### 0.0.4
+
+ - I fucked up
+
 ### 0.0.3
 
  - Update to work with Zere's fork

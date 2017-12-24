@@ -795,8 +795,8 @@ PluginUtilities.showToast = function(content, options = {}) {
     if (!document.querySelector('.toasts')) {
         let toastWrapper = document.createElement("div");
         toastWrapper.classList.add("toasts");
-        toastWrapper.style.setProperty("left", document.querySelector('.chat form, #friends, .noChannel-2EQ0a9, .activityFeed-HeiGwL').getBoundingClientRect().left + "px");
-        toastWrapper.style.setProperty("width", document.querySelector('.chat form, #friends, .noChannel-2EQ0a9, .activityFeed-HeiGwL').offsetWidth + "px");
+        toastWrapper.style.setProperty("left", document.querySelector('.chat form, #friends, .noChannel-2EQ0a9, .activityFeed-HeiGwL, .lfg-3xoFkI').getBoundingClientRect().left + "px");
+        toastWrapper.style.setProperty("width", document.querySelector('.chat form, #friends, .noChannel-2EQ0a9, .activityFeed-HeiGwL, .lfg-3xoFkI').offsetWidth + "px");
         toastWrapper.style.setProperty("bottom", (document.querySelector('.chat form') ? document.querySelector('.chat form').offsetHeight : 80) + "px");
         document.querySelector('.app').appendChild(toastWrapper);
     }
@@ -859,7 +859,7 @@ PluginUtilities.createSwitchObserver = function(plugin) {
 			if (change.removedNodes.length && change.removedNodes[0] instanceof Element && (change.removedNodes[0].classList.contains("activityFeed-HeiGwL") || change.removedNodes[0].id === "friends")) plugin.onChannelSwitch();
 		});
 	});
-	switchObserver.observe((document.querySelector('.chat') || document.querySelector('#friends')).parentElement, {childList: true, subtree:true});
+	switchObserver.observe(document.querySelector('.app'), {childList: true, subtree:true});
 	return switchObserver;
 };
 
@@ -871,7 +871,7 @@ PluginUtilities.onSwitchObserver = function(onSwitch) {
 			if (change.removedNodes.length && change.removedNodes[0] instanceof Element && (change.removedNodes[0].classList.contains("activityFeed-HeiGwL") || change.removedNodes[0].id === "friends")) onSwitch();
 		});
 	});
-	switchObserver.observe((document.querySelector('.chat') || document.querySelector('#friends')).parentElement, {childList: true, subtree:true});
+	switchObserver.observe(document.querySelector('.app'), {childList: true, subtree:true});
 	return switchObserver;
 };
 
