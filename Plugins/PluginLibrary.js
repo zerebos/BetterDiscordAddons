@@ -1,7 +1,7 @@
 var ColorUtilities = {version: "0.0.2"};
 var DOMUtilities = {version: "0.0.1"};
 var ReactUtilities = {version: "0.0.4"};
-var PluginUtilities = {version: "0.2.2"};
+var PluginUtilities = {version: "0.2.3"};
 var PluginUpdateUtilities = {version: "0.0.3"};
 var PluginSettings = {version: "1.0.5"};
 var PluginContextMenu = {version: "0.0.5"};
@@ -729,7 +729,6 @@ PluginUtilities.getToastCSS = function() {
 		font-size: 14px;
 		opacity: 1;
 		margin-top: 10px;
-		pointer-events: auto;
 	}
 	
 	@keyframes toast-down {
@@ -793,11 +792,18 @@ PluginUtilities.getToastCSS = function() {
 
 PluginUtilities.showToast = function(content, options = {}) {
     if (!document.querySelector('.toasts')) {
+		let container = document.querySelector('.channels-3g2vYe + div');
+		let memberlist = container.querySelector('.channel-members-wrap');
+		let form = container ? container.querySelector('form') : null;
+		let left = container ? container.getBoundingClientRect().left : 310;
+		let right = memberlist ? memberlist.getBoundingClientRect().left : 0;
+		let width = right ? right - container.getBoundingClientRect().left : container.offsetWidth;
+		let bottom = form ? form.offsetHeight : 80;
         let toastWrapper = document.createElement("div");
         toastWrapper.classList.add("toasts");
-        toastWrapper.style.setProperty("left", document.querySelector('.chat form, #friends, .noChannel-2EQ0a9, .activityFeed-HeiGwL, .lfg-3xoFkI').getBoundingClientRect().left + "px");
-        toastWrapper.style.setProperty("width", document.querySelector('.chat form, #friends, .noChannel-2EQ0a9, .activityFeed-HeiGwL, .lfg-3xoFkI').offsetWidth + "px");
-        toastWrapper.style.setProperty("bottom", (document.querySelector('.chat form') ? document.querySelector('.chat form').offsetHeight : 80) + "px");
+        toastWrapper.style.setProperty("left", container.getBoundingClientRect().left + "px");
+        toastWrapper.style.setProperty("width", width + "px");
+        toastWrapper.style.setProperty("bottom", bottom + "px");
         document.querySelector('.app').appendChild(toastWrapper);
     }
     const {type = "", icon = true, timeout = 3000} = options;
