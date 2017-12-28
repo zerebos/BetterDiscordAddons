@@ -559,7 +559,7 @@ PluginUtilities.checkForUpdate = function(pluginName, currentVersion, updateURL)
 	}
 	
 	var bdbutton = document.querySelector(".bd-pfbtn");
-	if (bdbutton && bdbutton.parentElement.querySelector("h2") && bdbutton.parentElement.querySelector("h2").innerText.toLowerCase() === "plugins") {
+	if (bdbutton && bdbutton.parentElement.querySelector("h2") && bdbutton.parentElement.querySelector("h2").innerText.toLowerCase() === "plugins" && !bdbutton.parentElement.querySelector(".bd-pfbtn.bd-updatebtn")) {
 		bdbutton.parentElement.insertBefore(PluginUpdateUtilities.createUpdateButton(), bdbutton.nextSibling);
 	}
 };
