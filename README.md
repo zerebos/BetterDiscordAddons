@@ -21,6 +21,7 @@ A series of plugins and themes for BetterDiscord. For support or announcements o
  - [RadialStatus](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/RadialStatus) - An extension (and update/fix) of Zerthox's Status Circles.
  - [TransientMaterial](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/TransientMaterial) - Transparency patch theme for Beard's Material Design Theme. Also works fairly well on it's own.
  - [SwitchFix](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/SwitchFix) - Makes the checkboxes on the plugins and themes pages look like switches again.
+ - [FixEmoteModifiers](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/FixEmoteModifiers) - Makes the emote modifiers work again.
  
 ## Snippets
  - [Snippet Collection](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/Snippets) - A collection of useful CSS snippets, could be considered mini-themes.
