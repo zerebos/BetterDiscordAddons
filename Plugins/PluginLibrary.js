@@ -555,7 +555,7 @@ PluginUtilities.checkForUpdate = function(pluginName, currentVersion, updateURL)
 				}
 			);
 		});
-		window.PluginUpdates.observer.observe(document.querySelector(".layers"), {childList:true});
+		window.PluginUpdates.observer.observe(document.querySelector(".layers, .layers-20RVFW"), {childList:true});
 	}
 	
 	var bdbutton = document.querySelector(".bd-pfbtn");
