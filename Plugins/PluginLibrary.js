@@ -589,7 +589,7 @@ PluginUpdateUtilities.createUpdateButton = function() {
 };
 
 PluginUpdateUtilities.getCSS = function () {
-	return "#pluginNotice {-webkit-app-region: drag;} #pluginNotice #outdatedPlugins span {-webkit-app-region: no-drag;color:#fff;cursor:pointer;} #pluginNotice #outdatedPlugins span:hover {text-decoration:underline;}";
+	return "#pluginNotice {-webkit-app-region: drag;border-radius:0;} #outdatedPlugins {font-weight:700;} #outdatedPlugins>span {-webkit-app-region: no-drag;color:#fff;cursor:pointer;} #outdatedPlugins>span:hover {text-decoration:underline;}";
 };
 
 PluginUpdateUtilities.checkUpdate = function(pluginName, updateLink) {
@@ -612,7 +612,7 @@ PluginUpdateUtilities.checkUpdate = function(pluginName, updateLink) {
 };
 
 PluginUpdateUtilities.showUpdateNotice = function(pluginName, updateLink) {
-	let noticeElement = '<div class="notice notice-info" id="pluginNotice"><div class="notice-dismiss" id="pluginNoticeDismiss"></div><span class="notice-message">The following plugins have updates:</span>&nbsp;&nbsp;<strong id="outdatedPlugins"></strong></div>';
+	let noticeElement = '<div class="notice notice-info notice-3I4-y_ noticeInfo-3v29SJ size14-1wjlWP weightMedium-13x9Y8 height36-13sPn7" id="pluginNotice"><div class="notice-dismiss dismiss-1QjyJW" id="pluginNoticeDismiss"></div><span class="notice-message">The following plugins have updates:</span>&nbsp;&nbsp;<strong id="outdatedPlugins"></strong></div>';
 	if (!$('#pluginNotice').length)  {
 		$('.app.flex-vertical').children().first().before(noticeElement);
         $('.win-buttons').addClass("win-buttons-notice");
@@ -651,7 +651,7 @@ PluginUpdateUtilities.downloadPlugin = function(pluginName, updateLink) {
         if (!(oldRNM || newRNM)) {
             if (!window.PluginUpdates.downloaded) {
                 window.PluginUpdates.downloaded = [];
-                let button = $('<button class="btn btn-reload">Reload</button>');
+                let button = $('<button class="btn btn-reload button-2TvR03 size14-1wjlWP weightMedium-13x9Y8">Reload</button>');
                 button.on('click', (e) => {
                     e.preventDefault();
                     window.location.reload(false);
