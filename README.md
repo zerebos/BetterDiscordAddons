@@ -15,6 +15,7 @@ A series of plugins and themes for BetterDiscord. For support or announcements o
  - [SendButton](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/SendButton) - Adds a send button to discord.
  - [ServerSorter](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSorter) - Adds the ability to sort the servers that you're in.
  - [StatusEverywhere](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/StatusEverywhere) - Adds user status everywhere Discord doesn't.
+ - [TransparencyPatcher](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/TransparencyPatcher) - Allows you to make your discord see-through.
  - ~~[AlwaysTyping](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AlwaysTyping) - Makes people think you're always typing, even when you're not.~~
  
 ## Themes

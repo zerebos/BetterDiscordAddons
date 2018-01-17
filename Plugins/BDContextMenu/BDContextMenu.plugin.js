@@ -6,7 +6,7 @@ class BDContextMenu {
 	getName() { return "BDContextMenu"; }
 	getShortName() { return "BDContextMenu"; }
 	getDescription() { return "Adds BD shortcuts to the settings context menu. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.4"; }
+	getVersion() { return "0.0.5"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -60,7 +60,7 @@ class BDContextMenu {
 	observeContextMenus(e) {
 		if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element) || !e.addedNodes[0].classList) return;
 		let elem = e.addedNodes[0];
-		let isContext = elem.classList.contains('context-menu');
+		let isContext = elem.classList.contains('contextMenu-uoJTbz');
         if (!isContext) return;
         let contextMenu = $(elem);
 

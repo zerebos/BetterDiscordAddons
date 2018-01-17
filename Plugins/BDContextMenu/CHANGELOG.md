@@ -1,5 +1,9 @@
 # BDContextMenu Changelog
 
+### 0.0.5
+
+ - Fix for discord update
+
 ### 0.0.4
 
  - I fucked up

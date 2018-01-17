@@ -1,5 +1,9 @@
 # BlurNSFW Changelog
 
+### 0.1.9
+
+ - Fix for some discord updates
+
 ### 0.1.8
 
  - Update some selectors

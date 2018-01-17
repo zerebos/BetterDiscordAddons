@@ -1,5 +1,13 @@
 # ImageToClipboard Changelog
 
+### 0.2.10
+
+ - Fix for some discord updates
+
+### 0.2.8
+
+ - Additional selectors
+
 ### 0.2.8
 
  - Add translations

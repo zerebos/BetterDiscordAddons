@@ -1,5 +1,10 @@
 # BetterRoleColors Changelog
 
+### 0.6.1
+
+ - Fix typing for good hopefully, other small fixes for discord updates
+ - Bigger changes coming soon
+
 ### 0.6.0
 
  - Switch from collecting and searching colors to using internals cache

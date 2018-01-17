@@ -1,26 +1,29 @@
 //META{"name":"BlurNSFW"}*//
 
-/* global PluginUtilities:false, ReactUtilities:false, BdApi:false */
+/* global PluginUtilities:false, InternalUtilities:false, BdApi:false */
 
 class BlurNSFW {
 	getName() { return "BlurNSFW"; }
 	getShortName() { return "bnsfw"; }
 	getDescription() { return "Blurs images in NSFW channels until you hover over it. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.1.8"; }
+	getVersion() { return "0.1.9"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
 		this.initialized = false;
 		this.style = `:root {--blur-nsfw: 10px; --blur-nsfw-time: 200ms;}
-		.attachment-image img.blur:hover, .embed-thumbnail img.blur:hover, .attachment-image canvas.blur:hover, .embed-thumbnail canvas.blur:hover, .attachment-image video.blur:hover, .embed-thumbnail video.blur:hover, img.embed-rich-thumb:hover {
+		img.blur:hover,
+		video.blur:hover {
 			transition: var(--blur-nsfw-time) cubic-bezier(.2, .11, 0, 1) !important;
 			filter: blur(0px) !important;
 		}
-		.attachment-image img.blur, .embed-thumbnail img.blur, .attachment-image canvas.blur, .embed-thumbnail canvas.blur, .attachment-image video.blur, .embed-thumbnail video.blur, .embed-rich-thumb.blur {
+		
+		img.blur,
+		video.blur {
 			filter: blur(var(--blur-nsfw)) !important;
 			transition: var(--blur-nsfw-time) cubic-bezier(.2, .11, 0, 1) !important;
 		}`;
-		this.selectors = ['.attachment-image img', '.attachment-image canvas', '.attachment-image video', '.embed-thumbnail img', '.embed-thumbnail canvas', '.embed-thumbnail video', '.embed-rich-thumb'];
+		this.selectors = ['.embedImage-1JnXMa img', '.embedImage-1JnXMa video', '.imageZoom-2suFUV img', '.imageZoom-2suFUV video'];
 	}
 	
 	load() {}
@@ -36,13 +39,15 @@ class BlurNSFW {
 		document.head.appendChild(libraryScript);
 
 		if (typeof window.ZeresLibrary !== "undefined") this.initialize();
-		else libraryScript.addEventListener("load", () => { this.initialize(); })
+		else libraryScript.addEventListener("load", () => { this.initialize(); });
 	}
 
 	initialize() {
 		this.initialized = true;
 		PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
 		BdApi.injectCSS(this.getShortName(), this.style);
+		this.SelectedChannelStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getLastSelectedChannelId']);
+		this.ChannelStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getChannels', 'getDMFromUserId']);
 		this.blurStuff();
 		PluginUtilities.showToast(this.getName() + " " + this.getVersion() + " has started.");
 	}
@@ -54,12 +59,8 @@ class BlurNSFW {
 
 	isNSFWChannel() {
 		if (!document.querySelector('.chat')) return false;
-		let channel = ReactUtilities.getReactProperty(document.querySelector('.chat'), "return.memoizedState.channel");
-		if (!channel) return false;
-		let channelName = channel.name;
-		let isNSFW = channel.nsfw;
-		if (channelName !== undefined && channelName !== null) channelName = channelName.toLowerCase().indexOf("nsfw") !== -1;
-		return isNSFW || channelName;
+		let channel = this.ChannelStore.getChannel(this.SelectedChannelStore.getChannelId());
+		return channel.isNSFW();
 	}
 
 	blurStuff() {
@@ -95,7 +96,7 @@ class BlurNSFW {
 			this.blurStuff();
 		}
 
-		if (elem.hasClass(".image").length || elem.find("span.image").parents(".messages.scroller").length) {
+		if ((elem.find("img").length || elem.find("video").length) && elem.parents(".messages.scroller").length) {
 			this.blurStuff();
 		}
 

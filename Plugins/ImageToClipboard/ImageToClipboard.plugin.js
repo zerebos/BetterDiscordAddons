@@ -6,7 +6,7 @@ class ImageToClipboard {
 	getName() { return "ImageToClipboard"; }
 	getShortName() { return "i2c"; }
 	getDescription() { return "Copies images (png/jpg) directly to clipboard. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.2.9"; }
+	getVersion() { return "0.2.10"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -17,8 +17,8 @@ class ImageToClipboard {
 		this.path = require("path");
 		this.fileSystem = require("fs");
 		this.process = require("process");
-		this.link = '<a target="_blank" rel="noreferrer" class="download-button">${modalLabel}</a>';
-		this.contextItem = '<div class="item-group i2c-group"><div class="item i2c-item"><span>${contextMenuLabel}</span><div class="hint"></div></div></div>';
+		this.link = '<a target="_blank" rel="noreferrer" class="downloadLink-wANcd8 size14-1wjlWP weightMedium-13x9Y8">${modalLabel}</a>';
+		this.contextItem = '<div class="itemGroup-oViAgA i2c-group"><div class="item-1XYaYf i2c-item"><span>${contextMenuLabel}</span><div class="hint"></div></div></div>';
 	}
 	
 	load() {}
@@ -91,18 +91,18 @@ class ImageToClipboard {
 		if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element) || !this.initialized) return;
 		var elem = $(e.addedNodes[0]);
 
-		if (elem.hasClass("modal-image").length || elem.find(".modal-image").length) {
+		if (elem.hasClass("modal-2LIEKY") && elem.find(".inner-1_1f7b .imageWrapper-38T7d9").length) {
 			var linkElement = $(PluginUtilities.formatString(this.link, this.strings));
-			var openElement = $('.modal-image a');
+			var openElement = $('.inner-1_1f7b>div>div>a');
 			var imageLink = openElement.attr("href");
 			imageLink = imageLink.replace(/:large$/, '').split('?')[0];
 			if (imageLink.endsWith('.png') || imageLink.endsWith('.jpg') || imageLink.endsWith('.jpeg')) {
-				openElement.after($('<span class="download-button"> | </span>'),linkElement);
+				openElement.after($('<span class="downloadLink-wANcd8 size14-1wjlWP weightMedium-13x9Y8"> | </span>'),linkElement);
 				linkElement.on("click", () => { this.copyToClipboard(imageLink); });
 			}
 		}
 
-		if (elem.hasClass("context-menu")) {
+		if (elem.hasClass("contextMenu-uoJTbz")) {
 			this.bindMenu(elem[0]);
 		}
 

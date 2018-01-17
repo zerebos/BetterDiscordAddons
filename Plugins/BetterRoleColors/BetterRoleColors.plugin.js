@@ -1,12 +1,12 @@
 //META{"name":"BetterRoleColors", "pname":"BetterRoleColors"}*//
 
-/* global PluginSettings:false, PluginUtilities:false, ReactUtilities:false, DOMUtilities:false, ColorUtilities:false */
+/* global PluginSettings:false, PluginUtilities:false, ReactUtilities:false, DOMUtilities:false, ColorUtilities:false, InternalUtilities:false */
 
 class BetterRoleColors {
 	getName() { return "BetterRoleColors"; }
 	getShortName() { return "BRC"; }
 	getDescription() { return "Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.6.0"; }
+	getVersion() { return "0.6.1"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -22,6 +22,7 @@ class BetterRoleColors {
 		this.documentObserver = new MutationObserver((changes) => {
 			for (let change in changes) this.observe(changes[change]);
 		});
+		this.cancels = [];
 	}
 	
 	loadSettings() {
@@ -49,8 +50,19 @@ class BetterRoleColors {
 	}
 
 	initialize() {
-		this.GuildStore = PluginUtilities.WebpackModules.findByUniqueProperties(['getMembers']);
 		PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
+		this.GuildStore = PluginUtilities.WebpackModules.findByUniqueProperties(['getMembers']);
+		this.SelectedGuildStore = PluginUtilities.WebpackModules.findByUniqueProperties(['getLastSelectedGuildId']);
+		this.UserTypingStore = PluginUtilities.WebpackModules.findByUniqueProperties(['isTyping']);
+		this.SelectedChannelStore = PluginUtilities.WebpackModules.findByUniqueProperties(['getLastSelectedChannelId']);
+		this.UserStore = PluginUtilities.WebpackModules.findByUniqueProperties(['getCurrentUser']);
+		this.RelationshipStore = PluginUtilities.WebpackModules.findByUniqueProperties(['isBlocked']);
+
+		let TypingUsers = InternalUtilities.WebpackModules.findByDisplayName("TypingUsers");
+		this.typingCancel = InternalUtilities.monkeyPatch(TypingUsers.prototype, "render", {after: (data) => {
+			setImmediate(() => {this.colorizeTyping(data.thisObject.state.typingUsers);});
+		}});
+
 		this.loadSettings();
 		this.switchObserver = PluginUtilities.createSwitchObserver(this);
 		this.documentObserver.observe(document.querySelector('#app-mount'), {childList: true, subtree: true});
@@ -59,6 +71,17 @@ class BetterRoleColors {
 		this.colorize();
 		PluginUtilities.showToast(this.getName() + " " + this.getVersion() + " has started.");
 		this.initialized = true;
+
+
+		/*
+		add componentdidmount
+UserProfileModal = InternalUtilities.WebpackModules.find(m => m && m.modalConfig && m.prototype && m.prototype.isPureReactComponent && /\.default\.close/.test(m.toString()))
+UserPopout = InternalUtilities.WebpackModules.find(m => {
+            try { return m.displayName == "FluxContainer(t)" && !(new m()); }
+            catch (e) { return e.toString().includes("user"); }
+        });
+
+		*/
 	}
 	
 	stop() {
@@ -67,25 +90,24 @@ class BetterRoleColors {
 		$("*").off("." + this.getShortName());
 		this.switchObserver.disconnect();
 		this.documentObserver.disconnect();
+		for (let cancel of this.cancels) cancel();
 	}
 	
 	onChannelSwitch() {
-		if (this.currentServer == PluginUtilities.getCurrentServer()) return;
-		this.currentServer = PluginUtilities.getCurrentServer();
 		this.colorize();
 	}
 	
 	observe(e) {
 
-		if (e.removedNodes.length && e.removedNodes[0] instanceof Element) {
-			var removed = e.removedNodes[0];
-			if (removed.classList.contains("spinner") || removed.tagName == "STRONG") {
-				this.colorizeTyping();
-				// setImmediate(() => {setImmediate(() => { this.colorizeTyping(); });});
-			}
+		// if (e.removedNodes.length && e.removedNodes[0] instanceof Element) {
+		// 	var removed = e.removedNodes[0];
+		// 	if (removed.classList.contains("spinner") || removed.tagName == "STRONG") {
+		// 		this.colorizeTyping();
+		// 		// setImmediate(() => {setImmediate(() => { this.colorizeTyping(); });});
+		// 	}
 
-			if (removed.querySelector("#friends") || removed.id == "friends") this.onChannelSwitch();
-		}
+		// 	if (removed.querySelector("#friends") || removed.id == "friends") this.onChannelSwitch();
+		// }
 
 		if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element)) return;
 		var elem = e.addedNodes[0];
@@ -96,10 +118,10 @@ class BetterRoleColors {
 			this.colorizeVoice();
 		}
 
-		if (elem.querySelector("strong") || elem.querySelector(".spinner") || elem.classList.contains("typing") || elem.tagName == "STRONG") {
-			this.colorizeTyping();
-			// setImmediate(() => {setImmediate(() => { this.colorizeTyping(); });});
-		}
+		// if (elem.querySelector("strong") || elem.querySelector(".spinner") || elem.classList.contains("typing") || elem.tagName == "STRONG") {
+		// 	this.colorizeTyping();
+		// 	// setImmediate(() => {setImmediate(() => { this.colorizeTyping(); });});
+		// }
 
 		if (elem.querySelector(".guild-settings-audit-logs") || elem.classList.contains("guild-settings-audit-logs") || elem.querySelector(".userHook-DFT5u7") || elem.classList.contains("userHook-DFT5u7")) {
 			this.colorizeAuditLog();
@@ -109,7 +131,7 @@ class BetterRoleColors {
 			this.colorizePopout();
 		}
 
-		if (elem.querySelector("#user-profile-modal")) {
+		if (elem.querySelector(".root-2sNHUF")) {
 			this.colorizeModal();
 		}
 
@@ -139,11 +161,11 @@ class BetterRoleColors {
 	}
 
 	getUserColor(user) {
-		return this.getColorData(this.currentServer, user);
+		return this.getColorData(this.SelectedGuildStore.getGuildId(), user);
 	}
 
 	colorize() {
-		this.colorizeTyping();
+		//this.colorizeTyping();
 		this.colorizeVoice();
 		this.colorizeMentions();
 		this.colorizeAccountStatus();
@@ -162,14 +184,29 @@ class BetterRoleColors {
 		}
 	}
 
-	colorizeTyping() {
-		if (!this.settings.modules.typing || !document.querySelector('.typing')) return;
-		var typingUsers = ReactUtilities.getReactProperty(document.querySelector('.typing'), "return.memoizedState.typingUsers");
-		if (typeof typingUsers === "undefined" || Object.getOwnPropertyNames(typingUsers).length === 0) return;
-		if (typingUsers[this.currentUser]) delete typingUsers[this.currentUser];
-		var sorted = Object.keys(typingUsers);
-		document.querySelectorAll(".typing strong").forEach((elem, index) => {
-			var ID = sorted[index];
+	filterTypingUsers(typingUsers) {
+		if (!typingUsers) return [];
+		return Object.keys(typingUsers).filter((e) => {
+				return e != this.UserStore.getCurrentUser().id;
+			}).filter((e) => {
+				return !this.RelationshipStore.isBlocked(e);
+			}).map((e) => {
+				return this.UserStore.getUser(e);
+			}).filter(function(e) {
+				return null != e;
+			});
+	}
+
+	colorizeTyping(typingUsers) {
+		if (!this.settings.modules.typing) return;
+		// var typingUsers = ReactUtilities.getReactProperty(document.querySelector('.typing'), "return.memoizedState.typingUsers");
+		// // if (typeof typingUsers === "undefined" || Object.getOwnPropertyNames(typingUsers).length === 0) return;
+		// // if (typingUsers[this.currentUser]) delete typingUsers[this.currentUser];
+		// // var sorted = Object.keys(typingUsers);
+		typingUsers = this.filterTypingUsers(typingUsers);
+		//if (!typingUsers.length) return;
+		document.querySelectorAll(".typing-3eiiL_ strong").forEach((elem, index) => {
+			var ID = typingUsers[index].id;
 			elem.style.setProperty("color", this.getUserColor(ID));
 		});
 	}
@@ -226,15 +263,15 @@ class BetterRoleColors {
 		if (!user) return true;
 		let color = this.getUserColor(user.id);
 		var hasNickname = Boolean(popout.querySelector('.headerName-2N8Pdz'));
-		if ((color && this.settings.popouts.username) || (!hasNickname && this.settings.popouts.fallback)) popout.querySelector('.headerTag-3zin_i span:first-child').style.setProperty("color", color, "important");
-		if (color && this.settings.popouts.discriminator) popout.querySelector('.headerDiscriminator-3fLlCR').style.setProperty("color", color, "important");
+		if ((color && this.settings.popouts.username) || (!hasNickname && this.settings.popouts.fallback)) popout.querySelector('.username').style.setProperty("color", color, "important");
+		if (color && this.settings.popouts.discriminator) popout.querySelector('.discriminator').style.setProperty("color", color, "important");
 		if (color && this.settings.popouts.nickname && hasNickname) popout.querySelector('.headerName-2N8Pdz').style.setProperty("color", color, "important");
 	}
 
 	colorizeModal() {
 		if (!this.settings.modals.username && !this.settings.modals.discriminator) return;
-		let modal = document.querySelector("#user-profile-modal");
-		let user = ReactUtilities.getReactProperty(modal, "return.memoizedProps.user");
+		let modal = document.querySelector(".modal-2LIEKY");
+		let user = ReactUtilities.getReactProperty(modal, "firstEffect.memoizedProps.user");
 		let color = this.getUserColor(user.id);
 		if (color && this.settings.modals.username) modal.querySelector('.username').style.setProperty("color", color, "important");
 		if (color && this.settings.modals.discriminator) modal.querySelector('.discriminator').style.setProperty("color", color, "important");
@@ -256,7 +293,7 @@ class BetterRoleColors {
 
 	colorizeBotTags() {
 		if (!this.settings.modules.botTags) return;
-		document.querySelectorAll('.bot-tag').forEach(node => {
+		document.querySelectorAll('.botTagRegular-288-ZL').forEach(node => {
 			node.style.backgroundColor = node.previousSibling.style.color;
 		});
 	}
@@ -272,7 +309,7 @@ class BetterRoleColors {
 		this.decolorizeBotTags();
 	}
 
-	decolorizeTyping() { $(".typing strong").each((index, elem)=>{$(elem).css("color","");}); }
+	decolorizeTyping() { if (this.typingCancel) this.typingCancel(); }
 	decolorizeVoice() { $('.draggable-3SphXU').each((index, elem)=>{$(elem).find(".avatarContainer-303pFz").siblings().first().css("color", "");}); }
 	decolorizeMentions() { $('.mention').each((index, elem)=>{$(elem).css("color","");$(elem).css("background","");}); $(".mention").off("." + this.getShortName()); }
 	decolorizePopouts() {
