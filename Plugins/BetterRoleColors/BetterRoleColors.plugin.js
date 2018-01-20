@@ -6,7 +6,7 @@ class BetterRoleColors {
 	getName() { return "BetterRoleColors"; }
 	getShortName() { return "BRC"; }
 	getDescription() { return "Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.6.1"; }
+	getVersion() { return "0.6.2"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -51,6 +51,8 @@ class BetterRoleColors {
 
 	initialize() {
 		PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
+		this.loadSettings();
+
 		this.GuildStore = PluginUtilities.WebpackModules.findByUniqueProperties(['getMembers']);
 		this.SelectedGuildStore = PluginUtilities.WebpackModules.findByUniqueProperties(['getLastSelectedGuildId']);
 		this.UserTypingStore = PluginUtilities.WebpackModules.findByUniqueProperties(['isTyping']);
@@ -63,25 +65,11 @@ class BetterRoleColors {
 			setImmediate(() => {this.colorizeTyping(data.thisObject.state.typingUsers);});
 		}});
 
-		this.loadSettings();
 		this.switchObserver = PluginUtilities.createSwitchObserver(this);
 		this.documentObserver.observe(document.querySelector('#app-mount'), {childList: true, subtree: true});
-		this.currentServer = PluginUtilities.getCurrentServer();
-		this.currentUser = PluginUtilities.getCurrentUser().id;
 		this.colorize();
 		PluginUtilities.showToast(this.getName() + " " + this.getVersion() + " has started.");
 		this.initialized = true;
-
-
-		/*
-		add componentdidmount
-UserProfileModal = InternalUtilities.WebpackModules.find(m => m && m.modalConfig && m.prototype && m.prototype.isPureReactComponent && /\.default\.close/.test(m.toString()))
-UserPopout = InternalUtilities.WebpackModules.find(m => {
-            try { return m.displayName == "FluxContainer(t)" && !(new m()); }
-            catch (e) { return e.toString().includes("user"); }
-        });
-
-		*/
 	}
 	
 	stop() {
@@ -98,17 +86,6 @@ UserPopout = InternalUtilities.WebpackModules.find(m => {
 	}
 	
 	observe(e) {
-
-		// if (e.removedNodes.length && e.removedNodes[0] instanceof Element) {
-		// 	var removed = e.removedNodes[0];
-		// 	if (removed.classList.contains("spinner") || removed.tagName == "STRONG") {
-		// 		this.colorizeTyping();
-		// 		// setImmediate(() => {setImmediate(() => { this.colorizeTyping(); });});
-		// 	}
-
-		// 	if (removed.querySelector("#friends") || removed.id == "friends") this.onChannelSwitch();
-		// }
-
 		if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element)) return;
 		var elem = e.addedNodes[0];
 
@@ -117,11 +94,6 @@ UserPopout = InternalUtilities.WebpackModules.find(m => {
 		if (elem.querySelector(".draggable-3SphXU") || elem.classList.contains("draggable-3SphXU")) {
 			this.colorizeVoice();
 		}
-
-		// if (elem.querySelector("strong") || elem.querySelector(".spinner") || elem.classList.contains("typing") || elem.tagName == "STRONG") {
-		// 	this.colorizeTyping();
-		// 	// setImmediate(() => {setImmediate(() => { this.colorizeTyping(); });});
-		// }
 
 		if (elem.querySelector(".guild-settings-audit-logs") || elem.classList.contains("guild-settings-audit-logs") || elem.querySelector(".userHook-DFT5u7") || elem.classList.contains("userHook-DFT5u7")) {
 			this.colorizeAuditLog();
@@ -150,22 +122,16 @@ UserPopout = InternalUtilities.WebpackModules.find(m => {
 		}
 	}
 
-	// getColorData(server, user) {
-	// 	if (!server || !user || !this.colorData[server] || !this.colorData[server][user]) return "";
-	// 	else return this.colorData[server][user];
-	// }
-
 	getColorData(server, user) {
 		if (!server || !user || !this.GuildStore.getMember(server, user)) return "";
 		else return this.GuildStore.getMember(server, user).colorString;
 	}
 
-	getUserColor(user) {
-		return this.getColorData(this.SelectedGuildStore.getGuildId(), user);
+	getUserColor(user, server = null) {
+		return this.getColorData(server ? server : this.SelectedGuildStore.getGuildId(), user);
 	}
 
 	colorize() {
-		//this.colorizeTyping();
 		this.colorizeVoice();
 		this.colorizeMentions();
 		this.colorizeAccountStatus();
@@ -176,7 +142,7 @@ UserPopout = InternalUtilities.WebpackModules.find(m => {
 		if (!this.settings.account.username && !this.settings.account.discriminator) return;
 		let account = document.querySelector('.accountDetails-15i-_e');
 		if (!account) return;
-		let color = this.getUserColor(this.currentUser);
+		let color = this.getUserColor(this.UserStore.getCurrentUser().id);
 		if (this.settings.account.username) account.querySelector(".username").style.setProperty("color", color, "important");
 		if (this.settings.account.discriminator) {
 			account.querySelector(".discriminator").style.setProperty("color", color, "important");
@@ -199,12 +165,7 @@ UserPopout = InternalUtilities.WebpackModules.find(m => {
 
 	colorizeTyping(typingUsers) {
 		if (!this.settings.modules.typing) return;
-		// var typingUsers = ReactUtilities.getReactProperty(document.querySelector('.typing'), "return.memoizedState.typingUsers");
-		// // if (typeof typingUsers === "undefined" || Object.getOwnPropertyNames(typingUsers).length === 0) return;
-		// // if (typingUsers[this.currentUser]) delete typingUsers[this.currentUser];
-		// // var sorted = Object.keys(typingUsers);
 		typingUsers = this.filterTypingUsers(typingUsers);
-		//if (!typingUsers.length) return;
 		document.querySelectorAll(".typing-3eiiL_ strong").forEach((elem, index) => {
 			var ID = typingUsers[index].id;
 			elem.style.setProperty("color", this.getUserColor(ID));
@@ -270,8 +231,8 @@ UserPopout = InternalUtilities.WebpackModules.find(m => {
 
 	colorizeModal() {
 		if (!this.settings.modals.username && !this.settings.modals.discriminator) return;
-		let modal = document.querySelector(".modal-2LIEKY");
-		let user = ReactUtilities.getReactProperty(modal, "firstEffect.memoizedProps.user");
+		let modal = document.querySelector(".root-2sNHUF");
+		let user = ReactUtilities.getReactProperty(modal, "return.return.memoizedProps.user");
 		let color = this.getUserColor(user.id);
 		if (color && this.settings.modals.username) modal.querySelector('.username').style.setProperty("color", color, "important");
 		if (color && this.settings.modals.discriminator) modal.querySelector('.discriminator').style.setProperty("color", color, "important");
@@ -279,16 +240,13 @@ UserPopout = InternalUtilities.WebpackModules.find(m => {
 
 	colorizeAuditLog() {
 		if (!this.settings.auditLog.username && !this.settings.auditLog.discriminator) return;
-		this.getAllUserColors();
-		const previous = this.currentServer;
-		this.currentServer = PluginUtilities.getCurrentServer();
+		let server = ReactUtilities.getReactProperty(document.querySelector(".ui-standard-sidebar-view"), "return.return.return.memoizedProps.guild");
 		document.querySelectorAll('.userHook-DFT5u7').forEach((elem) => {
 			let user = ReactUtilities.getReactProperty(elem, "return.memoizedProps.user");
-			let color = this.getUserColor(user.id);
+			let color = this.getUserColor(user.id, server.id);
 			if (this.settings.auditLog.username) elem.children[0].style.color = color;
 			if (this.settings.auditLog.discriminator) { elem.querySelector(".discrim-xHdOK3").style.color = color;elem.querySelector(".discrim-xHdOK3").style.opacity = 1;}
 		});
-		this.currentServer = previous;
 	}
 
 	colorizeBotTags() {

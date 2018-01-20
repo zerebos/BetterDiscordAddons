@@ -1,5 +1,11 @@
 # BetterRoleColors Changelog
 
+### 0.6.2
+
+ - Fix modal coloring
+ - Fix audit log coloring
+ - Code cleanup
+
 ### 0.6.1
 
  - Fix typing for good hopefully, other small fixes for discord updates
