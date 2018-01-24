@@ -1,5 +1,10 @@
 # PermissionsViewer Changelog
 
+### 0.0.10
+
+ - Fix not showing in context menus
+ - No longer open a popout and hide it when using context menu
+
 ### 0.0.9
 
  - More popout changes

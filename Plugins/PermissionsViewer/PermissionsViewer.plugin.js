@@ -6,7 +6,7 @@ class PermissionsViewer {
 	getName() { return "PermissionsViewer"; }
 	getShortName() { return "PermissionsViewer"; }
 	getDescription() { return "Allows you to view a user's permissions. Thanks to Noodlebox for the idea! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.9"; }
+	getVersion() { return "0.0.10"; }
 	getAuthor() { return "Zerebos"; }
 	
 	constructor() {
@@ -371,7 +371,7 @@ class PermissionsViewer {
 							<span class="perm-name"></span>
 						</div>`;
 
-		this.contextItem = '<div class="item"><span></span><div class="hint"></div></div>';
+		this.contextItem = '<div class="item-1XYaYf"><span></span><div class="hint-3TJykr"></div></div>';
 
 		this.initialized = false;
 		this.defaultSettings = {plugin: {popouts: true, contextMenus: true}};
@@ -414,8 +414,14 @@ class PermissionsViewer {
 		BdApi.injectCSS(this.getShortName(), this.css);
 		this.loadSettings();
 		this.contextListener = () => {
-			this.bindMenu(document.querySelector('.context-menu'));
+			this.bindMenu(document.querySelector('.contextMenu-uoJTbz'));
 		};
+
+		this.GuildStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getGuild']);
+		this.SelectedGuildStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getLastSelectedGuildId']);
+		this.MemberStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getMember']);
+		this.UserStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getCurrentUser']);
+
 		if (this.settings.plugin.popouts) this.bindPopouts();
 		if (this.settings.plugin.contextMenus) this.bindContextMenus();
 		this.initialized = true;
@@ -439,28 +445,28 @@ class PermissionsViewer {
 	observeContextMenus(e) {
 		if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element) || !e.addedNodes[0].classList) return;
 		let elem = e.addedNodes[0];
-		let context = elem.classList.contains('context-menu') ? elem : elem.querySelector('.context-menu');
+		let context = elem.classList.contains('contextMenu-uoJTbz') ? elem : elem.querySelector('.contextMenu-uoJTbz');
 		if (!context) return;
 
 		let isUserContext = ReactUtilities.getReactProperty(context, "return.memoizedProps.user");
 		let isGuildContext = ReactUtilities.getReactProperty(context, "return.memoizedProps.guildId");
 		if (!(isUserContext && isGuildContext)) return;
 
-		let target = ReactUtilities.getReactProperty(context, "return.memoizedProps.target");
-
 		let item = $(this.contextItem);
 		item.find('span').text(this.strings.contextMenu.label);
 		item.on("click." + this.getShortName(), () => {
-			$(context).hide();
-			$(target).click();
-			let popout = $('.userPopout-4pfA0d');
-			popout.hide();
-			let {user, guild, name} = this.getInfoFromPopout(popout);
+			context.style.display = "none";
+
+			let guildId = this.SelectedGuildStore.getGuildId();
+			let user = this.MemberStore.getMember(guildId, isUserContext.id);
+			let guild = this.GuildStore.getGuild(guildId);
+			let name = user.nick ? user.nick : this.UserStore.getUser(user.userId).username;
+
 			if (!user || !guild || !name) return;
 			this.showModal(this.createModal(name, user, guild));
 			
 		});
-		$(context).find('.item').first().after(item);
+		$(context).find('.item-1XYaYf').first().after(item);
 
 	}
 
