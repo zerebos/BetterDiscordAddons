@@ -608,8 +608,8 @@ PluginUpdateUtilities.checkUpdate = function(pluginName, updateLink) {
 		var remoteVersion = result.match(/['"][0-9]+\.[0-9]+\.[0-9]+['"]/i);
 		if (!remoteVersion) return;
 		remoteVersion = remoteVersion.toString().replace(/['"]/g, "");
-		var ver = remoteVersion.split(".");
-		var lver = window.PluginUpdates.plugins[updateLink].version.split(".");
+		var ver = remoteVersion.split(".").map((e) => {return parseInt(e);});
+		var lver = window.PluginUpdates.plugins[updateLink].version.split(".").map((e) => {return parseInt(e);});
 		var hasUpdate = false;
 		if (ver[0] > lver[0]) hasUpdate = true;
 		else if (ver[0] == lver[0] && ver[1] > lver[1]) hasUpdate = true;
