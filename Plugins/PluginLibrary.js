@@ -623,7 +623,8 @@ PluginUpdateUtilities.checkUpdate = function(pluginName, updateLink) {
 PluginUpdateUtilities.showUpdateNotice = function(pluginName, updateLink) {
 	if (!$('#pluginNotice').length)  {
 		let noticeElement = '<div class="notice notice-info notice-3I4-y_ noticeInfo-3v29SJ size14-1wjlWP weightMedium-13x9Y8 height36-13sPn7" id="pluginNotice"><div class="notice-dismiss dismiss-1QjyJW" id="pluginNoticeDismiss"></div><span class="notice-message">The following plugins have updates:</span>&nbsp;&nbsp;<strong id="outdatedPlugins"></strong></div>';
-		$('.app .guilds-wrapper + div > div:first > div:first').append(noticeElement);
+		// $('.app .guilds-wrapper + div > div:first > div:first').append(noticeElement);
+		$('.app.flex-vertical').children().first().before(noticeElement);
         $('.win-buttons').addClass("win-buttons-notice");
 		$('#pluginNoticeDismiss').on('click', () => {
 			$('.win-buttons').animate({top: 0}, 400, "swing", () => { $('.win-buttons').css("top","").removeClass("win-buttons-notice"); });
