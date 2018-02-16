@@ -1,5 +1,9 @@
 # PermissionsViewer Changelog
 
+### 0.0.11
+
+ - Hotfix for new popouts 
+
 ### 0.0.10
 
  - Fix not showing in context menus

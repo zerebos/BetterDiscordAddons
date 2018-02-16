@@ -6,7 +6,7 @@ class PermissionsViewer {
 	getName() { return "PermissionsViewer"; }
 	getShortName() { return "PermissionsViewer"; }
 	getDescription() { return "Allows you to view a user's permissions. Thanks to Noodlebox for the idea! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.10"; }
+	getVersion() { return "0.0.11"; }
 	getAuthor() { return "Zerebos"; }
 	
 	constructor() {
@@ -481,7 +481,7 @@ class PermissionsViewer {
 	observePopouts(e) {
 		if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element) || !e.addedNodes[0].classList) return;
 		let elem = e.addedNodes[0];
-		let popout = elem.querySelector('.userPopout-4pfA0d');
+		let popout = elem.querySelector('[class*="userPopout-"]');
 		if (!popout) return;
 
 		let {user, guild, name} = this.getInfoFromPopout(popout);
@@ -524,7 +524,7 @@ class PermissionsViewer {
 
 
 		const maxHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-		let jPopout = $(elem).find('.userPopout-4pfA0d');
+		let jPopout = $(elem).find('[class*="userPopout-"]');
 		if (jPopout.offset().top + jPopout.outerHeight() >= maxHeight) {
 			let shift = Math.round((jPopout.offset().top + jPopout.outerHeight() - maxHeight) + 20);
 			popout.style.setProperty("transform", "translateY(-" + shift + "px)");
@@ -543,7 +543,7 @@ class PermissionsViewer {
 	}
 
 	showModal(modal) {
-		$('.userPopout-4pfA0d').hide();
+		$('[class*="userPopout-"]').hide();
 		$('[class*="app-"').append(modal);
 		// if (document.querySelector('.app-XZYfmp')) $('.app-XZYfmp').siblings('[class*="theme-"]:not(.popouts)').first().append(modal);
 		// else $('.app').siblings('[class*="theme-"]').first().append(modal);
