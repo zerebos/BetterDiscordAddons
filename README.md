@@ -12,6 +12,7 @@ A series of plugins and themes for BetterDiscord. For support or announcements o
  - [HideIconBadge](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideIconBadge) - Hides the badge that appears on the taskbar icon.
  - [ImageToClipboard](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ImageToClipboard) - Allows you to copy images (png/jpg) directly to your system clipboard.
  - [PermissionsViewer](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer) - Allows you to view a user's permissions. Thanks to Noodlebox for the idea!
+ - [RemoveMinimumSize](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RemoveMinimumSize) - Removes the minimum window size forced by Discord.
  - [ResizableCSS](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ResizableCSS) - Allows you to resize the detached CustomCSS window.
  - [SendButton](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/SendButton) - Adds a send button to discord.
  - [ServerSorter](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSorter) - Adds the ability to sort the servers that you're in.
