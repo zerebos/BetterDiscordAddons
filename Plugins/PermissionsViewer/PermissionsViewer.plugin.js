@@ -1,12 +1,12 @@
 //META{"name":"PermissionsViewer","pname":"PermissionsViewer"}*//
 
-/* global DiscordPermissions:false, ReactUtilities:false, ColorUtilities:false, PluginUtilities:false, PluginSettings:false, BdApi:false */
+/* global DiscordPermissions:false, ReactUtilities:false, InternalUtilities:false, ColorUtilities:false, PluginUtilities:false, PluginSettings:false, BdApi:false */
 
 class PermissionsViewer {
 	getName() { return "PermissionsViewer"; }
 	getShortName() { return "PermissionsViewer"; }
 	getDescription() { return "Allows you to view a user's permissions. Thanks to Noodlebox for the idea! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.11"; }
+	getVersion() { return "0.0.13"; }
 	getAuthor() { return "Zerebos"; }
 	
 	constructor() {
@@ -421,6 +421,8 @@ class PermissionsViewer {
 		this.SelectedGuildStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getLastSelectedGuildId']);
 		this.MemberStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getMember']);
 		this.UserStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getCurrentUser']);
+		this.PermissionsCalc = InternalUtilities.WebpackModules.findByUniqueProperties(['getHighestRole']);
+		this.ChannelStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getChannels', 'getDMFromUserId']);
 
 		if (this.settings.plugin.popouts) this.bindPopouts();
 		if (this.settings.plugin.contextMenus) this.bindContextMenus();
@@ -435,7 +437,7 @@ class PermissionsViewer {
 	}
 
 	bindContextMenus() {
-		this.contextObserver.observe(document.querySelector('.app'), {childList: true, subtree: true});
+		this.contextObserver.observe(document.querySelector('#app-mount'), {childList: true, subtree: true});
 	}
 
 	unbindContextMenus() {
@@ -904,3 +906,5 @@ class PermissionsViewer {
 
 	}
 }
+
+//Permissions.can(DiscordConstants.Permissions.EMBED_LINKS, "219363409097916416", ChannelStore.getChannel("334930809289179137"))

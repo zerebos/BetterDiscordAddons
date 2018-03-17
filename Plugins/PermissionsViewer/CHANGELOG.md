@@ -1,5 +1,9 @@
 # PermissionsViewer Changelog
 
+### 0.0.12
+
+ - Hotfix for new context menu location
+
 ### 0.0.11
 
  - Hotfix for new popouts 

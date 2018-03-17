@@ -6,7 +6,7 @@ class BDContextMenu {
 	getName() { return "BDContextMenu"; }
 	getShortName() { return "BDContextMenu"; }
 	getDescription() { return "Adds BD shortcuts to the settings context menu. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.5"; }
+	getVersion() { return "0.0.6"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -50,7 +50,7 @@ class BDContextMenu {
     }
     
     bindContextMenus() {
-		this.contextObserver.observe(document.querySelector('.app'), {childList: true});
+		this.contextObserver.observe(document.querySelector('#app-mount'), {childList: true, subtree: true});
 	}
 
 	unbindContextMenus() {

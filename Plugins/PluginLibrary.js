@@ -446,7 +446,7 @@ InternalUtilities.addOnSwitchListener = function(callback) {
 		let channel = urlSplit[5];
 		callback(type, server, channel);
 	});*/
-	InternalUtilities.webContents.on("did-navigate-in-page", callback)
+	InternalUtilities.webContents.on("did-navigate-in-page", callback);
 };
 
 InternalUtilities.removeOnSwitchListener = function(callback) {
@@ -459,7 +459,7 @@ PluginUtilities.parseOnSwitchURL = function(url) {
 	let server = urlSplit[4];
 	let channel = urlSplit[5];
 	return {type, server, channel};
-}
+};
 
 PluginUtilities.getCurrentServer = function() {
 	var auditLog = document.querySelector('.guild-settings-audit-logs');
@@ -581,7 +581,7 @@ PluginUpdateUtilities.createUpdateButton = function() {
 	updateButton.onclick = function () {
 		window.PluginUpdates.checkAll();
 	};
-	let tooltip = new PluginTooltip.Tooltip($(updateButton), "Checks for updates of plugins that support this feature. Right-click for a list.")
+	let tooltip = new PluginTooltip.Tooltip($(updateButton), "Checks for updates of plugins that support this feature. Right-click for a list.");
 	updateButton.oncontextmenu = function () {
 		if (window.PluginUpdates && window.PluginUpdates.plugins) {
 			var list = [];
@@ -591,7 +591,7 @@ PluginUpdateUtilities.createUpdateButton = function() {
 			tooltip.tooltip.detach();
 			tooltip.tooltip.text(list.join(", "));
 			tooltip.show();
-			updateButton.onmouseout = function() { tooltip.tooltip.text(tooltip.tip); }
+			updateButton.onmouseout = function() { tooltip.tooltip.text(tooltip.tip); };
 		}
 	};
 	return updateButton;
@@ -811,7 +811,7 @@ PluginUtilities.showToast = function(content, options = {}) {
 		let bottom = form ? form.offsetHeight : 80;
         let toastWrapper = document.createElement("div");
         toastWrapper.classList.add("toasts");
-        toastWrapper.style.setProperty("left", container.getBoundingClientRect().left + "px");
+        toastWrapper.style.setProperty("left", left + "px");
         toastWrapper.style.setProperty("width", width + "px");
         toastWrapper.style.setProperty("bottom", bottom + "px");
         document.querySelector('.app').appendChild(toastWrapper);
@@ -929,7 +929,7 @@ PluginContextMenu.Menu = class Menu {
 		
 		let type = this.element.parents(".plugin-context-menu").length > this.element.parents(".contextMenu-uoJTbz").length ? ".plugin-context-menu" : ".contextMenu-uoJTbz";
 		var depth = this.element.parents(type).length;
-		if (depth == 0) this.element.appendTo('.app');
+		if (depth == 0) this.element.appendTo('#app-mount');
 		this.element.css("top", mouseY).css("left", mouseX);
 		
 		if (depth > 0) {

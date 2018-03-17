@@ -2,6 +2,10 @@
 
 ### 0.2.4
 
+ - Fix most things
+
+### 0.2.4
+
  - Update to check for updates
  - New method for grabbing react data
  - Fix bug where it sorted the guild-add button
