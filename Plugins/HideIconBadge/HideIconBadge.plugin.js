@@ -6,7 +6,7 @@ class HideIconBadge {
 	getName() { return "HideIconBadge"; }
 	getShortName() { return "HideIconBadge"; }
 	getDescription() { return "Hides the badge on the app icon and tray icon. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.2"; }
+	getVersion() { return "0.0.3"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -37,7 +37,7 @@ class HideIconBadge {
 	initialize() {
 		PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
 		
-		let ElectronModule = InternalUtilities.WebpackModules.findByUniqueProperties(["_getMainWindow"]);
+		let ElectronModule = InternalUtilities.WebpackModules.findByUniqueProperties(["setBadge"]);
 
 		ElectronModule.setBadge(0);
 		this.cancels.push(InternalUtilities.monkeyPatch(ElectronModule, "setBadge", {before: ({methodArguments}) => {

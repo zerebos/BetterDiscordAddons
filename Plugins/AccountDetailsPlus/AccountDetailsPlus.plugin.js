@@ -6,7 +6,7 @@ class AccountDetailsPlus {
 	getName() { return "AccountDetailsPlus"; }
 	getShortName() { return "acp"; }
 	getDescription() { return "Lets you view popout, nickname and more from your account panel at the bottom. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.1"; }
+	getVersion() { return "0.0.2"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -62,11 +62,14 @@ class AccountDetailsPlus {
             failing) to instantiate the object, then checking the error to see if the 
             module required the user object, we can relatively safely say this is the 
             correct module for UserPopout.
-        */
+        
         this.FluxContainer = InternalUtilities.WebpackModules.find(m => {
             try { return m.displayName == "FluxContainer(t)" && !(new m()); }
             catch (e) { return e.toString().includes("user"); }
         });
+		*/
+		
+		this.FluxContainer = InternalUtilities.WebpackModules.find(m => m.displayName == "FluxContainer(SubscribeGuildMembersContainer(t))");
 
         this.loadSettings();
         this.settings = PluginUtilities.loadSettings(this.getShortName(), this.defaultSettings);
