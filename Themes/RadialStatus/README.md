@@ -2,7 +2,8 @@
 
 Changes all instances of the status dot to a status circle except for the friends list. This is an update to Zerthox's StatusCircles to fix small issues as well as add the circles everywhere else possible.
 
-This should also be compatible with Beard's Material Design Theme as long as you uncomment the designated section in __this__ theme by deleting lines `4` and `6` **or** adding this line to custom css: `@import url(https://rawgit.com/rauenzi/BetterDiscordAddons/master/Themes/RadialStatus/import/RadialStatus_BeardFixes.css);`
+~~This should also be compatible with Beard's Material Design Theme as long as you uncomment the designated section in __this__ theme by deleting lines `4` and `6` **or** adding this line to custom css: `@import url(https://rawgit.com/rauenzi/BetterDiscordAddons/master/Themes/RadialStatus/import/RadialStatus_BeardFixes.css);`~~
+This is no longer needed.
 
 This should also be compatible with ClearVision without modification.
 
@@ -66,58 +67,5 @@ If you plan on changing the zoom level change `--rs-width` to `3px`
 ![Clear Vision](http://discord.zackrauen.com/RadialStatus/clearvision.png)
 
 
-## Coming Soon
-
-
-## Known Bugs and Issues
-
-
 ## Special Thanks
  - Zerthox - Zerthox made the original StatusCircle Theme which you can get [here](https://github.com/Zerthox/Mini-Discord-Themes).
- 
-## Changelog
-
-#### 1.2.1
-
- - Made the borders dynamic so they will match whatever avatar scheme used (such as rounded corners)
- - Made some of the styling more verbose to override theme styling
- - Also added a couple more styling notes to fix issues with some themes including ClearVision
- - Fixed an issue where a fake status would show on the account page for some people
-
-#### 1.2.0
-
- - Changed lots of selectors around to make the theme a bit smaller
- - Used attribute selectors to help make it future proof*er*
- - Made some things a bit more specific to help override the themes that mess with it
- - Commented out Beard Design-specific code.
-
-#### 1.1.4
-
- - Added support for new selectors in the autocomplete for mentions
-
-#### 1.1.3
-
- - Fixed an issue with active popouts and hovered names overlapping
- - Add compatibility with Beard's auto collapsing member list
- - Fixed circles not working on mutual friends list
- - Added offline circles to servers that show offline users
-
-#### 1.1.2
-
- - Added circles showing during mentioning
- - Fix typing symbol bug
-
-#### 1.1.1
-
- - Added circle to own status at the bottom
-
-#### 1.1.0
-
- - Added circles to profile popout
- - Added circles to profile modal
-
-#### 1.0.0
-
- - Updated selectors to match Discord's current setup
- - Spaced out circle from profile picture for easier viewing
-

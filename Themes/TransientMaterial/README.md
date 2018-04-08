@@ -4,12 +4,6 @@ Transparency patch theme for Beard's Material Design Theme. Also works fairly we
 
 For support and update announcements you can visit [Zere's server](http://discord.zackrauen.com/).
 
-## What's New
-
-- The theme has been changed to auto-updating.
-- Fixed message bubble not showing same opacity
-- Redone search results
-
 ## Preview
 
 ![Demo](http://discord.zackrauen.com/TransientMaterial/demo.png)
@@ -19,7 +13,7 @@ For support and update announcements you can visit [Zere's server](http://discor
 Either open this theme and change the background url to your image (https) or put this in CustomCSS:
 
 ```css
-#app-mount, #pubslayerroot .layer .ui-standard-sidebar-view {
+#app-mount {
     background-image: url("YOUR_IMAGE") !important;
 }
 ```
@@ -50,6 +44,7 @@ Below are all the variables with their default values:
     --tm-selected-item: rgba(30,30,30, 0.7); /* Selected Channel/Server Color */
     --tm-hover: rgba(255,255,255,0.05); /* Hover Channel/Server Color */
     --tm-active: rgba(255,255,255,0.1); /* Clicking Channel/Server Color */
+	--tm-solo: 0; /* Theme by itself */
 }
 ```
 
@@ -68,3 +63,4 @@ Below are all the variables with their default values:
  - `--tm-selected-item` - This is the color for selected items such as selected channel and server. Also acts as hover for friends list.
  - `--tm-hover` - Color for hovering over most items like channels and server.
  - `--tm-active` - Color that shows during clicking on an item like channel or server.
+ - `--tm-solo` - Set this to 0 to be used with Beard's theme (default) or 1 to use it on its own.
