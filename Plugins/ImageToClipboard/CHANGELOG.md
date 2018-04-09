@@ -1,5 +1,9 @@
 # ImageToClipboard Changelog
 
+### 0.2.11
+
+ - Change image testing for images with parameters, thanks Nirewen
+
 ### 0.2.10
 
  - Fix for some discord updates

@@ -6,7 +6,7 @@ class ImageToClipboard {
 	getName() { return "ImageToClipboard"; }
 	getShortName() { return "i2c"; }
 	getDescription() { return "Copies images (png/jpg) directly to clipboard. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.2.10"; }
+	getVersion() { return "0.2.11"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -65,26 +65,40 @@ class ImageToClipboard {
 		});
 	}
 
+	isSupportedImage(imageLink) {
+		if (typeof(imageLink) !== "string") return false;
+		imageLink = imageLink.toLowerCase();
+		return imageLink.endsWith('.png') || imageLink.endsWith('.jpg') || imageLink.endsWith('.jpeg');
+	}
+
 	bindMenu(context) {
+		// Assume attached image
 		var imageLink = ReactUtilities.getReactProperty(context, "return.memoizedProps.attachment.url");
-		var imageLinkLower = imageLink ? imageLink.toLowerCase() : "";
-		var item = "";
-		if (imageLinkLower.endsWith('.png') || imageLinkLower.endsWith('.jpg') || imageLinkLower.endsWith('.jpeg')) {
-				item = $(PluginUtilities.formatString(this.contextItem, this.strings)).on("click." + this.getShortName(), ()=>{$(context).hide(); this.copyToClipboard(imageLink);});
-				$(context).prepend(item);
+		var imageLinkCheck = imageLink ? imageLink : "";
+
+		// No attached image? check linked image
+		if (!this.isSupportedImage(imageLinkCheck)) {
+			imageLink = ReactUtilities.getReactProperty(context, "return.memoizedProps.href");
+			imageLinkCheck = imageLink ? imageLink.split(/\?|:large$/)[0] : null;
 		}
-		else {
+
+		// No linked image? check if embedded image
+		if (!this.isSupportedImage(imageLinkCheck)) {
 			imageLink = ReactUtilities.getReactProperty(context, "return.memoizedProps.src");
-			if (!imageLink) return;
-			imageLink = imageLink.match(/https?\/.*(\.png|\.jpg|\.jpeg)\??/g);
-			if (!imageLink) return;
-			imageLink = imageLink[0].replace("http/", "http://").replace("https/", "https://").replace('?', '');
-			imageLinkLower = imageLink.toLowerCase();
-			if (imageLinkLower.endsWith('.png') || imageLinkLower.endsWith('.jpg') || imageLinkLower.endsWith('.jpeg')) {
-				item = $(PluginUtilities.formatString(this.contextItem, this.strings)).on("click." + this.getShortName(), ()=>{$(context).hide();this.copyToClipboard(imageLink);});
-				$(context).prepend(item);
-			}
+			imageLinkCheck = imageLink ? imageLink.match(/https?\/.*(\.png|\.jpg|\.jpeg)\??/g) : null;
+			imageLinkCheck = imageLinkCheck ? imageLinkCheck[0].replace("http/", "http://").replace("https/", "https://").split(/\?|:large$/)[0] : null;
 		}
+
+		// No image found
+		if (!this.isSupportedImage(imageLinkCheck)) return;
+
+		var item = new PluginContextMenu.TextItem(this.strings.contextMenuLabel, {
+			callback: () => {
+				$(context).hide();
+				this.copyToClipboard(imageLink);
+			}
+		});
+		$(context).prepend(item.element);
 	}
 
 	observer(e) {
@@ -94,11 +108,11 @@ class ImageToClipboard {
 		if (elem.hasClass("modal-2LIEKY") && elem.find(".inner-1_1f7b .imageWrapper-38T7d9").length) {
 			var linkElement = $(PluginUtilities.formatString(this.link, this.strings));
 			var openElement = $('.inner-1_1f7b>div>div>a');
-			var imageLink = openElement.attr("href");
-			imageLink = imageLink.replace(/:large$/, '').split('?')[0];
+			var originalLink = openElement.attr("href").replace(/:large$/, '');
+			var imageLink = originalLink.split('?')[0];
 			if (imageLink.endsWith('.png') || imageLink.endsWith('.jpg') || imageLink.endsWith('.jpeg')) {
-				openElement.after($('<span class="downloadLink-wANcd8 size14-1wjlWP weightMedium-13x9Y8"> | </span>'),linkElement);
-				linkElement.on("click", () => { this.copyToClipboard(imageLink); });
+				openElement.after($('<span class="downloadLink-wANcd8 size14-1wjlWP weightMedium-13x9Y8"> | </span>'), linkElement);
+				linkElement.on("click", () => { this.copyToClipboard(originalLink); });
 			}
 		}
 
