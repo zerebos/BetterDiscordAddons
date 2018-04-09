@@ -1,5 +1,9 @@
 # BetterFormattingRedux Changelog
 
+### 2.2.6
+
+ - Replace some broken ligatures
+
 ### 2.2.5
 
  - Add missing setting
