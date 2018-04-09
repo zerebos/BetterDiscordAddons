@@ -74,12 +74,9 @@ class ImageToClipboard {
 				$(context).prepend(item);
 		}
 		else {
-			imageLink = ReactUtilities.getReactProperty(context, "return.memoizedProps.src");
+			imageLink = ReactUtilities.getReactProperty(context, "return.memoizedProps.href");
 			if (!imageLink) return;
-			imageLink = imageLink.match(/https?\/.*(\.png|\.jpg|\.jpeg)\??/g);
-			if (!imageLink) return;
-			imageLink = imageLink[0].replace("http/", "http://").replace("https/", "https://").replace('?', '');
-			imageLinkLower = imageLink.toLowerCase();
+			imageLinkLower = imageLink.split(/\?|:large$/)[0].toLowerCase();
 			if (imageLinkLower.endsWith('.png') || imageLinkLower.endsWith('.jpg') || imageLinkLower.endsWith('.jpeg')) {
 				item = $(PluginUtilities.formatString(this.contextItem, this.strings)).on("click." + this.getShortName(), ()=>{$(context).hide();this.copyToClipboard(imageLink);});
 				$(context).prepend(item);
@@ -95,8 +92,8 @@ class ImageToClipboard {
 			var linkElement = $(PluginUtilities.formatString(this.link, this.strings));
 			var openElement = $('.inner-1_1f7b>div>div>a');
 			var imageLink = openElement.attr("href");
-			imageLink = imageLink.replace(/:large$/, '').split('?')[0];
-			if (imageLink.endsWith('.png') || imageLink.endsWith('.jpg') || imageLink.endsWith('.jpeg')) {
+			imageLink = imageLink.replace(/:large$/, '');
+			if (imageLink.split('?')[0].endsWith('.png') || imageLink.split('?')[0].endsWith('.jpg') || imageLink.split('?')[0].endsWith('.jpeg')) {
 				openElement.after($('<span class="downloadLink-wANcd8 size14-1wjlWP weightMedium-13x9Y8"> | </span>'),linkElement);
 				linkElement.on("click", () => { this.copyToClipboard(imageLink); });
 			}
