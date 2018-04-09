@@ -99,7 +99,8 @@
     top: 1px !important;
 }
 
-[class*="avatar-"] [class*="mask"] {
+[class*="avatar-"] [class*="mask"],
+[class*="avatarWrapper-"] [class*="mask"] {
 	-webkit-mask: none!important;
 	mask: none;
 }
