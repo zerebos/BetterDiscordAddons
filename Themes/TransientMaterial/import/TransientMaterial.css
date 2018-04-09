@@ -32,7 +32,7 @@ html, span:not(.spinner-item) {
 	opacity: 0.9 !important;
 }
 
-[class*="theme-"] .layers, [class*="theme-"] .layer,
+[class*="theme-"] .layers-20RVFW, [class*="theme-"] .layer-kosS71,
 [class*="theme-"] .ui-standard-sidebar-view,
 [class*="theme-"] .chat,
 .chat>.titleWrapper-3Vi_wz>.title-qAcLxz,
@@ -50,6 +50,8 @@ html, span:not(.spinner-item) {
 /* Title Bar + Account Status */
 .titleBar-3_fDwJ {
 	background: rgba(25,25,25, var(--tm-titlebar-opacity)) !important;
+	margin-top: 0;
+	padding-top: 4px;
 }
 
 .chat .titleWrapper-3Vi_wz, #friends > .headerBar-cxbhPD, .header-1tSljs, .container-iksrDt {
@@ -158,12 +160,13 @@ html, span:not(.spinner-item) {
     left: -4px;
     background: transparent;
     border-radius: 50%;
-    border: 2px solid white;
+	border: 2px solid white;
+	transition: border-radius .15s ease-out;
 }
 
-.guilds-wrapper .guilds .guild.selected::before, .guilds-wrapper .guilds .guild.unread:hover::before {
+.guilds-wrapper .guilds .guild.selected::before,
+.guilds-wrapper .guilds .guild.unread:hover::before {
     border-radius: 20px;
-    transition: border-radius .2s ease-out;
 }
 
 .guilds-wrapper .guilds .guild+.guild {
@@ -239,11 +242,11 @@ html, span:not(.spinner-item) {
 	opacity: 0.64!important;
 }
 
-.channel-text-area-default {
-	margin: 0;
+.channelTextArea-1HTP3C {
+	margin: calc(5px * var(--tm-solo)) 0;
 }
 
-.chat form .typing {
+.chat form .typing-3eiiL_ {
     background: rgba(51,51,51, 0.5) !important;
     top: -30px;
     margin-left: 28px;
@@ -398,15 +401,17 @@ html, span:not(.spinner-item) {
 	box-shadow: none;
 }
 
-.container-iksrDt .avatar-small+.accountDetails-15i-_e::before {
+.container-iksrDt .avatar-small+.accountDetails-15i-_e::before,
+.menu-3BZuDT.alt-2vq4VR {
     background: rgba(20,20,20, var(--tm-popout-opacity));
 }
 
-.menu-3BZuDT.alt-2vq4VR .popout-menu-separator, .menu-3BZuDT.alt-2vq4VR .popout-menu-item .helper {
+.menu-3BZuDT.alt-2vq4VR .separator-1hpa3S,
+.menu-3BZuDT.alt-2vq4VR .item-rK1j5B .helper-3X2gjI {
 	display: none;
 }
 
-.popout-menu .popout-menu-item:hover {
+.menu-3BZuDT .item-rK1j5B:hover {
     background-color: var(--tm-hover);
 }
 
@@ -477,7 +482,8 @@ html, span:not(.spinner-item) {
 
 .channelNotices-3AUnoM .channelNotice-cQsVXw.quickswitcher-3-ck0i,
 .channelNotices-3AUnoM .channelNotice-cQsVXw.invite-1D-l1h {
-    background-color: rgba(25,25,25,0.5) !important;
+	background-color: rgba(33,33,33, var(--tm-channels-opacity)) !important;
+	box-shadow: none;
 }
 /* End Section */
 
@@ -509,11 +515,38 @@ html, span:not(.spinner-item) {
 .root-2sNHUF .tabBarContainer-3RVZc- {
 	background: rgba(33,33,33, var(--tm-modal-opacity));
 }
-.root-2sNHUF .body-3_tdh6 {background: transparent;}
+.root-2sNHUF .body-3_tdh6 {background: rgba(48,48,48, var(--tm-modal-opacity)) !important;}
 .root-2sNHUF .scrollerWrap-2uBjct .scroller-fzNley {
-	background: rgba(48,48,48, var(--tm-modal-opacity));
+	background: transparent!important;
 }
 /* End Section */
+
+
+/* Context Menu */
+.theme-dark.contextMenu-uoJTbz {
+	background: rgba(20,20,20, var(--tm-popout-opacity))!important;
+	border-radius: 3px;
+}
+
+.contextMenu-uoJTbz .itemGroup-oViAgA {
+	border: none;
+}
+
+.contextMenu-uoJTbz .itemSubMenu-3ZgIw- {
+	background-color: transparent;
+}
+
+.contextMenu-uoJTbz .item-1XYaYf {
+	border-radius: 0;
+	margin: 0;
+	padding: 9px 15px;
+	cursor: pointer;
+}
+
+.contextMenu-uoJTbz .item-1XYaYf:hover {
+	background: var(--tm-hover);
+}
+/* End Context Menu */
 
 
 /* Settings */
