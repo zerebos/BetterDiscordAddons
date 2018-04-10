@@ -14,6 +14,7 @@ A series of plugins and themes for BetterDiscord. For support or announcements o
  - [PermissionsViewer](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer) - Allows you to view a user's permissions. Thanks to Noodlebox for the idea!
  - [RemoveMinimumSize](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RemoveMinimumSize) - Removes the minimum window size forced by Discord.
  - [ResizableCSS](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ResizableCSS) - Allows you to resize the detached CustomCSS window.
+ - [RoleMembers](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers) - Allows you to see the members of each role on a server.
  - [SendButton](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/SendButton) - Adds a send button to discord.
  - [ServerSorter](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSorter) - Adds the ability to sort the servers that you're in.
  - [StatusEverywhere](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/StatusEverywhere) - Adds user status everywhere Discord doesn't.
