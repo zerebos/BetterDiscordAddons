@@ -5,7 +5,7 @@ var PluginUtilities = {version: "0.2.3"};
 var PluginUpdateUtilities = {version: "0.0.3"};
 var PluginSettings = {version: "1.0.5"};
 var PluginContextMenu = {version: "0.0.6"};
-var PluginTooltip = {version: "0.0.3"};
+var PluginTooltip = {version: "0.1.0"};
 var DiscordPermissions = {version: "0.0.1"};
 var InternalUtilities = {version: "0.0.2"};
 
@@ -1404,11 +1404,29 @@ PluginSettings.PillButton = class PillButton extends PluginSettings.Checkbox {
 	}
 };
 
+// Plugin Tooltips
+// ===============
+// Automatically show and hide themselves on mouseenter and mouseleave events.
+// Will also remove themselves if the node to watch is removed from DOM through
+// a MutationObserver.
+//
+// Parameters
+// node - jquery node to monitor and show the tooltip on
+// tip - string to show in the tooltip
+// options - see below
+// 	style - correlates to the discord styling | default: "black"
+// 	side - can be any of top, right, bottom, left
+// 	preventFlip - prevents moving the tooltip to the opposite side if it is too big or goes offscreen
+//
+// example usage `new PluginTooltip.Tooltip($('#test-element), "Hello World", {side: "top"});`
+
 PluginTooltip.Tooltip = class Tooltip {
-	constructor(node, tip, style = "black") {
+	constructor(node, tip, options = {}) {
+		const {style = "black", side = "top", preventFlip = false} = options;
 		this.node = node;
 		this.tip = tip;
-		//add to .tooltips
+		this.side = side;
+		this.preventFlip = preventFlip;
 		this.tooltip = $(`<div class="tooltip tooltip-${style}">`);
 		this.tooltip.text(tip);
 
@@ -1435,20 +1453,76 @@ PluginTooltip.Tooltip = class Tooltip {
 		});
 	}
 
+	get canShowAbove() { return this.node.offset().top - this.tooltip.outerHeight() >= 0; }
+	get canShowBelow() { return this.node.offset().top + this.node.outerHeight() + this.tooltip.outerHeight() <= window.ZeresLibrary.Screen.height; }
+	get canShowLeft() { return this.node.offset().left - this.tooltip.outerWidth() >= 0; }
+	get canShowRight() { return this.node.offset().left + this.node.outerWidth() + this.tooltip.outerWidth() <= window.ZeresLibrary.Screen.width; }
+
+	hide() {
+		this.tooltip.hide();
+	}
+
 	show() {
+		this.tooltip.show();
 		this.tooltip.removeClass("tooltip-bottom");
 		this.tooltip.removeClass("tooltip-top");
+		this.tooltip.removeClass("tooltip-left");
+		this.tooltip.removeClass("tooltip-right");
 		this.tooltip.appendTo('.tooltips');
-		if (this.node.offset().top - this.tooltip.outerHeight() <= 0) {
-			this.tooltip.addClass("tooltip-bottom");
-			this.tooltip.css("top", this.node.offset().top + this.node.outerHeight());
+
+		if (this.side == "top") {
+			if (this.canShowAbove || (!this.canShowAbove && this.preventFlip)) this.showAbove();
+			else this.showBelow();
 		}
-		else {
-			this.tooltip.addClass("tooltip-top");
-			this.tooltip.css("top", this.node.offset().top - this.tooltip.outerHeight());
+
+		if (this.side == "bottom") {
+			if (this.canShowBelow || (!this.canShowBelow && this.preventFlip)) this.showBelow();
+			else this.showAbove();
 		}
+
+		if (this.side == "left") {
+			if (this.canShowLeft || (!this.canShowLeft && this.preventFlip)) this.showLeft();
+			else this.showRight();
+		}
+
+		if (this.side == "right") {
+			if (this.canShowRight || (!this.canShowRight && this.preventFlip)) this.showRight();
+			else this.showLeft();
+		}
+	}
+
+	showAbove() {
+		this.tooltip.addClass("tooltip-top");
+		this.tooltip.css("top", this.node.offset().top - this.tooltip.outerHeight());
+		this.centerHorizontally();
+	}
+
+	showBelow() {
+		this.tooltip.addClass("tooltip-bottom");
+		this.tooltip.css("top", this.node.offset().top + this.node.outerHeight());
+		this.centerHorizontally();
+	}
+
+	showLeft() {
+		this.tooltip.addClass("tooltip-left");
+		this.tooltip.css("left", this.node.offset().left - this.tooltip.outerWidth());
+		this.centerVertically();
+	}
+
+	showRight() {
+		this.tooltip.addClass("tooltip-right");
+		this.tooltip.css("left", this.node.offset().left + this.node.outerWidth());
+		this.centerVertically();
+	}
+
+	centerHorizontally() {
 		var nodecenter = this.node.offset().left + (this.node.outerWidth() / 2);
 		this.tooltip.css("left", nodecenter - (this.tooltip.outerWidth() / 2));
+	}
+
+	centerVertically() {
+		var nodecenter = this.node.offset().top + (this.node.outerHeight() / 2);
+		this.tooltip.css("top", nodecenter - (this.tooltip.outerHeight() / 2));
 	}
 };
 
@@ -1463,13 +1537,13 @@ window["ZeresLibrary"] = {
 	Tooltip: PluginTooltip,
 	DiscordPermissions: DiscordPermissions,
 	InternalUtilities: InternalUtilities,
-	version: "0.5.5"
+	Screen: {
+		get width() { return Math.max(document.documentElement.clientWidth, window.innerWidth || 0); },
+		get height() { return Math.max(document.documentElement.clientHeight, window.innerHeight || 0); }
+	},
+	version: "0.5.6"
 };
 
 BdApi.clearCSS("PluginLibraryCSS");
-//BdApi.clearCSS("ToastCSS");
-//BdApi.clearCSS("UpdateNotice");
 BdApi.injectCSS("PluginLibraryCSS", PluginSettings.getCSS() + PluginUtilities.getToastCSS() + PluginUpdateUtilities.getCSS());
-//BdApi.injectCSS("ToastCSS", PluginUtilities.getToastCSS());
-//BdApi.injectCSS("UpdateNotice", PluginUpdateUtilities.getCSS());
 jQuery.extend(jQuery.easing, { easeInSine: function (x, t, b, c, d) { return -c * Math.cos(t / d * (Math.PI / 2)) + c + b; }});
