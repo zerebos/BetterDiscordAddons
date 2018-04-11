@@ -16,6 +16,7 @@ A series of plugins and themes for BetterDiscord. For support or announcements o
  - [ResizableCSS](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ResizableCSS) - Allows you to resize the detached CustomCSS window.
  - [RoleMembers](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers) - Allows you to see the members of each role on a server.
  - [SendButton](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/SendButton) - Adds a send button to discord.
+ - [ServerSearch](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch) - Adds a button to search your servers.
  - [ServerSorter](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSorter) - Adds the ability to sort the servers that you're in.
  - [StatusEverywhere](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/StatusEverywhere) - Adds user status everywhere Discord doesn't.
  - [TransparencyPatcher](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/TransparencyPatcher) - Allows you to make your discord see-through.
