@@ -11,6 +11,163 @@ var InternalUtilities = {version: "0.0.2"};
 
 /* global Set:false, bdPluginStorage:false, BdApi:false, Symbol:false, webpackJsonp:false, _:false */
 
+var DiscordModules = {
+	version: "0.0.1",
+    get React() {return InternalUtilities.WebpackModules.findByUniqueProperties(['createElement', 'cloneElement']);},
+    get ReactDOM() {return InternalUtilities.WebpackModules.findByUniqueProperties(['render', 'findDOMNode']);},
+    get Events() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byPrototypeFields(['setMaxListeners', 'emit']));},
+
+    /* Guild Info, Stores, and Utilities */
+    get GuildStore() {return InternalUtilities.WebpackModules.findByUniqueProperties(['getGuild']);},
+    get SortedGuildStore() {return InternalUtilities.WebpackModules.findByUniqueProperties(['getSortedGuilds']);},
+    get SelectedGuildStore() {return InternalUtilities.WebpackModules.findByUniqueProperties(['getLastSelectedGuildId']);},
+    get GuildSync() {return InternalUtilities.WebpackModules.findByUniqueProperties(["getSyncedGuilds"]);},
+    get GuildInfo() {return InternalUtilities.WebpackModules.findByUniqueProperties(["getAcronym"]);},
+    get GuildChannelsStore() {return InternalUtilities.WebpackModules.findByUniqueProperties(['getChannels', 'getDefaultChannel']);},
+    get GuildMemberStore() {return InternalUtilities.WebpackModules.findByUniqueProperties(['getMember']);},
+    get MemberCountStore() {return InternalUtilities.WebpackModules.findByUniqueProperties(["getMemberCounts"]);},
+    get GuildEmojiStore() {return InternalUtilities.WebpackModules.findByUniqueProperties(['getEmojis']);},
+    get GuildActions() {return InternalUtilities.WebpackModules.findByUniqueProperties(['markGuildAsRead']);},
+    get GuildPermissions() {return InternalUtilities.WebpackModules.findByUniqueProperties(['getGuildPermissions']);},
+
+    /* Channel Store & Actions */
+    get ChannelStore() {return InternalUtilities.WebpackModules.findByUniqueProperties(['getChannels', 'getDMFromUserId']);},
+    get SelectedChannelStore() {return InternalUtilities.WebpackModules.findByUniqueProperties(['getLastSelectedChannelId']);},
+    get ChannelActions() {return InternalUtilities.WebpackModules.findByUniqueProperties(["selectChannel"]);},
+    get PrivateChannelActions() {return InternalUtilities.WebpackModules.findByUniqueProperties(["openPrivateChannel"]);},
+    get ChannelSelector() {return InternalUtilities.WebpackModules.findByUniqueProperties(["selectGuild", "selectChannel"]);},
+
+    /* Current User Info, State and Settings */
+    get UserInfoStore() {return InternalUtilities.WebpackModules.findByUniqueProperties(["getToken"]);},
+    get UserSettingsStore() {return InternalUtilities.WebpackModules.findByUniqueProperties(["guildPositions"]);},
+    get AccountManager() {return InternalUtilities.WebpackModules.findByUniqueProperties(['register', 'login']);},
+    get UserSettingsUpdater() {return InternalUtilities.WebpackModules.findByUniqueProperties(['updateRemoteSettings']);},
+    get OnlineWatcher() {return InternalUtilities.WebpackModules.findByUniqueProperties(['isOnline']);},
+    get CurrentUserIdle() {return InternalUtilities.WebpackModules.findByUniqueProperties(['getIdleTime']);},
+    get RelationshipStore() {return InternalUtilities.WebpackModules.findByUniqueProperties(['isBlocked']);},
+    get RelationshipManager() {return InternalUtilities.WebpackModules.findByUniqueProperties(['addRelationship']);},
+    get MentionStore() {return InternalUtilities.WebpackModules.findByUniqueProperties(["getMentions"]);},
+
+    /* User Stores and Utils */
+    get UserStore() {return InternalUtilities.WebpackModules.findByUniqueProperties(['getCurrentUser']);},
+    get UserStatusStore() {return InternalUtilities.WebpackModules.findByUniqueProperties(['getStatuses']);},
+    get UserTypingStore() {return InternalUtilities.WebpackModules.findByUniqueProperties(['isTyping']);},
+    get UserActivityStore() {return InternalUtilities.WebpackModules.findByUniqueProperties(['getActivity']);},
+    get UserNameResolver() {return InternalUtilities.WebpackModules.findByUniqueProperties(['getName']);},
+
+    /* Emoji Store and Utils */
+    get EmojiInfo() {return InternalUtilities.WebpackModules.findByUniqueProperties(['isEmojiDisabled']);},
+    get EmojiUtils() {return InternalUtilities.WebpackModules.findByUniqueProperties(['getGuildEmoji']);},
+    get EmojiStore() {return InternalUtilities.WebpackModules.findByUniqueProperties(['getByCategory', 'EMOJI_NAME_RE']);},
+
+    /* Invite Store and Utils */
+    get InviteStore() {return InternalUtilities.WebpackModules.findByUniqueProperties(["getInvites"]);},
+    get InviteResolver() {return InternalUtilities.WebpackModules.findByUniqueProperties(['findInvite']);},
+    get InviteActions() {return InternalUtilities.WebpackModules.findByUniqueProperties(['acceptInvite']);},
+
+    /* Discord Objects & Utils */
+    get DiscordConstants() {return InternalUtilities.WebpackModules.findByUniqueProperties(["Permissions", "ActivityTypes", "StatusTypes"]);},
+    get Permissions() {return InternalUtilities.WebpackModules.findByUniqueProperties(['getHighestRole']);},
+    get ColorConverter() {return InternalUtilities.WebpackModules.findByUniqueProperties(['hex2int']);},
+    get ColorShader() {return InternalUtilities.WebpackModules.findByUniqueProperties(['darken']);},
+    get ClassResolver() {return InternalUtilities.WebpackModules.findByUniqueProperties(["getClass"]);},
+    get ButtonData() {return InternalUtilities.WebpackModules.findByUniqueProperties(["ButtonSizes"]);},
+    get IconNames() {return InternalUtilities.WebpackModules.findByUniqueProperties(["IconNames"]);},
+    get NavigationUtils() {return InternalUtilities.WebpackModules.findByUniqueProperties(['transitionTo', 'replaceWith', 'getHistory']);},
+
+    /* Discord Messages */
+    get MessageStore() {return InternalUtilities.WebpackModules.findByUniqueProperties(['getMessages']);},
+    get MessageActions() {return InternalUtilities.WebpackModules.findByUniqueProperties(['jumpToMessage', '_sendMessage']);},
+    get MessageQueue() {return InternalUtilities.WebpackModules.findByUniqueProperties(['enqueue']);},
+    get MessageParser() {return InternalUtilities.WebpackModules.findByUniqueProperties(['createMessage', 'parse', 'unparse']);},
+
+    /* In-Game Overlay */
+    get OverlayUserPopoutSettings() {return InternalUtilities.WebpackModules.findByUniqueProperties(['openUserPopout']);},
+    get OverlayUserPopoutInfo() {return InternalUtilities.WebpackModules.findByUniqueProperties(['getOpenedUserPopout']);},
+
+    /* Experiments */
+    get ExperimentStore() {return InternalUtilities.WebpackModules.findByUniqueProperties(['getExperimentOverrides']);},
+    get ExperimentsManager() {return InternalUtilities.WebpackModules.findByUniqueProperties(['isDeveloper']);},
+    get CurrentExperiment() {return InternalUtilities.WebpackModules.findByUniqueProperties(['getExperimentId']);},
+
+    /* Images, Avatars and Utils */
+    get ImageResolver() {return InternalUtilities.WebpackModules.findByUniqueProperties(["getUserAvatarURL"]);},
+    get ImageUtils() {return InternalUtilities.WebpackModules.findByUniqueProperties(['getSizedImageSrc']);},
+    get AvatarDefaults() {return InternalUtilities.WebpackModules.findByUniqueProperties(["getUserAvatarURL", "DEFAULT_AVATARS"]);},
+
+    /* Drag & Drop */
+    get DNDActions() {return InternalUtilities.WebpackModules.findByUniqueProperties(["beginDrag"]);},
+    get DNDSources() {return InternalUtilities.WebpackModules.findByUniqueProperties(["addTarget"]);},
+    get DNDObjects() {return InternalUtilities.WebpackModules.findByUniqueProperties(["DragSource"]);},
+
+    /* Electron & Other Internals with Utils*/
+    get ElectronModule() {return InternalUtilities.WebpackModules.findByUniqueProperties(["setBadge"]);},
+    get Dispatcher() {return InternalUtilities.WebpackModules.findByUniqueProperties(['dirtyDispatch']);},
+    get PathUtils() {return InternalUtilities.WebpackModules.findByUniqueProperties(["hasBasename"]);},
+    get NotificationModule() {return InternalUtilities.WebpackModules.findByUniqueProperties(["showNotification"]);},
+    get RouterModule() {return InternalUtilities.WebpackModules.findByUniqueProperties(["Router"]);},
+    get APIModule() {return InternalUtilities.WebpackModules.findByUniqueProperties(["getAPIBaseURL"]);},
+    get AnalyticEvents() {return InternalUtilities.WebpackModules.findByUniqueProperties(["AnalyticEventConfigs"]);},
+    get KeyGenerator() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byCode(/"binary"/));},
+    get Buffers() {return InternalUtilities.WebpackModules.findByUniqueProperties(['Buffer', 'kMaxLength']);},
+    get DeviceStore() {return InternalUtilities.WebpackModules.findByUniqueProperties(['getDevices']);},
+    get SoftwareInfo() {return InternalUtilities.WebpackModules.findByUniqueProperties(["os"]);},
+    get CurrentContext() {return InternalUtilities.WebpackModules.findByUniqueProperties(["setTagsContext"]);},
+
+    /* Media Stuff (Audio/Video) */
+    get MediaDeviceInfo() {return InternalUtilities.WebpackModules.findByUniqueProperties(["Codecs", "SUPPORTED_BROWSERS"]);},
+    get MediaInfo() {return InternalUtilities.WebpackModules.findByUniqueProperties(["getOutputVolume"]);},
+    get MediaEngineInfo() {return InternalUtilities.WebpackModules.findByUniqueProperties(['MediaEngineFeatures']);},
+    get VoiceInfo() {return InternalUtilities.WebpackModules.findByUniqueProperties(["EchoCancellation"]);},
+    get VideoStream() {return InternalUtilities.WebpackModules.findByUniqueProperties(["getVideoStream"]);},
+    get SoundModule() {return InternalUtilities.WebpackModules.findByUniqueProperties(["playSound"]);},
+
+    /* Window, DOM, HTML */
+    get WindowInfo() {return InternalUtilities.WebpackModules.findByUniqueProperties(['isFocused', 'windowSize']);},
+    get TagInfo() {return InternalUtilities.WebpackModules.findByUniqueProperties(['VALID_TAG_NAMES']);},
+    get DOMInfo() {return InternalUtilities.WebpackModules.findByUniqueProperties(['canUseDOM']);},
+    get HTMLUtils() {return InternalUtilities.WebpackModules.findByUniqueProperties(['htmlFor', 'sanitizeUrl']);},
+
+    /* Locale/Location and Time */
+    get LocaleManager() {return InternalUtilities.WebpackModules.findByUniqueProperties(['setLocale']);},
+    get Moment() {return InternalUtilities.WebpackModules.findByUniqueProperties(['parseZone']);},
+    get LocationManager() {return InternalUtilities.WebpackModules.findByUniqueProperties(["createLocation"]);},
+    get Timestamps() {return InternalUtilities.WebpackModules.findByUniqueProperties(["fromTimestamp"]);},
+
+    /* Strings and Utils */
+    get Strings() {return InternalUtilities.WebpackModules.findByUniqueProperties(["TEXT", "TEXTAREA_PLACEHOLDER"]);},
+    get StringFormats() {return InternalUtilities.WebpackModules.findByUniqueProperties(['a', 'z']);},
+    get StringUtils() {return InternalUtilities.WebpackModules.findByUniqueProperties(["toASCII"]);},
+
+    /* URLs and Utils */
+    get URLParser() {return InternalUtilities.WebpackModules.findByUniqueProperties(['Url', 'parse']);},
+    get ExtraURLs() {return InternalUtilities.WebpackModules.findByUniqueProperties(['getArticleURL']);},
+
+    /* DOM/React Components */
+    /* ==================== */
+    get UserSettingsWindow() {return InternalUtilities.WebpackModules.findByUniqueProperties(['open', 'updateAccount']);},
+    get LayerManager() {return InternalUtilities.WebpackModules.findByUniqueProperties(['popLayer', 'pushLayer']);},
+    get Tooltips() {return InternalUtilities.WebpackModules.find(m => m.hide && m.show && !m.search && !m.submit && !m.search && !m.activateRagingDemon && !m.dismiss);},
+
+    /* Modals */
+    get ModalStack() {return InternalUtilities.WebpackModules.findByUniqueProperties(['push', 'update', 'pop', 'popWithKey']);},
+    get UserProfileModals() {return InternalUtilities.WebpackModules.findByUniqueProperties(['fetchMutualFriends', 'setSection']);},
+    get ConfirmModal() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byPrototypeFields(['handleCancel', 'handleSubmit', 'handleMinorConfirm']));},
+
+    /* Popouts */
+    get PopoutStack() {return InternalUtilities.WebpackModules.findByUniqueProperties(['open', 'close', 'closeAll']);},
+    get PopoutOpener() {return InternalUtilities.WebpackModules.findByUniqueProperties(['openPopout']);},
+    get EmojiPicker() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byPrototypeFields(['onHoverEmoji', 'selectEmoji']));},
+
+    /* Context Menus */
+    get ContextMenuActions() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byCode(/CONTEXT_MENU_CLOSE/, c => c.close));},
+    get ContextMenuItemsGroup() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byCode(/itemGroup/));},
+    get ContextMenuItem() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byCode(/\.label\b.*\.hint\b.*\.action\b/));},
+
+    /* In-Message Links */
+    get ExternalLink() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byCode(/\.trusted\b/));}
+};
+
 DiscordPermissions = class DiscordPermissions {
 	constructor(perms) {
 		this.perms = perms;
@@ -1526,6 +1683,59 @@ PluginTooltip.Tooltip = class Tooltip {
 	}
 };
 
+
+// Used the same as previous, but uses the native tooltips
+PluginTooltip.Native = class NativeTooltip {
+	constructor(node, text, options = {}) {
+		if (!(node instanceof jQuery) && !(node instanceof Element)) return undefined;
+		this.node = node instanceof jQuery ? node[0] : node;
+		const {style = "black", side = "top"} = options;
+		this.label = text;
+		this.style = style;
+		this.side = side;
+		this.id = DiscordModules.KeyGenerator();
+
+		this.node.addEventListener('mouseenter', () => {
+			this.show();
+
+			const observer = new MutationObserver((mutations) => {
+				mutations.forEach((mutation) => {
+					const nodes = Array.from(mutation.removedNodes);
+					const directMatch = nodes.indexOf(this.node) > -1;
+					const parentMatch = nodes.some(parent => parent.contains(this.node));
+					if (directMatch || parentMatch) {
+						this.hide();
+						observer.disconnect();
+					}
+				});
+			});
+
+			observer.observe(document.body, {subtree: true, childList: true});
+		});
+
+		this.node.addEventListener('mouseleave', () => {
+			this.hide();
+		});
+	}
+
+	hide() {
+		DiscordModules.Tooltips.hide(this.id);
+	}
+
+	show() {
+		const {left, top, width, height} = this.node.getBoundingClientRect();
+		DiscordModules.Tooltips.show(this.id, {
+			position: this.side,
+			text: this.label,
+			color: this.style,
+			targetWidth: width,
+			targetHeight: height,
+			x: left,
+			y: top
+		});
+	}
+};
+
 window["ZeresLibrary"] = {
 	ColorUtilities: ColorUtilities,
 	DOMUtilities: DOMUtilities,
@@ -1537,6 +1747,7 @@ window["ZeresLibrary"] = {
 	Tooltip: PluginTooltip,
 	DiscordPermissions: DiscordPermissions,
 	InternalUtilities: InternalUtilities,
+	DiscordModules: DiscordModules,
 	Screen: {
 		get width() { return Math.max(document.documentElement.clientWidth, window.innerWidth || 0); },
 		get height() { return Math.max(document.documentElement.clientHeight, window.innerHeight || 0); }
