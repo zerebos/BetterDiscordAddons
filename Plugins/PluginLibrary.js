@@ -1,18 +1,62 @@
-var ColorUtilities = {version: "0.0.2"};
-var DOMUtilities = {version: "0.0.1"};
-var ReactUtilities = {version: "0.0.4"};
-var PluginUtilities = {version: "0.2.3"};
-var PluginUpdateUtilities = {version: "0.0.3"};
-var PluginSettings = {version: "1.0.5"};
-var PluginContextMenu = {version: "0.0.6"};
-var PluginTooltip = {version: "0.1.0"};
-var DiscordPermissions = {version: "0.0.1"};
-var InternalUtilities = {version: "0.0.2"};
+/**
+ * Helpful utilities for dealing with colors.
+ * @namespace
+ */
+var ColorUtilities = {};
 
-/* global Set:false, bdPluginStorage:false, BdApi:false, Symbol:false, webpackJsonp:false, _:false */
+/**
+ * Will get the red green and blue values of any color string.
+ * @param {string} color - the color to obtain the red, green and blue values of. Can be in any of these formats: #fff, #ffffff, rgb, rgba.
+ * @returns {array} - array containing the red, green, and blue values
+ */
+ColorUtilities.getRGB = function(color) {
+	var result = /rgb\(\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*\)/.exec(color);
+	if (result) return [parseInt(result[1]), parseInt(result[2]), parseInt(result[3])];
 
+	result = /rgb\(\s*([0-9]+(?:\.[0-9]+)?)%\s*,\s*([0-9]+(?:\.[0-9]+)?)%\s*,\s*([0-9]+(?:\.[0-9]+)?)%\s*\)/.exec(color);
+	if (result) return [parseFloat(result[1]) * 2.55, parseFloat(result[2]) * 2.55, parseFloat(result[3]) * 2.55];
+
+	result = /#([a-fA-F0-9]{2})([a-fA-F0-9]{2})([a-fA-F0-9]{2})/.exec(color);
+	if (result) return [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)];
+	
+	result = /#([a-fA-F0-9])([a-fA-F0-9])([a-fA-F0-9])/.exec(color);
+	if (result) return [parseInt(result[1] + result[1], 16), parseInt(result[2] + result[2], 16), parseInt(result[3] + result[3], 16)];
+};
+
+ColorUtilities.darkenColor = function(color, percent) {
+	var rgb = ColorUtilities.getRGB(color);
+	
+	for(var i = 0; i < rgb.length; i++){
+		rgb[i] = Math.round(Math.max(0, rgb[i] - rgb[i] * (percent / 100)));
+	}
+	
+	return 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
+};
+
+ColorUtilities.lightenColor = function(color, percent) {
+	var rgb = ColorUtilities.getRGB(color);
+	
+	for(var i = 0; i < rgb.length; i++){
+		rgb[i] = Math.round(Math.min(255, rgb[i] + rgb[i] * (percent / 100)));
+	}
+	
+	return 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
+};
+
+ColorUtilities.rgbToAlpha = function(color, alpha) {
+	var rgb = ColorUtilities.getRGB(color);		
+	return 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + alpha + ')';
+};
+
+ColorUtilities.version = "0.0.2";
+/* ================== END MODULE ================== */
+
+
+/**
+ * A large list of known and useful webpack modules internal to Discord.
+ * @namespace
+ */
 var DiscordModules = {
-	version: "0.0.1",
     get React() {return InternalUtilities.WebpackModules.findByUniqueProperties(['createElement', 'cloneElement']);},
     get ReactDOM() {return InternalUtilities.WebpackModules.findByUniqueProperties(['render', 'findDOMNode']);},
     get Events() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byPrototypeFields(['setMaxListeners', 'emit']));},
@@ -168,7 +212,14 @@ var DiscordModules = {
     get ExternalLink() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byCode(/\.trusted\b/));}
 };
 
-DiscordPermissions = class DiscordPermissions {
+DiscordModules.version = "0.0.1";
+/* ================== END MODULE ================== */
+
+
+/**
+ * Class representing Discord's permissions system.
+ */
+var DiscordPermissions = class DiscordPermissions {
 	constructor(perms) {
 		this.perms = perms;
 	}
@@ -226,6 +277,7 @@ DiscordPermissions = class DiscordPermissions {
 				"viewChannel", "connect", "muteMembers", "moveMembers", "speak", "deafenMembers", "useVoiceActivity"];
 	}
 
+    // eslint-disable-next-line no-undef
 	[Symbol.iterator]() { return DiscordPermissions.PermissionList.values(); }
 
 	hasPermission(perm) { return (this.perms & perm) == perm; }
@@ -310,44 +362,15 @@ DiscordPermissions = class DiscordPermissions {
 	set useVoiceActivity(allowed) { return this.setPermission(DiscordPermissions.UseVoiceActivity, allowed); }
 };
 
-ColorUtilities.getRGB = function(color) {
-	var result = /rgb\(\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*\)/.exec(color);
-	if (result) return [parseInt(result[1]), parseInt(result[2]), parseInt(result[3])];
+DiscordPermissions.version = "0.0.1";
+/* ================== END MODULE ================== */
 
-	result = /rgb\(\s*([0-9]+(?:\.[0-9]+)?)%\s*,\s*([0-9]+(?:\.[0-9]+)?)%\s*,\s*([0-9]+(?:\.[0-9]+)?)%\s*\)/.exec(color);
-	if (result) return [parseFloat(result[1]) * 2.55, parseFloat(result[2]) * 2.55, parseFloat(result[3]) * 2.55];
 
-	result = /#([a-fA-F0-9]{2})([a-fA-F0-9]{2})([a-fA-F0-9]{2})/.exec(color);
-	if (result) return [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)];
-	
-	result = /#([a-fA-F0-9])([a-fA-F0-9])([a-fA-F0-9])/.exec(color);
-	if (result) return [parseInt(result[1] + result[1], 16), parseInt(result[2] + result[2], 16), parseInt(result[3] + result[3], 16)];
-};
-
-ColorUtilities.darkenColor = function(color, percent) {
-	var rgb = ColorUtilities.getRGB(color);
-	
-	for(var i = 0; i < rgb.length; i++){
-		rgb[i] = Math.round(Math.max(0, rgb[i] - rgb[i] * (percent / 100)));
-	}
-	
-	return 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
-};
-
-ColorUtilities.lightenColor = function(color, percent) {
-	var rgb = ColorUtilities.getRGB(color);
-	
-	for(var i = 0; i < rgb.length; i++){
-		rgb[i] = Math.round(Math.min(255, rgb[i] + rgb[i] * (percent / 100)));
-	}
-	
-	return 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
-};
-
-ColorUtilities.rgbToAlpha = function(color, alpha) {
-	var rgb = ColorUtilities.getRGB(color);		
-	return 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + alpha + ')';
-};
+/**
+ * Helpful utilities for dealing with DOM operations.
+ * @namespace
+ */
+var DOMUtilities = {};
 
 DOMUtilities.indexInParent = function(node) {
 	var children = node.parentNode.childNodes;
@@ -359,106 +382,17 @@ DOMUtilities.indexInParent = function(node) {
 	return -1;
 };
 
-ReactUtilities.getReactInstance = function(node) {
-	if (!(node instanceof jQuery) && !(node instanceof Element)) return undefined;
-	var domNode = node instanceof jQuery ? node[0] : node;
-	return domNode[Object.keys(domNode).find((key) => key.startsWith("__reactInternalInstance"))];
-};
-
-ReactUtilities.getReactProperty = function(node, path) {
-	var value = path.split(/\s?\.\s?/).reduce(function(obj, prop) {
-		return obj && obj[prop];
-	}, ReactUtilities.getReactInstance(node));
-	return value;
-};
-
-// This is a slightly modified version of DevilBro's https://github.com/mwittrien/BetterDiscordAddons
-// CURRENTLY UNUSED
-ReactUtilities.getReactKey = function(config) {
-	if (config === undefined) return null;
-	if (config.node === undefined || config.key === undefined) return null;
-	
-	var inst = ReactUtilities.getReactInstance(config.node);
-	if (!inst) return null;
-	
-	
-	var maxDepth = config.depth === undefined ? 15 : config.depth;
-		
-	var keyWhiteList = typeof config.whiteList === "object" ? config.whiteList : {
-		"_currentElement":true,
-		"_renderedChildren":true,
-		"_instance":true,
-		"_owner":true,
-		"props":true,
-		"state":true,
-		"stateNode":true,
-		"refs":true,
-		"updater":true,
-		"children":true,
-		"type":true,
-		"memoizedProps":true,
-		"memoizedState":true,
-		"child":true,
-		"firstEffect":true
-	};
-	
-	var keyBlackList = typeof config.blackList === "object" ? config.blackList : {};
-	
-	
-
-	var searchKeyInReact = (ele, depth) => {
-		if (!ele || ReactUtilities.getReactInstance(ele) || depth > maxDepth) return null;
-		var keys = Object.getOwnPropertyNames(ele);
-		var result = null;
-		for (var i = 0; result === null && i < keys.length; i++) {
-			var key = keys[i];
-			var value = ele[keys[i]];
-			
-			if (config.key === key && (config.value === undefined || config.value === value)) {
-				result = config.returnParent ? ele : value;
-			}
-			else if ((typeof value === "object" || typeof value === "function") && ((keyWhiteList[key] && !keyBlackList[key]) || key[0] == "." || !isNaN(key[0]))) {
-				result = searchKeyInReact(value, depth++);
-			}
-		}
-		return result;
-	};
-
-	return searchKeyInReact(inst, 0);
-};
+DOMUtilities.version = "0.0.1";
+/* ================== END MODULE ================== */
 
 
-/* The following functions come from Samogot's library https://github.com/samogot/betterdiscord-plugins */
-ReactUtilities.getOwnerInstance = function(e, {include, exclude = ["Popout", "Tooltip", "Scroller", "BackgroundFlash"]} = {}) {
-	if (e === undefined)
-		return undefined;
-	const excluding = include === undefined;
-	const filter = excluding ? exclude : include;
-	function getDisplayName(owner) {
-		const type = owner.type;
-		return type.displayName || type.name || null;
-	}
-	function classFilter(owner) {
-		const name = getDisplayName(owner);
-		return (name !== null && !!(filter.includes(name) ^ excluding));
-	}
-	
-	for (let curr = ReactUtilities.getReactInstance(e).return; !_.isNil(curr); curr = curr.return) {
-		if (_.isNil(curr))
-			continue;
-		let owner = curr.stateNode;
-		if (!_.isNil(owner) && !(owner instanceof HTMLElement) && classFilter(curr))
-			return owner;
-	}
-	
-	return null;
-};
-
-PluginUtilities.suppressErrors = (method, desiption) => (...params) => {
-	try { return method(...params);	}
-	catch (e) { console.error('Error occurred in ' + desiption, e); }
-};
-
+/**
+ * Functions and utilities relating to Discord's internals.
+ * Some of the code used in this module is an editing version of
+ * the Discord Internals library by samogot (https://github.com/samogot/betterdiscord-plugins/)
+ * @namespace
+ */
+var InternalUtilities = {};
 
 InternalUtilities.monkeyPatch = (what, methodName, options) => {
 	const {before, after, instead, once = false, silent = false} = options;
@@ -531,12 +465,13 @@ InternalUtilities.WebpackModules = (() => {
 	};
 	
 	const findByUniqueProperties = (propNames, options) => find(module => propNames.every(prop => module[prop] !== undefined), options);
+	const findByProps = function() {return findByUniqueProperties(Array.prototype.slice.call(arguments));};
 	const findByDisplayName = (displayName, options) => find(module => module.displayName === displayName, options);
 		
-	return {find, findByUniqueProperties, findByDisplayName};
+	return {find, findByProps, findByUniqueProperties, findByDisplayName};
 })();
 
-PluginUtilities.WebpackModules = InternalUtilities.WebpackModules; // Backwards compatibility
+
 
 InternalUtilities.Filters = {
 	byPrototypeFields: (fields, selector = x => x) => (module) => {
@@ -560,7 +495,6 @@ InternalUtilities.Filters = {
 		return true;
 	}
 };
-/* The previous functions come from Samogot's library https://github.com/samogot/betterdiscord-plugins */
 
 InternalUtilities.addInternalListener = function(internalModule, moduleFunction, callback) {
 	const moduleName = internalModule.displayName || internalModule.name || internalModule.constructor.displayName || internalModule.constructor.name; // borrowed from Samogot
@@ -610,443 +544,15 @@ InternalUtilities.removeOnSwitchListener = function(callback) {
 	InternalUtilities.webContents.removeListener("did-navigate-in-page", callback);
 };
 
-PluginUtilities.parseOnSwitchURL = function(url) {
-	let urlSplit = url.split("/");
-	let type = urlSplit[3];
-	let server = urlSplit[4];
-	let channel = urlSplit[5];
-	return {type, server, channel};
-};
-
-PluginUtilities.getCurrentServer = function() {
-	var auditLog = document.querySelector('.guild-settings-audit-logs');
-    if (auditLog) return ReactUtilities.getReactKey({node: auditLog, key: "guildId"});
-    if (document.querySelector(".activityFeed-HeiGwL") || document.querySelector('#friends')) return null;
-    let title = document.querySelector('.title-qAcLxz');
-    if (document.querySelector('.private-channels')) return ReactUtilities.getReactProperty(title, "child.memoizedProps.1.props.channel.id");
-    else return ReactUtilities.getReactProperty(title, "child.memoizedProps.1.props.guild.id");
-};
-
-PluginUtilities.isServer = function() { return PluginUtilities.getCurrentServer() ? true : false; };
-
-PluginUtilities.getCurrentUser = function() {
-	return ReactUtilities.getReactProperty(document.querySelector('.accountDetails-15i-_e'), "return.memoizedProps.user");
-};
-
-PluginUtilities.getAllUsers = function() {
-	if (!document.querySelector('.channel-members') || document.querySelector('.private-channels')) return [];
-	let groups = ReactUtilities.getReactKey({node: document.querySelector('.channel-members').parentElement.parentElement.parentElement.parentElement, key: "memberGroups", whiteList: {
-		"child": true,
-		"sibling": true,
-		"memoizedState": true
-	}});
-	var users = [];
-	for (let g = 0; g < groups.length; g++) {
-		for (let u = 0; u < groups[g].users.length; u++) {
-			users.push(groups[g].users[u]);
-		}
-	}
-	return users;
-};
-
-PluginUtilities.loadData = function(name, key, defaultData) {
-	try { return $.extend(true, defaultData ? defaultData : {}, bdPluginStorage.get(name, key)); }
-	catch (err) { console.warn(name, "unable to load data:", err); }
-};
-
-PluginUtilities.saveData = function(name, key, data) {
-	try { bdPluginStorage.set(name, key, data); }
-	catch (err) { console.warn(name, "unable to save data:", err); }
-};
-
-PluginUtilities.loadSettings = function(name, defaultSettings) {
-	return PluginUtilities.loadData(name, "settings", defaultSettings);
-};
-
-PluginUtilities.saveSettings = function(name, data) {
-	PluginUtilities.saveData(name, "settings", data);
-};
-
-PluginUtilities.checkForUpdate = function(pluginName, currentVersion, updateURL) {
-	let updateLink = "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/" + pluginName + "/" + pluginName + ".plugin.js";
-	if (updateURL) updateLink = updateURL;
-	
-	if (typeof window.PluginUpdates === "undefined") window.PluginUpdates = {plugins:{}};
-	window.PluginUpdates.plugins[updateLink] = {name: pluginName, raw: updateLink, version: currentVersion};
-
-	PluginUpdateUtilities.checkUpdate(pluginName, updateLink);
-	
-	if (typeof window.PluginUpdates.interval === "undefined") {
-		window.PluginUpdates.interval = setInterval(() => {
-			window.PluginUpdates.checkAll();
-		}, 7200000);
-	}
-
-	if (typeof window.PluginUpdates.checkAll === "undefined") {
-		window.PluginUpdates.checkAll = function() {
-			for (let key in this.plugins) {
-				let plugin = this.plugins[key];
-				PluginUpdateUtilities.checkUpdate(plugin.name, plugin.raw);
-			}
-		};
-	}
-
-	if (typeof window.PluginUpdates.observer === "undefined") {		
-		window.PluginUpdates.observer = new MutationObserver((changes) => {
-			changes.forEach(
-				(change) => {
-					if (change.addedNodes) {
-						change.addedNodes.forEach((node) => {
-							if (node && node.tagName && node.getAttribute("layer-id") == "user-settings") {
-								var settingsObserver = new MutationObserver((changes2) => {
-									changes2.forEach(
-										(change2) => {
-											if (change2.addedNodes) {
-												change2.addedNodes.forEach((node2) => {
-													if (!document.querySelector(".bd-updatebtn")) {
-														if (node2 && node2.tagName && node2.querySelector(".bd-pfbtn") && node2.querySelector("h2") && node2.querySelector("h2").innerText.toLowerCase() === "plugins") {
-
-															node2.querySelector(".bd-pfbtn").parentElement.insertBefore(PluginUpdateUtilities.createUpdateButton(), node2.querySelector(".bd-pfbtn").nextSibling);
-														}
-													}
-												});
-											}
-										}
-									);
-								});
-								settingsObserver.observe(node, {childList:true, subtree:true});
-							}
-						});
-					}
-				}
-			);
-		});
-		window.PluginUpdates.observer.observe(document.querySelector(".layers, .layers-20RVFW"), {childList:true});
-	}
-	
-	var bdbutton = document.querySelector(".bd-pfbtn");
-	if (bdbutton && bdbutton.parentElement.querySelector("h2") && bdbutton.parentElement.querySelector("h2").innerText.toLowerCase() === "plugins" && !bdbutton.parentElement.querySelector(".bd-pfbtn.bd-updatebtn")) {
-		bdbutton.parentElement.insertBefore(PluginUpdateUtilities.createUpdateButton(), bdbutton.nextSibling);
-	}
-};
-
-PluginUpdateUtilities.createUpdateButton = function() {
-	var updateButton = document.createElement("button");
-	updateButton.className = "bd-pfbtn bd-updatebtn";
-	updateButton.innerText = "Check for Updates";
-	updateButton.style.left = "220px";
-	updateButton.onclick = function () {
-		window.PluginUpdates.checkAll();
-	};
-	let tooltip = new PluginTooltip.Tooltip($(updateButton), "Checks for updates of plugins that support this feature. Right-click for a list.");
-	updateButton.oncontextmenu = function () {
-		if (window.PluginUpdates && window.PluginUpdates.plugins) {
-			var list = [];
-			for (var plugin in window.PluginUpdates.plugins) {
-				list.push(window.PluginUpdates.plugins[plugin].name);
-			}
-			tooltip.tooltip.detach();
-			tooltip.tooltip.text(list.join(", "));
-			tooltip.show();
-			updateButton.onmouseout = function() { tooltip.tooltip.text(tooltip.tip); };
-		}
-	};
-	return updateButton;
-};
-
-PluginUpdateUtilities.getCSS = function () {
-	return "#pluginNotice {-webkit-app-region: drag;border-radius:0;} #outdatedPlugins {font-weight:700;} #outdatedPlugins>span {-webkit-app-region: no-drag;color:#fff;cursor:pointer;} #outdatedPlugins>span:hover {text-decoration:underline;}";
-};
-
-PluginUpdateUtilities.checkUpdate = function(pluginName, updateLink) {
-	let request = require("request");
-	request(updateLink, (error, response, result) => {
-		if (error) return;
-		var remoteVersion = result.match(/['"][0-9]+\.[0-9]+\.[0-9]+['"]/i);
-		if (!remoteVersion) return;
-		remoteVersion = remoteVersion.toString().replace(/['"]/g, "");
-		var ver = remoteVersion.split(".").map((e) => {return parseInt(e);});
-		var lver = window.PluginUpdates.plugins[updateLink].version.split(".").map((e) => {return parseInt(e);});
-		var hasUpdate = false;
-		if (ver[0] > lver[0]) hasUpdate = true;
-		else if (ver[0] == lver[0] && ver[1] > lver[1]) hasUpdate = true;
-		else if (ver[0] == lver[0] && ver[1] == lver[1] && ver[2] > lver[2]) hasUpdate = true;
-		else hasUpdate = false;
-		if (hasUpdate) PluginUpdateUtilities.showUpdateNotice(pluginName, updateLink);
-		else PluginUpdateUtilities.removeUpdateNotice(pluginName);
-	});
-};
-
-PluginUpdateUtilities.showUpdateNotice = function(pluginName, updateLink) {
-	if (!$('#pluginNotice').length)  {
-		let noticeElement = '<div class="notice notice-info notice-3I4-y_ noticeInfo-3v29SJ size14-1wjlWP weightMedium-13x9Y8 height36-13sPn7" id="pluginNotice"><div class="notice-dismiss dismiss-1QjyJW" id="pluginNoticeDismiss"></div><span class="notice-message">The following plugins have updates:</span>&nbsp;&nbsp;<strong id="outdatedPlugins"></strong></div>';
-		// $('.app .guilds-wrapper + div > div:first > div:first').append(noticeElement);
-		$('.app.flex-vertical').children().first().before(noticeElement);
-        $('.win-buttons').addClass("win-buttons-notice");
-		$('#pluginNoticeDismiss').on('click', () => {
-			$('.win-buttons').animate({top: 0}, 400, "swing", () => { $('.win-buttons').css("top","").removeClass("win-buttons-notice"); });
-			$('#pluginNotice').slideUp({complete: () => { $('#pluginNotice').remove(); }});
-		});
-	}
-	let pluginNoticeID = pluginName + '-notice';
-	if (!$('#' + pluginNoticeID).length) {
-		let pluginNoticeElement = $('<span id="' + pluginNoticeID + '">');
-        pluginNoticeElement.text(pluginName);
-        pluginNoticeElement.on('click', () => {
-            PluginUpdateUtilities.downloadPlugin(pluginName, updateLink);
-        });
-		if ($('#outdatedPlugins').children('span').length) $('#outdatedPlugins').append("<span class='separator'>, </span>");
-		$('#outdatedPlugins').append(pluginNoticeElement);
-	}
-};
-
-PluginUpdateUtilities.downloadPlugin = function(pluginName, updateLink) {
-    let request = require("request");
-    let fileSystem = require("fs");
-    let path = require("path");
-    request(updateLink, (error, response, body) => {
-        if (error) return console.warn("Unable to get update for " + pluginName);
-        let remoteVersion = body.match(/['"][0-9]+\.[0-9]+\.[0-9]+['"]/i);
-        remoteVersion = remoteVersion.toString().replace(/['"]/g, "");
-        let filename = updateLink.split('/');
-        filename = filename[filename.length - 1];
-        var file = path.join(PluginUtilities.getPluginsFolder(), filename);
-        fileSystem.writeFileSync(file, body);
-		PluginUtilities.showToast(`${pluginName} ${window.PluginUpdates.plugins[updateLink].version} has been replaced by ${pluginName} ${remoteVersion}`);
-		let oldRNM = window.bdplugins["Restart-No-More"] && window.pluginCookie["Restart-No-More"];
-		let newRNM = window.bdplugins["Restart No More"] && window.pluginCookie["Restart No More"];
-        if (!(oldRNM || newRNM)) {
-            if (!window.PluginUpdates.downloaded) {
-                window.PluginUpdates.downloaded = [];
-                let button = $('<button class="btn btn-reload button-2TvR03 size14-1wjlWP weightMedium-13x9Y8">Reload</button>');
-                button.on('click', (e) => {
-                    e.preventDefault();
-                    window.location.reload(false);
-                });
-                var tooltip = document.createElement("div");
-                tooltip.className = "tooltip tooltip-bottom tooltip-black";
-                tooltip.style.maxWidth = "400px";
-                button.on('mouseenter', () => {
-                    document.querySelector(".tooltips").appendChild(tooltip);
-                    tooltip.innerText = window.PluginUpdates.downloaded.join(", ");
-                    tooltip.style.left = button.offset().left + (button.outerWidth() / 2) - ($(tooltip).outerWidth() / 2) + "px";
-                    tooltip.style.top = button.offset().top + button.outerHeight() + "px";
-                });
-    
-                button.on('mouseleave', () => {
-                    tooltip.remove();
-                });
-    
-                button.appendTo($('#pluginNotice'));
-            }
-            window.PluginUpdates.plugins[updateLink].version = remoteVersion;
-            window.PluginUpdates.downloaded.push(pluginName);
-            PluginUpdateUtilities.removeUpdateNotice(pluginName);
-        }
-    });
-};
-
-PluginUpdateUtilities.removeUpdateNotice = function(pluginName) {
-	let notice = $('#' + pluginName + '-notice');
-	if (notice.length) {
-		if (notice.next('.separator').length) notice.next().remove();
-		else if (notice.prev('.separator').length) notice.prev().remove();
-		notice.remove();
-    }
-
-	if (!$('#outdatedPlugins').children('span').length && !$('#pluginNotice .btn-reload').length) {
-        $('#pluginNoticeDismiss').click();
-    } 
-    else if (!$('#outdatedPlugins').children('span').length && $('#pluginNotice .btn-reload').length) {
-        $('#pluginNotice .notice-message').text("To finish updating you need to reload.");
-    }
-};
-
-PluginUtilities.getToastCSS = function() {
-	return `/* Toast CSS */
-	
-	.toasts {
-		position: fixed;
-		display: flex;
-		top: 0;
-		flex-direction: column;
-		align-items: center;
-		justify-content: flex-end;
-		pointer-events: none;
-		z-index: 4000;
-	}
-	
-	@keyframes toast-up {
-		from {
-			transform: translateY(0);
-			opacity: 0;
-		}
-	}
-	
-	.toast {
-		animation: toast-up 300ms ease;
-		transform: translateY(-10px);
-		background: #36393F;
-		padding: 10px;
-		border-radius: 5px;
-		box-shadow: 0 0 0 1px rgba(32,34,37,.6), 0 2px 10px 0 rgba(0,0,0,.2);
-		font-weight: 500;
-		color: #fff;
-		user-select: text;
-		font-size: 14px;
-		opacity: 1;
-		margin-top: 10px;
-	}
-	
-	@keyframes toast-down {
-		to {
-			transform: translateY(0px);
-			opacity: 0;
-		}
-	}
-	
-	.toast.closing {
-		animation: toast-down 200ms ease;
-		animation-fill-mode: forwards;
-		opacity: 1;
-		transform: translateY(-10px);
-	}
-	
-	
-	.toast.icon {
-		padding-left: 30px;
-		background-size: 20px 20px;
-		background-repeat: no-repeat;
-		background-position: 6px 50%;
-	}
-	
-	.toast.toast-info {
-		background-color: #4a90e2;
-	}
-	
-	.toast.toast-info.icon {
-		background-image: url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTAgMGgyNHYyNEgweiIgZmlsbD0ibm9uZSIvPiAgICA8cGF0aCBkPSJNMTIgMkM2LjQ4IDIgMiA2LjQ4IDIgMTJzNC40OCAxMCAxMCAxMCAxMC00LjQ4IDEwLTEwUzE3LjUyIDIgMTIgMnptMSAxNWgtMnYtNmgydjZ6bTAtOGgtMlY3aDJ2MnoiLz48L3N2Zz4=);
-	}
-	
-	.toast.toast-success {
-		background-color: #43b581;
-	}
-	
-	.toast.toast-success.icon {
-		background-image: url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTAgMGgyNHYyNEgweiIgZmlsbD0ibm9uZSIvPiAgICA8cGF0aCBkPSJNMTIgMkM2LjQ4IDIgMiA2LjQ4IDIgMTJzNC40OCAxMCAxMCAxMCAxMC00LjQ4IDEwLTEwUzE3LjUyIDIgMTIgMnptLTIgMTVsLTUtNSAxLjQxLTEuNDFMMTAgMTQuMTdsNy41OS03LjU5TDE5IDhsLTkgOXoiLz48L3N2Zz4=);
-	}
-	.toast.toast-danger, .toast.toast-error {
-		background-color: #f04747;
-	}
-	
-	.toast.toast-danger.icon,
-	.toast.toast-error.icon {
-		background-image: url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTEyIDJDNi40NyAyIDIgNi40NyAyIDEyczQuNDcgMTAgMTAgMTAgMTAtNC40NyAxMC0xMFMxNy41MyAyIDEyIDJ6bTUgMTMuNTlMMTUuNTkgMTcgMTIgMTMuNDEgOC40MSAxNyA3IDE1LjU5IDEwLjU5IDEyIDcgOC40MSA4LjQxIDcgMTIgMTAuNTkgMTUuNTkgNyAxNyA4LjQxIDEzLjQxIDEyIDE3IDE1LjU5eiIvPiAgICA8cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PC9zdmc+);
-	}
-	
-	.toast.toast-warning,
-	.toast.toast-warn {
-		background-color: #FFA600;
-		color: white;
-	}
-	
-	.toast.toast-warning.icon,
-	.toast.toast-warn.icon {
-		background-image: url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTAgMGgyNHYyNEgweiIgZmlsbD0ibm9uZSIvPiAgICA8cGF0aCBkPSJNMSAyMWgyMkwxMiAyIDEgMjF6bTEyLTNoLTJ2LTJoMnYyem0wLTRoLTJ2LTRoMnY0eiIvPjwvc3ZnPg==);
-	}
-		`;
-};
-
-PluginUtilities.showToast = function(content, options = {}) {
-    if (!document.querySelector('.toasts')) {
-		let container = document.querySelector('.channels-3g2vYe + div');
-		let memberlist = container.querySelector('.channel-members-wrap');
-		let form = container ? container.querySelector('form') : null;
-		let left = container ? container.getBoundingClientRect().left : 310;
-		let right = memberlist ? memberlist.getBoundingClientRect().left : 0;
-		let width = right ? right - container.getBoundingClientRect().left : container.offsetWidth;
-		let bottom = form ? form.offsetHeight : 80;
-        let toastWrapper = document.createElement("div");
-        toastWrapper.classList.add("toasts");
-        toastWrapper.style.setProperty("left", left + "px");
-        toastWrapper.style.setProperty("width", width + "px");
-        toastWrapper.style.setProperty("bottom", bottom + "px");
-        document.querySelector('.app').appendChild(toastWrapper);
-    }
-    const {type = "", icon = true, timeout = 3000} = options;
-    let toastElem = document.createElement("div");
-    toastElem.classList.add("toast");
-	if (type) toastElem.classList.add("toast-" + type);
-	if (type && icon) toastElem.classList.add("icon");
-    toastElem.innerText = content;
-    document.querySelector('.toasts').appendChild(toastElem);
-    setTimeout(() => {
-        toastElem.classList.add('closing');
-        setTimeout(() => {
-            toastElem.remove();
-            if (!document.querySelectorAll('.toasts .toast').length) document.querySelector('.toasts').remove();
-        }, 300);
-    }, timeout);
-};
+InternalUtilities.version = "0.0.2";
+/* ================== END MODULE ================== */
 
 
-// Plugins/Themes folder resolver from Square
-PluginUtilities.getPluginsFolder = function() {
-    let process = require("process");
-    let path = require("path");
-    switch (process.platform) {
-        case "win32":
-        return path.resolve(process.env.appdata, "BetterDiscord/plugins/");
-        case "darwin":
-        return path.resolve(process.env.HOME, "Library/Preferences/", "BetterDiscord/plugins/");
-        default:
-        return path.resolve(process.env.HOME, ".config/", "BetterDiscord/plugins/");
-    }
-};
-
-PluginUtilities.getThemesFolder = function() {
-    let process = require("process");
-    let path = require("path");
-    switch (process.platform) {
-        case "win32":
-        return path.resolve(process.env.appdata, "BetterDiscord/themes/");
-        case "darwin":
-        return path.resolve(process.env.HOME, "Library/Preferences/", "BetterDiscord/themes/");
-        default:
-        return path.resolve(process.env.HOME, ".config/", "BetterDiscord/themes/");
-    }
-};
-
-PluginUtilities.formatString = function(string, values) {
-	for (let val in values) {
-		string = string.replace(new RegExp(`\\$\\{${val}\\}`, 'g'), values[val]);
-	}
-	return string;
-};
-
-// Based on Mirco's version
-PluginUtilities.createSwitchObserver = function(plugin) {
-	let switchObserver = new MutationObserver((changes) => {
-		changes.forEach((change) => {
-			if (change.addedNodes.length && change.addedNodes[0] instanceof Element && (change.addedNodes[0].classList.contains("messages-wrapper") || change.addedNodes[0].classList.contains("activityFeed-HeiGwL") || change.addedNodes[0].id === "friends")) plugin.onChannelSwitch();
-			if (change.removedNodes.length && change.removedNodes[0] instanceof Element && (change.removedNodes[0].classList.contains("activityFeed-HeiGwL") || change.removedNodes[0].id === "friends")) plugin.onChannelSwitch();
-		});
-	});
-	switchObserver.observe(document.querySelector('.app'), {childList: true, subtree:true});
-	return switchObserver;
-};
-
-PluginUtilities.onSwitchObserver = function(onSwitch) {
-	if (typeof onSwitch === "undefined") return null;
-	let switchObserver = new MutationObserver((changes) => {
-		changes.forEach((change) => {
-			if (change.addedNodes.length && change.addedNodes[0] instanceof Element && (change.addedNodes[0].classList.contains("messages-wrapper") || change.addedNodes[0].classList.contains("activityFeed-HeiGwL") || change.addedNodes[0].id === "friends")) onSwitch();
-			if (change.removedNodes.length && change.removedNodes[0] instanceof Element && (change.removedNodes[0].classList.contains("activityFeed-HeiGwL") || change.removedNodes[0].id === "friends")) onSwitch();
-		});
-	});
-	switchObserver.observe(document.querySelector('.app'), {childList: true, subtree:true});
-	return switchObserver;
-};
+/**
+ * Self-made context menus that emulate Discord's own context menus.
+ * @namespace
+ */
+var PluginContextMenu = {};
 
 /*
 Options:
@@ -1235,6 +741,18 @@ PluginContextMenu.ToggleItem = class ToggleItem extends PluginContextMenu.MenuIt
         });
 	}
 };
+
+
+PluginContextMenu.version = "0.0.6";
+/* ================== END MODULE ================== */
+
+
+/**
+ * An object that makes generating settings panel 10x easier.
+ * @namespace
+ */
+var PluginSettings = {};
+
 
 PluginSettings.getAccentColor = function() {
 	var bg = $('<div class="ui-switch-item"><div class="ui-switch-wrapper"><input type="checkbox" checked="checked" class="ui-switch-checkbox"><div class="ui-switch checked">');
@@ -1561,23 +1079,33 @@ PluginSettings.PillButton = class PillButton extends PluginSettings.Checkbox {
 	}
 };
 
-// Plugin Tooltips
-// ===============
-// Automatically show and hide themselves on mouseenter and mouseleave events.
-// Will also remove themselves if the node to watch is removed from DOM through
-// a MutationObserver.
-//
-// Parameters
-// node - jquery node to monitor and show the tooltip on
-// tip - string to show in the tooltip
-// options - see below
-// 	style - correlates to the discord styling | default: "black"
-// 	side - can be any of top, right, bottom, left
-// 	preventFlip - prevents moving the tooltip to the opposite side if it is too big or goes offscreen
-//
+
+PluginSettings.version = "1.0.5";
+/* ================== END MODULE ================== */
+
+
+/** 
+ * Tooltips that automatically show and hide themselves on mouseenter and mouseleave events.
+ * Will also remove themselves if the node to watch is removed from DOM through
+ * a MutationObserver.
+ * @namespace
+ */
+var PluginTooltip = {version: "0.1.0"};
+
 // example usage `new PluginTooltip.Tooltip($('#test-element), "Hello World", {side: "top"});`
 
+/** Custom tooltip, not using internals. */
 PluginTooltip.Tooltip = class Tooltip {
+	/**
+	 * 
+	 * @constructor
+	 * @param {DOMElement | jQuery} node - jquery node to monitor and show the tooltip on
+	 * @param {string} tip - string to show in the tooltip
+	 * @param {object} options - additional options for the tooltip
+	 * @param {string} options.style - correlates to the discord styling | default: "black"
+	 * @param {string} options.side - can be any of top, right, bottom, left
+	 * @param {boolean} options.preventFlip - prevents moving the tooltip to the opposite side if it is too big or goes offscreen
+	 */
 	constructor(node, tip, options = {}) {
 		const {style = "black", side = "top", preventFlip = false} = options;
 		this.node = node;
@@ -1684,8 +1212,18 @@ PluginTooltip.Tooltip = class Tooltip {
 };
 
 
-// Used the same as previous, but uses the native tooltips
+/** Tooltips done using Discord's internals. */
 PluginTooltip.Native = class NativeTooltip {
+	/**
+	 * 
+	 * @constructor
+	 * @param {DOMElement | jQuery} node - jquery node to monitor and show the tooltip on
+	 * @param {string} tip - string to show in the tooltip
+	 * @param {object} options - additional options for the tooltip
+	 * @param {string} options.style - correlates to the discord styling | default: "black"
+	 * @param {string} options.side - can be any of top, right, bottom, left
+	 * @param {boolean} options.preventFlip - prevents moving the tooltip to the opposite side if it is too big or goes offscreen
+	 */
 	constructor(node, text, options = {}) {
 		if (!(node instanceof jQuery) && !(node instanceof Element)) return undefined;
 		this.node = node instanceof jQuery ? node[0] : node;
@@ -1735,7 +1273,580 @@ PluginTooltip.Native = class NativeTooltip {
 		});
 	}
 };
+/* ================== END MODULE ================== */
 
+
+/**
+ * Functions that check for and update existing plugins.
+ * @namespace
+ */
+var PluginUpdateUtilities = {};
+
+PluginUpdateUtilities.createUpdateButton = function() {
+	var updateButton = document.createElement("button");
+	updateButton.className = "bd-pfbtn bd-updatebtn";
+	updateButton.innerText = "Check for Updates";
+	updateButton.style.left = "220px";
+	updateButton.onclick = function () {
+		window.PluginUpdates.checkAll();
+	};
+	let tooltip = new PluginTooltip.Tooltip($(updateButton), "Checks for updates of plugins that support this feature. Right-click for a list.");
+	updateButton.oncontextmenu = function () {
+		if (window.PluginUpdates && window.PluginUpdates.plugins) {
+			var list = [];
+			for (var plugin in window.PluginUpdates.plugins) {
+				list.push(window.PluginUpdates.plugins[plugin].name);
+			}
+			tooltip.tooltip.detach();
+			tooltip.tooltip.text(list.join(", "));
+			tooltip.show();
+			updateButton.onmouseout = function() { tooltip.tooltip.text(tooltip.tip); };
+		}
+	};
+	return updateButton;
+};
+
+PluginUpdateUtilities.getCSS = function () {
+	return "#pluginNotice {-webkit-app-region: drag;border-radius:0;} #outdatedPlugins {font-weight:700;} #outdatedPlugins>span {-webkit-app-region: no-drag;color:#fff;cursor:pointer;} #outdatedPlugins>span:hover {text-decoration:underline;}";
+};
+
+PluginUpdateUtilities.checkUpdate = function(pluginName, updateLink) {
+	let request = require("request");
+	request(updateLink, (error, response, result) => {
+		if (error) return;
+		var remoteVersion = result.match(/['"][0-9]+\.[0-9]+\.[0-9]+['"]/i);
+		if (!remoteVersion) return;
+		remoteVersion = remoteVersion.toString().replace(/['"]/g, "");
+		var ver = remoteVersion.split(".").map((e) => {return parseInt(e);});
+		var lver = window.PluginUpdates.plugins[updateLink].version.split(".").map((e) => {return parseInt(e);});
+		var hasUpdate = false;
+		if (ver[0] > lver[0]) hasUpdate = true;
+		else if (ver[0] == lver[0] && ver[1] > lver[1]) hasUpdate = true;
+		else if (ver[0] == lver[0] && ver[1] == lver[1] && ver[2] > lver[2]) hasUpdate = true;
+		else hasUpdate = false;
+		if (hasUpdate) PluginUpdateUtilities.showUpdateNotice(pluginName, updateLink);
+		else PluginUpdateUtilities.removeUpdateNotice(pluginName);
+	});
+};
+
+PluginUpdateUtilities.showUpdateNotice = function(pluginName, updateLink) {
+	if (!$('#pluginNotice').length)  {
+		let noticeElement = '<div class="notice notice-info notice-3I4-y_ noticeInfo-3v29SJ size14-1wjlWP weightMedium-13x9Y8 height36-13sPn7" id="pluginNotice"><div class="notice-dismiss dismiss-1QjyJW" id="pluginNoticeDismiss"></div><span class="notice-message">The following plugins have updates:</span>&nbsp;&nbsp;<strong id="outdatedPlugins"></strong></div>';
+		// $('.app .guilds-wrapper + div > div:first > div:first').append(noticeElement);
+		$('.app.flex-vertical').children().first().before(noticeElement);
+        $('.win-buttons').addClass("win-buttons-notice");
+		$('#pluginNoticeDismiss').on('click', () => {
+			$('.win-buttons').animate({top: 0}, 400, "swing", () => { $('.win-buttons').css("top","").removeClass("win-buttons-notice"); });
+			$('#pluginNotice').slideUp({complete: () => { $('#pluginNotice').remove(); }});
+		});
+	}
+	let pluginNoticeID = pluginName + '-notice';
+	if (!$('#' + pluginNoticeID).length) {
+		let pluginNoticeElement = $('<span id="' + pluginNoticeID + '">');
+        pluginNoticeElement.text(pluginName);
+        pluginNoticeElement.on('click', () => {
+            PluginUpdateUtilities.downloadPlugin(pluginName, updateLink);
+        });
+		if ($('#outdatedPlugins').children('span').length) $('#outdatedPlugins').append("<span class='separator'>, </span>");
+		$('#outdatedPlugins').append(pluginNoticeElement);
+	}
+};
+
+PluginUpdateUtilities.downloadPlugin = function(pluginName, updateLink) {
+    let request = require("request");
+    let fileSystem = require("fs");
+    let path = require("path");
+    request(updateLink, (error, response, body) => {
+        if (error) return console.warn("Unable to get update for " + pluginName);
+        let remoteVersion = body.match(/['"][0-9]+\.[0-9]+\.[0-9]+['"]/i);
+        remoteVersion = remoteVersion.toString().replace(/['"]/g, "");
+        let filename = updateLink.split('/');
+        filename = filename[filename.length - 1];
+        var file = path.join(PluginUtilities.getPluginsFolder(), filename);
+        fileSystem.writeFileSync(file, body);
+		PluginUtilities.showToast(`${pluginName} ${window.PluginUpdates.plugins[updateLink].version} has been replaced by ${pluginName} ${remoteVersion}`);
+		let oldRNM = window.bdplugins["Restart-No-More"] && window.pluginCookie["Restart-No-More"];
+		let newRNM = window.bdplugins["Restart No More"] && window.pluginCookie["Restart No More"];
+        if (!(oldRNM || newRNM)) {
+            if (!window.PluginUpdates.downloaded) {
+                window.PluginUpdates.downloaded = [];
+                let button = $('<button class="btn btn-reload button-2TvR03 size14-1wjlWP weightMedium-13x9Y8">Reload</button>');
+                button.on('click', (e) => {
+                    e.preventDefault();
+                    window.location.reload(false);
+                });
+                var tooltip = document.createElement("div");
+                tooltip.className = "tooltip tooltip-bottom tooltip-black";
+                tooltip.style.maxWidth = "400px";
+                button.on('mouseenter', () => {
+                    document.querySelector(".tooltips").appendChild(tooltip);
+                    tooltip.innerText = window.PluginUpdates.downloaded.join(", ");
+                    tooltip.style.left = button.offset().left + (button.outerWidth() / 2) - ($(tooltip).outerWidth() / 2) + "px";
+                    tooltip.style.top = button.offset().top + button.outerHeight() + "px";
+                });
+    
+                button.on('mouseleave', () => {
+                    tooltip.remove();
+                });
+    
+                button.appendTo($('#pluginNotice'));
+            }
+            window.PluginUpdates.plugins[updateLink].version = remoteVersion;
+            window.PluginUpdates.downloaded.push(pluginName);
+            PluginUpdateUtilities.removeUpdateNotice(pluginName);
+        }
+    });
+};
+
+PluginUpdateUtilities.removeUpdateNotice = function(pluginName) {
+	let notice = $('#' + pluginName + '-notice');
+	if (notice.length) {
+		if (notice.next('.separator').length) notice.next().remove();
+		else if (notice.prev('.separator').length) notice.prev().remove();
+		notice.remove();
+    }
+
+	if (!$('#outdatedPlugins').children('span').length && !$('#pluginNotice .btn-reload').length) {
+        $('#pluginNoticeDismiss').click();
+    } 
+    else if (!$('#outdatedPlugins').children('span').length && $('#pluginNotice .btn-reload').length) {
+        $('#pluginNotice .notice-message').text("To finish updating you need to reload.");
+    }
+};
+
+PluginUpdateUtilities.version = "0.0.3";
+/* ================== END MODULE ================== */
+
+
+/**
+ * A series of useful functions for BetterDiscord plugins.
+ * @namespace
+ */
+var PluginUtilities = {};
+
+PluginUtilities.WebpackModules = InternalUtilities.WebpackModules; // Backwards compatibility
+PluginUtilities.suppressErrors = (method, desiption) => (...params) => {
+	try { return method(...params);	}
+	catch (e) { console.error('Error occurred in ' + desiption, e); }
+};
+
+PluginUtilities.parseOnSwitchURL = function(url) {
+	let urlSplit = url.split("/");
+	let type = urlSplit[3];
+	let server = urlSplit[4];
+	let channel = urlSplit[5];
+	return {type, server, channel};
+};
+
+PluginUtilities.getCurrentServer = function() {
+	var auditLog = document.querySelector('.guild-settings-audit-logs');
+    if (auditLog) return ReactUtilities.getReactKey({node: auditLog, key: "guildId"});
+    if (document.querySelector(".activityFeed-HeiGwL") || document.querySelector('#friends')) return null;
+    let title = document.querySelector('.title-qAcLxz');
+    if (document.querySelector('.private-channels')) return ReactUtilities.getReactProperty(title, "child.memoizedProps.1.props.channel.id");
+    else return ReactUtilities.getReactProperty(title, "child.memoizedProps.1.props.guild.id");
+};
+
+PluginUtilities.isServer = function() { return PluginUtilities.getCurrentServer() ? true : false; };
+
+PluginUtilities.getCurrentUser = function() {
+	return ReactUtilities.getReactProperty(document.querySelector('.accountDetails-15i-_e'), "return.memoizedProps.user");
+};
+
+PluginUtilities.getAllUsers = function() {
+	if (!document.querySelector('.channel-members') || document.querySelector('.private-channels')) return [];
+	let groups = ReactUtilities.getReactKey({node: document.querySelector('.channel-members').parentElement.parentElement.parentElement.parentElement, key: "memberGroups", whiteList: {
+		"child": true,
+		"sibling": true,
+		"memoizedState": true
+	}});
+	var users = [];
+	for (let g = 0; g < groups.length; g++) {
+		for (let u = 0; u < groups[g].users.length; u++) {
+			users.push(groups[g].users[u]);
+		}
+	}
+	return users;
+};
+
+PluginUtilities.loadData = function(name, key, defaultData) {
+	try { return $.extend(true, defaultData ? defaultData : {}, bdPluginStorage.get(name, key)); }
+	catch (err) { console.warn(name, "unable to load data:", err); }
+};
+
+PluginUtilities.saveData = function(name, key, data) {
+	try { bdPluginStorage.set(name, key, data); }
+	catch (err) { console.warn(name, "unable to save data:", err); }
+};
+
+PluginUtilities.loadSettings = function(name, defaultSettings) {
+	return PluginUtilities.loadData(name, "settings", defaultSettings);
+};
+
+PluginUtilities.saveSettings = function(name, data) {
+	PluginUtilities.saveData(name, "settings", data);
+};
+
+PluginUtilities.checkForUpdate = function(pluginName, currentVersion, updateURL) {
+	let updateLink = "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/" + pluginName + "/" + pluginName + ".plugin.js";
+	if (updateURL) updateLink = updateURL;
+	
+	if (typeof window.PluginUpdates === "undefined") window.PluginUpdates = {plugins:{}};
+	window.PluginUpdates.plugins[updateLink] = {name: pluginName, raw: updateLink, version: currentVersion};
+
+	PluginUpdateUtilities.checkUpdate(pluginName, updateLink);
+	
+	if (typeof window.PluginUpdates.interval === "undefined") {
+		window.PluginUpdates.interval = setInterval(() => {
+			window.PluginUpdates.checkAll();
+		}, 7200000);
+	}
+
+	if (typeof window.PluginUpdates.checkAll === "undefined") {
+		window.PluginUpdates.checkAll = function() {
+			for (let key in this.plugins) {
+				let plugin = this.plugins[key];
+				PluginUpdateUtilities.checkUpdate(plugin.name, plugin.raw);
+			}
+		};
+	}
+
+	if (typeof window.PluginUpdates.observer === "undefined") {		
+		window.PluginUpdates.observer = new MutationObserver((changes) => {
+			changes.forEach(
+				(change) => {
+					if (change.addedNodes) {
+						change.addedNodes.forEach((node) => {
+							if (node && node.tagName && node.getAttribute("layer-id") == "user-settings") {
+								var settingsObserver = new MutationObserver((changes2) => {
+									changes2.forEach(
+										(change2) => {
+											if (change2.addedNodes) {
+												change2.addedNodes.forEach((node2) => {
+													if (!document.querySelector(".bd-updatebtn")) {
+														if (node2 && node2.tagName && node2.querySelector(".bd-pfbtn") && node2.querySelector("h2") && node2.querySelector("h2").innerText.toLowerCase() === "plugins") {
+
+															node2.querySelector(".bd-pfbtn").parentElement.insertBefore(PluginUpdateUtilities.createUpdateButton(), node2.querySelector(".bd-pfbtn").nextSibling);
+														}
+													}
+												});
+											}
+										}
+									);
+								});
+								settingsObserver.observe(node, {childList:true, subtree:true});
+							}
+						});
+					}
+				}
+			);
+		});
+		window.PluginUpdates.observer.observe(document.querySelector(".layers, .layers-20RVFW"), {childList:true});
+	}
+	
+	var bdbutton = document.querySelector(".bd-pfbtn");
+	if (bdbutton && bdbutton.parentElement.querySelector("h2") && bdbutton.parentElement.querySelector("h2").innerText.toLowerCase() === "plugins" && !bdbutton.parentElement.querySelector(".bd-pfbtn.bd-updatebtn")) {
+		bdbutton.parentElement.insertBefore(PluginUpdateUtilities.createUpdateButton(), bdbutton.nextSibling);
+	}
+};
+
+PluginUtilities.getToastCSS = function() {
+	return `/* Toast CSS */
+	
+	.toasts {
+		position: fixed;
+		display: flex;
+		top: 0;
+		flex-direction: column;
+		align-items: center;
+		justify-content: flex-end;
+		pointer-events: none;
+		z-index: 4000;
+	}
+	
+	@keyframes toast-up {
+		from {
+			transform: translateY(0);
+			opacity: 0;
+		}
+	}
+	
+	.toast {
+		animation: toast-up 300ms ease;
+		transform: translateY(-10px);
+		background: #36393F;
+		padding: 10px;
+		border-radius: 5px;
+		box-shadow: 0 0 0 1px rgba(32,34,37,.6), 0 2px 10px 0 rgba(0,0,0,.2);
+		font-weight: 500;
+		color: #fff;
+		user-select: text;
+		font-size: 14px;
+		opacity: 1;
+		margin-top: 10px;
+	}
+	
+	@keyframes toast-down {
+		to {
+			transform: translateY(0px);
+			opacity: 0;
+		}
+	}
+	
+	.toast.closing {
+		animation: toast-down 200ms ease;
+		animation-fill-mode: forwards;
+		opacity: 1;
+		transform: translateY(-10px);
+	}
+	
+	
+	.toast.icon {
+		padding-left: 30px;
+		background-size: 20px 20px;
+		background-repeat: no-repeat;
+		background-position: 6px 50%;
+	}
+	
+	.toast.toast-info {
+		background-color: #4a90e2;
+	}
+	
+	.toast.toast-info.icon {
+		background-image: url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTAgMGgyNHYyNEgweiIgZmlsbD0ibm9uZSIvPiAgICA8cGF0aCBkPSJNMTIgMkM2LjQ4IDIgMiA2LjQ4IDIgMTJzNC40OCAxMCAxMCAxMCAxMC00LjQ4IDEwLTEwUzE3LjUyIDIgMTIgMnptMSAxNWgtMnYtNmgydjZ6bTAtOGgtMlY3aDJ2MnoiLz48L3N2Zz4=);
+	}
+	
+	.toast.toast-success {
+		background-color: #43b581;
+	}
+	
+	.toast.toast-success.icon {
+		background-image: url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTAgMGgyNHYyNEgweiIgZmlsbD0ibm9uZSIvPiAgICA8cGF0aCBkPSJNMTIgMkM2LjQ4IDIgMiA2LjQ4IDIgMTJzNC40OCAxMCAxMCAxMCAxMC00LjQ4IDEwLTEwUzE3LjUyIDIgMTIgMnptLTIgMTVsLTUtNSAxLjQxLTEuNDFMMTAgMTQuMTdsNy41OS03LjU5TDE5IDhsLTkgOXoiLz48L3N2Zz4=);
+	}
+	.toast.toast-danger, .toast.toast-error {
+		background-color: #f04747;
+	}
+	
+	.toast.toast-danger.icon,
+	.toast.toast-error.icon {
+		background-image: url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTEyIDJDNi40NyAyIDIgNi40NyAyIDEyczQuNDcgMTAgMTAgMTAgMTAtNC40NyAxMC0xMFMxNy41MyAyIDEyIDJ6bTUgMTMuNTlMMTUuNTkgMTcgMTIgMTMuNDEgOC40MSAxNyA3IDE1LjU5IDEwLjU5IDEyIDcgOC40MSA4LjQxIDcgMTIgMTAuNTkgMTUuNTkgNyAxNyA4LjQxIDEzLjQxIDEyIDE3IDE1LjU5eiIvPiAgICA8cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PC9zdmc+);
+	}
+	
+	.toast.toast-warning,
+	.toast.toast-warn {
+		background-color: #FFA600;
+		color: white;
+	}
+	
+	.toast.toast-warning.icon,
+	.toast.toast-warn.icon {
+		background-image: url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTAgMGgyNHYyNEgweiIgZmlsbD0ibm9uZSIvPiAgICA8cGF0aCBkPSJNMSAyMWgyMkwxMiAyIDEgMjF6bTEyLTNoLTJ2LTJoMnYyem0wLTRoLTJ2LTRoMnY0eiIvPjwvc3ZnPg==);
+	}
+		`;
+};
+
+PluginUtilities.showToast = function(content, options = {}) {
+    if (!document.querySelector('.toasts')) {
+		let container = document.querySelector('.channels-3g2vYe + div');
+		let memberlist = container.querySelector('.channel-members-wrap');
+		let form = container ? container.querySelector('form') : null;
+		let left = container ? container.getBoundingClientRect().left : 310;
+		let right = memberlist ? memberlist.getBoundingClientRect().left : 0;
+		let width = right ? right - container.getBoundingClientRect().left : container.offsetWidth;
+		let bottom = form ? form.offsetHeight : 80;
+        let toastWrapper = document.createElement("div");
+        toastWrapper.classList.add("toasts");
+        toastWrapper.style.setProperty("left", left + "px");
+        toastWrapper.style.setProperty("width", width + "px");
+        toastWrapper.style.setProperty("bottom", bottom + "px");
+        document.querySelector('.app').appendChild(toastWrapper);
+    }
+    const {type = "", icon = true, timeout = 3000} = options;
+    let toastElem = document.createElement("div");
+    toastElem.classList.add("toast");
+	if (type) toastElem.classList.add("toast-" + type);
+	if (type && icon) toastElem.classList.add("icon");
+    toastElem.innerText = content;
+    document.querySelector('.toasts').appendChild(toastElem);
+    setTimeout(() => {
+        toastElem.classList.add('closing');
+        setTimeout(() => {
+            toastElem.remove();
+            if (!document.querySelectorAll('.toasts .toast').length) document.querySelector('.toasts').remove();
+        }, 300);
+    }, timeout);
+};
+
+
+// Plugins/Themes folder resolver from Square
+PluginUtilities.getPluginsFolder = function() {
+    let process = require("process");
+    let path = require("path");
+    switch (process.platform) {
+        case "win32":
+        return path.resolve(process.env.appdata, "BetterDiscord/plugins/");
+        case "darwin":
+        return path.resolve(process.env.HOME, "Library/Preferences/", "BetterDiscord/plugins/");
+        default:
+        return path.resolve(process.env.HOME, ".config/", "BetterDiscord/plugins/");
+    }
+};
+
+PluginUtilities.getThemesFolder = function() {
+    let process = require("process");
+    let path = require("path");
+    switch (process.platform) {
+        case "win32":
+        return path.resolve(process.env.appdata, "BetterDiscord/themes/");
+        case "darwin":
+        return path.resolve(process.env.HOME, "Library/Preferences/", "BetterDiscord/themes/");
+        default:
+        return path.resolve(process.env.HOME, ".config/", "BetterDiscord/themes/");
+    }
+};
+
+PluginUtilities.formatString = function(string, values) {
+	for (let val in values) {
+		string = string.replace(new RegExp(`\\$\\{${val}\\}`, 'g'), values[val]);
+	}
+	return string;
+};
+
+// Based on Mirco's version
+PluginUtilities.createSwitchObserver = function(plugin) {
+	let switchObserver = new MutationObserver((changes) => {
+		changes.forEach((change) => {
+			if (change.addedNodes.length && change.addedNodes[0] instanceof Element && (change.addedNodes[0].classList.contains("messages-wrapper") || change.addedNodes[0].classList.contains("activityFeed-HeiGwL") || change.addedNodes[0].id === "friends")) plugin.onChannelSwitch();
+			if (change.removedNodes.length && change.removedNodes[0] instanceof Element && (change.removedNodes[0].classList.contains("activityFeed-HeiGwL") || change.removedNodes[0].id === "friends")) plugin.onChannelSwitch();
+		});
+	});
+	switchObserver.observe(document.querySelector('.app'), {childList: true, subtree:true});
+	return switchObserver;
+};
+
+PluginUtilities.onSwitchObserver = function(onSwitch) {
+	if (typeof onSwitch === "undefined") return null;
+	let switchObserver = new MutationObserver((changes) => {
+		changes.forEach((change) => {
+			if (change.addedNodes.length && change.addedNodes[0] instanceof Element && (change.addedNodes[0].classList.contains("messages-wrapper") || change.addedNodes[0].classList.contains("activityFeed-HeiGwL") || change.addedNodes[0].id === "friends")) onSwitch();
+			if (change.removedNodes.length && change.removedNodes[0] instanceof Element && (change.removedNodes[0].classList.contains("activityFeed-HeiGwL") || change.removedNodes[0].id === "friends")) onSwitch();
+		});
+	});
+	switchObserver.observe(document.querySelector('.app'), {childList: true, subtree:true});
+	return switchObserver;
+};
+
+
+PluginUtilities.version = "0.2.3";
+/* ================== END MODULE ================== */
+
+
+/**
+ * Helpful utilities for dealing with getting react information from DOM objects.
+ * @namespace
+ */
+var ReactUtilities = {};
+
+ReactUtilities.getReactInstance = function(node) {
+	if (!(node instanceof jQuery) && !(node instanceof Element)) return undefined;
+	var domNode = node instanceof jQuery ? node[0] : node;
+	return domNode[Object.keys(domNode).find((key) => key.startsWith("__reactInternalInstance"))];
+};
+
+ReactUtilities.getReactProperty = function(node, path) {
+	var value = path.split(/\s?\.\s?/).reduce(function(obj, prop) {
+		return obj && obj[prop];
+	}, ReactUtilities.getReactInstance(node));
+	return value;
+};
+
+// This is a slightly modified version of DevilBro's https://github.com/mwittrien/BetterDiscordAddons
+// CURRENTLY UNUSED
+ReactUtilities.getReactKey = function(config) {
+	if (config === undefined) return null;
+	if (config.node === undefined || config.key === undefined) return null;
+	
+	var inst = ReactUtilities.getReactInstance(config.node);
+	if (!inst) return null;
+	
+	
+	var maxDepth = config.depth === undefined ? 15 : config.depth;
+		
+	var keyWhiteList = typeof config.whiteList === "object" ? config.whiteList : {
+		"_currentElement":true,
+		"_renderedChildren":true,
+		"_instance":true,
+		"_owner":true,
+		"props":true,
+		"state":true,
+		"stateNode":true,
+		"refs":true,
+		"updater":true,
+		"children":true,
+		"type":true,
+		"memoizedProps":true,
+		"memoizedState":true,
+		"child":true,
+		"firstEffect":true
+	};
+	
+	var keyBlackList = typeof config.blackList === "object" ? config.blackList : {};
+	
+	
+
+	var searchKeyInReact = (ele, depth) => {
+		if (!ele || ReactUtilities.getReactInstance(ele) || depth > maxDepth) return null;
+		var keys = Object.getOwnPropertyNames(ele);
+		var result = null;
+		for (var i = 0; result === null && i < keys.length; i++) {
+			var key = keys[i];
+			var value = ele[keys[i]];
+			
+			if (config.key === key && (config.value === undefined || config.value === value)) {
+				result = config.returnParent ? ele : value;
+			}
+			else if ((typeof value === "object" || typeof value === "function") && ((keyWhiteList[key] && !keyBlackList[key]) || key[0] == "." || !isNaN(key[0]))) {
+				result = searchKeyInReact(value, depth++);
+			}
+		}
+		return result;
+	};
+
+	return searchKeyInReact(inst, 0);
+};
+
+ReactUtilities.getOwnerInstance = function(e, {include, exclude = ["Popout", "Tooltip", "Scroller", "BackgroundFlash"]} = {}) {
+	if (e === undefined)
+		return undefined;
+	const excluding = include === undefined;
+	const filter = excluding ? exclude : include;
+	function getDisplayName(owner) {
+		const type = owner.type;
+		return type.displayName || type.name || null;
+	}
+	function classFilter(owner) {
+		const name = getDisplayName(owner);
+		return (name !== null && !!(filter.includes(name) ^ excluding));
+	}
+	
+	for (let curr = ReactUtilities.getReactInstance(e).return; !_.isNil(curr); curr = curr.return) {
+		if (_.isNil(curr))
+			continue;
+		let owner = curr.stateNode;
+		if (!_.isNil(owner) && !(owner instanceof HTMLElement) && classFilter(curr))
+			return owner;
+	}
+	
+	return null;
+};
+
+
+ReactUtilities.version = "0.0.4";
+/* ================== END MODULE ================== */
+
+
+
+/** The main object housing the modules making up this library. */
 window["ZeresLibrary"] = {
 	ColorUtilities: ColorUtilities,
 	DOMUtilities: DOMUtilities,
