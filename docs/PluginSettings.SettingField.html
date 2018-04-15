@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Namespace: PluginSettings</title>
+    <title>JSDoc: Class: SettingField</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Namespace: PluginSettings</h1>
+    <h1 class="page-title">Class: SettingField</h1>
 
     
 
@@ -28,7 +28,10 @@
 
 <header>
     
-        <h2>PluginSettings</h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>
+            <span class="ancestors"><a href="PluginSettings.html">PluginSettings</a>.</span>SettingField<span class="signature">(name, helptext, inputData, callback)</span><span class="type-signature"></span></h2>
+        
+            <div class="class-description"><p>Generic representation of a setting field. Very extensible, but best to use a child class when available.</p></div>
         
     
 </header>
@@ -37,10 +40,147 @@
     <div class="container-overview">
     
         
-            <div class="description"><p>An object that makes generating settings panel 10x easier.</p></div>
+
+    
+    <h2>Constructor</h2>
+    
+
+    
+    <h4 class="name" id="SettingField"><span class="type-signature"></span>new SettingField<span class="signature">(name, helptext, inputData, callback)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
         
 
         
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>title for the setting</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>helptext</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>description/help text to show</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>inputData</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>props to set up the input field</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>callback</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="PluginSettings.html#~settingsChanged">PluginSettings~settingsChanged</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>callback fired when the input field is changed</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
 
 
 <dl class="details">
@@ -75,7 +215,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line995">line 995</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1195">line 1195</a>
     </li></ul></dd>
     
 
@@ -87,7 +227,22 @@
 </dl>
 
 
-        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
     </div>
 
@@ -95,31 +250,6 @@
 
     
 
-    
-        <h3 class="subsection-title">Classes</h3>
-
-        <dl>
-            <dt><a href="PluginSettings.Checkbox.html">Checkbox</a></dt>
-            <dd></dd>
-        
-            <dt><a href="PluginSettings.ColorPicker.html">ColorPicker</a></dt>
-            <dd></dd>
-        
-            <dt><a href="PluginSettings.ControlGroup.html">ControlGroup</a></dt>
-            <dd></dd>
-        
-            <dt><a href="PluginSettings.PillButton.html">PillButton</a></dt>
-            <dd></dd>
-        
-            <dt><a href="PluginSettings.SettingField.html">SettingField</a></dt>
-            <dd></dd>
-        
-            <dt><a href="PluginSettings.Slider.html">Slider</a></dt>
-            <dd></dd>
-        
-            <dt><a href="PluginSettings.Textbox.html">Textbox</a></dt>
-            <dd></dd>
-        </dl>
     
 
     
@@ -139,16 +269,12 @@
     
 
     
-    <h4 class="name" id=".getAccentColor"><span class="type-signature">(static) </span>getAccentColor<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="getElement"><span class="type-signature"></span>getElement<span class="signature">()</span><span class="type-signature"> &rarr; {jQuery}</span></h4>
     
 
     
 
 
-
-<div class="description">
-    <p>Attempts to retreive the accent color of native settings items in rgba format.</p>
-</div>
 
 
 
@@ -191,7 +317,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line998">line 998</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1241">line 1241</a>
     </li></ul></dd>
     
 
@@ -214,24 +340,40 @@
 
 
 
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>jQuery node for the group.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">jQuery</span>
+
+
+    </dd>
+</dl>
+
+    
 
 
 
 
 
         
-    
-
-    
-        <h3 class="subsection-title">Type Definitions</h3>
-
-        
-                
+            
 
     
 
     
-    <h4 class="name" id="~settingsChanged"><span class="type-signature"></span>settingsChanged<span class="signature">(value)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="setInputElement"><span class="type-signature"></span>setInputElement<span class="signature">(node)</span><span class="type-signature"></span></h4>
     
 
     
@@ -239,7 +381,7 @@
 
 
 <div class="description">
-    <p>Callback for SettingField for change in input field.</p>
+    <p>Performing this will prevent the default callbacks from working!</p>
 </div>
 
 
@@ -275,13 +417,16 @@
 
         <tr>
             
-                <td class="name"><code>value</code></td>
+                <td class="name"><code>node</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">*</span>
+<span class="param-type">HTMLElement</span>
+|
+
+<span class="param-type">jQuery</span>
 
 
             
@@ -291,7 +436,7 @@
 
             
 
-            <td class="description last"><p>new value of the input field</p></td>
+            <td class="description last"><p>node to override the default input with.</p></td>
         </tr>
 
     
@@ -332,7 +477,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1185">line 1185</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1235">line 1235</a>
     </li></ul></dd>
     
 
@@ -360,7 +505,9 @@
 
 
 
-            
+        
+    
+
     
 
     

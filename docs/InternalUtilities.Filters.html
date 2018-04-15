@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Namespace: ReactUtilities</title>
+    <title>JSDoc: Namespace: Filters</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Namespace: ReactUtilities</h1>
+    <h1 class="page-title">Namespace: Filters</h1>
 
     
 
@@ -28,7 +28,8 @@
 
 <header>
     
-        <h2>ReactUtilities</h2>
+        <h2>
+            <span class="ancestors"><a href="InternalUtilities.html">InternalUtilities</a>.</span>Filters</h2>
         
     
 </header>
@@ -37,7 +38,7 @@
     <div class="container-overview">
     
         
-            <div class="description"><p>Helpful utilities for dealing with getting react information from DOM objects.</p></div>
+            <div class="description"><p>A series of filters for use in combination with <a href="InternalUtilities.WebpackModules.html">InternalUtilities.WebpackModules</a>.</p></div>
         
 
         
@@ -45,9 +46,6 @@
 
 <dl class="details">
 
-    
-    <dt class="tag-version">Version:</dt>
-    <dd class="tag-version"><ul class="dummy"><li>0.0.4</li></ul></dd>
     
 
     
@@ -75,7 +73,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line2232">line 2232</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line584">line 584</a>
     </li></ul></dd>
     
 
@@ -114,17 +112,12 @@
     
 
     
-    <h4 class="name" id=".getOwnerInstance"><span class="type-signature">(static) </span>getOwnerInstance<span class="signature">(node, options)</span><span class="type-signature"> &rarr; {*|null}</span></h4>
+    <h4 class="name" id=".and"><span class="type-signature">(static) </span>and<span class="signature">(&hellip;filters)</span><span class="type-signature"> &rarr; {*|null}</span></h4>
     
 
     
 
 
-
-<div class="description">
-    <p>Grabs a value from the react internal instance. Allows you to grab
-long depth values safely without accessing no longer valid properties.</p>
-</div>
 
 
 
@@ -147,80 +140,10 @@ long depth values safely without accessing no longer valid properties.</p>
         <th>Type</th>
 
         
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>node</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">HTMLElement</span>
-|
-
-<span class="param-type">jQuery</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>node to obtain react instance of</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>options for the search</p>
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
         <th>Attributes</th>
         
 
         
-        <th>Default</th>
-        
 
         <th class="last">Description</th>
     </tr>
@@ -231,13 +154,13 @@ long depth values safely without accessing no longer valid properties.</p>
 
         <tr>
             
-                <td class="name"><code>include</code></td>
+                <td class="name"><code>filters</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">array</span>
+<span class="param-type"><a href="InternalUtilities.Filters.html">InternalUtilities.Filters</a></span>
 
 
             
@@ -246,68 +169,18 @@ long depth values safely without accessing no longer valid properties.</p>
             
                 <td class="attributes">
                 
-                    &lt;optional><br>
-                
 
                 
 
                 
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last"><p>list of items to include from the search</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>exclude</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">array</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
+                    &lt;repeatable><br>
                 
                 </td>
             
 
             
-                <td class="default">
-                
-                    ["Popout", "Tooltip", "Scroller", "BackgroundFlash"]
-                
-                </td>
-            
 
-            <td class="description last"><p>list of items to exclude from the search</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
+            <td class="description last"><p>series of filters to combine</p></td>
         </tr>
 
     
@@ -348,7 +221,7 @@ long depth values safely without accessing no longer valid properties.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line2268">line 2268</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line618">line 618</a>
     </li></ul></dd>
     
 
@@ -375,7 +248,7 @@ long depth values safely without accessing no longer valid properties.</p>
 
         
 <div class="param-desc">
-    <p>the owner instance or undefined if not found.</p>
+    <p>returns either the module or null if not found.</p>
 </div>
 
 
@@ -407,16 +280,12 @@ long depth values safely without accessing no longer valid properties.</p>
     
 
     
-    <h4 class="name" id=".getReactInstance"><span class="type-signature">(static) </span>getReactInstance<span class="signature">(node)</span><span class="type-signature"> &rarr; {object}</span></h4>
+    <h4 class="name" id=".byCode"><span class="type-signature">(static) </span>byCode<span class="signature">(search, selector<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {*|null}</span></h4>
     
 
     
 
 
-
-<div class="description">
-    <p>Grabs the react internal instance of a specific node.</p>
-</div>
 
 
 
@@ -439,7 +308,11 @@ long depth values safely without accessing no longer valid properties.</p>
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
+        
+        <th>Default</th>
         
 
         <th class="last">Description</th>
@@ -451,26 +324,74 @@ long depth values safely without accessing no longer valid properties.</p>
 
         <tr>
             
-                <td class="name"><code>node</code></td>
+                <td class="name"><code>search</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">HTMLElement</span>
-|
-
-<span class="param-type">jQuery</span>
+<span class="param-type">regex</span>
 
 
             
             </td>
 
             
+                <td class="attributes">
+                
 
+                
+
+                
+                </td>
             
 
-            <td class="description last"><p>node to obtain react instance of</p></td>
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>regex for searching through module code</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>selector</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">callable</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    x => x
+                
+                </td>
+            
+
+            <td class="description last"><p>additional filter for confirming module</p></td>
         </tr>
 
     
@@ -511,7 +432,7 @@ long depth values safely without accessing no longer valid properties.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line2239">line 2239</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line607">line 607</a>
     </li></ul></dd>
     
 
@@ -538,7 +459,7 @@ long depth values safely without accessing no longer valid properties.</p>
 
         
 <div class="param-desc">
-    <p>the internal react instance</p>
+    <p>returns either the module or null if not found.</p>
 </div>
 
 
@@ -549,7 +470,10 @@ long depth values safely without accessing no longer valid properties.</p>
     </dt>
     <dd>
         
-<span class="param-type">object</span>
+<span class="param-type">*</span>
+|
+
+<span class="param-type">null</span>
 
 
     </dd>
@@ -567,17 +491,12 @@ long depth values safely without accessing no longer valid properties.</p>
     
 
     
-    <h4 class="name" id=".getReactProperty"><span class="type-signature">(static) </span>getReactProperty<span class="signature">(node, path)</span><span class="type-signature"> &rarr; {*|undefined}</span></h4>
+    <h4 class="name" id=".byPrototypeFields"><span class="type-signature">(static) </span>byPrototypeFields<span class="signature">(fields, selector<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {*|null}</span></h4>
     
 
     
 
 
-
-<div class="description">
-    <p>Grabs a value from the react internal instance. Allows you to grab
-long depth values safely without accessing no longer valid properties.</p>
-</div>
 
 
 
@@ -600,7 +519,11 @@ long depth values safely without accessing no longer valid properties.</p>
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
+        
+        <th>Default</th>
         
 
         <th class="last">Description</th>
@@ -612,49 +535,74 @@ long depth values safely without accessing no longer valid properties.</p>
 
         <tr>
             
-                <td class="name"><code>node</code></td>
+                <td class="name"><code>fields</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">HTMLElement</span>
-|
-
-<span class="param-type">jQuery</span>
+<span class="param-type">array</span>
 
 
             
             </td>
 
             
+                <td class="attributes">
+                
 
+                
+
+                
+                </td>
             
 
-            <td class="description last"><p>node to obtain react instance of</p></td>
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>array of prototype function names</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>path</code></td>
+                <td class="name"><code>selector</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">callable</span>
 
 
             
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
 
+                
+
+                
+                </td>
             
 
-            <td class="description last"><p>path to the requested value</p></td>
+            
+                <td class="default">
+                
+                    x => x
+                
+                </td>
+            
+
+            <td class="description last"><p>additional filter for confirming module</p></td>
         </tr>
 
     
@@ -695,7 +643,7 @@ long depth values safely without accessing no longer valid properties.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line2252">line 2252</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line591">line 591</a>
     </li></ul></dd>
     
 
@@ -722,7 +670,7 @@ long depth values safely without accessing no longer valid properties.</p>
 
         
 <div class="param-desc">
-    <p>the value requested or undefined if not found.</p>
+    <p>returns either the module or null if not found.</p>
 </div>
 
 
@@ -736,7 +684,7 @@ long depth values safely without accessing no longer valid properties.</p>
 <span class="param-type">*</span>
 |
 
-<span class="param-type">undefined</span>
+<span class="param-type">null</span>
 
 
     </dd>

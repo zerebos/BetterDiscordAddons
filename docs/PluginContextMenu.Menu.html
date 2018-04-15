@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Namespace: ReactUtilities</title>
+    <title>JSDoc: Class: Menu</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Namespace: ReactUtilities</h1>
+    <h1 class="page-title">Class: Menu</h1>
 
     
 
@@ -28,7 +28,10 @@
 
 <header>
     
-        <h2>ReactUtilities</h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>
+            <span class="ancestors"><a href="PluginContextMenu.html">PluginContextMenu</a>.</span>Menu<span class="signature">(scroll<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
+        
+            <div class="class-description"><p>Main menu class for creating custom context menus.</p></div>
         
     
 </header>
@@ -37,94 +40,18 @@
     <div class="container-overview">
     
         
-            <div class="description"><p>Helpful utilities for dealing with getting react information from DOM objects.</p></div>
-        
-
-        
-
-
-<dl class="details">
 
     
-    <dt class="tag-version">Version:</dt>
-    <dd class="tag-version"><ul class="dummy"><li>0.0.4</li></ul></dd>
+    <h2>Constructor</h2>
     
 
     
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line2232">line 2232</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-        
-    
-    </div>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id=".getOwnerInstance"><span class="type-signature">(static) </span>getOwnerInstance<span class="signature">(node, options)</span><span class="type-signature"> &rarr; {*|null}</span></h4>
+    <h4 class="name" id="Menu"><span class="type-signature"></span>new Menu<span class="signature">(scroll<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
     
 
     
 
 
-
-<div class="description">
-    <p>Grabs a value from the react internal instance. Allows you to grab
-long depth values safely without accessing no longer valid properties.</p>
-</div>
 
 
 
@@ -136,74 +63,6 @@ long depth values safely without accessing no longer valid properties.</p>
 
     <h5>Parameters:</h5>
     
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>node</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">HTMLElement</span>
-|
-
-<span class="param-type">jQuery</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>node to obtain react instance of</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>options for the search</p>
-                <h6>Properties</h6>
-                
 
 <table class="params">
     <thead>
@@ -231,13 +90,13 @@ long depth values safely without accessing no longer valid properties.</p>
 
         <tr>
             
-                <td class="name"><code>include</code></td>
+                <td class="name"><code>scroll</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">array</span>
+<span class="param-type">boolean</span>
 
 
             
@@ -258,56 +117,12 @@ long depth values safely without accessing no longer valid properties.</p>
             
                 <td class="default">
                 
-                </td>
-            
-
-            <td class="description last"><p>list of items to include from the search</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>exclude</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">array</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
+                    false
                 
                 </td>
             
 
-            
-                <td class="default">
-                
-                    ["Popout", "Tooltip", "Scroller", "BackgroundFlash"]
-                
-                </td>
-            
-
-            <td class="description last"><p>list of items to exclude from the search</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
+            <td class="description last"><p>should this menu be a scrolling menu (usually only used for submenus)</p></td>
         </tr>
 
     
@@ -348,7 +163,7 @@ long depth values safely without accessing no longer valid properties.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line2268">line 2268</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line708">line 708</a>
     </li></ul></dd>
     
 
@@ -371,35 +186,30 @@ long depth values safely without accessing no longer valid properties.</p>
 
 
 
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>the owner instance or undefined if not found.</p>
-</div>
 
 
 
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">*</span>
-|
-
-<span class="param-type">null</span>
 
 
-    </dd>
-</dl>
+    
+    </div>
 
     
 
+    
 
+    
 
+    
 
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
 
         
             
@@ -407,7 +217,7 @@ long depth values safely without accessing no longer valid properties.</p>
     
 
     
-    <h4 class="name" id=".getReactInstance"><span class="type-signature">(static) </span>getReactInstance<span class="signature">(node)</span><span class="type-signature"> &rarr; {object}</span></h4>
+    <h4 class="name" id="addGroup"><span class="type-signature"></span>addGroup<span class="signature">(contextGroup)</span><span class="type-signature"> &rarr; {<a href="PluginContextMenu.Menu.html">PluginContextMenu.Menu</a>}</span></h4>
     
 
     
@@ -415,7 +225,7 @@ long depth values safely without accessing no longer valid properties.</p>
 
 
 <div class="description">
-    <p>Grabs the react internal instance of a specific node.</p>
+    <p>Adds an item group to the menu. The group should already be populated.</p>
 </div>
 
 
@@ -451,16 +261,13 @@ long depth values safely without accessing no longer valid properties.</p>
 
         <tr>
             
-                <td class="name"><code>node</code></td>
+                <td class="name"><code>contextGroup</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">HTMLElement</span>
-|
-
-<span class="param-type">jQuery</span>
+<span class="param-type"><a href="PluginContextMenu.ItemGroup.html">PluginContextMenu.ItemGroup</a></span>
 
 
             
@@ -470,7 +277,7 @@ long depth values safely without accessing no longer valid properties.</p>
 
             
 
-            <td class="description last"><p>node to obtain react instance of</p></td>
+            <td class="description last"><p>group to add to the menu</p></td>
         </tr>
 
     
@@ -511,7 +318,7 @@ long depth values safely without accessing no longer valid properties.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line2239">line 2239</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line729">line 729</a>
     </li></ul></dd>
     
 
@@ -538,7 +345,7 @@ long depth values safely without accessing no longer valid properties.</p>
 
         
 <div class="param-desc">
-    <p>the internal react instance</p>
+    <p>returns self for chaining</p>
 </div>
 
 
@@ -549,7 +356,7 @@ long depth values safely without accessing no longer valid properties.</p>
     </dt>
     <dd>
         
-<span class="param-type">object</span>
+<span class="param-type"><a href="PluginContextMenu.Menu.html">PluginContextMenu.Menu</a></span>
 
 
     </dd>
@@ -567,7 +374,7 @@ long depth values safely without accessing no longer valid properties.</p>
     
 
     
-    <h4 class="name" id=".getReactProperty"><span class="type-signature">(static) </span>getReactProperty<span class="signature">(node, path)</span><span class="type-signature"> &rarr; {*|undefined}</span></h4>
+    <h4 class="name" id="addItems"><span class="type-signature"></span>addItems<span class="signature">(&hellip;contextItems)</span><span class="type-signature"> &rarr; {<a href="PluginContextMenu.Menu.html">PluginContextMenu.Menu</a>}</span></h4>
     
 
     
@@ -575,8 +382,181 @@ long depth values safely without accessing no longer valid properties.</p>
 
 
 <div class="description">
-    <p>Grabs a value from the react internal instance. Allows you to grab
-long depth values safely without accessing no longer valid properties.</p>
+    <p>Adds items to the context menu directly. It is recommended to add to a group and use 
+<a href="PluginContextMenu.Menu.html#addGroup">PluginContextMenu.Menu#addGroup</a> instead to behave as natively as possible.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>contextItems</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="PluginContextMenu.MenuItem.html">PluginContextMenu.MenuItem</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                    &lt;repeatable><br>
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>list of items to add to the context menu</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line741">line 741</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>returns self for chaining</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="PluginContextMenu.Menu.html">PluginContextMenu.Menu</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="attachTo"><span class="type-signature"></span>attachTo<span class="signature">(menuItem)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Used to attach a menu to a menu item. This is how to create a submenu.
+If using <a href="PluginContextMenu.SubMenuItem.html">PluginContextMenu.SubMenuItem</a> then you do not need
+to call this function as it is done automatically. If you want to attach
+a submenu to an existing Discord context menu, then you should use this
+method.</p>
 </div>
 
 
@@ -612,7 +592,7 @@ long depth values safely without accessing no longer valid properties.</p>
 
         <tr>
             
-                <td class="name"><code>node</code></td>
+                <td class="name"><code>menuItem</code></td>
             
 
             <td class="type">
@@ -631,30 +611,7 @@ long depth values safely without accessing no longer valid properties.</p>
 
             
 
-            <td class="description last"><p>node to obtain react instance of</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>path</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>path to the requested value</p></td>
+            <td class="description last"><p>item to attach to</p></td>
         </tr>
 
     
@@ -695,7 +652,7 @@ long depth values safely without accessing no longer valid properties.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line2252">line 2252</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line823">line 823</a>
     </li></ul></dd>
     
 
@@ -718,31 +675,251 @@ long depth values safely without accessing no longer valid properties.</p>
 
 
 
-<h5>Returns:</h5>
+
+
+
+
 
         
-<div class="param-desc">
-    <p>the value requested or undefined if not found.</p>
+            
+
+    
+
+    
+    <h4 class="name" id="removeMenu"><span class="type-signature"></span>removeMenu<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Allows you to remove the menu.</p>
 </div>
 
 
 
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">*</span>
-|
-
-<span class="param-type">undefined</span>
 
 
-    </dd>
-</dl>
+
+
+
+
+
+
+
+
+<dl class="details">
 
     
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line808">line 808</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="show"><span class="type-signature"></span>show<span class="signature">(x, y)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Shows the menu at a specific x and y position. This generally comes from the
+pointer position on a right click event.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>x</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>x coordinate for the menu to show at</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>y coordinate for the menu to show at</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line755">line 755</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

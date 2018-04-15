@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Namespace: ReactUtilities</title>
+    <title>JSDoc: Class: PillButton</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Namespace: ReactUtilities</h1>
+    <h1 class="page-title">Class: PillButton</h1>
 
     
 
@@ -28,7 +28,14 @@
 
 <header>
     
-        <h2>ReactUtilities</h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>
+            <span class="ancestors"><a href="PluginSettings.html">PluginSettings</a>.</span>PillButton<span class="signature">(label, help, leftLabel, rightLabel, isRightSelected, callback, options)</span><span class="type-signature"></span></h2>
+        
+            <div class="class-description"><p>Creates a PillButton where the left and right side have their own label.
+It is important to note that the checked property here follows the same
+standard as a normal Discord switch. That is to say if the value is true
+then right side was selected, if the value is false then the left side 
+was selected.</p></div>
         
     
 </header>
@@ -37,17 +44,223 @@
     <div class="container-overview">
     
         
-            <div class="description"><p>Helpful utilities for dealing with getting react information from DOM objects.</p></div>
+
+    
+    <h2>Constructor</h2>
+    
+
+    
+    <h4 class="name" id="PillButton"><span class="type-signature"></span>new PillButton<span class="signature">(label, help, leftLabel, rightLabel, isRightSelected, callback, options)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
         
 
         
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>label</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>title for the setting</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>help</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>description of the setting</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>leftLabel</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>label for the option on the left</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>rightLabel</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>label for the option on the right</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isRightSelected</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>determines if the right side is selected. (true = right side, false = left side)</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>callback</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="PluginSettings.html#~settingsChanged">PluginSettings~settingsChanged</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>callback fired on switch change (true = right side, false = left side)</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>additional options for the input field itself</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
 
 
 <dl class="details">
 
     
     <dt class="tag-version">Version:</dt>
-    <dd class="tag-version"><ul class="dummy"><li>0.0.4</li></ul></dd>
+    <dd class="tag-version"><ul class="dummy"><li>1.0.1</li></ul></dd>
     
 
     
@@ -75,7 +288,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line2232">line 2232</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1406">line 1406</a>
     </li></ul></dd>
     
 
@@ -87,9 +300,35 @@
 </dl>
 
 
-        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
     </div>
+
+    
+        <h3 class="subsection-title">Extends</h3>
+
+        
+
+
+    <ul>
+        <li><a href="PluginSettings.Checkbox.html">PluginSettings.Checkbox</a></li>
+    </ul>
+
 
     
 
@@ -114,7 +353,116 @@
     
 
     
-    <h4 class="name" id=".getOwnerInstance"><span class="type-signature">(static) </span>getOwnerInstance<span class="signature">(node, options)</span><span class="type-signature"> &rarr; {*|null}</span></h4>
+    <h4 class="name" id="getElement"><span class="type-signature"></span>getElement<span class="signature">()</span><span class="type-signature"> &rarr; {jQuery}</span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="PluginSettings.SettingField.html#getElement">PluginSettings.SettingField#getElement</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1241">line 1241</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>jQuery node for the group.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">jQuery</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="setInputElement"><span class="type-signature"></span>setInputElement<span class="signature">(node)</span><span class="type-signature"></span></h4>
     
 
     
@@ -122,8 +470,7 @@
 
 
 <div class="description">
-    <p>Grabs a value from the react internal instance. Allows you to grab
-long depth values safely without accessing no longer valid properties.</p>
+    <p>Performing this will prevent the default callbacks from working!</p>
 </div>
 
 
@@ -178,136 +525,7 @@ long depth values safely without accessing no longer valid properties.</p>
 
             
 
-            <td class="description last"><p>node to obtain react instance of</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>options for the search</p>
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-        <th>Default</th>
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>include</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">array</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last"><p>list of items to include from the search</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>exclude</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">array</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    ["Popout", "Tooltip", "Scroller", "BackgroundFlash"]
-                
-                </td>
-            
-
-            <td class="description last"><p>list of items to exclude from the search</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
+            <td class="description last"><p>node to override the default input with.</p></td>
         </tr>
 
     
@@ -325,6 +543,11 @@ long depth values safely without accessing no longer valid properties.</p>
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="PluginSettings.SettingField.html#setInputElement">PluginSettings.SettingField#setInputElement</a>
+    </li></ul></dd>
     
 
     
@@ -348,7 +571,7 @@ long depth values safely without accessing no longer valid properties.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line2268">line 2268</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1235">line 1235</a>
     </li></ul></dd>
     
 
@@ -371,378 +594,6 @@ long depth values safely without accessing no longer valid properties.</p>
 
 
 
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>the owner instance or undefined if not found.</p>
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">*</span>
-|
-
-<span class="param-type">null</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id=".getReactInstance"><span class="type-signature">(static) </span>getReactInstance<span class="signature">(node)</span><span class="type-signature"> &rarr; {object}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>Grabs the react internal instance of a specific node.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>node</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">HTMLElement</span>
-|
-
-<span class="param-type">jQuery</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>node to obtain react instance of</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line2239">line 2239</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>the internal react instance</p>
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">object</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id=".getReactProperty"><span class="type-signature">(static) </span>getReactProperty<span class="signature">(node, path)</span><span class="type-signature"> &rarr; {*|undefined}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>Grabs a value from the react internal instance. Allows you to grab
-long depth values safely without accessing no longer valid properties.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>node</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">HTMLElement</span>
-|
-
-<span class="param-type">jQuery</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>node to obtain react instance of</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>path</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>path to the requested value</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line2252">line 2252</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>the value requested or undefined if not found.</p>
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">*</span>
-|
-
-<span class="param-type">undefined</span>
-
-
-    </dd>
-</dl>
-
-    
 
 
 

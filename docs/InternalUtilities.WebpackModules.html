@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Namespace: ReactUtilities</title>
+    <title>JSDoc: Namespace: WebpackModules</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Namespace: ReactUtilities</h1>
+    <h1 class="page-title">Namespace: WebpackModules</h1>
 
     
 
@@ -28,7 +28,8 @@
 
 <header>
     
-        <h2>ReactUtilities</h2>
+        <h2>
+            <span class="ancestors"><a href="InternalUtilities.html">InternalUtilities</a>.</span>WebpackModules</h2>
         
     
 </header>
@@ -37,7 +38,7 @@
     <div class="container-overview">
     
         
-            <div class="description"><p>Helpful utilities for dealing with getting react information from DOM objects.</p></div>
+            <div class="description"><p>Acts as a way to search through all of Discord's webpack modules.</p></div>
         
 
         
@@ -45,9 +46,6 @@
 
 <dl class="details">
 
-    
-    <dt class="tag-version">Version:</dt>
-    <dd class="tag-version"><ul class="dummy"><li>0.0.4</li></ul></dd>
     
 
     
@@ -75,7 +73,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line2232">line 2232</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line509">line 509</a>
     </li></ul></dd>
     
 
@@ -114,7 +112,7 @@
     
 
     
-    <h4 class="name" id=".getOwnerInstance"><span class="type-signature">(static) </span>getOwnerInstance<span class="signature">(node, options)</span><span class="type-signature"> &rarr; {*|null}</span></h4>
+    <h4 class="name" id=".find"><span class="type-signature">(static) </span>find<span class="signature">(filter, options)</span><span class="type-signature"> &rarr; {*|null}</span></h4>
     
 
     
@@ -122,8 +120,7 @@
 
 
 <div class="description">
-    <p>Grabs a value from the react internal instance. Allows you to grab
-long depth values safely without accessing no longer valid properties.</p>
+    <p>Finds a webpack module by using a filter.</p>
 </div>
 
 
@@ -159,16 +156,13 @@ long depth values safely without accessing no longer valid properties.</p>
 
         <tr>
             
-                <td class="name"><code>node</code></td>
+                <td class="name"><code>filter</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">HTMLElement</span>
-|
-
-<span class="param-type">jQuery</span>
+<span class="param-type">callable</span>
 
 
             
@@ -178,7 +172,7 @@ long depth values safely without accessing no longer valid properties.</p>
 
             
 
-            <td class="description last"><p>node to obtain react instance of</p></td>
+            <td class="description last"><p>filter to check the module</p></td>
         </tr>
 
     
@@ -201,7 +195,7 @@ long depth values safely without accessing no longer valid properties.</p>
 
             
 
-            <td class="description last"><p>options for the search</p>
+            <td class="description last"><p>object of options for finding</p>
                 <h6>Properties</h6>
                 
 
@@ -231,13 +225,13 @@ long depth values safely without accessing no longer valid properties.</p>
 
         <tr>
             
-                <td class="name"><code>include</code></td>
+                <td class="name"><code>cacheOnly</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">array</span>
+<span class="param-type">boolean</span>
 
 
             
@@ -258,49 +252,12 @@ long depth values safely without accessing no longer valid properties.</p>
             
                 <td class="default">
                 
-                </td>
-            
-
-            <td class="description last"><p>list of items to include from the search</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>exclude</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">array</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
+                    true
                 
                 </td>
             
 
-            
-                <td class="default">
-                
-                    ["Popout", "Tooltip", "Scroller", "BackgroundFlash"]
-                
-                </td>
-            
-
-            <td class="description last"><p>list of items to exclude from the search</p></td>
+            <td class="description last"><p>determines if the search should only be through cached modules</p></td>
         </tr>
 
     
@@ -348,12 +305,19 @@ long depth values safely without accessing no longer valid properties.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line2268">line 2268</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line525">line 525</a>
     </li></ul></dd>
     
 
     
 
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="InternalUtilities.Filters.html">InternalUtilities.Filters</a> for other example filters</li>
+        </ul>
+    </dd>
     
 
     
@@ -375,7 +339,7 @@ long depth values safely without accessing no longer valid properties.</p>
 
         
 <div class="param-desc">
-    <p>the owner instance or undefined if not found.</p>
+    <p>returns either the module or null if not found.</p>
 </div>
 
 
@@ -407,16 +371,12 @@ long depth values safely without accessing no longer valid properties.</p>
     
 
     
-    <h4 class="name" id=".getReactInstance"><span class="type-signature">(static) </span>getReactInstance<span class="signature">(node)</span><span class="type-signature"> &rarr; {object}</span></h4>
+    <h4 class="name" id=".findByDisplayName"><span class="type-signature">(static) </span>findByDisplayName<span class="signature">(displayName)</span><span class="type-signature"> &rarr; {*|null}</span></h4>
     
 
     
 
 
-
-<div class="description">
-    <p>Grabs the react internal instance of a specific node.</p>
-</div>
 
 
 
@@ -451,16 +411,13 @@ long depth values safely without accessing no longer valid properties.</p>
 
         <tr>
             
-                <td class="name"><code>node</code></td>
+                <td class="name"><code>displayName</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">HTMLElement</span>
-|
-
-<span class="param-type">jQuery</span>
+<span class="param-type">string</span>
 
 
             
@@ -470,7 +427,7 @@ long depth values safely without accessing no longer valid properties.</p>
 
             
 
-            <td class="description last"><p>node to obtain react instance of</p></td>
+            <td class="description last"><p>name of module</p></td>
         </tr>
 
     
@@ -511,7 +468,7 @@ long depth values safely without accessing no longer valid properties.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line2239">line 2239</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line574">line 574</a>
     </li></ul></dd>
     
 
@@ -538,7 +495,7 @@ long depth values safely without accessing no longer valid properties.</p>
 
         
 <div class="param-desc">
-    <p>the internal react instance</p>
+    <p>returns either the module or null if not found.</p>
 </div>
 
 
@@ -549,7 +506,10 @@ long depth values safely without accessing no longer valid properties.</p>
     </dt>
     <dd>
         
-<span class="param-type">object</span>
+<span class="param-type">*</span>
+|
+
+<span class="param-type">null</span>
 
 
     </dd>
@@ -567,17 +527,12 @@ long depth values safely without accessing no longer valid properties.</p>
     
 
     
-    <h4 class="name" id=".getReactProperty"><span class="type-signature">(static) </span>getReactProperty<span class="signature">(node, path)</span><span class="type-signature"> &rarr; {*|undefined}</span></h4>
+    <h4 class="name" id=".findByProps"><span class="type-signature">(static) </span>findByProps<span class="signature">(&hellip;props)</span><span class="type-signature"> &rarr; {*|null}</span></h4>
     
 
     
 
 
-
-<div class="description">
-    <p>Grabs a value from the react internal instance. Allows you to grab
-long depth values safely without accessing no longer valid properties.</p>
-</div>
 
 
 
@@ -600,6 +555,8 @@ long depth values safely without accessing no longer valid properties.</p>
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -612,33 +569,7 @@ long depth values safely without accessing no longer valid properties.</p>
 
         <tr>
             
-                <td class="name"><code>node</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">HTMLElement</span>
-|
-
-<span class="param-type">jQuery</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>node to obtain react instance of</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>path</code></td>
+                <td class="name"><code>props</code></td>
             
 
             <td class="type">
@@ -651,10 +582,20 @@ long depth values safely without accessing no longer valid properties.</p>
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                    &lt;repeatable><br>
+                
+                </td>
+            
 
             
 
-            <td class="description last"><p>path to the requested value</p></td>
+            <td class="description last"><p>property names of module</p></td>
         </tr>
 
     
@@ -695,7 +636,7 @@ long depth values safely without accessing no longer valid properties.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line2252">line 2252</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line567">line 567</a>
     </li></ul></dd>
     
 
@@ -722,7 +663,7 @@ long depth values safely without accessing no longer valid properties.</p>
 
         
 <div class="param-desc">
-    <p>the value requested or undefined if not found.</p>
+    <p>returns either the module or null if not found.</p>
 </div>
 
 
@@ -736,7 +677,255 @@ long depth values safely without accessing no longer valid properties.</p>
 <span class="param-type">*</span>
 |
 
-<span class="param-type">undefined</span>
+<span class="param-type">null</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".findByUniqueProperties"><span class="type-signature">(static) </span>findByUniqueProperties<span class="signature">(propNames, options)</span><span class="type-signature"> &rarr; {*|null}</span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>propNames</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>array of property names</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>object of options for finding</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>cacheOnly</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    true
+                
+                </td>
+            
+
+            <td class="description last"><p>determines if the search should only be through cached modules</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line560">line 560</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>returns either the module or null if not found.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">*</span>
+|
+
+<span class="param-type">null</span>
 
 
     </dd>

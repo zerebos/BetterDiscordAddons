@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Namespace: PluginSettings</title>
+    <title>JSDoc: Interface: PatchData</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Namespace: PluginSettings</h1>
+    <h1 class="page-title">Interface: PatchData</h1>
 
     
 
@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2>PluginSettings</h2>
+        <h2>PatchData</h2>
         
     
 </header>
@@ -37,223 +37,15 @@
     <div class="container-overview">
     
         
-            <div class="description"><p>An object that makes generating settings panel 10x easier.</p></div>
-        
 
         
 
 
-<dl class="details">
-
-    
-    <dt class="tag-version">Version:</dt>
-    <dd class="tag-version"><ul class="dummy"><li>1.0.5</li></ul></dd>
-    
+    <h5 class="subsection-title">Properties:</h5>
 
     
 
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line995">line 995</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-        
-    
-    </div>
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Classes</h3>
-
-        <dl>
-            <dt><a href="PluginSettings.Checkbox.html">Checkbox</a></dt>
-            <dd></dd>
-        
-            <dt><a href="PluginSettings.ColorPicker.html">ColorPicker</a></dt>
-            <dd></dd>
-        
-            <dt><a href="PluginSettings.ControlGroup.html">ControlGroup</a></dt>
-            <dd></dd>
-        
-            <dt><a href="PluginSettings.PillButton.html">PillButton</a></dt>
-            <dd></dd>
-        
-            <dt><a href="PluginSettings.SettingField.html">SettingField</a></dt>
-            <dd></dd>
-        
-            <dt><a href="PluginSettings.Slider.html">Slider</a></dt>
-            <dd></dd>
-        
-            <dt><a href="PluginSettings.Textbox.html">Textbox</a></dt>
-            <dd></dd>
-        </dl>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id=".getAccentColor"><span class="type-signature">(static) </span>getAccentColor<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>Attempts to retreive the accent color of native settings items in rgba format.</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line998">line 998</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-    
-
-    
-        <h3 class="subsection-title">Type Definitions</h3>
-
-        
-                
-
-    
-
-    
-    <h4 class="name" id="~settingsChanged"><span class="type-signature"></span>settingsChanged<span class="signature">(value)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>Callback for SettingField for change in input field.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
+<table class="props">
     <thead>
     <tr>
         
@@ -275,7 +67,122 @@
 
         <tr>
             
-                <td class="name"><code>value</code></td>
+                <td class="name"><code>thisObject</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Original <code>this</code> value in current call of patched method.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>methodArguments</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Arguments</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Original <code>arguments</code> object in current call of patched method. Please, never change function signatures, as it may cause a lot of problems in future.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>cancelPatch</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="InternalUtilities.html#~cancelPatch">InternalUtilities~cancelPatch</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Function with no arguments and no return value that may be called to reverse patching of current method. Calling this function prevents running of this callback on further original method calls.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>originalMethod</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Reference to the original method that is patched. You can use it if you need some special usage. You should explicitly provide a value for <code>this</code> and any method arguments when you call this function.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>callOriginalMethod</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="InternalUtilities.html#~originalMethodCall">InternalUtilities~originalMethodCall</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>This is a shortcut for calling original method using <code>this</code> and <code>arguments</code> from original call.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>returnValue</code></td>
             
 
             <td class="type">
@@ -291,14 +198,12 @@
 
             
 
-            <td class="description last"><p>new value of the input field</p></td>
+            <td class="description last"><p>This is a value returned from original function call. This property is available only in <code>after</code> callback or in <code>instead</code> callback after calling <code>callOriginalMethod</code> function.</p></td>
         </tr>
 
     
     </tbody>
 </table>
-
-
 
 
 
@@ -332,7 +237,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1185">line 1185</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line469">line 469</a>
     </li></ul></dd>
     
 
@@ -344,23 +249,26 @@
 </dl>
 
 
+        
+    
+    </div>
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
-
-
-
-
-
-
-
-            
     
 
     

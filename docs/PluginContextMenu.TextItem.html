@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: Native</title>
+    <title>JSDoc: Class: TextItem</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: Native</h1>
+    <h1 class="page-title">Class: TextItem</h1>
 
     
 
@@ -29,9 +29,9 @@
 <header>
     
         <h2><span class="attribs"><span class="type-signature"></span></span>
-            <span class="ancestors"><a href="PluginTooltip.html">PluginTooltip</a>.</span>Native<span class="signature">(node, tip, options)</span><span class="type-signature"></span></h2>
+            <span class="ancestors"><a href="PluginContextMenu.html">PluginContextMenu</a>.</span>TextItem<span class="signature">(label, options)</span><span class="type-signature"></span></h2>
         
-            <div class="class-description"><p>Tooltips done using Discord's internals.</p></div>
+            <div class="class-description"><p>Creates a text menu item that can have a hint.</p></div>
         
     
 </header>
@@ -46,7 +46,7 @@
     
 
     
-    <h4 class="name" id="Native"><span class="type-signature"></span>new Native<span class="signature">(node, tip, options)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="TextItem"><span class="type-signature"></span>new TextItem<span class="signature">(label, options)</span><span class="type-signature"></span></h4>
     
 
     
@@ -86,33 +86,7 @@
 
         <tr>
             
-                <td class="name"><code>node</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">HTMLElement</span>
-|
-
-<span class="param-type">jQuery</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>DOM node to monitor and show the tooltip on</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>tip</code></td>
+                <td class="name"><code>label</code></td>
             
 
             <td class="type">
@@ -128,7 +102,7 @@
 
             
 
-            <td class="description last"><p>string to show in the tooltip</p></td>
+            <td class="description last"><p>label to show on the menu item</p></td>
         </tr>
 
     
@@ -151,7 +125,7 @@
 
             
 
-            <td class="description last"><p>additional options for the tooltip</p>
+            <td class="description last"><p>additional options for the item</p>
                 <h6>Properties</h6>
                 
 
@@ -181,7 +155,7 @@
 
         <tr>
             
-                <td class="name"><code>style</code></td>
+                <td class="name"><code>hint</code></td>
             
 
             <td class="type">
@@ -208,58 +182,19 @@
             
                 <td class="default">
                 
-                    black
+                    ""
                 
                 </td>
             
 
-            <td class="description last"><p>correlates to the discord styling</p></td>
+            <td class="description last"><p>hint to show on the item (usually used for key combos)</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>side</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    top
-                
-                </td>
-            
-
-            <td class="description last"><p>can be any of top, right, bottom, left</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>preventFlip</code></td>
+                <td class="name"><code>danger</code></td>
             
 
             <td class="type">
@@ -291,7 +226,44 @@
                 </td>
             
 
-            <td class="description last"><p>prevents moving the tooltip to the opposite side if it is too big or goes offscreen</p></td>
+            <td class="description last"><p>should the item show as danger</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>callback</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="PluginContextMenu.html#~clickEvent">PluginContextMenu~clickEvent</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>callback for when it is clicked</p></td>
         </tr>
 
     
@@ -312,9 +284,6 @@
 
 <dl class="details">
 
-    
-    <dt class="tag-version">Version:</dt>
-    <dd class="tag-version"><ul class="dummy"><li>0.0.1</li></ul></dd>
     
 
     
@@ -342,7 +311,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1597">line 1597</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line896">line 896</a>
     </li></ul></dd>
     
 
@@ -374,52 +343,15 @@
     </div>
 
     
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
+        <h3 class="subsection-title">Extends</h3>
 
         
-            
-
-    
-
-    
-    <h4 class="name" id="hide"><span class="type-signature"></span>hide<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
 
 
+    <ul>
+        <li><a href="PluginContextMenu.MenuItem.html">PluginContextMenu.MenuItem</a></li>
+    </ul>
 
-<div class="description">
-    <p>Hides the tooltip. Automatically called on mouseleave.</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
 
     
 
@@ -435,134 +367,6 @@
 
     
 
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1641">line 1641</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="show"><span class="type-signature"></span>show<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>Shows the tooltip. Automatically called on mouseenter.</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1646">line 1646</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
     
 
     
