@@ -1,12 +1,13 @@
 /**
  * Helpful utilities for dealing with colors.
  * @namespace
+ * @version 0.0.2
  */
 var ColorUtilities = {};
 
 /**
  * Will get the red green and blue values of any color string.
- * @param {string} color - the color to obtain the red, green and blue values of. Can be in any of these formats: #fff, #ffffff, rgb, rgba.
+ * @param {string} color - the color to obtain the red, green and blue values of. Can be in any of these formats: #fff, #ffffff, rgb, rgba
  * @returns {array} - array containing the red, green, and blue values
  */
 ColorUtilities.getRGB = function(color) {
@@ -23,6 +24,12 @@ ColorUtilities.getRGB = function(color) {
 	if (result) return [parseInt(result[1] + result[1], 16), parseInt(result[2] + result[2], 16), parseInt(result[3] + result[3], 16)];
 };
 
+/**
+ * Will get the darken the color by a certain percent
+ * @param {string} color - Can be in any of these formats: #fff, #ffffff, rgb, rgba
+ * @param {number} percent - percent to darken the color by (0-100)
+ * @returns {string} - new color in rgb format
+ */
 ColorUtilities.darkenColor = function(color, percent) {
 	var rgb = ColorUtilities.getRGB(color);
 	
@@ -33,6 +40,12 @@ ColorUtilities.darkenColor = function(color, percent) {
 	return 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
 };
 
+/**
+ * Will get the lighten the color by a certain percent
+ * @param {string} color - Can be in any of these formats: #fff, #ffffff, rgb, rgba
+ * @param {number} percent - percent to lighten the color by (0-100)
+ * @returns {string} - new color in rgb format
+ */
 ColorUtilities.lightenColor = function(color, percent) {
 	var rgb = ColorUtilities.getRGB(color);
 	
@@ -43,18 +56,24 @@ ColorUtilities.lightenColor = function(color, percent) {
 	return 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
 };
 
+/**
+ * Converts a color to rgba format string
+ * @param {string} color - Can be in any of these formats: #fff, #ffffff, rgb, rgba
+ * @param {number} alpha - alpha level for the new color
+ * @returns {string} - new color in rgb format
+ */
 ColorUtilities.rgbToAlpha = function(color, alpha) {
 	var rgb = ColorUtilities.getRGB(color);		
 	return 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + alpha + ')';
 };
-
-ColorUtilities.version = "0.0.2";
 /* ================== END MODULE ================== */
 
 
 /**
  * A large list of known and useful webpack modules internal to Discord.
+ * Click the label "Line xxx" below to see the whole list.
  * @namespace
+ * @version 0.0.1
  */
 var DiscordModules = {
     get React() {return InternalUtilities.WebpackModules.findByUniqueProperties(['createElement', 'cloneElement']);},
@@ -211,13 +230,14 @@ var DiscordModules = {
     /* In-Message Links */
     get ExternalLink() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byCode(/\.trusted\b/));}
 };
-
-DiscordModules.version = "0.0.1";
 /* ================== END MODULE ================== */
 
 
 /**
  * Class representing Discord's permissions system.
+ * 
+ * This will soon be rewritten in a much simpler manner using internals.
+ * @deprecated
  */
 var DiscordPermissions = class DiscordPermissions {
 	constructor(perms) {
@@ -369,9 +389,15 @@ DiscordPermissions.version = "0.0.1";
 /**
  * Helpful utilities for dealing with DOM operations.
  * @namespace
+ * @version 0.0.1
  */
 var DOMUtilities = {};
 
+/**
+ * Find which index in children a certain node is. Similar to jQuery's `$.index()`
+ * @param {HTMLElement} node - the node to find its index in parent
+ * @returns {number} index of the node
+ */
 DOMUtilities.indexInParent = function(node) {
 	var children = node.parentNode.childNodes;
 	var num = 0;
@@ -381,19 +407,55 @@ DOMUtilities.indexInParent = function(node) {
 	}
 	return -1;
 };
-
-DOMUtilities.version = "0.0.1";
 /* ================== END MODULE ================== */
 
 
 /**
  * Functions and utilities relating to Discord's internals.
  * Some of the code used in this module is an editing version of
- * the Discord Internals library by samogot (https://github.com/samogot/betterdiscord-plugins/)
+ * the Discord Internals library by samogot {@link https://github.com/samogot/betterdiscord-plugins/}.
+ * The documentation for {@link InternalUtilities.monkeyPatch} was 
+ * also borrowed from him as it's quite thorough.
  * @namespace
+ * @version 0.0.2
  */
 var InternalUtilities = {};
 
+/**
+ * Function with no arguments and no return value that may be called to revert changes made by {@link monkeyPatch} method, restoring (unpatching) original method.
+ * @callback InternalUtilities~cancelPatch
+ */
+
+/**
+ * This is a shortcut for calling original method using `this` and `arguments` from original call. This function accepts no arguments. This function is defined as `() => data.returnValue = data.originalMethod.apply(data.thisObject, data.methodArguments)`
+ * @callback InternalUtilities~originalMethodCall
+ * @return {*} The same value, which is returned from original method, also this value would be written into `data.returnValue`
+ */
+
+/**
+ * A callback that modifies method logic. This callback is called on each call of the original method and is provided all data about original call. Any of the data can be modified if necessary, but do so wisely.
+ * @callback InternalUtilities~doPatchCallback
+ * @param {PatchData} data Data object with information about current call and original method that you may need in your patching callback.
+ * @return {*} Makes sense only when used as `instead` parameter in {@link monkeyPatch}. If something other than `undefined` is returned, the returned value replaces the value of `data.returnValue`. If used as `before` or `after` parameters, return value is ignored.
+ */
+
+/**
+ * This function monkey-patches a method on an object. The patching callback may be run before, after or instead of target method.
+ * Be careful when monkey-patching. Think not only about original functionality of target method and your changes, but also about developers of other plugins, who may also patch this method before or after you. Try to change target method behaviour as little as possible, and avoid changing method signatures.
+ * By default, this function logs to the console whenever a method is patched or unpatched in order to aid debugging by you and other developers, but these messages may be suppressed with the `silent` option.
+ * Display name of patched method is changed, so you can see if a function has been patched (and how many times) while debugging or in the stack trace. Also, patched methods have property `__monkeyPatched` set to `true`, in case you want to check something programmatically.
+ *
+ * @param {object} what Object to be patched. You can can also pass class prototypes to patch all class instances. If you are patching prototype of react component you may also need {@link Renderer.rebindMethods}.
+ * @param {string} methodName The name of the target message to be patched.
+ * @param {object} options Options object. You should provide at least one of `before`, `after` or `instead` parameters. Other parameters are optional.
+ * @param {InternalUtilities~doPatchCallback} options.before Callback that will be called before original target method call. You can modify arguments here, so it will be passed to original method. Can be combined with `after`.
+ * @param {InternalUtilities~doPatchCallback} options.after Callback that will be called after original target method call. You can modify return value here, so it will be passed to external code which calls target method. Can be combined with `before`.
+ * @param {InternalUtilities~doPatchCallback} options.instead Callback that will be called instead of original target method call. You can get access to original method using `originalMethod` parameter if you want to call it, but you do not have to. Can't be combined with `before` and `after`.
+ * @param {boolean} [options.once=false] Set to `true` if you want to automatically unpatch method after first call.
+ * @param {boolean} [options.silent=false] Set to `true` if you want to suppress log messages about patching and unpatching. Useful to avoid clogging the console in case of frequent conditional patching/unpatching, for example from another monkeyPatch callback.
+ * @param {string} [options.displayName] You can provide meaningful name for class/object provided in `what` param for logging purposes. By default, this function will try to determine name automatically.
+ * @return {InternalUtilities~cancelPatch} Function with no arguments and no return value that should be called to cancel (unpatch) this patch. You should save and run it when your plugin is stopped.
+ */
 InternalUtilities.monkeyPatch = (what, methodName, options) => {
 	const {before, after, instead, once = false, silent = false} = options;
 	const displayName = options.displayName || what.displayName || what.name || what.constructor.displayName || what.constructor.name;
@@ -404,6 +466,16 @@ InternalUtilities.monkeyPatch = (what, methodName, options) => {
 		what[methodName] = origMethod;
 	};
 	what[methodName] = function() {
+        /**
+         * @interface
+         * @name PatchData
+         * @property {object} thisObject Original `this` value in current call of patched method.
+         * @property {Arguments} methodArguments Original `arguments` object in current call of patched method. Please, never change function signatures, as it may cause a lot of problems in future.
+         * @property {InternalUtilities~cancelPatch} cancelPatch Function with no arguments and no return value that may be called to reverse patching of current method. Calling this function prevents running of this callback on further original method calls.
+         * @property {function} originalMethod Reference to the original method that is patched. You can use it if you need some special usage. You should explicitly provide a value for `this` and any method arguments when you call this function.
+         * @property {InternalUtilities~originalMethodCall} callOriginalMethod This is a shortcut for calling original method using `this` and `arguments` from original call.
+         * @property {*} returnValue This is a value returned from original function call. This property is available only in `after` callback or in `instead` callback after calling `callOriginalMethod` function.
+         */
 		const data = {
 			thisObject: this,
 			methodArguments: arguments,
@@ -425,17 +497,31 @@ InternalUtilities.monkeyPatch = (what, methodName, options) => {
 		return data.returnValue;
 	};
 	what[methodName].__monkeyPatched = true;
-	what[methodName].displayName = 'patched ' + (what[methodName].displayName || methodName);
+    what[methodName].displayName = 'patched ' + (what[methodName].displayName || methodName);
+    what[methodName].unpatch = cancel;
 	return cancel;
 };
 
-
+/**
+ * Acts as a way to search through all of Discord's webpack modules.
+ * @namespace
+*/
 InternalUtilities.WebpackModules = (() => {
 	const req = webpackJsonp([], {
 		'__extra_id__': (module, exports, req) => exports.default = req
 	}, ['__extra_id__']).default;
 	delete req.m['__extra_id__'];
-	delete req.c['__extra_id__'];
+    delete req.c['__extra_id__'];
+    
+    /**
+     * Finds a webpack module by using a filter.
+     * @memberOf InternalUtilities.WebpackModules
+     * @see {@link InternalUtilities.Filters} for other example filters
+     * @param {callable} filter - filter to check the module
+     * @param {object} options - object of options for finding
+     * @param {boolean} [options.cacheOnly=true] - determines if the search should only be through cached modules
+     * @returns {(*|null)} returns either the module or null if not found.
+     */
 	const find = (filter, options = {}) => {
 		const {cacheOnly = true} = options;
 		for (let i in req.c) {
@@ -463,17 +549,45 @@ InternalUtilities.WebpackModules = (() => {
 		console.warn('Cannot find module');
 		return null;
 	};
-	
-	const findByUniqueProperties = (propNames, options) => find(module => propNames.every(prop => module[prop] !== undefined), options);
-	const findByProps = function() {return findByUniqueProperties(Array.prototype.slice.call(arguments));};
+    
+    /**
+     * @memberOf InternalUtilities.WebpackModules
+     * @param {array} propNames - array of property names
+     * @param {object} options - object of options for finding
+     * @param {boolean} [options.cacheOnly=true] - determines if the search should only be through cached modules
+     * @returns {(*|null)} returns either the module or null if not found.
+     */
+    const findByUniqueProperties = (propNames, options) => find(module => propNames.every(prop => module[prop] !== undefined), options);
+
+    /**
+     * @memberOf InternalUtilities.WebpackModules
+     * @param {...string} props - property names of module
+     * @returns {(*|null)} returns either the module or null if not found.
+     */
+    const findByProps = (...props) => findByUniqueProperties(props);
+    
+    /**
+     * @memberOf InternalUtilities.WebpackModules
+     * @param {string} displayName - name of module
+     * @returns {(*|null)} returns either the module or null if not found.
+     */
 	const findByDisplayName = (displayName, options) => find(module => module.displayName === displayName, options);
 		
 	return {find, findByProps, findByUniqueProperties, findByDisplayName};
 })();
 
 
-
+/**
+ * A series of filters for use in combination with {@link InternalUtilities.WebpackModules}.
+ * @namespace
+*/
 InternalUtilities.Filters = {
+    /**
+     * 
+     * @param {array} fields - array of prototype function names
+     * @param {callable} [selector=x => x] - additional filter for confirming module
+     * @returns {(*|null)} returns either the module or null if not found.
+     */
 	byPrototypeFields: (fields, selector = x => x) => (module) => {
 		const component = selector(module);
 		if (!component) return false;
@@ -482,12 +596,25 @@ InternalUtilities.Filters = {
 			if (!component.prototype[field]) return false;
 		}
 		return true;
-	},
+    },
+    
+    /**
+     * 
+     * @param {regex} search - regex for searching through module code
+     * @param {callable} [selector=x => x] - additional filter for confirming module
+     * @returns {(*|null)} returns either the module or null if not found.
+     */
 	byCode: (search, selector = x => x) => (module) => {
 		const method = selector(module);
 		if (!method) return false;
 		return method.toString().search(search) !== -1;
-	},
+    },
+    
+    /**
+     * 
+     * @param {...InternalUtilities.Filters} filters - series of filters to combine
+     * @returns {(*|null)} returns either the module or null if not found.
+     */
 	and: (...filters) => (module) => {
 		for (const filter of filters) {
 			if (!filter(module)) return false;
@@ -496,6 +623,19 @@ InternalUtilities.Filters = {
 	}
 };
 
+/**
+ * Fires after the desired internal function is fired.
+ * @param {PatchData} data - the patch data from the internal patch
+ * @callback InternalUtilities~listenerCallback
+ */
+
+/**
+ * Adds a listener to funtions of internal modules. Especially useful for event based
+ * actions where the data is less important.
+ * @param {*} internalModule - module to patch
+ * @param {string} moduleFunction - name of the funtion to listen for
+ * @param {InternalUtilities~listenerCallback} callback - function to fire after the original function
+ */
 InternalUtilities.addInternalListener = function(internalModule, moduleFunction, callback) {
 	const moduleName = internalModule.displayName || internalModule.name || internalModule.constructor.displayName || internalModule.constructor.name; // borrowed from Samogot
 	if (!internalModule[moduleFunction] || typeof(internalModule[moduleFunction]) !== "function") return console.error(`Module ${moduleName} has no function ${moduleFunction}`);
@@ -506,14 +646,20 @@ InternalUtilities.addInternalListener = function(internalModule, moduleFunction,
 
 	if (!internalModule.__listenerPatches[moduleFunction]) {
 		if (internalModule[moduleFunction].__monkeyPatched) console.warn(`Function ${moduleFunction} of module ${moduleName} has already been patched by someone else.`);
-		internalModule.__listenerPatches[moduleFunction] = InternalUtilities.monkeyPatch(internalModule, moduleFunction, {after: () => {
-			for (let listener of internalModule.__internalListeners[moduleFunction]) listener();
+		internalModule.__listenerPatches[moduleFunction] = InternalUtilities.monkeyPatch(internalModule, moduleFunction, {after: (data) => {
+			for (let listener of internalModule.__internalListeners[moduleFunction]) listener(data);
 		}});
 	}
 
 	internalModule.__internalListeners[moduleFunction].add(callback);
 };
 
+/**
+ * Removes the internal listener
+ * @param {*} internalModule - module to unpatch
+ * @param {string} moduleFunction - name of the funtion to stop listening to
+ * @param {InternalUtilities~listenerCallback} callback - original callback to remove
+ */
 InternalUtilities.removeInternalListener = function(internalModule, moduleFunction, callback) {
 	const moduleName = internalModule.displayName || internalModule.name || internalModule.constructor.displayName || internalModule.constructor.name; // borrowed from Samogot
 	if (!internalModule[moduleFunction] || typeof(internalModule[moduleFunction]) !== "function") return console.error(`Module ${moduleName} has no function ${moduleFunction}`);
@@ -527,38 +673,43 @@ InternalUtilities.removeInternalListener = function(internalModule, moduleFuncti
 	}
 };
 
+/** Discord's Electron web contents. */
 InternalUtilities.webContents = require('electron').remote.getCurrentWebContents();
 
+/**
+ * Similar to {@link PluginUtilities.onSwitchObserver} but this uses electron
+ * web contents and not observers. This can be more efficient on worse systems
+ * than the observer based method.
+ * @param {callable} callback - basic callback to happen on channel switch
+ */
 InternalUtilities.addOnSwitchListener = function(callback) {
-	/*InternalUtilities.webContents.on("did-navigate-in-page", (event, url, isMainWindow) => {
-		let urlSplit = url.split("/");
-		let type = urlSplit[3];
-		let server = urlSplit[4];
-		let channel = urlSplit[5];
-		callback(type, server, channel);
-	});*/
 	InternalUtilities.webContents.on("did-navigate-in-page", callback);
 };
 
+/**
+ * Removes the listener added by {@link InternalUtilities.addOnSwitchListener}.
+ * @param {callable} callback - callback to remove from the listener list
+ */
 InternalUtilities.removeOnSwitchListener = function(callback) {
 	InternalUtilities.webContents.removeListener("did-navigate-in-page", callback);
 };
-
-InternalUtilities.version = "0.0.2";
 /* ================== END MODULE ================== */
 
 
 /**
  * Self-made context menus that emulate Discord's own context menus.
  * @namespace
+ * @version 0.0.7
  */
 var PluginContextMenu = {};
 
-/*
-Options:
-scroll: Boolean — Determines if it should be a scroller context menu
-*/
+
+/** Main menu class for creating custom context menus. */
 PluginContextMenu.Menu = class Menu {
+    /**
+     * 
+     * @param {boolean} [scroll=false] - should this menu be a scrolling menu (usually only used for submenus)
+     */
 	constructor(scroll = false) {
 		this.theme = $('.theme-dark').length ? "theme-dark" : "theme-light";
 		this.element = $("<div>").addClass("contextMenu-uoJTbz").addClass("plugin-context-menu").addClass(this.theme);
@@ -569,13 +720,24 @@ PluginContextMenu.Menu = class Menu {
 			));
 		}
 	}
-	
+    
+    /**
+     * Adds an item group to the menu. The group should already be populated.
+     * @param {PluginContextMenu.ItemGroup} contextGroup - group to add to the menu
+     * @returns {PluginContextMenu.Menu} returns self for chaining
+     */
 	addGroup(contextGroup) {
 		if (this.scroll) this.element.find(".scroller-fzNley").append(contextGroup.getElement());
 		else this.element.append(contextGroup.getElement());
 		return this;
 	}
-	
+    
+    /**
+     * Adds items to the context menu directly. It is recommended to add to a group and use 
+     * {@link PluginContextMenu.Menu#addGroup} instead to behave as natively as possible.
+     * @param {PluginContextMenu.MenuItem} contextItems - list of items to add to the context menu
+     * @returns {PluginContextMenu.Menu} returns self for chaining
+     */
 	addItems(...contextItems) {
 		for (var i = 0; i < contextItems.length; i++) {
 			if (this.scroll) this.element.find(".scroller-fzNley").append(contextItems[i].getElement());
@@ -583,7 +745,13 @@ PluginContextMenu.Menu = class Menu {
 		}
 		return this;
 	}
-	
+    
+    /**
+     * Shows the menu at a specific x and y position. This generally comes from the
+     * pointer position on a right click event.
+     * @param {number} x - x coordinate for the menu to show at
+     * @param {number} y - y coordinate for the menu to show at
+     */
 	show(x, y) {
 		const maxWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 		const maxHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
@@ -599,7 +767,7 @@ PluginContextMenu.Menu = class Menu {
 			var top = this.element.parents(type).last();
 			var closest = this.element.parents(type).first();
 			var negate = closest.hasClass("invertChildX-LNv3Ce") ? -1 : 1;
-			this.element.css("margin-left", negate * 170 + closest.offset().left - top.offset().left);
+			this.element.css("margin-left", negate * closest.find('.item-1XYaYf').outerWidth() + closest.offset().left - top.offset().left);
 		}
 		
 		if (mouseY + this.element.outerHeight() >= maxHeight) {
@@ -635,16 +803,25 @@ PluginContextMenu.Menu = class Menu {
 			});
 		}
 	}
-	
+    
+    /** Allows you to remove the menu. */
 	removeMenu() {
 		let type = this.element.parents(".plugin-context-menu").length > this.element.parents(".contextMenu-uoJTbz").length ? ".plugin-context-menu" : ".contextMenu-uoJTbz";
 		this.element.detach();
 		this.element.find(type).detach();
 		$(document).off(".zctx");
 	}
-	
+    
+    /**
+     * Used to attach a menu to a menu item. This is how to create a submenu.
+     * If using {@link PluginContextMenu.SubMenuItem} then you do not need
+     * to call this function as it is done automatically. If you want to attach
+     * a submenu to an existing Discord context menu, then you should use this
+     * method.
+     * @param {(HTMLElement|jQuery)} menuItem - item to attach to
+     */
 	attachTo(menuItem) {
-		this.menuItem = menuItem;
+		this.menuItem = $(menuItem);
 		menuItem.on("mouseenter", () => {
 			this.element.appendTo(menuItem);
 			let type = this.element.parents(".plugin-context-menu").length > this.element.parents(".contextMenu-uoJTbz").length ? ".plugin-context-menu" : ".contextMenu-uoJTbz";
@@ -654,27 +831,49 @@ PluginContextMenu.Menu = class Menu {
 	}
 };
 
+/** Class that represents a group of menu items. */
 PluginContextMenu.ItemGroup = class ItemGroup {
+    /** Creates an item group. */
 	constructor() {
 		this.element = $("<div>").addClass("itemGroup-oViAgA");
 	}
-	
+    
+    /**
+     * This is the method of adding menu items to a menu group.
+     * @param {PluginContextMenu.MenuItem} contextItems - list of context menu items to add to this group
+     * @returns {PluginContextMenu.ItemGroup} returns self for chaining
+     */
 	addItems(...contextItems) {
 		for (var i = 0; i < contextItems.length; i++) {
 			this.element.append(contextItems[i].getElement());
 		}
 		return this;
 	}
-	
+    
+    /** @returns {HTMLElement} returns the DOM node for the group */
 	getElement() { return this.element; }
 };
 
-/*
-Options:
-danger: Boolean — Adds the danger class (for things like delete)
-callback: Function — Function to call back on click
-*/
+/**
+ * Fires when the attached menu item it clicked.
+ * @param {MouseEvent} event - the mouse event from clicking the item
+ * @callback PluginContextMenu~clickEvent
+ */
+
+ /**
+ * Fires when the checkbox item changes state.
+ * @param {boolean} isChecked - if the checkbox is now checked
+ * @callback PluginContextMenu~onChange
+ */
+
+/** Base class for all other menu items. */
 PluginContextMenu.MenuItem = class MenuItem {
+    /**
+     * @param {string} label - label to show on the menu item
+     * @param {object} options - additional options for the item
+     * @param {boolean} [options.danger=false] - should the item show as danger
+     * @param {PluginContextMenu~clickEvent} [options.callback] - callback for when it is clicked
+     */
 	constructor(label, options = {}) {
 		var {danger = false, callback} = options;
 		this.element = $("<div>").addClass("item-1XYaYf");
@@ -690,11 +889,18 @@ PluginContextMenu.MenuItem = class MenuItem {
 	getElement() { return this.element;}
 };
 
-/*
-Additional Options:
-hint: String — Usually used for key combos
-*/
+/** 
+ * Creates a text menu item that can have a hint.
+ * @extends PluginContextMenu.MenuItem
+ */
 PluginContextMenu.TextItem = class TextItem extends PluginContextMenu.MenuItem {
+    /**
+     * @param {string} label - label to show on the menu item
+     * @param {object} options - additional options for the item
+     * @param {string} [options.hint=""] - hint to show on the item (usually used for key combos)
+     * @param {boolean} [options.danger=false] - should the item show as danger
+     * @param {PluginContextMenu~clickEvent} [options.callback] - callback for when it is clicked
+     */
 	constructor(label, options = {}) {
 		super(label, options);
 		var {hint = ""} = options;
@@ -703,7 +909,19 @@ PluginContextMenu.TextItem = class TextItem extends PluginContextMenu.MenuItem {
 	}
 };
 
+/** 
+ * Creates an image menu item that can have an image.
+ * @extends PluginContextMenu.MenuItem
+ */
 PluginContextMenu.ImageItem = class ImageItem extends PluginContextMenu.MenuItem {
+    /**
+     * @param {string} label - label to show on the menu item
+     * @param {string} imageSrc - link to the image to embed
+     * @param {object} options - additional options for the item
+     * @param {string} [options.hint=""] - hint to show on the item (usually used for key combos)
+     * @param {boolean} [options.danger=false] - should the item show as danger
+     * @param {PluginContextMenu~clickEvent} [options.callback] - callback for when it is clicked
+     */
 	constructor(label, imageSrc, options = {}) {
 		super(label, options);
 		this.element.addClass("itemImage-24yxbi");
@@ -712,7 +930,19 @@ PluginContextMenu.ImageItem = class ImageItem extends PluginContextMenu.MenuItem
 	}
 };
 
+/** 
+ * Creates a menu item with an attached submenu.
+ * @extends PluginContextMenu.MenuItem
+ */
 PluginContextMenu.SubMenuItem = class SubMenuItem extends PluginContextMenu.MenuItem {
+    /**
+     * @param {string} label - label to show on the menu item
+     * @param {PluginContextMenu.Menu} subMenu - context menu that should be attached to this item
+     * @param {object} options - additional options for the item
+     * @param {string} [options.hint=""] - hint to show on the item (usually used for key combos)
+     * @param {boolean} [options.danger=false] - should the item show as danger
+     * @param {PluginContextMenu~clickEvent} [options.callback] - callback for when it is clicked
+     */
 	constructor(label, subMenu, options = {}) {
 		// if (!(subMenu instanceof ContextSubMenu)) throw "subMenu must be of ContextSubMenu type.";
 		super(label, options);
@@ -722,7 +952,20 @@ PluginContextMenu.SubMenuItem = class SubMenuItem extends PluginContextMenu.Menu
 	}
 };
 
+/** 
+ * Creates a menu item with a checkbox.
+ * @extends PluginContextMenu.MenuItem
+ */
 PluginContextMenu.ToggleItem = class ToggleItem extends PluginContextMenu.MenuItem {
+    /**
+     * @param {string} label - label to show on the menu item
+     * @param {boolean} checked - should the item start out checked
+     * @param {object} options - additional options for the item
+     * @param {string} [options.hint=""] - hint to show on the item (usually used for key combos)
+     * @param {boolean} [options.danger=false] - should the item show as danger
+     * @param {PluginContextMenu~clickEvent} [options.callback] - callback for when it is clicked
+     * @param {PluginContextMenu~onChange} [options.onChange] - callback for when the checkbox changes
+     */
 	constructor(label, checked, options = {}) {
         var {onChange} = options;
 		super(label, options);
@@ -741,19 +984,17 @@ PluginContextMenu.ToggleItem = class ToggleItem extends PluginContextMenu.MenuIt
         });
 	}
 };
-
-
-PluginContextMenu.version = "0.0.6";
 /* ================== END MODULE ================== */
 
 
 /**
  * An object that makes generating settings panel 10x easier.
  * @namespace
+ * @version 1.0.5
  */
 var PluginSettings = {};
 
-
+/** Attempts to retreive the accent color of native settings items in rgba format. */
 PluginSettings.getAccentColor = function() {
 	var bg = $('<div class="ui-switch-item"><div class="ui-switch-wrapper"><input type="checkbox" checked="checked" class="ui-switch-checkbox"><div class="ui-switch checked">');
 	bg.appendTo($("#bd-settingspane-container"));
@@ -871,7 +1112,21 @@ PluginSettings.getCSS = function() {
 
 PluginSettings.createInputContainer = function() { return $('<div class="plugin-setting-input-container">');};
 
+
+/** 
+ * Grouping of controls for easier management in settings panels.
+ * @version 1.0.1
+ */
 PluginSettings.ControlGroup = class ControlGroup {
+    /**
+     * 
+     * @constructor
+     * @param {string} groupName - title for the group of settings
+     * @param {callback} callback - callback called on settings changed
+     * @param {object} options - additional options for the group
+     * @param {boolean} [options.collapsible=true] - determines if the group should be collapsible
+     * @param {boolean} [options.shown=false] - determines if the group should be expanded by default
+     */
 	constructor(groupName, callback, options = {}) {
 		const {collapsible = true, shown = false} = options;
 		this.group = $("<div>").addClass("plugin-control-group").css("margin-top", "15px");
@@ -899,9 +1154,15 @@ PluginSettings.ControlGroup = class ControlGroup {
 			this.controls.on("change", "input", callback);
 		}
 	}
-	
+    
+    /** @returns {jQuery} jQuery node for the group. */
 	getElement() {return this.group;}
-	
+    
+    /**
+     * 
+     * @param {(...HTMLElement|...jQuery)} nodes - list of nodes to add to the group container 
+     * @returns {ControlGroup} returns self for chaining
+     */
 	append(...nodes) {
 		for (var i = 0; i < nodes.length; i++) {
 			if (nodes[i] instanceof jQuery || nodes[i] instanceof Element) this.controls.append(nodes[i]);
@@ -909,14 +1170,36 @@ PluginSettings.ControlGroup = class ControlGroup {
 		}
 		return this;
 	}
-	
+    
+    /**
+     * 
+     * @param {(HTMLElement|jQuery)} node - node to attach the group to.
+     * @returns {ControlGroup} returns self for chaining
+     */
 	appendTo(node) {
 		this.group.appendTo(node);
 		return this;
 	}
 };
 
+/**
+ * Callback for SettingField for change in input field.
+ * @callback PluginSettings~settingsChanged
+ * @param {*} value - new value of the input field
+ */
+
+/** 
+ * Generic representation of a setting field. Very extensible, but best to use a child class when available.
+ * @version 1.0.5
+ */
 PluginSettings.SettingField = class SettingField {
+    /**
+     * @constructor
+     * @param {string} name - title for the setting
+     * @param {string} helptext - description/help text to show
+     * @param {object} inputData - props to set up the input field
+     * @param {PluginSettings~settingsChanged} callback - callback fired when the input field is changed
+     */
 	constructor(name, helptext, inputData, callback) {
 		this.name = name;
 		this.helptext = helptext;
@@ -944,16 +1227,35 @@ PluginSettings.SettingField = class SettingField {
 
 		this.setInputElement(this.input);
 	}
-	
+    
+    /**
+     * Performing this will prevent the default callbacks from working!
+     * @param {(HTMLElement|jQuery)} node - node to override the default input with.
+     */
 	setInputElement(node) {
 		this.inputWrapper.empty();
 		this.inputWrapper.append(node);
 	}
-	
+    
+    /** @returns {jQuery} jQuery node for the group. */
 	getElement() { return this.row; }
 };
 
+/** 
+ * Creates a simple textbox settings.
+ * @version 1.0.0
+ * @extends PluginSettings.SettingField
+ */
 PluginSettings.Textbox = class Textbox extends PluginSettings.SettingField {
+    /**
+     * @constructor
+     * @param {string} label - title for the setting
+     * @param {string} help - description of the setting
+     * @param {string} value - default value of the setting
+     * @param {string} placeholder - placeholder text for when the textbox is empty
+     * @param {PluginSettings~settingsChanged} callback - callback fired on textbox change
+     * @param {object} options - additional options for the input field itself
+     */
 	constructor(label, help, value, placeholder, callback, options = {}) {
 		options.type = "text";
 		options.placeholder = placeholder;
@@ -963,7 +1265,21 @@ PluginSettings.Textbox = class Textbox extends PluginSettings.SettingField {
 	}
 };
 
+/** 
+ * Creates a color picker using chromium's built in color picker
+ * as a base. Input and output using hex strings.
+ * @version 1.0.0
+ * @extends PluginSettings.SettingField
+ */
 PluginSettings.ColorPicker = class ColorPicker extends PluginSettings.SettingField {
+    /**
+     * @constructor
+     * @param {string} label - title for the setting
+     * @param {string} help - description of the setting
+     * @param {string} value - default value of the setting in hex format
+     * @param {PluginSettings~settingsChanged} callback - callback fired on color change
+     * @param {object} options - additional options for the input field itself
+     */
 	constructor(label, help, value, callback, options = {}) {
 		options.type = "color";
 		options.value = value;
@@ -981,7 +1297,23 @@ PluginSettings.ColorPicker = class ColorPicker extends PluginSettings.SettingFie
 	}
 };
 
+/** 
+ * Creates a slider where the user can select a single number from a predefined range.
+ * @version 1.0.0
+ * @extends PluginSettings.SettingField
+ */
 PluginSettings.Slider = class Slider extends PluginSettings.SettingField {
+    /**
+     * @constructor
+     * @param {string} settingLabel - title for the setting
+     * @param {string} help - description of the setting
+     * @param {number} min - minimum value allowed
+     * @param {number} max - maximum value allowed
+     * @param {number} step - granularity between values
+     * @param {number} value - default value of the setting
+     * @param {PluginSettings~settingsChanged} callback - callback fired on slider release
+     * @param {object} options - additional options for the input field itself
+     */
 	constructor(settingLabel, help, min, max, step, value, callback, options = {}) {
 		options.type = "range";
 		options.min = min;
@@ -1017,10 +1349,27 @@ PluginSettings.Slider = class Slider extends PluginSettings.SettingField {
 		this.input.css('background', 'linear-gradient(to right, ' + this.accentColor + ', ' + this.accentColor + ' ' + percent + '%, #72767d ' + percent + '%)');
 	}
 
+    /**
+     * Adds a unit to the value label
+     * @param {string} unit - unit to add to the label (e.g. "%")
+     */
 	setLabelUnit(unit) {this.labelUnit = unit; this.label.text(this.value + this.labelUnit); return this;}
 };
 
+/** 
+ * Creates a checkbox in the style of a standard Discord switch.
+ * @version 1.0.0
+ * @extends PluginSettings.SettingField
+ */
 PluginSettings.Checkbox = class Checkbox extends PluginSettings.SettingField {
+    /**
+     * @constructor
+     * @param {string} label - title for the setting
+     * @param {string} help - description of the setting
+     * @param {boolean} isChecked - determines if the checkbox is checked by default
+     * @param {PluginSettings~settingsChanged} callback - callback fired on change
+     * @param {object} options - additional options for the input field itself
+     */
 	constructor(label, help, isChecked, callback, options = {}) {
 		options.type = "checkbox";
 		options.checked = isChecked;
@@ -1045,10 +1394,28 @@ PluginSettings.Checkbox = class Checkbox extends PluginSettings.SettingField {
 	}
 };
 
-// True is right side
+/** 
+ * Creates a PillButton where the left and right side have their own label.
+ * It is important to note that the checked property here follows the same
+ * standard as a normal Discord switch. That is to say if the value is true
+ * then right side was selected, if the value is false then the left side 
+ * was selected.
+ * @version 1.0.1
+ * @extends PluginSettings.Checkbox
+ */
 PluginSettings.PillButton = class PillButton extends PluginSettings.Checkbox {
-	constructor(label, help, leftLabel, rightLabel, isChecked, callback, options = {}) {
-		super(label, help, isChecked, callback, options);
+    /**
+     * @constructor
+     * @param {string} label - title for the setting
+     * @param {string} help - description of the setting
+     * @param {string} leftLabel - label for the option on the left
+     * @param {string} rightLabel - label for the option on the right
+     * @param {boolean} isRightSelected - determines if the right side is selected. (true = right side, false = left side)
+     * @param {PluginSettings~settingsChanged} callback - callback fired on switch change (true = right side, false = left side)
+     * @param {object} options - additional options for the input field itself
+     */
+	constructor(label, help, leftLabel, rightLabel, isRightSelected, callback, options = {}) {
+		super(label, help, isRightSelected, callback, options);
 		
 		this.checkboxWrap.css("margin","0 9px");
 		this.input.addClass('plugin-input-pill');
@@ -1060,7 +1427,7 @@ PluginSettings.PillButton = class PillButton extends PluginSettings.Checkbox {
 		
 		var accent = PluginSettings.getAccentColor();
 		
-		if (isChecked) labelRight.css("color", accent);
+		if (isRightSelected) labelRight.css("color", accent);
 		else labelLeft.css("color", accent);
 		
 		this.checkboxWrap.find('input').on("click", function() {
@@ -1078,9 +1445,6 @@ PluginSettings.PillButton = class PillButton extends PluginSettings.Checkbox {
 		this.setInputElement(PluginSettings.createInputContainer().append(labelLeft, this.checkboxWrap.detach(), labelRight));
 	}
 };
-
-
-PluginSettings.version = "1.0.5";
 /* ================== END MODULE ================== */
 
 
@@ -1089,22 +1453,26 @@ PluginSettings.version = "1.0.5";
  * Will also remove themselves if the node to watch is removed from DOM through
  * a MutationObserver.
  * @namespace
+ * @version 0.1.1
  */
-var PluginTooltip = {version: "0.1.0"};
+var PluginTooltip = {};
 
 // example usage `new PluginTooltip.Tooltip($('#test-element), "Hello World", {side: "top"});`
 
-/** Custom tooltip, not using internals. */
-PluginTooltip.Tooltip = class Tooltip {
+/** 
+ * Custom tooltip, not using internals. 
+ * @version 0.1.0
+ */
+PluginTooltip.Tooltip = class PluginTooltip {
 	/**
 	 * 
 	 * @constructor
-	 * @param {DOMElement | jQuery} node - jquery node to monitor and show the tooltip on
+	 * @param {(HTMLElement|jQuery)} node - DOM node to monitor and show the tooltip on
 	 * @param {string} tip - string to show in the tooltip
 	 * @param {object} options - additional options for the tooltip
-	 * @param {string} options.style - correlates to the discord styling | default: "black"
-	 * @param {string} options.side - can be any of top, right, bottom, left
-	 * @param {boolean} options.preventFlip - prevents moving the tooltip to the opposite side if it is too big or goes offscreen
+	 * @param {string} [options.style=black] - correlates to the discord styling
+	 * @param {string} [options.side=top] - can be any of top, right, bottom, left
+	 * @param {boolean} [options.preventFlip=false] - prevents moving the tooltip to the opposite side if it is too big or goes offscreen
 	 */
 	constructor(node, tip, options = {}) {
 		const {style = "black", side = "top", preventFlip = false} = options;
@@ -1138,15 +1506,21 @@ PluginTooltip.Tooltip = class Tooltip {
 		});
 	}
 
-	get canShowAbove() { return this.node.offset().top - this.tooltip.outerHeight() >= 0; }
-	get canShowBelow() { return this.node.offset().top + this.node.outerHeight() + this.tooltip.outerHeight() <= window.ZeresLibrary.Screen.height; }
-	get canShowLeft() { return this.node.offset().left - this.tooltip.outerWidth() >= 0; }
+    /** Boolean representing if the tooltip will fit on screen above the element */
+    get canShowAbove() { return this.node.offset().top - this.tooltip.outerHeight() >= 0; }
+    /** Boolean representing if the tooltip will fit on screen below the element */
+    get canShowBelow() { return this.node.offset().top + this.node.outerHeight() + this.tooltip.outerHeight() <= window.ZeresLibrary.Screen.height; }
+    /** Boolean representing if the tooltip will fit on screen to the left of the element */
+    get canShowLeft() { return this.node.offset().left - this.tooltip.outerWidth() >= 0; }
+    /** Boolean representing if the tooltip will fit on screen to the right of the element */
 	get canShowRight() { return this.node.offset().left + this.node.outerWidth() + this.tooltip.outerWidth() <= window.ZeresLibrary.Screen.width; }
 
+    /** Hides the tooltip. Automatically called on mouseleave. */
 	hide() {
 		this.tooltip.hide();
 	}
 
+    /** Shows the tooltip. Automatically called on mouseenter. Will attempt to flip if position was wrong. */
 	show() {
 		this.tooltip.show();
 		this.tooltip.removeClass("tooltip-bottom");
@@ -1176,24 +1550,28 @@ PluginTooltip.Tooltip = class Tooltip {
 		}
 	}
 
+    /** Force showing the tooltip above the node. */
 	showAbove() {
 		this.tooltip.addClass("tooltip-top");
 		this.tooltip.css("top", this.node.offset().top - this.tooltip.outerHeight());
 		this.centerHorizontally();
 	}
 
+    /** Force showing the tooltip below the node. */
 	showBelow() {
 		this.tooltip.addClass("tooltip-bottom");
 		this.tooltip.css("top", this.node.offset().top + this.node.outerHeight());
 		this.centerHorizontally();
 	}
 
+    /** Force showing the tooltip to the left of the node. */
 	showLeft() {
 		this.tooltip.addClass("tooltip-left");
 		this.tooltip.css("left", this.node.offset().left - this.tooltip.outerWidth());
 		this.centerVertically();
 	}
 
+    /** Force showing the tooltip to the right of the node. */
 	showRight() {
 		this.tooltip.addClass("tooltip-right");
 		this.tooltip.css("left", this.node.offset().left + this.node.outerWidth());
@@ -1212,17 +1590,20 @@ PluginTooltip.Tooltip = class Tooltip {
 };
 
 
-/** Tooltips done using Discord's internals. */
+/** 
+ * Tooltips done using Discord's internals.
+ * @version 0.0.1
+ */
 PluginTooltip.Native = class NativeTooltip {
 	/**
 	 * 
 	 * @constructor
-	 * @param {DOMElement | jQuery} node - jquery node to monitor and show the tooltip on
+	 * @param {(HTMLElement|jQuery)} node - DOM node to monitor and show the tooltip on
 	 * @param {string} tip - string to show in the tooltip
 	 * @param {object} options - additional options for the tooltip
-	 * @param {string} options.style - correlates to the discord styling | default: "black"
-	 * @param {string} options.side - can be any of top, right, bottom, left
-	 * @param {boolean} options.preventFlip - prevents moving the tooltip to the opposite side if it is too big or goes offscreen
+	 * @param {string} [options.style=black] - correlates to the discord styling
+	 * @param {string} [options.side=top] - can be any of top, right, bottom, left
+	 * @param {boolean} [options.preventFlip=false] - prevents moving the tooltip to the opposite side if it is too big or goes offscreen
 	 */
 	constructor(node, text, options = {}) {
 		if (!(node instanceof jQuery) && !(node instanceof Element)) return undefined;
@@ -1256,10 +1637,12 @@ PluginTooltip.Native = class NativeTooltip {
 		});
 	}
 
+    /** Hides the tooltip. Automatically called on mouseleave. */
 	hide() {
 		DiscordModules.Tooltips.hide(this.id);
-	}
-
+    }
+    
+    /** Shows the tooltip. Automatically called on mouseenter. */
 	show() {
 		const {left, top, width, height} = this.node.getBoundingClientRect();
 		DiscordModules.Tooltips.show(this.id, {
@@ -1279,9 +1662,15 @@ PluginTooltip.Native = class NativeTooltip {
 /**
  * Functions that check for and update existing plugins.
  * @namespace
+ * @version 0.0.3
  */
 var PluginUpdateUtilities = {};
 
+/**
+ * Creates the update button found in the plugins page of BetterDiscord
+ * settings. Returned button will already have listeners to create the tooltip.
+ * @returns {HTMLElement} check for update button
+ */
 PluginUpdateUtilities.createUpdateButton = function() {
 	var updateButton = document.createElement("button");
 	updateButton.className = "bd-pfbtn bd-updatebtn";
@@ -1310,6 +1699,13 @@ PluginUpdateUtilities.getCSS = function () {
 	return "#pluginNotice {-webkit-app-region: drag;border-radius:0;} #outdatedPlugins {font-weight:700;} #outdatedPlugins>span {-webkit-app-region: no-drag;color:#fff;cursor:pointer;} #outdatedPlugins>span:hover {text-decoration:underline;}";
 };
 
+/**
+ * Will check for updates and automatically show or remove the update notice
+ * bar based on the internal result. Better not to call this directly and to
+ * instead use {@link PluginUtilities.checkForUpdate}.
+ * @param {string} pluginName - name of the plugin to check
+ * @param {string} updateLink - link to the raw text version of the plugin
+ */
 PluginUpdateUtilities.checkUpdate = function(pluginName, updateLink) {
 	let request = require("request");
 	request(updateLink, (error, response, result) => {
@@ -1329,6 +1725,12 @@ PluginUpdateUtilities.checkUpdate = function(pluginName, updateLink) {
 	});
 };
 
+/**
+ * Will show the update notice top bar seen in Discord. Better not to call
+ * this directly and to instead use {@link PluginUtilities.checkForUpdate}.
+ * @param {string} pluginName - name of the plugin
+ * @param {string} updateLink - link to the raw text version of the plugin
+ */
 PluginUpdateUtilities.showUpdateNotice = function(pluginName, updateLink) {
 	if (!$('#pluginNotice').length)  {
 		let noticeElement = '<div class="notice notice-info notice-3I4-y_ noticeInfo-3v29SJ size14-1wjlWP weightMedium-13x9Y8 height36-13sPn7" id="pluginNotice"><div class="notice-dismiss dismiss-1QjyJW" id="pluginNoticeDismiss"></div><span class="notice-message">The following plugins have updates:</span>&nbsp;&nbsp;<strong id="outdatedPlugins"></strong></div>';
@@ -1352,6 +1754,13 @@ PluginUpdateUtilities.showUpdateNotice = function(pluginName, updateLink) {
 	}
 };
 
+/**
+ * Will download the latest version and replace the the old plugin version.
+ * Will also update the button in the update bar depending on if the user
+ * is using RestartNoMore plugin by square {@link https://github.com/Inve1951/BetterDiscordStuff/blob/master/plugins/restartNoMore.plugin.js}
+ * @param {string} pluginName - name of the plugin to download
+ * @param {string} updateLink - link to the raw text version of the plugin
+ */
 PluginUpdateUtilities.downloadPlugin = function(pluginName, updateLink) {
     let request = require("request");
     let fileSystem = require("fs");
@@ -1398,6 +1807,11 @@ PluginUpdateUtilities.downloadPlugin = function(pluginName, updateLink) {
     });
 };
 
+/**
+ * Will remove the plugin from the update notice top bar seen in Discord.
+ * Better not to call this directly and to instead use {@link PluginUtilities.checkForUpdate}.
+ * @param {string} pluginName - name of the plugin
+ */
 PluginUpdateUtilities.removeUpdateNotice = function(pluginName) {
 	let notice = $('#' + pluginName + '-notice');
 	if (notice.length) {
@@ -1413,21 +1827,31 @@ PluginUpdateUtilities.removeUpdateNotice = function(pluginName) {
         $('#pluginNotice .notice-message').text("To finish updating you need to reload.");
     }
 };
-
-PluginUpdateUtilities.version = "0.0.3";
 /* ================== END MODULE ================== */
 
 
 /**
  * A series of useful functions for BetterDiscord plugins.
  * @namespace
+ * @version 0.2.3
  */
 var PluginUtilities = {};
 
-PluginUtilities.WebpackModules = InternalUtilities.WebpackModules; // Backwards compatibility
-PluginUtilities.suppressErrors = (method, desiption) => (...params) => {
+/** 
+ * Additional reference to {@link InternalUtilities.WebpackModules}
+ * @deprecated to be removed by end of April 2018
+ */
+PluginUtilities.WebpackModules = InternalUtilities.WebpackModules;
+
+/**
+ * Wraps the method in a `try..catch` block.
+ * @param {callable} method - method to wrap
+ * @param {string} description - description of method
+ * @returns {callable} wrapped version of method
+ */
+PluginUtilities.suppressErrors = (method, description) => (...params) => {
 	try { return method(...params);	}
-	catch (e) { console.error('Error occurred in ' + desiption, e); }
+	catch (e) { console.error('Error occurred in ' + description, e); }
 };
 
 PluginUtilities.parseOnSwitchURL = function(url) {
@@ -1438,55 +1862,83 @@ PluginUtilities.parseOnSwitchURL = function(url) {
 	return {type, server, channel};
 };
 
+/** 
+ * Gets the server the user is currently in.
+ * @returns {object} returns Discord's internal object representing the server
+*/
 PluginUtilities.getCurrentServer = function() {
-	var auditLog = document.querySelector('.guild-settings-audit-logs');
-    if (auditLog) return ReactUtilities.getReactKey({node: auditLog, key: "guildId"});
-    if (document.querySelector(".activityFeed-HeiGwL") || document.querySelector('#friends')) return null;
-    let title = document.querySelector('.title-qAcLxz');
-    if (document.querySelector('.private-channels')) return ReactUtilities.getReactProperty(title, "child.memoizedProps.1.props.channel.id");
-    else return ReactUtilities.getReactProperty(title, "child.memoizedProps.1.props.guild.id");
+	return DiscordModules.GuildStore.getGuild(DiscordModules.SelectedGuildStore.getGuildId());
 };
 
-PluginUtilities.isServer = function() { return PluginUtilities.getCurrentServer() ? true : false; };
+/** @returns if the user is in a server */
+PluginUtilities.isServer = function() { return PluginUtilities.getCurrentServer() !== null; };
 
+/** 
+ * Gets the current user.
+ * @returns {object} returns Discord's internal object representing the user
+*/
 PluginUtilities.getCurrentUser = function() {
-	return ReactUtilities.getReactProperty(document.querySelector('.accountDetails-15i-_e'), "return.memoizedProps.user");
+	return DiscordModules.UserStore.getCurrentUser();
 };
 
+/** 
+ * Gets the list of members in the current server.
+ * @returns {array} returns an array of Discord's internal object representing the members.
+*/
 PluginUtilities.getAllUsers = function() {
-	if (!document.querySelector('.channel-members') || document.querySelector('.private-channels')) return [];
-	let groups = ReactUtilities.getReactKey({node: document.querySelector('.channel-members').parentElement.parentElement.parentElement.parentElement, key: "memberGroups", whiteList: {
-		"child": true,
-		"sibling": true,
-		"memoizedState": true
-	}});
-	var users = [];
-	for (let g = 0; g < groups.length; g++) {
-		for (let u = 0; u < groups[g].users.length; u++) {
-			users.push(groups[g].users[u]);
-		}
-	}
-	return users;
+	return DiscordModules.GuildMemberStore.getMembers(this.getCurrentServer().id);
 };
 
+/** 
+ * Loads data through BetterDiscord's API.
+ * @param {string} name - name for the file (usually plugin name)
+ * @param {string} key - which key the data is saved under
+ * @param {object} defaultData - default data to populate the object with
+ * @returns {object} the combined saved and default data
+*/
 PluginUtilities.loadData = function(name, key, defaultData) {
 	try { return $.extend(true, defaultData ? defaultData : {}, bdPluginStorage.get(name, key)); }
 	catch (err) { console.warn(name, "unable to load data:", err); }
 };
 
+/** 
+ * Saves data through BetterDiscord's API.
+ * @param {string} name - name for the file (usually plugin name)
+ * @param {string} key - which key the data should be saved under
+ * @param {object} data - data to save
+*/
 PluginUtilities.saveData = function(name, key, data) {
 	try { bdPluginStorage.set(name, key, data); }
 	catch (err) { console.warn(name, "unable to save data:", err); }
 };
 
+/** 
+ * Loads settings through BetterDiscord's API.
+ * @param {string} name - name for the file (usually plugin name)
+ * @param {object} defaultData - default data to populate the object with
+ * @returns {object} the combined saved and default settings
+*/
 PluginUtilities.loadSettings = function(name, defaultSettings) {
 	return PluginUtilities.loadData(name, "settings", defaultSettings);
 };
 
+/** 
+ * Saves settings through BetterDiscord's API.
+ * @param {string} name - name for the file (usually plugin name)
+ * @param {object} data - settings to save
+*/
 PluginUtilities.saveSettings = function(name, data) {
 	PluginUtilities.saveData(name, "settings", data);
 };
 
+/**
+ * Checks for updates for the specified plugin at the specified link. The final
+ * parameter should link to the raw text of the plugin and will compare semantic
+ * versions.
+ * @param {string} pluginName - name of the plugin
+ * @param {string} currentVersion - current version (semantic versioning only)
+ * @param {string} updateURL - url to check for update
+ */
 PluginUtilities.checkForUpdate = function(pluginName, currentVersion, updateURL) {
 	let updateLink = "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/" + pluginName + "/" + pluginName + ".plugin.js";
 	if (updateURL) updateLink = updateURL;
@@ -1645,6 +2097,26 @@ PluginUtilities.getToastCSS = function() {
 		`;
 };
 
+/**
+ * This shows a toast similar to android towards the bottom of the screen.
+ * 
+ * @param {string} content The string to show in the toast.
+ * @param {object} options Options object. Optional parameter.
+ * @param {string} options.type Changes the type of the toast stylistically and semantically. Choices: "", "info", "success", "danger"/"error", "warning"/"warn". Default: ""
+ * @param {boolean} options.icon Determines whether the icon should show corresponding to the type. A toast without type will always have no icon. Default: true
+ * @param {number} options.timeout Adjusts the time (in ms) the toast should be shown for before disappearing automatically. Default: 3000
+ */
+
+/**
+ * Shows a simple toast, similar to Android, centered over 
+ * the textarea if it exists, and center screen otherwise.
+ * Vertically it shows towards the bottom like in Android.
+ * @param {string} content - The string to show in the toast.
+ * @param {object} options - additional options for the toast
+ * @param {string} [options.type=""] - Changes the type of the toast stylistically and semantically. Choices: "", "info", "success", "danger"/"error", "warning"/"warn".
+ * @param {boolean} [options.icon=true] - Determines whether the icon should show corresponding to the type. A toast without type will always have no icon.
+ * @param {number} [options.timeout=3000] - Adjusts the time (in ms) the toast should be shown for before disappearing automatically.
+ */
 PluginUtilities.showToast = function(content, options = {}) {
     if (!document.querySelector('.toasts')) {
 		let container = document.querySelector('.channels-3g2vYe + div');
@@ -1678,7 +2150,10 @@ PluginUtilities.showToast = function(content, options = {}) {
 };
 
 
-// Plugins/Themes folder resolver from Square
+/**
+ * Get the full path to the plugins folder.
+ * @returns {string} full path to the plugins folder
+ */
 PluginUtilities.getPluginsFolder = function() {
     let process = require("process");
     let path = require("path");
@@ -1692,6 +2167,10 @@ PluginUtilities.getPluginsFolder = function() {
     }
 };
 
+/**
+ * Get the full path to the themes folder.
+ * @returns {string} full path to the themes folder
+ */
 PluginUtilities.getThemesFolder = function() {
     let process = require("process");
     let path = require("path");
@@ -1705,6 +2184,14 @@ PluginUtilities.getThemesFolder = function() {
     }
 };
 
+/**
+ * Format strings with placeholders (`${placeholder}`) into full strings.
+ * Quick example: `PluginUtilities.formatString("Hello, ${user}", {user: "Zerebos"})`
+ * would return "Hello, Zerebos".
+ * @param {string} string - string to format
+ * @param {object} values - object literal of placeholders to replacements
+ * @returns {string} the properly formatted string
+ */
 PluginUtilities.formatString = function(string, values) {
 	for (let val in values) {
 		string = string.replace(new RegExp(`\\$\\{${val}\\}`, 'g'), values[val]);
@@ -1712,7 +2199,11 @@ PluginUtilities.formatString = function(string, values) {
 	return string;
 };
 
-// Based on Mirco's version
+/**
+ * Creates a MutationObserver observing for the Discord channel switch.
+ * @param {object} plugin - the plugin with a `onChannelSwitch()` function
+ * @returns {MutationObserver} the observer observing for channel switch
+ */
 PluginUtilities.createSwitchObserver = function(plugin) {
 	let switchObserver = new MutationObserver((changes) => {
 		changes.forEach((change) => {
@@ -1724,6 +2215,11 @@ PluginUtilities.createSwitchObserver = function(plugin) {
 	return switchObserver;
 };
 
+/**
+ * Creates a MutationObserver observing for the Discord channel switch.
+ * @param {callable} onSwitch - function to call on channel switch
+ * @returns {MutationObserver} the observer observing for channel switch
+ */
 PluginUtilities.onSwitchObserver = function(onSwitch) {
 	if (typeof onSwitch === "undefined") return null;
 	let switchObserver = new MutationObserver((changes) => {
@@ -1735,24 +2231,34 @@ PluginUtilities.onSwitchObserver = function(onSwitch) {
 	switchObserver.observe(document.querySelector('.app'), {childList: true, subtree:true});
 	return switchObserver;
 };
-
-
-PluginUtilities.version = "0.2.3";
 /* ================== END MODULE ================== */
 
 
 /**
  * Helpful utilities for dealing with getting react information from DOM objects.
  * @namespace
+ * @version 0.0.4
  */
 var ReactUtilities = {};
 
+/**
+ * Grabs the react internal instance of a specific node.
+ * @param {(HTMLElement|jQuery)} node - node to obtain react instance of
+ * @return {object} the internal react instance
+ */
 ReactUtilities.getReactInstance = function(node) {
 	if (!(node instanceof jQuery) && !(node instanceof Element)) return undefined;
 	var domNode = node instanceof jQuery ? node[0] : node;
 	return domNode[Object.keys(domNode).find((key) => key.startsWith("__reactInternalInstance"))];
 };
 
+/**
+ * Grabs a value from the react internal instance. Allows you to grab
+ * long depth values safely without accessing no longer valid properties.
+ * @param {(HTMLElement|jQuery)} node - node to obtain react instance of
+ * @param {string} path - path to the requested value
+ * @return {(*|undefined)} the value requested or undefined if not found.
+ */
 ReactUtilities.getReactProperty = function(node, path) {
 	var value = path.split(/\s?\.\s?/).reduce(function(obj, prop) {
 		return obj && obj[prop];
@@ -1760,63 +2266,17 @@ ReactUtilities.getReactProperty = function(node, path) {
 	return value;
 };
 
-// This is a slightly modified version of DevilBro's https://github.com/mwittrien/BetterDiscordAddons
-// CURRENTLY UNUSED
-ReactUtilities.getReactKey = function(config) {
-	if (config === undefined) return null;
-	if (config.node === undefined || config.key === undefined) return null;
-	
-	var inst = ReactUtilities.getReactInstance(config.node);
-	if (!inst) return null;
-	
-	
-	var maxDepth = config.depth === undefined ? 15 : config.depth;
-		
-	var keyWhiteList = typeof config.whiteList === "object" ? config.whiteList : {
-		"_currentElement":true,
-		"_renderedChildren":true,
-		"_instance":true,
-		"_owner":true,
-		"props":true,
-		"state":true,
-		"stateNode":true,
-		"refs":true,
-		"updater":true,
-		"children":true,
-		"type":true,
-		"memoizedProps":true,
-		"memoizedState":true,
-		"child":true,
-		"firstEffect":true
-	};
-	
-	var keyBlackList = typeof config.blackList === "object" ? config.blackList : {};
-	
-	
-
-	var searchKeyInReact = (ele, depth) => {
-		if (!ele || ReactUtilities.getReactInstance(ele) || depth > maxDepth) return null;
-		var keys = Object.getOwnPropertyNames(ele);
-		var result = null;
-		for (var i = 0; result === null && i < keys.length; i++) {
-			var key = keys[i];
-			var value = ele[keys[i]];
-			
-			if (config.key === key && (config.value === undefined || config.value === value)) {
-				result = config.returnParent ? ele : value;
-			}
-			else if ((typeof value === "object" || typeof value === "function") && ((keyWhiteList[key] && !keyBlackList[key]) || key[0] == "." || !isNaN(key[0]))) {
-				result = searchKeyInReact(value, depth++);
-			}
-		}
-		return result;
-	};
-
-	return searchKeyInReact(inst, 0);
-};
-
-ReactUtilities.getOwnerInstance = function(e, {include, exclude = ["Popout", "Tooltip", "Scroller", "BackgroundFlash"]} = {}) {
-	if (e === undefined)
+/**
+ * Grabs a value from the react internal instance. Allows you to grab
+ * long depth values safely without accessing no longer valid properties.
+ * @param {(HTMLElement|jQuery)} node - node to obtain react instance of
+ * @param {object} options - options for the search
+ * @param {array} [options.include] - list of items to include from the search
+ * @param {array} [options.exclude=["Popout", "Tooltip", "Scroller", "BackgroundFlash"]] - list of items to exclude from the search
+ * @return {(*|null)} the owner instance or undefined if not found.
+ */
+ReactUtilities.getOwnerInstance = function(node, {include, exclude = ["Popout", "Tooltip", "Scroller", "BackgroundFlash"]} = {}) {
+	if (node === undefined)
 		return undefined;
 	const excluding = include === undefined;
 	const filter = excluding ? exclude : include;
@@ -1829,7 +2289,7 @@ ReactUtilities.getOwnerInstance = function(e, {include, exclude = ["Popout", "To
 		return (name !== null && !!(filter.includes(name) ^ excluding));
 	}
 	
-	for (let curr = ReactUtilities.getReactInstance(e).return; !_.isNil(curr); curr = curr.return) {
+	for (let curr = ReactUtilities.getReactInstance(node).return; !_.isNil(curr); curr = curr.return) {
 		if (_.isNil(curr))
 			continue;
 		let owner = curr.stateNode;
@@ -1839,14 +2299,14 @@ ReactUtilities.getOwnerInstance = function(e, {include, exclude = ["Popout", "To
 	
 	return null;
 };
-
-
-ReactUtilities.version = "0.0.4";
 /* ================== END MODULE ================== */
 
 
 
-/** The main object housing the modules making up this library. */
+/** 
+ * The main object housing the modules making up this library.
+ * @version 0.5.6
+ */
 window["ZeresLibrary"] = {
 	ColorUtilities: ColorUtilities,
 	DOMUtilities: DOMUtilities,
