@@ -6,17 +6,17 @@ class RoleMembers {
 	getName() { return "RoleMembers"; }
 	getShortName() { return "RoleMembers"; }
 	getDescription() { return "Allows you to see the members of each role on a server. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.1"; }
+	getVersion() { return "0.0.2"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
 		this.initialized = false;
 		this.cancels = [];
 
-		this.popout = `<div class="popout no-arrow popout-role-members">
+		this.popout = `<div class="popout-2RRwAO noArrow-2iqI6w POPOUT_DID_RERENDERight-ru2QHm popoutRight-ru2QHm popout-role-members">
 						<div class="popoutList-2NT_IY guildSettingsAuditLogsUserFilterPopout-PQPPs5 elevationBorderHigh-3Y6y6W role-members-popout">
 							<div class="flex-lFgbSz flex-3B1Tl4 horizontal-2BEEBe horizontal-2VE-Fw flex-3B1Tl4 directionRow-yNbSvJ justifyStart-2yIZo0 alignStretch-1hwxMa noWrap-v6g9vO searchBar-YMJBu9 popoutListInput-3v5O8b size14-1wjlWP" style="flex: 1 1 auto;">
-								<input class="input-yt44Uw flexChild-1KGW5q" value="" placeholder="Search Members" style="flex: 1 1 auto;">
+								<input class="input-yt44Uw flexChild-1KGW5q" value="" placeholder="Search Members — \${memberCount}" style="flex: 1 1 auto;">
 								<div class="searchBarIcon-vCfmUl flexChild-1KGW5q">
 									<i class="icon-11Zny- eyeGlass-6rahZf visible-4lw4vs"></i>
 									<i class="icon-11Zny- clear-4pSDsx"></i>
@@ -109,7 +109,7 @@ class RoleMembers {
 	}
 
 	showPopout(popout, target) {
-		popout.appendTo($('.popouts'));
+		popout.appendTo($('.popouts, .popouts-1TN9u9'));
 		const maxWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 		const maxHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
@@ -175,7 +175,7 @@ class RoleMembers {
 		let roleItems = [];
 
 		for (let roleId in roles) {
-			if (roleId == guildId) continue;
+			//if (roleId == guildId) continue;
 			let role = roles[roleId];
 			let item = new PluginContextMenu.TextItem(role.name, {
 				callback: () => {
@@ -184,7 +184,7 @@ class RoleMembers {
 					// $(context).hide();
 				}
 			});
-
+			if (role.colorString) item.element.css("color", role.colorString);
 			roleItems.push(item);
 		}
 
@@ -195,8 +195,10 @@ class RoleMembers {
 	showRolePopout(target, guildId, roleId) {
 		let roles = this.GuildStore.getGuild(guildId).roles;
 		let role = roles[roleId];
+		let members = this.GuildMemberStore.getMembers(guildId);
+		if (guildId != roleId) members = members.filter(m => m.roles.includes(role.id));
 
-		let popout = $(this.popout);
+		let popout = $(PluginUtilities.formatString(this.popout, {memberCount: members.length}));
 		let searchInput = popout.find('input');
 		searchInput.on("keyup", () => {
 			let items = popout[0].querySelectorAll(".role-member");
@@ -210,8 +212,7 @@ class RoleMembers {
 		});
 		let scroller = popout.find(".role-members");
 
-		let members = this.GuildMemberStore.getMembers(guildId);
-		members = members.filter(m => m.roles.includes(role.id));
+		
 		for (let member of members) {
 			let user = this.UserStore.getUser(member.userId);
 			let elem = $(PluginUtilities.formatString(this.item, {username: user.username, discriminator: "#" + user.discriminator, avatar_url: this.ImageResolver.getUserAvatarURL(user)}));

@@ -5,7 +5,7 @@
 class ServerSearch {
 	getName() { return "ServerSearch"; }
 	getDescription() { return "Adds a button to search your servers. Search in place or in popout. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.1"; }
+	getVersion() { return "0.0.2"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -31,13 +31,13 @@ class ServerSearch {
 
 		}
 
-		.popout.popout-server-search,
-		.popout.popout-server-search-small {
+		.popout-2RRwAO.popout-server-search,
+		.popout-2RRwAO.popout-server-search-small {
 			margin-top: 0;
 			z-index: 1005;
 		}
 
-		.popout.popout-server-search-small {
+		.popout-2RRwAO.popout-server-search-small {
 			padding: 10px;
 			background:#2f3136;
 			box-shadow: 0 0px 15px rgba(0,0,0,0.6);
@@ -62,7 +62,7 @@ class ServerSearch {
 							</div>`;
 		this.separatorHtml = `<div class="guild-separator server-search-separator"></div>`;
 
-		this.smallPopoutHtml = `<div class="popout no-arrow popout-server-search-small">
+		this.smallPopoutHtml = `<div class="popout-2RRwAO noArrow-2iqI6w POPOUT_DID_RERENDERight-ru2QHm popoutRight-ru2QHm popout-server-search-small">
 								<div class="search-bar">
 									<div class="search-bar-inner">
 										<input type="text" placeholder="Search..." value="">
@@ -70,7 +70,7 @@ class ServerSearch {
 								</div>
 							</div>`;
 
-		this.largePopoutHtml = `<div class="popout no-arrow popout-server-search">
+		this.largePopoutHtml = `<div class="popout-2RRwAO noArrow-2iqI6w POPOUT_DID_RERENDERight-ru2QHm popoutRight-ru2QHm popout-server-search">
 							<div class="popoutList-2NT_IY guildSettingsAuditLogsUserFilterPopout-PQPPs5 elevationBorderHigh-3Y6y6W">
 								<div class="flex-lFgbSz flex-3B1Tl4 horizontal-2BEEBe horizontal-2VE-Fw flex-3B1Tl4 directionRow-yNbSvJ justifyStart-2yIZo0 alignStretch-1hwxMa noWrap-v6g9vO searchBar-YMJBu9 popoutListInput-3v5O8b size14-1wjlWP" style="flex: 1 1 auto;">
 									<input class="input-yt44Uw flexChild-1KGW5q" value="" placeholder="Search Servers - \${count}" style="flex: 1 1 auto;">
@@ -197,7 +197,7 @@ class ServerSearch {
 			if (!guildElement.hasClass("selected")) animate(0);
 		});
 
-		new PluginTooltip.Tooltip(guildElement, "Server Search", {side: "right"});
+		new PluginTooltip.Native(guildElement, "Server Search", {side: "right"});
 
 		guildElement.on("click", (e) => {
 			if (guildElement.hasClass("selected")) return;
@@ -219,7 +219,7 @@ class ServerSearch {
 
 	showPopout(popout, target, id, options = {}) {
 		const {onClose} = options;
-		popout.appendTo($('.popouts'));
+		popout.appendTo($('.popouts, .popouts-1TN9u9'));
 		const maxWidth = window.ZeresLibrary.Screen.width;
 		const maxHeight = window.ZeresLibrary.Screen.height;
 

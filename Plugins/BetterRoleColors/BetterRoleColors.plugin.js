@@ -6,7 +6,7 @@ class BetterRoleColors {
 	getName() { return "BetterRoleColors"; }
 	getShortName() { return "BRC"; }
 	getDescription() { return "Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.6.2"; }
+	getVersion() { return "0.6.3"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -15,7 +15,8 @@ class BetterRoleColors {
 								popouts: {username: false, discriminator: false, nickname: true, fallback: true},
 								modals: {username: true, discriminator: false},
 								auditLog: {username: true, discriminator: false},
-								account: {username: true, discriminator: false}};
+								account: {username: true, discriminator: false},
+								mentions: {changeOnHover: true}};
 		this.settings = this.defaultSettings;
 
 		this.switchObserver = new MutationObserver(() => {});
@@ -99,7 +100,7 @@ class BetterRoleColors {
 			this.colorizeAuditLog();
 		}
 
-		if (elem.querySelector('.userPopout-4pfA0d')) {
+		if (elem.querySelector('.userPopout-11hFKo')) {
 			this.colorizePopout();
 		}
 
@@ -204,6 +205,7 @@ class BetterRoleColors {
 					elem.style.setProperty("color", textColor);
 					elem.style.setProperty("background", ColorUtilities.rgbToAlpha(textColor,0.1));
 
+					if (!this.settings.mentions.changeOnHover) return;
 					$(elem).on("mouseenter." + this.getShortName(), (e)=>{
 						e.target.style.setProperty("color", "#FFFFFF");
 						e.target.style.setProperty("background", ColorUtilities.rgbToAlpha(textColor,0.7));
@@ -219,14 +221,14 @@ class BetterRoleColors {
 
 	colorizePopout() {
 		if (!this.settings.popouts.username && !this.settings.popouts.discriminator && !this.settings.popouts.nickname) return;
-		let popout = document.querySelector('.userPopout-4pfA0d');
+		let popout = document.querySelector('.userPopout-11hFKo');
 		let user = ReactUtilities.getReactProperty(popout, "return.memoizedProps.user");
 		if (!user) return true;
 		let color = this.getUserColor(user.id);
-		var hasNickname = Boolean(popout.querySelector('.headerName-2N8Pdz'));
+		var hasNickname = Boolean(popout.querySelector('.headerName-3U6eDn'));
 		if ((color && this.settings.popouts.username) || (!hasNickname && this.settings.popouts.fallback)) popout.querySelector('.username').style.setProperty("color", color, "important");
 		if (color && this.settings.popouts.discriminator) popout.querySelector('.discriminator').style.setProperty("color", color, "important");
-		if (color && this.settings.popouts.nickname && hasNickname) popout.querySelector('.headerName-2N8Pdz').style.setProperty("color", color, "important");
+		if (color && this.settings.popouts.nickname && hasNickname) popout.querySelector('.headerName-3U6eDn').style.setProperty("color", color, "important");
 	}
 
 	colorizeModal() {
@@ -338,6 +340,11 @@ class BetterRoleColors {
 		new PluginSettings.ControlGroup("Account Options", () => {this.saveSettings(); this.decolorizeAccountStatus(); this.colorizeAccountStatus();}).appendTo(panel).append(
 			new PluginSettings.Checkbox("Username", "Toggles coloring on your username at the bottom.", this.settings.account.username, (checked) => {this.settings.account.username = checked;}),
 			new PluginSettings.Checkbox("Discriminator", "Toggles coloring on your discriminator at the bottom.", this.settings.account.discriminator, (checked) => {this.settings.account.discriminator = checked;})
+		);
+
+		new PluginSettings.ControlGroup("Mention Options", () => {this.saveSettings(); this.decolorizeAccountStatus(); this.colorizeAccountStatus();}).appendTo(panel).append(
+			new PluginSettings.Checkbox("Hover Color", "Turning this on adjusts the color on hover to match role color, having it off defers to your theme.",
+										this.settings.mentions.changeOnHover, (checked) => {this.settings.mentions.changeOnHover = checked;})
 		);
 			
 		var resetButton = $("<button>");

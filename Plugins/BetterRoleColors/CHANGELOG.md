@@ -1,5 +1,10 @@
 # BetterRoleColors Changelog
 
+### 0.6.3
+
+ - Fix for popout changes
+ - Add settings for hovering mentions
+
 ### 0.6.2
 
  - Fix modal coloring
