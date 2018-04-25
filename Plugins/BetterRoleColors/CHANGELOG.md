@@ -1,5 +1,10 @@
 # BetterRoleColors Changelog
 
+### 0.6.4
+
+ - Optimize with lib updates
+ - Fix for new TypingUsers react element
+
 ### 0.6.3
 
  - Fix for popout changes

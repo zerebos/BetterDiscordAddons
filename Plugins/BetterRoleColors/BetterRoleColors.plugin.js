@@ -1,12 +1,12 @@
 //META{"name":"BetterRoleColors", "pname":"BetterRoleColors"}*//
 
-/* global PluginSettings:false, PluginUtilities:false, ReactUtilities:false, DOMUtilities:false, ColorUtilities:false, InternalUtilities:false */
+/* global DiscordModules:false, PluginSettings:false, PluginUtilities:false, ReactUtilities:false, DOMUtilities:false, ColorUtilities:false, InternalUtilities:false */
 
 class BetterRoleColors {
 	getName() { return "BetterRoleColors"; }
 	getShortName() { return "BRC"; }
 	getDescription() { return "Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.6.3"; }
+	getVersion() { return "0.6.4"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -54,15 +54,19 @@ class BetterRoleColors {
 		PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
 		this.loadSettings();
 
-		this.GuildStore = PluginUtilities.WebpackModules.findByUniqueProperties(['getMembers']);
-		this.SelectedGuildStore = PluginUtilities.WebpackModules.findByUniqueProperties(['getLastSelectedGuildId']);
-		this.UserTypingStore = PluginUtilities.WebpackModules.findByUniqueProperties(['isTyping']);
-		this.SelectedChannelStore = PluginUtilities.WebpackModules.findByUniqueProperties(['getLastSelectedChannelId']);
-		this.UserStore = PluginUtilities.WebpackModules.findByUniqueProperties(['getCurrentUser']);
-		this.RelationshipStore = PluginUtilities.WebpackModules.findByUniqueProperties(['isBlocked']);
+		this.GuildStore = DiscordModules.GuildMemberStore;
+		this.SelectedGuildStore = DiscordModules.SelectedGuildStore;
+		this.UserTypingStore = DiscordModules.UserTypingStore;
+		this.SelectedChannelStore = DiscordModules.SelectedChannelStore;
+		this.UserStore = DiscordModules.UserStore;
+		this.RelationshipStore = DiscordModules.RelationshipStore;
 
-		let TypingUsers = InternalUtilities.WebpackModules.findByDisplayName("TypingUsers");
-		this.typingCancel = InternalUtilities.monkeyPatch(TypingUsers.prototype, "render", {after: (data) => {
+		let TypingUsers = InternalUtilities.WebpackModules.find(m => {
+			try { return m.displayName == "FluxContainer(t)" && !(new m({channel: 0})); }
+			catch (e) { return e.toString().includes("isPrivate"); }
+		});
+		
+		this.typingCancel = InternalUtilities.monkeyPatch(TypingUsers.prototype, "componentDidUpdate", {instead: (data) => {
 			setImmediate(() => {this.colorizeTyping(data.thisObject.state.typingUsers);});
 		}});
 
@@ -168,6 +172,7 @@ class BetterRoleColors {
 		if (!this.settings.modules.typing) return;
 		typingUsers = this.filterTypingUsers(typingUsers);
 		document.querySelectorAll(".typing-3eiiL_ strong").forEach((elem, index) => {
+			if (!typingUsers[index]) return;
 			var ID = typingUsers[index].id;
 			elem.style.setProperty("color", this.getUserColor(ID));
 		});
