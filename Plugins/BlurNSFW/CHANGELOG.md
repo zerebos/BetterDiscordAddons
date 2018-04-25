@@ -1,5 +1,10 @@
 # BlurNSFW Changelog
 
+### 0.2.0
+
+ - Rewrite using internals (should be more consistent)
+ - Unblur/blur for play/pause of videos
+
 ### 0.1.9
 
  - Fix for some discord updates

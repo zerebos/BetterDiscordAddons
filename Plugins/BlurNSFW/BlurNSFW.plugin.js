@@ -1,16 +1,15 @@
 //META{"name":"BlurNSFW"}*//
 
-/* global PluginUtilities:false, InternalUtilities:false, BdApi:false */
+/* global DiscordModules:false, PluginUtilities:false, InternalUtilities:false, BdApi:false */
 
 class BlurNSFW {
 	getName() { return "BlurNSFW"; }
 	getShortName() { return "bnsfw"; }
 	getDescription() { return "Blurs images in NSFW channels until you hover over it. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.1.9"; }
+	getVersion() { return "0.2.0"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
-		this.initialized = false;
 		this.style = `:root {--blur-nsfw: 10px; --blur-nsfw-time: 200ms;}
 		img.blur:hover,
 		video.blur:hover {
@@ -23,7 +22,7 @@ class BlurNSFW {
 			filter: blur(var(--blur-nsfw)) !important;
 			transition: var(--blur-nsfw-time) cubic-bezier(.2, .11, 0, 1) !important;
 		}`;
-		this.selectors = ['.embedImage-1JnXMa img', '.embedImage-1JnXMa video', '.imageZoom-2suFUV img', '.imageZoom-2suFUV video'];
+		this.cancels = [];
 	}
 	
 	load() {}
@@ -46,60 +45,40 @@ class BlurNSFW {
 		this.initialized = true;
 		PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
 		BdApi.injectCSS(this.getShortName(), this.style);
-		this.SelectedChannelStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getLastSelectedChannelId']);
-		this.ChannelStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getChannels', 'getDMFromUserId']);
-		this.blurStuff();
+
+		let SelectedChannelStore = DiscordModules.SelectedChannelStore;
+		let ChannelStore = DiscordModules.ChannelStore;
+		let ReactDOM = DiscordModules.ReactDOM;
+		let InlineMediaWrapper = InternalUtilities.WebpackModules.findByUniqueProperties(['ImageReadyStates']).default;
+
+		let blurAccessory = (data) => {
+			let channel = ChannelStore.getChannel(SelectedChannelStore.getChannelId());
+			if (!channel.isNSFW()) return;
+			let element = ReactDOM.findDOMNode(data.thisObject);
+			let mediaElement = element.querySelector("img") || element.querySelector("video");
+			if (!mediaElement) return;
+
+			mediaElement.classList.add("blur");
+			
+			if (mediaElement.tagName !== "VIDEO") return;
+			mediaElement.addEventListener("play", () => {
+				if (mediaElement.autoplay) return;
+				mediaElement.classList.remove("blur");
+			});
+			mediaElement.addEventListener("pause", () => {
+				if (mediaElement.autoplay) return;
+				mediaElement.classList.add("blur");
+			});
+		};
+		
+		this.cancels.push(InternalUtilities.monkeyPatch(InlineMediaWrapper.prototype, "componentDidMount", {instead: blurAccessory}));
+		this.cancels.push(InternalUtilities.monkeyPatch(InlineMediaWrapper.prototype, "componentDidUpdate", {instead: blurAccessory}));
 		PluginUtilities.showToast(this.getName() + " " + this.getVersion() + " has started.");
 	}
 
 	stop() {
-		this.unblurStuff();
+		for (let cancel of this.cancels) cancel();
 		BdApi.clearCSS(this.getShortName());
-	}
-
-	isNSFWChannel() {
-		if (!document.querySelector('.chat')) return false;
-		let channel = this.ChannelStore.getChannel(this.SelectedChannelStore.getChannelId());
-		return channel.isNSFW();
-	}
-
-	blurStuff() {
-		if (!this.isNSFWChannel()) return;
-
-		for (var i = 0; i < this.selectors.length; i++) {
-			document.querySelectorAll(this.selectors[i]).forEach((elem) => {
-				if (!elem.classList.contains("blur")) {
-					elem.classList.add("blur");
-					elem.parentElement.style.setProperty("overflow", "hidden");
-				}
-			});
-		}
-	}
-
-	unblurStuff() {
-		for (var i = 0; i < this.selectors.length; i++) {
-			document.querySelectorAll(this.selectors[i]).forEach((elem) => {
-				if (elem.classList.contains("blur")) {
-					elem.classList.remove("blur");
-					elem.parentElement.style.setProperty("overflow", "");
-				}
-			});
-		}
-	}
-
-	observer(e){
-
-		if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element) || !this.initialized) return;
-		var elem = $(e.addedNodes[0]);
-
-		if (elem.parents(".messages.scroller").length || elem.find(".message-group").parents(".messages.scroller").length) {
-			this.blurStuff();
-		}
-
-		if ((elem.find("img").length || elem.find("video").length) && elem.parents(".messages.scroller").length) {
-			this.blurStuff();
-		}
-
 	}
 
 	getSettingsPanel() {
