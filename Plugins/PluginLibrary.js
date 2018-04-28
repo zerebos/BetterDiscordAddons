@@ -239,7 +239,7 @@ var DiscordModules = {
     get UserModalClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(['profileBadge']);},
     get TextareaClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(['channelTextArea']);},
     get PopoutClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(['popouts']);},
-    get SettingsMetaClasses() {InternalUtilities.WebpackModules.findByUniqueProperties(['defaultMarginh5']);}
+    get SettingsMetaClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(['defaultMarginh5']);}
 };
 /* ================== END MODULE ================== */
 
