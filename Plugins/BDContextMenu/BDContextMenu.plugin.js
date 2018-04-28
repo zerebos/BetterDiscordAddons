@@ -6,7 +6,7 @@ class BDContextMenu {
 	getName() { return "BDContextMenu"; }
 	getShortName() { return "BDContextMenu"; }
 	getDescription() { return "Adds BD shortcuts to the settings context menu. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.7"; }
+	getVersion() { return "0.0.8"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -43,11 +43,11 @@ class BDContextMenu {
         $('*').off('.bdcs');
     }
 
-    observer(e) {
+    /*observer(e) {
         if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element) || !e.addedNodes[0].classList) return;
         if (!e.addedNodes[0].querySelector(`.${DiscordModules.AccountDetailsClasses.container} > div > .${DiscordModules.AccountDetailsClasses.button}`)) return;
         $(`.${DiscordModules.AccountDetailsClasses.container} > div > .${DiscordModules.AccountDetailsClasses.button}`).on('contextmenu.bdcs', () => { this.bindContextMenus(); });
-    }
+    }*/
     
     bindContextMenus() {
 		this.contextObserver.observe(document.querySelector('#app-mount'), {childList: true, subtree: true});
