@@ -226,9 +226,20 @@ var DiscordModules = {
     get ContextMenuActions() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byCode(/CONTEXT_MENU_CLOSE/, c => c.close));},
     get ContextMenuItemsGroup() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byCode(/itemGroup/));},
     get ContextMenuItem() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byCode(/\.label\b.*\.hint\b.*\.action\b/));},
+    get ContextMenuClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(['itemToggle']);},
 
     /* In-Message Links */
-    get ExternalLink() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byCode(/\.trusted\b/));}
+    get ExternalLink() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byCode(/\.trusted\b/));},
+
+    /* Sort Later FML */
+    get ScrollerClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(['scrollerWrap']);},
+    get AccountDetailsClasses() {return Object.assign({}, InternalUtilities.WebpackModules.findByUniqueProperties(['nameTag']), InternalUtilities.WebpackModules.findByUniqueProperties(['accountDetails']));},
+    get TypingClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(['typing', 'text']);},
+    get UserPopoutClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(['userPopout']);},
+    get UserModalClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(['profileBadge']);},
+    get TextareaClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(['channelTextArea']);},
+    get PopoutClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(['popouts']);},
+    get SettingsMetaClasses() {InternalUtilities.WebpackModules.findByUniqueProperties(['defaultMarginh5']);}
 };
 /* ================== END MODULE ================== */
 
@@ -712,11 +723,15 @@ PluginContextMenu.Menu = class Menu {
      */
 	constructor(scroll = false) {
 		this.theme = $('.theme-dark').length ? "theme-dark" : "theme-light";
-		this.element = $("<div>").addClass("contextMenu-HLZMGh").addClass("plugin-context-menu").addClass(this.theme);
+		this.element = $("<div>").addClass(DiscordModules.ContextMenuClasses.contextMenu).addClass("plugin-context-menu").addClass(this.theme);
 		this.scroll = scroll;
 		if (scroll) {
-			this.element.append($("<div>").addClass("scrollerWrap-2lJEkd").addClass("scrollerThemed-2oenus").addClass("themeGhostHairline-DBD-2d").append(
-				$("<div>").addClass("scroller-2FKFPG").addClass("scroller-2PSBSf")
+			this.scroller = $("<div>").addClass(DiscordModules.ScrollerClasses.scroller).addClass(DiscordModules.ContextMenuClasses.scroller);
+			this.element.append($("<div>")
+				.addClass(DiscordModules.ScrollerClasses.scrollerWrap)
+				.addClass(DiscordModules.ScrollerClasses.scrollerThemed)
+				.addClass(DiscordModules.ScrollerClasses.themeGhostHairline).append(
+					this.scroller
 			));
 		}
 	}
@@ -727,7 +742,7 @@ PluginContextMenu.Menu = class Menu {
      * @returns {PluginContextMenu.Menu} returns self for chaining
      */
 	addGroup(contextGroup) {
-		if (this.scroll) this.element.find(".scroller-2FKFPG").append(contextGroup.getElement());
+		if (this.scroll) this.scroller.append(contextGroup.getElement());
 		else this.element.append(contextGroup.getElement());
 		return this;
 	}
@@ -740,7 +755,7 @@ PluginContextMenu.Menu = class Menu {
      */
 	addItems(...contextItems) {
 		for (var i = 0; i < contextItems.length; i++) {
-			if (this.scroll) this.element.find(".scroller-2FKFPG").append(contextItems[i].getElement());
+			if (this.scroll) this.scroller.append(contextItems[i].getElement());
 			else this.element.append(contextItems[i].getElement());
 		}
 		return this;
@@ -758,7 +773,7 @@ PluginContextMenu.Menu = class Menu {
 		const mouseX = x;
 		const mouseY = y;
 		
-		let type = this.element.parents(".plugin-context-menu").length > this.element.parents(".contextMenu-HLZMGh").length ? ".plugin-context-menu" : ".contextMenu-HLZMGh";
+		let type = this.element.parents(".plugin-context-menu").length > this.element.parents(`.${DiscordModules.ContextMenuClasses.contextMenu}`).length ? ".plugin-context-menu" : `.${DiscordModules.ContextMenuClasses.contextMenu}`;
 		var depth = this.element.parents(type).length;
 		if (depth == 0) this.element.appendTo('#app-mount');
 		this.element.css("top", mouseY).css("left", mouseX);
@@ -766,12 +781,12 @@ PluginContextMenu.Menu = class Menu {
 		if (depth > 0) {
 			var top = this.element.parents(type).last();
 			var closest = this.element.parents(type).first();
-			var negate = closest.hasClass("invertChildX-LNv3Ce") ? -1 : 1;
-			this.element.css("margin-left", negate * closest.find('.item-1Yvehc').outerWidth() + closest.offset().left - top.offset().left);
+			var negate = closest.hasClass(DiscordModules.ContextMenuClasses.invertChildX) ? -1 : 1;
+			this.element.css("margin-left", negate * closest.find(`.${DiscordModules.ContextMenuClasses.item}`).outerWidth() + closest.offset().left - top.offset().left);
 		}
 		
 		if (mouseY + this.element.outerHeight() >= maxHeight) {
-			this.element.addClass("invertY").addClass("undefined");
+			this.element.addClass("invertY").addClass(DiscordModules.ContextMenuClasses.invertY);
 			this.element.css("top", mouseY - this.element.outerHeight());
 			if (depth > 0) this.element.css("top", (mouseY + this.element.parent().outerHeight()) - this.element.outerHeight());
 		}
@@ -780,7 +795,7 @@ PluginContextMenu.Menu = class Menu {
 			this.element.css("left", mouseX - this.element.outerWidth());
 		}
 		if (this.element.offset().left + 2 * this.element.outerWidth() >= maxWidth) {
-			this.element.addClass("invertChildX-LNv3Ce");
+			this.element.addClass(DiscordModules.ContextMenuClasses.invertChildX);
 		}
 
 		if (depth == 0) {
@@ -791,7 +806,7 @@ PluginContextMenu.Menu = class Menu {
 			});
 			$(document).on("click.zctx", (e) => {
 				if (this.element.has(e.target).length) {
-					if ($._data($(e.target).closest(".item")[0], 'events').click) {
+					if ($._data($(e.target).closest(`.${DiscordModules.ContextMenuClasses.item}`)[0], 'events').click) {
 						this.removeMenu();
 					}
 				}
@@ -806,7 +821,7 @@ PluginContextMenu.Menu = class Menu {
     
     /** Allows you to remove the menu. */
 	removeMenu() {
-		let type = this.element.parents(".plugin-context-menu").length > this.element.parents(".contextMenu-HLZMGh").length ? ".plugin-context-menu" : ".contextMenu-HLZMGh";
+		let type = this.element.parents(".plugin-context-menu").length > this.element.parents(`.${DiscordModules.ContextMenuClasses.contextMenu}`).length ? ".plugin-context-menu" : `.${DiscordModules.ContextMenuClasses.contextMenu}`;
 		this.element.detach();
 		this.element.find(type).detach();
 		$(document).off(".zctx");
@@ -824,7 +839,7 @@ PluginContextMenu.Menu = class Menu {
 		this.menuItem = $(menuItem);
 		menuItem.on("mouseenter", () => {
 			this.element.appendTo(menuItem);
-			let type = this.element.parents(".plugin-context-menu").length > this.element.parents(".contextMenu-HLZMGh").length ? ".plugin-context-menu" : ".contextMenu-HLZMGh";
+			let type = this.element.parents(".plugin-context-menu").length > this.element.parents(`.${DiscordModules.ContextMenuClasses.contextMenu}`).length ? ".plugin-context-menu" : `.${DiscordModules.ContextMenuClasses.contextMenu}`;
 			this.show(this.element.parents(type).css("left"), menuItem.offset().top);
 		});
 		menuItem.on("mouseleave", () => { this.element.detach(); });
@@ -835,7 +850,7 @@ PluginContextMenu.Menu = class Menu {
 PluginContextMenu.ItemGroup = class ItemGroup {
     /** Creates an item group. */
 	constructor() {
-		this.element = $("<div>").addClass("itemGroup-1tL0uz");
+		this.element = $("<div>").addClass(DiscordModules.ContextMenuClasses.itemGroup);
 	}
     
     /**
@@ -876,9 +891,9 @@ PluginContextMenu.MenuItem = class MenuItem {
      */
 	constructor(label, options = {}) {
 		var {danger = false, callback} = options;
-		this.element = $("<div>").addClass("item-1Yvehc");
+		this.element = $("<div>").addClass(DiscordModules.ContextMenuClasses.item);
 		this.label = label;
-		if (danger) this.element.addClass("danger-1oUOCl");
+		if (danger) this.element.addClass(DiscordModules.ContextMenuClasses.danger);
 		if (typeof(callback) == 'function') {
 			this.element.on("click", (event) => {
 				event.stopPropagation();
@@ -905,7 +920,7 @@ PluginContextMenu.TextItem = class TextItem extends PluginContextMenu.MenuItem {
 		super(label, options);
 		var {hint = ""} = options;
 		this.element.append($("<span>").text(label));
-		this.element.append($("<div>").addClass("hint-22uc-R").text(hint));
+		this.element.append($("<div>").addClass(DiscordModules.ContextMenuClasses.hint).text(hint));
 	}
 };
 
@@ -924,8 +939,8 @@ PluginContextMenu.ImageItem = class ImageItem extends PluginContextMenu.MenuItem
      */
 	constructor(label, imageSrc, options = {}) {
 		super(label, options);
-		this.element.addClass("itemImage-htIz_v");
-		this.element.append($("<div>").addClass("label-JWQiNe").text(label));
+		this.element.addClass(DiscordModules.ContextMenuClasses.itemImage);
+		this.element.append($("<div>").addClass(DiscordModules.ContextMenuClasses.label).text(label));
 		this.element.append($("<img>", {src: imageSrc}));
 	}
 };
@@ -946,7 +961,7 @@ PluginContextMenu.SubMenuItem = class SubMenuItem extends PluginContextMenu.Menu
 	constructor(label, subMenu, options = {}) {
 		// if (!(subMenu instanceof ContextSubMenu)) throw "subMenu must be of ContextSubMenu type.";
 		super(label, options);
-		this.element.addClass("itemSubMenu-1vN_Yn").text(label);
+		this.element.addClass(DiscordModules.ContextMenuClasses.itemSubMenu).text(label);
 		this.subMenu = subMenu;
 		this.subMenu.attachTo(this.getElement());
 	}
@@ -969,8 +984,8 @@ PluginContextMenu.ToggleItem = class ToggleItem extends PluginContextMenu.MenuIt
 	constructor(label, checked, options = {}) {
         var {onChange} = options;
 		super(label, options);
-		this.element.addClass("itemToggle-S7XGOQ");
-        this.element.append($("<div>").addClass("label-JWQiNe").text(label));
+		this.element.addClass(DiscordModules.ContextMenuClasses.itemToggle);
+        this.element.append($("<div>").addClass(DiscordModules.ContextMenuClasses.label).text(label));
         this.checkbox = $("<div>", {class: "checkbox"});
         this.checkbox.append($("<div>", {class: "checkbox-inner"}));
         this.checkbox.append("<span>");
@@ -1132,7 +1147,7 @@ PluginSettings.ControlGroup = class ControlGroup {
 		this.group = $("<div>").addClass("plugin-control-group").css("margin-top", "15px");
 		var collapsed = shown || !collapsible ? '' : ' collapsed';
 		var label = $('<h2>').html('<span class="button-collapse' + collapsed + '" style=""></span> ' + groupName);
-		label.attr("class", "h5-3KssQU title-1pmpPr marginReset-3hwONl height16-1qXrGy weightSemiBold-T8sxWH defaultMarginh5-2UwwFY marginBottom8-1mABJ4");
+		label.attr("class", `${DiscordModules.SettingsMetaClasses.h5} ${DiscordModules.SettingsMetaClasses.defaultMarginh5}`);
 		this.group.append(label);
 		this.controls = $('<div class="plugin-controls collapsible' + collapsed + '">');
 		this.group.append(this.controls);
