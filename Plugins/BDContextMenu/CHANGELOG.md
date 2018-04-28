@@ -1,6 +1,11 @@
 # BDContextMenu Changelog
 
-### 0.0.
+### 0.0.7
+
+ - Fix for discord update
+ - Use internal classes
+
+### 0.0.6
 
  - Fuck discord
 

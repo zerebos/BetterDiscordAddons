@@ -1,5 +1,10 @@
 # AccountDetailsPlus Changelog
 
+### 0.0.3
+
+ - Fix for updates
+ - Use internal classes
+
 ### 0.0.2
 
  - Fix for discord's refactor

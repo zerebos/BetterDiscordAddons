@@ -6,7 +6,7 @@ class BetterFormattingRedux {
 	getName() { return "BetterFormattingRedux"; }
 	getShortName() { return "BFRedux"; }
 	getDescription() { return "Enables different types of formatting in standard Discord chat. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "2.2.6"; }
+	getVersion() { return "2.2.7"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -387,8 +387,8 @@ class BetterFormattingRedux {
 
 		var elem = e.addedNodes[0];
 		
-		if (elem.querySelector(".textArea-20yzAH") && this.initialized) {
-			var textarea = elem.querySelector(".textArea-20yzAH");
+		if (elem.querySelector(`.${DiscordModules.TextareaClasses.textArea}`) && this.initialized) {
+			var textarea = elem.querySelector(`.${DiscordModules.TextareaClasses.textArea}`);
 			this.addToolbar($(textarea));
 		}
 	}
@@ -606,7 +606,7 @@ class BetterFormattingRedux {
 	
 	setupToolbar() {
 		$(".bf-toolbar").remove();
-		$(".channelTextArea-1HTP3C textarea").each((index, elem) => {
+		$(`.${DiscordModules.TextareaClasses.channelTextArea} textarea`).each((index, elem) => {
 			this.addToolbar($(elem));
 		});
 	}

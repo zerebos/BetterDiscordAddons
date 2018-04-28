@@ -1,12 +1,12 @@
 //META{"name":"PermissionsViewer","pname":"PermissionsViewer"}*//
 
-/* global DiscordPermissions:false, ReactUtilities:false, InternalUtilities:false, ColorUtilities:false, PluginUtilities:false, PluginSettings:false, BdApi:false */
+/* global DiscordPermissions:false, ReactUtilities:false, DiscordModules:false, InternalUtilities:false, ColorUtilities:false, PluginUtilities:false, PluginSettings:false, BdApi:false */
 
 class PermissionsViewer {
 	getName() { return "PermissionsViewer"; }
 	getShortName() { return "PermissionsViewer"; }
 	getDescription() { return "Allows you to view a user's permissions. Thanks to Noodlebox for the idea! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.12"; }
+	getVersion() { return "0.0.13"; }
 	getAuthor() { return "Zerebos"; }
 	
 	constructor() {
@@ -303,7 +303,7 @@ class PermissionsViewer {
 		}
 		`;
 
-		this.listHTML = `<div class="member-perms-header bodyTitle-yehI7c marginBottom8-1mABJ4 size12-1IGJl9 weightBold-2qbcng ">
+		this.listHTML = `<div class="member-perms-header bodyTitle-Y0qMQz marginBottom8-AtZOdT size12-3R0845 weightBold-2yjlgw">
 							<div class="member-perms-title">\${label}</div>
 							<span class="perm-details">
 								<svg name="Details" viewBox="0 0 24 24" class="bodyTitleIconForeground-itKW-t perm-details-button" fill="currentColor">
@@ -312,7 +312,7 @@ class PermissionsViewer {
 								</svg>
 							</span>
 						</div>
-						<ul class="member-perms endBodySection-1WYzxu marginBottom20-2Ifj-2"></ul>`;
+						<ul class="member-perms endBodySection-Rf4s-7 marginBottom20-32qID7"></ul>`;
 		
 		this.itemHTML = `<component class="member-perm">
 							<span class="name"></span>
@@ -324,7 +324,7 @@ class PermissionsViewer {
 						</li>`;
 
 		this.modalHTML = `<div id="permissions-modal-wrapper">
-							<div class="callout-backdrop backdrop-2ohBEd"></div>
+							<div class="callout-backdrop backdrop-1ocfXc"></div>
 							<div class="modal-wrapper modal-2LIEKY">
 								<div id="permissions-modal" class="inner-1_1f7b">
 									<div class="header"><div class="title">\${header}</div></div>
@@ -414,7 +414,7 @@ class PermissionsViewer {
 		BdApi.injectCSS(this.getShortName(), this.css);
 		this.loadSettings();
 		this.contextListener = () => {
-			this.bindMenu(document.querySelector('.contextMenu-uoJTbz'));
+			this.bindMenu(document.querySelector(`.${DiscordModules.ContextMenuClasses.contextMenu}`));
 		};
 
 		this.GuildStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getGuild']);
@@ -447,7 +447,7 @@ class PermissionsViewer {
 	observeContextMenus(e) {
 		if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element) || !e.addedNodes[0].classList) return;
 		let elem = e.addedNodes[0];
-		let context = elem.classList.contains('contextMenu-uoJTbz') ? elem : elem.querySelector('.contextMenu-uoJTbz');
+		let context = elem.classList.contains(DiscordModules.ContextMenuClasses.contextMenu);
 		if (!context) return;
 
 		let isUserContext = ReactUtilities.getReactProperty(context, "return.memoizedProps.user");
@@ -468,12 +468,12 @@ class PermissionsViewer {
 			this.showModal(this.createModal(name, user, guild));
 			
 		});
-		$(context).find('.item-1XYaYf').first().after(item);
+		$(context).find(`.${DiscordModules.ContextMenuClasses.item}`).first().after(item);
 
 	}
 
 	bindPopouts() {
-		this.popoutObserver.observe(document.querySelector('.popouts') || document.querySelector('#app-mount'), {childList: true, subtree: true});
+		this.popoutObserver.observe(document.querySelector(`.${DiscordModules.PopoutClasses.popouts}`) || document.querySelector('#app-mount'), {childList: true, subtree: true});
 	}
 
 	unbindPopouts() {
@@ -483,12 +483,11 @@ class PermissionsViewer {
 	observePopouts(e) {
 		if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element) || !e.addedNodes[0].classList) return;
 		let elem = e.addedNodes[0];
-		let popout = elem.querySelector('[class*="userPopout-"]');
+		let popout = elem.querySelector(`.${DiscordModules.UserPopoutClasses.userPopout}`);
 		if (!popout) return;
 
 		let {user, guild, name} = this.getInfoFromPopout(popout);
 		if (!user || !guild || !name) return;
-		let modal = this.createModal(name, user, guild);
 
 		let userRoles = user.roles.slice(0);
 		userRoles.push(guild.id);
@@ -496,10 +495,12 @@ class PermissionsViewer {
 		perms = 0;
 
 
-		$('.root-uMQa_6').after(PluginUtilities.formatString(this.listHTML, {label: this.strings.popout.label}));
+		$(`.${DiscordModules.UserPopoutClasses.rolesList}`).after(PluginUtilities.formatString(this.listHTML, {label: this.strings.popout.label}));
 		
 		userRoles.reverse();
-		userRoles.forEach((role) => {
+		for (let r = 0; r < userRoles.length; r++) {
+			let role = userRoles[r];
+		// userRoles.forEach((role) => {
 			perms = perms | guild.roles[role].permissions;
 			let userPerms = new DiscordPermissions(perms);
 			// console.log(guild.roles[role]);
@@ -518,22 +519,22 @@ class PermissionsViewer {
 					$('.member-perms').append(element);
 				}
 			}
-		});
+		// });
+		}
 
 		// $('.member-perms .member-perm').reverse();
 		$('.member-perms').append($('.member-perms .member-perm').get().reverse());
 
 
-
 		const maxHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-		let jPopout = $(elem).find('[class*="userPopout-"]');
+		let jPopout = $(popout);
 		if (jPopout.offset().top + jPopout.outerHeight() >= maxHeight) {
 			let shift = Math.round((jPopout.offset().top + jPopout.outerHeight() - maxHeight) + 20);
 			popout.style.setProperty("transform", "translateY(-" + shift + "px)");
 		}
 
 		$('.perm-details-button').on('click', () => {
-			this.showModal(modal);
+			this.showModal(this.createModal(name, user, guild));
 		});
 	}
 

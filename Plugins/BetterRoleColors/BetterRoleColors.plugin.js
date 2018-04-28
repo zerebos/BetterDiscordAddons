@@ -6,7 +6,7 @@ class BetterRoleColors {
 	getName() { return "BetterRoleColors"; }
 	getShortName() { return "BRC"; }
 	getDescription() { return "Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.6.4"; }
+	getVersion() { return "0.6.5"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -96,7 +96,7 @@ class BetterRoleColors {
 
 		if (elem.querySelector("#friends") || elem.id == "friends") this.onChannelSwitch();
 
-		if (elem.querySelector(".draggable-3SphXU") || elem.classList.contains("draggable-3SphXU")) {
+		if (elem.querySelector(".draggable-1KoBzC") || elem.classList.contains("draggable-1KoBzC")) {
 			this.colorizeVoice();
 		}
 
@@ -104,11 +104,11 @@ class BetterRoleColors {
 			this.colorizeAuditLog();
 		}
 
-		if (elem.querySelector('.userPopout-11hFKo')) {
+		if (elem.querySelector(`.${DiscordModules.UserPopoutClasses.userPopout}`)) {
 			this.colorizePopout();
 		}
 
-		if (elem.querySelector(".root-2sNHUF")) {
+		if (elem.querySelector(`.${DiscordModules.UserModalClasses.root}`)) {
 			this.colorizeModal();
 		}
 
@@ -145,7 +145,7 @@ class BetterRoleColors {
 
 	colorizeAccountStatus() {
 		if (!this.settings.account.username && !this.settings.account.discriminator) return;
-		let account = document.querySelector('.accountDetails-15i-_e');
+		let account = document.querySelector(`.${DiscordModules.AccountDetailsClasses.accountDetails}`);
 		if (!account) return;
 		let color = this.getUserColor(this.UserStore.getCurrentUser().id);
 		if (this.settings.account.username) account.querySelector(".username").style.setProperty("color", color, "important");
@@ -171,7 +171,7 @@ class BetterRoleColors {
 	colorizeTyping(typingUsers) {
 		if (!this.settings.modules.typing) return;
 		typingUsers = this.filterTypingUsers(typingUsers);
-		document.querySelectorAll(".typing-3eiiL_ strong").forEach((elem, index) => {
+		document.querySelectorAll(`.${DiscordModules.TypingClasses.typing} strong`).forEach((elem, index) => {
 			if (!typingUsers[index]) return;
 			var ID = typingUsers[index].id;
 			elem.style.setProperty("color", this.getUserColor(ID));
@@ -180,7 +180,7 @@ class BetterRoleColors {
 
 	colorizeVoice() {
 		if (!this.settings.modules.voice) return;
-		document.querySelectorAll(".draggable-3SphXU").forEach((elem) => {
+		document.querySelectorAll(".draggable-1KoBzC").forEach((elem) => {
 			let user = ReactUtilities.getReactProperty(elem, "return.memoizedProps.user");
 			elem.querySelector('[class*="name"]').style.setProperty("color", this.getUserColor(user.id));
 		});
@@ -226,19 +226,19 @@ class BetterRoleColors {
 
 	colorizePopout() {
 		if (!this.settings.popouts.username && !this.settings.popouts.discriminator && !this.settings.popouts.nickname) return;
-		let popout = document.querySelector('.userPopout-11hFKo');
+		let popout = document.querySelector(`.${DiscordModules.UserPopoutClasses.userPopout}`);
 		let user = ReactUtilities.getReactProperty(popout, "return.memoizedProps.user");
 		if (!user) return true;
 		let color = this.getUserColor(user.id);
-		var hasNickname = Boolean(popout.querySelector('.headerName-3U6eDn'));
+		var hasNickname = Boolean(popout.querySelector(`.${DiscordModules.UserPopoutClasses.headerName}`));
 		if ((color && this.settings.popouts.username) || (!hasNickname && this.settings.popouts.fallback)) popout.querySelector('.username').style.setProperty("color", color, "important");
 		if (color && this.settings.popouts.discriminator) popout.querySelector('.discriminator').style.setProperty("color", color, "important");
-		if (color && this.settings.popouts.nickname && hasNickname) popout.querySelector('.headerName-3U6eDn').style.setProperty("color", color, "important");
+		if (color && this.settings.popouts.nickname && hasNickname) popout.querySelector(`.${DiscordModules.UserPopoutClasses.headerName}`).style.setProperty("color", color, "important");
 	}
 
 	colorizeModal() {
 		if (!this.settings.modals.username && !this.settings.modals.discriminator) return;
-		let modal = document.querySelector(".root-2sNHUF");
+		let modal = document.querySelector(`.${DiscordModules.UserModalClasses.root}`);
 		let user = ReactUtilities.getReactProperty(modal, "return.return.memoizedProps.user");
 		let color = this.getUserColor(user.id);
 		if (color && this.settings.modals.username) modal.querySelector('.username').style.setProperty("color", color, "important");
@@ -275,7 +275,7 @@ class BetterRoleColors {
 	}
 
 	decolorizeTyping() { if (this.typingCancel) this.typingCancel(); }
-	decolorizeVoice() { $('.draggable-3SphXU').each((index, elem)=>{$(elem).find(".avatarContainer-303pFz").siblings().first().css("color", "");}); }
+	decolorizeVoice() { $('.draggable-1KoBzC').each((index, elem)=>{$(elem).find(".avatarContainer-303pFz").siblings().first().css("color", "");}); }
 	decolorizeMentions() { $('.mention').each((index, elem)=>{$(elem).css("color","");$(elem).css("background","");}); $(".mention").off("." + this.getShortName()); }
 	decolorizePopouts() {
 		$('div[class*="userPopout"]').each((index, elem) => {

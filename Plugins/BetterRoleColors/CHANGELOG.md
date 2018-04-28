@@ -1,5 +1,10 @@
 # BetterRoleColors Changelog
 
+### 0.6.5
+
+ - Fix for discord update
+ - Use internal classes
+
 ### 0.6.4
 
  - Optimize with lib updates

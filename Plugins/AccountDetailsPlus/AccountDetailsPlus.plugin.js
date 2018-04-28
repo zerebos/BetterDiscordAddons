@@ -6,7 +6,7 @@ class AccountDetailsPlus {
 	getName() { return "AccountDetailsPlus"; }
 	getShortName() { return "acp"; }
 	getDescription() { return "Lets you view popout, nickname and more from your account panel at the bottom. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.2"; }
+	getVersion() { return "0.0.3"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -84,7 +84,7 @@ class AccountDetailsPlus {
 
         this.currentUser = this.UserStore.getCurrentUser();
 
-        this.popoutWrapper = ReactUtilities.getReactProperty(document.querySelector('.container-iksrDt .avatar-small'), "return.return.return.return.stateNode");
+        this.popoutWrapper = ReactUtilities.getReactProperty(document.querySelector(`.${DiscordModules.AccountDetailsClasses.container} .avatar-small`), "return.return.return.return.stateNode");
         this.originalRender = this.popoutWrapper.props.render;
      
         this.activateShit();
@@ -102,33 +102,34 @@ class AccountDetailsPlus {
     }
 
     activateShit() {
-        $('.container-iksrDt .nameTag-26T3kW').off('.' + this.getShortName());
-        $('.container-iksrDt .avatar-small').off('.' + this.getShortName());
+        $(`.${DiscordModules.AccountDetailsClasses.container} .${DiscordModules.AccountDetailsClasses.nameTag}`).off('.' + this.getShortName());
+        $(`.${DiscordModules.AccountDetailsClasses.container} .avatar-small`).off('.' + this.getShortName());
         $(document).off('.' + this.getShortName());
+        this.usernameCSS = `.${DiscordModules.AccountDetailsClasses.container} .${DiscordModules.AccountDetailsClasses.nameTag} { cursor: pointer; }`;
         BdApi.clearCSS(this.getName() + "-css");
-        document.querySelector('.container-iksrDt .username').textContent = this.currentUser.username;
+        document.querySelector(`.${DiscordModules.AccountDetailsClasses.container} .username`).textContent = this.currentUser.username;
         
         if (this.settings.nickname.showNickname || this.settings.nickname.oppositeOnHover) {
            $(document).on('mousemove.' + this.getShortName(), (e) => { this.adjustNickname(e); });
         }
         if (this.settings.popout.username) {
             BdApi.injectCSS(this.getName() + "-css", this.usernameCSS);
-            $('.container-iksrDt .nameTag-26T3kW').on('mousedown.' + this.getShortName(), () => { this.popoutOpen = this.popoutWrapper.state.isOpen; });
-            $('.container-iksrDt .nameTag-26T3kW').on('click.' + this.getShortName(), (e) => { if (!this.popoutOpen) this.showUserPopout(e); });
+            $(`.${DiscordModules.AccountDetailsClasses.container} .${DiscordModules.AccountDetailsClasses.nameTag}`).on('mousedown.' + this.getShortName(), () => { this.popoutOpen = this.popoutWrapper.state.isOpen; });
+            $(`.${DiscordModules.AccountDetailsClasses.container} .${DiscordModules.AccountDetailsClasses.nameTag}`).on('click.' + this.getShortName(), (e) => { if (!this.popoutOpen) this.showUserPopout(e); });
         }
         if (this.settings.popout.avatar) {
-            $('.container-iksrDt .nameTag-26T3kW').on('mousedown.' + this.getShortName(), () => { this.popoutOpen = this.popoutWrapper.state.isOpen; });
-            $('.container-iksrDt .avatar-small').on('click.' + this.getShortName(), (e) => { if (!this.popoutOpen) this.showUserPopout(e); });
+            $(`.${DiscordModules.AccountDetailsClasses.container} .${DiscordModules.AccountDetailsClasses.nameTag}`).on('mousedown.' + this.getShortName(), () => { this.popoutOpen = this.popoutWrapper.state.isOpen; });
+            $(`.${DiscordModules.AccountDetailsClasses.container} .avatar-small`).on('click.' + this.getShortName(), (e) => { if (!this.popoutOpen) this.showUserPopout(e); });
         }
         if (this.settings.statusPicker.username) {
-            $('.container-iksrDt .nameTag-26T3kW').on('mousedown.' + this.getShortName(), () => { this.popoutOpen = this.popoutWrapper.state.isOpen; });
-            $('.container-iksrDt .nameTag-26T3kW').on('contextmenu.' + this.getShortName(), (e) => {
+            $(`.${DiscordModules.AccountDetailsClasses.container} .${DiscordModules.AccountDetailsClasses.nameTag}`).on('mousedown.' + this.getShortName(), () => { this.popoutOpen = this.popoutWrapper.state.isOpen; });
+            $(`.${DiscordModules.AccountDetailsClasses.container} .${DiscordModules.AccountDetailsClasses.nameTag}`).on('contextmenu.' + this.getShortName(), (e) => {
                 if (!this.popoutOpen) this.showStatusPicker(e);
             });
         }
         if (this.settings.statusPicker.avatar) {
-            $('.container-iksrDt .avatar-small').on('mousedown.' + this.getShortName(), () => { this.popoutOpen = this.popoutWrapper.state.isOpen; });
-            $('.container-iksrDt .avatar-small').on('contextmenu.' + this.getShortName(), (e) => {
+            $(`.${DiscordModules.AccountDetailsClasses.container} .avatar-small`).on('mousedown.' + this.getShortName(), () => { this.popoutOpen = this.popoutWrapper.state.isOpen; });
+            $(`.${DiscordModules.AccountDetailsClasses.container} .avatar-small`).on('contextmenu.' + this.getShortName(), (e) => {
                 if (!this.popoutOpen) this.showStatusPicker(e);
             });
         }
@@ -136,7 +137,7 @@ class AccountDetailsPlus {
 
     adjustNickname(e) {
         if (!e || !e.target || !(e.target instanceof Element)) return;
-        let accountDetails = document.querySelector('.container-iksrDt');
+        let accountDetails = document.querySelector(`.${DiscordModules.AccountDetailsClasses.container}`);
         if (!accountDetails) return;
 
         let isHovering = accountDetails.contains(e.target);
@@ -163,7 +164,7 @@ class AccountDetailsPlus {
     showStatusPicker(e) {
         e.preventDefault();
         e.stopPropagation();
-        e.target = e.currentTarget = e.toElement = e.delegateTarget = document.querySelector('.container-iksrDt .avatar-small');
+        e.target = e.currentTarget = e.toElement = e.delegateTarget = document.querySelector(`.${DiscordModules.AccountDetailsClasses.container} .avatar-small`);
         this.setRender(this.originalRender, {position: "top-left", animationType: "spring"});
         this.popoutWrapper.toggle(e);
     }
@@ -171,7 +172,7 @@ class AccountDetailsPlus {
     showUserPopout(e) {
         e.preventDefault();
         e.stopPropagation();
-        e.target = e.currentTarget = e.toElement = e.delegateTarget = document.querySelector('.container-iksrDt');
+        e.target = e.currentTarget = e.toElement = e.delegateTarget = document.querySelector(`.${DiscordModules.AccountDetailsClasses.container}`);
         this.setRender((props) => {
             let guild = this.SelectedGuildStore.getGuildId();
             let channel = this.SelectedChannelStore.getChannelId();

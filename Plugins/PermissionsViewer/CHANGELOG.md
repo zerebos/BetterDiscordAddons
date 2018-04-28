@@ -1,5 +1,10 @@
 # PermissionsViewer Changelog
 
+### 0.0.13
+
+ - Fix for discord update
+ - Use internal classes
+
 ### 0.0.12
 
  - Hotfix for new context menu location

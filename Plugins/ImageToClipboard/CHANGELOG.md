@@ -1,5 +1,10 @@
 # ImageToClipboard Changelog
 
+### 0.2.12
+
+ - Fix for discord update
+ - Use internal classes
+
 ### 0.2.11
 
  - Change image testing for images with parameters, thanks Nirewen

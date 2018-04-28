@@ -1,11 +1,11 @@
 //META{"name":"ServerSearch"}*//
 
-/* global ColorUtilities:false, PluginUtilities:false, InternalUtilities:false, ReactUtilities:false, PluginTooltip:false, PluginSettings:false, BdApi:false */
+/* global ColorUtilities:false, PluginUtilities:false, DiscordModules:false, InternalUtilities:false, ReactUtilities:false, PluginTooltip:false, PluginSettings:false, BdApi:false */
 
 class ServerSearch {
 	getName() { return "ServerSearch"; }
 	getDescription() { return "Adds a button to search your servers. Search in place or in popout. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.2"; }
+	getVersion() { return "0.0.3"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -62,7 +62,7 @@ class ServerSearch {
 							</div>`;
 		this.separatorHtml = `<div class="guild-separator server-search-separator"></div>`;
 
-		this.smallPopoutHtml = `<div class="popout-2RRwAO noArrow-2iqI6w POPOUT_DID_RERENDERight-ru2QHm popoutRight-ru2QHm popout-server-search-small">
+		this.smallPopoutHtml = `<div class="popout-3sVMXz noArrow-3BYQ0Z POPOUT_DID_RERENDERight-3DdP6m popoutRight-ru2QHm popout-server-search-small">
 								<div class="search-bar">
 									<div class="search-bar-inner">
 										<input type="text" placeholder="Search..." value="">
@@ -70,35 +70,35 @@ class ServerSearch {
 								</div>
 							</div>`;
 
-		this.largePopoutHtml = `<div class="popout-2RRwAO noArrow-2iqI6w POPOUT_DID_RERENDERight-ru2QHm popoutRight-ru2QHm popout-server-search">
-							<div class="popoutList-2NT_IY guildSettingsAuditLogsUserFilterPopout-PQPPs5 elevationBorderHigh-3Y6y6W">
-								<div class="flex-lFgbSz flex-3B1Tl4 horizontal-2BEEBe horizontal-2VE-Fw flex-3B1Tl4 directionRow-yNbSvJ justifyStart-2yIZo0 alignStretch-1hwxMa noWrap-v6g9vO searchBar-YMJBu9 popoutListInput-3v5O8b size14-1wjlWP" style="flex: 1 1 auto;">
-									<input class="input-yt44Uw flexChild-1KGW5q" value="" placeholder="Search Servers - \${count}" style="flex: 1 1 auto;">
-									<div class="searchBarIcon-vCfmUl flexChild-1KGW5q">
-										<i class="icon-11Zny- eyeGlass-6rahZf visible-4lw4vs"></i>
-										<i class="icon-11Zny- clear-4pSDsx"></i>
+		this.largePopoutHtml = `<div class="popout-3sVMXz noArrow-3BYQ0Z POPOUT_DID_RERENDERight-3DdP6m popoutRight-ru2QHm popout-server-search">
+							<div class="popoutList-T9CKZQ guildSettingsAuditLogsUserFilterPopout-3Jg5NE elevationBorderHigh-2WYJ09">
+								<div class="flex-1xMQg5 flex-1O1GKY horizontal-1ae9ci horizontal-2EEEnY flex-1O1GKY directionRow-3v3tfG justifyStart-2NDFzi alignStretch-DpGPf3 noWrap-3jynv6 searchBar-1MOL6S popoutListInput-1l9TUI size14-3iUx6q" style="flex: 1 1 auto;">
+									<input class="input-3Xdcic flexChild-faoVW3" value="" placeholder="Search Servers - \${count}" style="flex: 1 1 auto;">
+									<div class="searchBarIcon-18QaPq flexChild-faoVW3">
+										<i class="icon-1S6UIr eyeGlass-2cMHx7 visible-3bFCH-"></i>
+										<i class="icon-1S6UIr clear--Eywng"></i>
 									</div>
 								</div>
-								<div class="divider-1G01Z9 divider-2joH7h marginTop8-2gOa2N marginBottom8-1mABJ4"></div>
-								<div class="scrollerWrap-2uBjct scrollerThemed-19vinI themeGhostHairline-2H8SiW scrollerTrack-3hhmU0">
-									<div class="scroller-fzNley scroller-3J0bdT search-results">
+								<div class="divider-3573oO divider-faSUbd marginTop8-1DLZ1n marginBottom8-AtZOdT"></div>
+								<div class="scrollerWrap-2lJEkd scrollerThemed-2oenus themeGhostHairline-DBD-2d scrollerTrack-1ZIpsv">
+									<div class="scroller-2FKFPG scroller-2CvAgC search-results">
 						
 									</div>
 								</div>
 							</div>
 						</div>`;
 	
-		this.popoutItemHtml = `<div class="flex-lFgbSz flex-3B1Tl4 horizontal-2BEEBe horizontal-2VE-Fw flex-3B1Tl4 directionRow-yNbSvJ justifyStart-2yIZo0 alignCenter-3VxkQP noWrap-v6g9vO selectableItem-3PW5_y search-result" style="flex: 1 1 auto; height: auto;">
-						<div class="flex-lFgbSz flex-3B1Tl4 horizontal-2BEEBe horizontal-2VE-Fw flex-3B1Tl4 directionRow-yNbSvJ justifyStart-2yIZo0 alignCenter-3VxkQP noWrap-v6g9vO selectableItemLabel-3pYgaR"
-							style="flex: 1 1 auto;">
-							<div class="avatar-1BXaQj small-TEeAkX flexChild-1KGW5q">
-								<div class="image-EVRGPw" style="flex: 0 1 auto; background-image: url(&quot;\${image_url}&quot;);"></div>
-							</div>
-							<div class="userText-3aBzJF" style="flex: 1 1 auto;">
-								<span class="username">\${name}</span>
-							</div>
-						</div>
-					</div>`;
+		this.popoutItemHtml = `<div class="flex-1xMQg5 flex-1O1GKY horizontal-1ae9ci horizontal-2EEEnY flex-1O1GKY directionRow-3v3tfG justifyStart-2NDFzi alignCenter-1dQNNs noWrap-3jynv6 selectableItem-1MP3MQ search-result" style="flex: 1 1 auto; height: auto;">
+									<div class="flex-1xMQg5 flex-1O1GKY horizontal-1ae9ci horizontal-2EEEnY flex-1O1GKY directionRow-3v3tfG justifyStart-2NDFzi alignCenter-1dQNNs noWrap-3jynv6 selectableItemLabel-1RKQjD"
+										style="flex: 1 1 auto;">
+										<div class="avatar-16XVId small-5Os1Bb flexChild-faoVW3">
+											<div class="image-33JSyf" style="flex: 0 1 auto; background-image: url(&quot;\${image_url}&quot;);"></div>
+										</div>
+										<div class="userText-1WdPps" style="flex: 1 1 auto;">
+											<span class="username">\${name}</span>
+										</div>
+									</div>
+								</div>`;
 
 		this.defaultSettings = {search: {inPlace: false}};
 		this.settings = this.defaultSettings;
@@ -219,7 +219,7 @@ class ServerSearch {
 
 	showPopout(popout, target, id, options = {}) {
 		const {onClose} = options;
-		popout.appendTo($('.popouts, .popouts-1TN9u9'));
+		popout.appendTo($(`.${DiscordModules.PopoutClasses.popouts}`));
 		const maxWidth = window.ZeresLibrary.Screen.width;
 		const maxHeight = window.ZeresLibrary.Screen.height;
 
@@ -285,7 +285,7 @@ class ServerSearch {
 			let image = this.ImageResolver.getGuildIconURL(guild);
 			let elem = $(PluginUtilities.formatString(this.popoutItemHtml, {name: guild.name, image_url: image}));
 			if (!image) {
-				let imageElement = elem.find('.image-EVRGPw');
+				let imageElement = elem.find('.image-33JSyf');
 				imageElement.text(this.GuildInfo.getAcronym(guild.name));
 				imageElement.addClass("no-image");
 			}

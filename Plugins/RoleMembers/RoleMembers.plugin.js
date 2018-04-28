@@ -1,44 +1,44 @@
 //META{"name":"RoleMembers"}*//
 
-/* global PluginUtilities:false, PluginContextMenu:false, ReactUtilities:false, InternalUtilities:false, BdApi:false */
+/* global PluginUtilities:false, DiscordModules:false, PluginContextMenu:false, ReactUtilities:false, InternalUtilities:false */
 
 class RoleMembers {
 	getName() { return "RoleMembers"; }
 	getShortName() { return "RoleMembers"; }
 	getDescription() { return "Allows you to see the members of each role on a server. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.2"; }
+	getVersion() { return "0.0.3"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
 		this.initialized = false;
 		this.cancels = [];
 
-		this.popout = `<div class="popout-2RRwAO noArrow-2iqI6w POPOUT_DID_RERENDERight-ru2QHm popoutRight-ru2QHm popout-role-members">
-						<div class="popoutList-2NT_IY guildSettingsAuditLogsUserFilterPopout-PQPPs5 elevationBorderHigh-3Y6y6W role-members-popout">
-							<div class="flex-lFgbSz flex-3B1Tl4 horizontal-2BEEBe horizontal-2VE-Fw flex-3B1Tl4 directionRow-yNbSvJ justifyStart-2yIZo0 alignStretch-1hwxMa noWrap-v6g9vO searchBar-YMJBu9 popoutListInput-3v5O8b size14-1wjlWP" style="flex: 1 1 auto;">
-								<input class="input-yt44Uw flexChild-1KGW5q" value="" placeholder="Search Members — \${memberCount}" style="flex: 1 1 auto;">
-								<div class="searchBarIcon-vCfmUl flexChild-1KGW5q">
-									<i class="icon-11Zny- eyeGlass-6rahZf visible-4lw4vs"></i>
-									<i class="icon-11Zny- clear-4pSDsx"></i>
+		this.popout = `<div class="\${className} popout-role-members">
+						<div class="popoutList-T9CKZQ guildSettingsAuditLogsUserFilterPopout-3Jg5NE elevationBorderHigh-2WYJ09 role-members-popout">
+							<div class="flex-1xMQg5 flex-1O1GKY horizontal-1ae9ci horizontal-2EEEnY flex-1O1GKY directionRow-3v3tfG justifyStart-2NDFzi alignStretch-DpGPf3 noWrap-3jynv6 searchBar-1MOL6S popoutListInput-1l9TUI size14-3iUx6q" style="flex: 1 1 auto;">
+								<input class="input-3Xdcic flexChild-faoVW3" value="" placeholder="Search Members — \${memberCount}" style="flex: 1 1 auto;">
+								<div class="searchBarIcon-18QaPq flexChild-faoVW3">
+									<i class="icon-1S6UIr eyeGlass-2cMHx7 visible-3bFCH-"></i>
+									<i class="icon-1S6UIr clear--Eywng"></i>
 								</div>
 							</div>
-							<div class="divider-1G01Z9 divider-2joH7h marginTop8-2gOa2N marginBottom8-1mABJ4"></div>
-							<div class="scrollerWrap-2uBjct scrollerThemed-19vinI themeGhostHairline-2H8SiW scrollerTrack-3hhmU0">
-								<div class="scroller-fzNley scroller-3J0bdT role-members">
+							<div class="divider-3573oO divider-faSUbd marginTop8-1DLZ1n marginBottom8-AtZOdT"></div>
+							<div class="scrollerWrap-2lJEkd scrollerThemed-2oenus themeGhostHairline-DBD-2d scrollerTrack-1ZIpsv">
+								<div class="scroller-2FKFPG scroller-2CvAgC role-members">
 					
 								</div>
 							</div>
 						</div>
 					</div>`;
 
-		this.item = `<div class="flex-lFgbSz flex-3B1Tl4 horizontal-2BEEBe horizontal-2VE-Fw flex-3B1Tl4 directionRow-yNbSvJ justifyStart-2yIZo0 alignCenter-3VxkQP noWrap-v6g9vO selectableItem-3PW5_y role-member" style="flex: 1 1 auto; height: auto;">
-						<div class="flex-lFgbSz flex-3B1Tl4 horizontal-2BEEBe horizontal-2VE-Fw flex-3B1Tl4 directionRow-yNbSvJ justifyStart-2yIZo0 alignCenter-3VxkQP noWrap-v6g9vO selectableItemLabel-3pYgaR"
+		this.item = `<div class="flex-1xMQg5 flex-1O1GKY horizontal-1ae9ci horizontal-2EEEnY flex-1O1GKY directionRow-3v3tfG justifyStart-2NDFzi alignCenter-1dQNNs noWrap-3jynv6 selectableItem-1MP3MQ role-member" style="flex: 1 1 auto; height: auto;">
+						<div class="flex-1xMQg5 flex-1O1GKY horizontal-1ae9ci horizontal-2EEEnY flex-1O1GKY directionRow-3v3tfG justifyStart-2NDFzi alignCenter-1dQNNs noWrap-3jynv6 selectableItemLabel-1RKQjD"
 							style="flex: 1 1 auto;">
-							<div class="avatar-1BXaQj small-TEeAkX flexChild-1KGW5q">
-								<div class="image-EVRGPw" style="flex: 0 1 auto; background-image: url(&quot;\${avatar_url}&quot;);"></div>
+							<div class="avatar-16XVId small-5Os1Bb flexChild-faoVW3">
+								<div class="image-33JSyf" style="flex: 0 1 auto; background-image: url(&quot;\${avatar_url}&quot;);"></div>
 							</div>
-							<div class="userText-3aBzJF" style="flex: 1 1 auto;">
-								<span class="username">\${username}</span><span class="discriminator-fb98O0">\${discriminator}</span>
+							<div class="userText-1WdPps" style="flex: 1 1 auto;">
+								<span class="username">\${username}</span><span class="discriminator-3tYCOD">\${discriminator}</span>
 							</div>
 						</div>
 					</div>`;
@@ -109,18 +109,18 @@ class RoleMembers {
 	}
 
 	showPopout(popout, target) {
-		popout.appendTo($('.popouts, .popouts-1TN9u9'));
+		popout.appendTo($(`.${DiscordModules.PopoutClasses.popouts}`));
 		const maxWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 		const maxHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
 		let offset = target.getBoundingClientRect();
 		if (offset.right + popout.outerHeight() >= maxWidth) {
-			popout.addClass("popout-left");
+			popout.addClass(DiscordModules.PopoutClasses.popoutLeft);
 			popout.css("left", Math.round(offset.left - popout.outerWidth() - 20));
 			popout.animate({left: Math.round(offset.left - popout.outerWidth() - 10)}, 100);
 		}
 		else {
-			popout.addClass("popout-right");
+			popout.addClass(DiscordModules.PopoutClasses.POPOUT_DID_RERENDERight).addClass(DiscordModules.PopoutClasses.popoutRight);
 			popout.css("left", offset.right + 10);
 			popout.animate({left: offset.right}, 100);
 		}
@@ -164,7 +164,7 @@ class RoleMembers {
 	observeContextMenus(e) {
 		if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element) || !e.addedNodes[0].classList) return;
 		let elem = e.addedNodes[0];
-		let context = elem.classList.contains('contextMenu-uoJTbz') ? elem : elem.querySelector('.contextMenu-uoJTbz');
+		let context = elem.classList.contains(DiscordModules.ContextMenuClasses.contextMenu) ? elem : elem.querySelector(`.${DiscordModules.ContextMenuClasses.contextMenu}`);
 		if (!context) return;
 
 		let isGuildContext = ReactUtilities.getReactProperty(context, "return.stateNode.props.type") == "GUILD_ICON_BAR";
@@ -189,7 +189,7 @@ class RoleMembers {
 		}
 
 		let subMenu = new PluginContextMenu.SubMenuItem("Role Members", new PluginContextMenu.Menu(true).addItems(...roleItems));
-		$(context).children(".itemGroup-oViAgA").first().append(subMenu.element);
+		$(context).children(`.${DiscordModules.ContextMenuClasses.itemGroup}`).first().append(subMenu.element);
 	}
 
 	showRolePopout(target, guildId, roleId) {
@@ -198,7 +198,7 @@ class RoleMembers {
 		let members = this.GuildMemberStore.getMembers(guildId);
 		if (guildId != roleId) members = members.filter(m => m.roles.includes(role.id));
 
-		let popout = $(PluginUtilities.formatString(this.popout, {memberCount: members.length}));
+		let popout = $(PluginUtilities.formatString(this.popout, {className: `${DiscordModules.PopoutClasses.popout} ${DiscordModules.PopoutClasses.noArrow}`, memberCount: members.length}));
 		let searchInput = popout.find('input');
 		searchInput.on("keyup", () => {
 			let items = popout[0].querySelectorAll(".role-member");

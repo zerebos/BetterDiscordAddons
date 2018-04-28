@@ -1,5 +1,10 @@
 # BetterFormattingRedux Changelog
 
+### 2.2.7
+
+ - Fix for discord update
+ - Use internal classes
+
 ### 2.2.6
 
  - Replace some broken ligatures
