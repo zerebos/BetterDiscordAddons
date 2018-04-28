@@ -712,11 +712,11 @@ PluginContextMenu.Menu = class Menu {
      */
 	constructor(scroll = false) {
 		this.theme = $('.theme-dark').length ? "theme-dark" : "theme-light";
-		this.element = $("<div>").addClass("contextMenu-uoJTbz").addClass("plugin-context-menu").addClass(this.theme);
+		this.element = $("<div>").addClass("contextMenu-HLZMGh").addClass("plugin-context-menu").addClass(this.theme);
 		this.scroll = scroll;
 		if (scroll) {
-			this.element.append($("<div>").addClass("scrollerWrap-2uBjct").addClass("scrollerThemed-19vinI").addClass("themeGhostHairline-2H8SiW").append(
-				$("<div>").addClass("scroller-fzNley").addClass("scroller-TeDoLQ")
+			this.element.append($("<div>").addClass("scrollerWrap-2lJEkd").addClass("scrollerThemed-2oenus").addClass("themeGhostHairline-DBD-2d").append(
+				$("<div>").addClass("scroller-2FKFPG").addClass("scroller-2PSBSf")
 			));
 		}
 	}
@@ -727,7 +727,7 @@ PluginContextMenu.Menu = class Menu {
      * @returns {PluginContextMenu.Menu} returns self for chaining
      */
 	addGroup(contextGroup) {
-		if (this.scroll) this.element.find(".scroller-fzNley").append(contextGroup.getElement());
+		if (this.scroll) this.element.find(".scroller-2FKFPG").append(contextGroup.getElement());
 		else this.element.append(contextGroup.getElement());
 		return this;
 	}
@@ -740,7 +740,7 @@ PluginContextMenu.Menu = class Menu {
      */
 	addItems(...contextItems) {
 		for (var i = 0; i < contextItems.length; i++) {
-			if (this.scroll) this.element.find(".scroller-fzNley").append(contextItems[i].getElement());
+			if (this.scroll) this.element.find(".scroller-2FKFPG").append(contextItems[i].getElement());
 			else this.element.append(contextItems[i].getElement());
 		}
 		return this;
@@ -758,7 +758,7 @@ PluginContextMenu.Menu = class Menu {
 		const mouseX = x;
 		const mouseY = y;
 		
-		let type = this.element.parents(".plugin-context-menu").length > this.element.parents(".contextMenu-uoJTbz").length ? ".plugin-context-menu" : ".contextMenu-uoJTbz";
+		let type = this.element.parents(".plugin-context-menu").length > this.element.parents(".contextMenu-HLZMGh").length ? ".plugin-context-menu" : ".contextMenu-HLZMGh";
 		var depth = this.element.parents(type).length;
 		if (depth == 0) this.element.appendTo('#app-mount');
 		this.element.css("top", mouseY).css("left", mouseX);
@@ -767,7 +767,7 @@ PluginContextMenu.Menu = class Menu {
 			var top = this.element.parents(type).last();
 			var closest = this.element.parents(type).first();
 			var negate = closest.hasClass("invertChildX-LNv3Ce") ? -1 : 1;
-			this.element.css("margin-left", negate * closest.find('.item-1XYaYf').outerWidth() + closest.offset().left - top.offset().left);
+			this.element.css("margin-left", negate * closest.find('.item-1Yvehc').outerWidth() + closest.offset().left - top.offset().left);
 		}
 		
 		if (mouseY + this.element.outerHeight() >= maxHeight) {
@@ -806,7 +806,7 @@ PluginContextMenu.Menu = class Menu {
     
     /** Allows you to remove the menu. */
 	removeMenu() {
-		let type = this.element.parents(".plugin-context-menu").length > this.element.parents(".contextMenu-uoJTbz").length ? ".plugin-context-menu" : ".contextMenu-uoJTbz";
+		let type = this.element.parents(".plugin-context-menu").length > this.element.parents(".contextMenu-HLZMGh").length ? ".plugin-context-menu" : ".contextMenu-HLZMGh";
 		this.element.detach();
 		this.element.find(type).detach();
 		$(document).off(".zctx");
@@ -824,7 +824,7 @@ PluginContextMenu.Menu = class Menu {
 		this.menuItem = $(menuItem);
 		menuItem.on("mouseenter", () => {
 			this.element.appendTo(menuItem);
-			let type = this.element.parents(".plugin-context-menu").length > this.element.parents(".contextMenu-uoJTbz").length ? ".plugin-context-menu" : ".contextMenu-uoJTbz";
+			let type = this.element.parents(".plugin-context-menu").length > this.element.parents(".contextMenu-HLZMGh").length ? ".plugin-context-menu" : ".contextMenu-HLZMGh";
 			this.show(this.element.parents(type).css("left"), menuItem.offset().top);
 		});
 		menuItem.on("mouseleave", () => { this.element.detach(); });
@@ -835,7 +835,7 @@ PluginContextMenu.Menu = class Menu {
 PluginContextMenu.ItemGroup = class ItemGroup {
     /** Creates an item group. */
 	constructor() {
-		this.element = $("<div>").addClass("itemGroup-oViAgA");
+		this.element = $("<div>").addClass("itemGroup-1tL0uz");
 	}
     
     /**
@@ -876,7 +876,7 @@ PluginContextMenu.MenuItem = class MenuItem {
      */
 	constructor(label, options = {}) {
 		var {danger = false, callback} = options;
-		this.element = $("<div>").addClass("item-1XYaYf");
+		this.element = $("<div>").addClass("item-1Yvehc");
 		this.label = label;
 		if (danger) this.element.addClass("danger-1oUOCl");
 		if (typeof(callback) == 'function') {
@@ -905,7 +905,7 @@ PluginContextMenu.TextItem = class TextItem extends PluginContextMenu.MenuItem {
 		super(label, options);
 		var {hint = ""} = options;
 		this.element.append($("<span>").text(label));
-		this.element.append($("<div>").addClass("hint-3TJykr").text(hint));
+		this.element.append($("<div>").addClass("hint-22uc-R").text(hint));
 	}
 };
 
@@ -924,8 +924,8 @@ PluginContextMenu.ImageItem = class ImageItem extends PluginContextMenu.MenuItem
      */
 	constructor(label, imageSrc, options = {}) {
 		super(label, options);
-		this.element.addClass("itemImage-24yxbi");
-		this.element.append($("<div>").addClass("label-2CGfN3").text(label));
+		this.element.addClass("itemImage-htIz_v");
+		this.element.append($("<div>").addClass("label-JWQiNe").text(label));
 		this.element.append($("<img>", {src: imageSrc}));
 	}
 };
@@ -946,7 +946,7 @@ PluginContextMenu.SubMenuItem = class SubMenuItem extends PluginContextMenu.Menu
 	constructor(label, subMenu, options = {}) {
 		// if (!(subMenu instanceof ContextSubMenu)) throw "subMenu must be of ContextSubMenu type.";
 		super(label, options);
-		this.element.addClass("itemSubMenu-3ZgIw-").text(label);
+		this.element.addClass("itemSubMenu-1vN_Yn").text(label);
 		this.subMenu = subMenu;
 		this.subMenu.attachTo(this.getElement());
 	}
@@ -969,8 +969,8 @@ PluginContextMenu.ToggleItem = class ToggleItem extends PluginContextMenu.MenuIt
 	constructor(label, checked, options = {}) {
         var {onChange} = options;
 		super(label, options);
-		this.element.addClass("itemToggle-e7vkml");
-        this.element.append($("<div>").addClass("label-2CGfN3").text(label));
+		this.element.addClass("itemToggle-S7XGOQ");
+        this.element.append($("<div>").addClass("label-JWQiNe").text(label));
         this.checkbox = $("<div>", {class: "checkbox"});
         this.checkbox.append($("<div>", {class: "checkbox-inner"}));
         this.checkbox.append("<span>");
@@ -1993,7 +1993,7 @@ PluginUtilities.checkForUpdate = function(pluginName, currentVersion, updateURL)
 				}
 			);
 		});
-		window.PluginUpdates.observer.observe(document.querySelector(".layers, .layers-20RVFW"), {childList:true});
+		window.PluginUpdates.observer.observe(document.querySelector(".layers-3iHuyZ, .layers-20RVFW"), {childList:true});
 	}
 	
 	var bdbutton = document.querySelector(".bd-pfbtn");
@@ -2119,8 +2119,8 @@ PluginUtilities.getToastCSS = function() {
  */
 PluginUtilities.showToast = function(content, options = {}) {
     if (!document.querySelector('.toasts')) {
-		let container = document.querySelector('.channels-3g2vYe + div');
-		let memberlist = container.querySelector('.channel-members-wrap');
+		let container = document.querySelector('.channels-3g2vYe + div, .channels-Ie2l6A + div');
+		let memberlist = container.querySelector('.membersWrap-2h-GB4');
 		let form = container ? container.querySelector('form') : null;
 		let left = container ? container.getBoundingClientRect().left : 310;
 		let right = memberlist ? memberlist.getBoundingClientRect().left : 0;
