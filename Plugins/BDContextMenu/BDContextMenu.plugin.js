@@ -35,7 +35,7 @@ class BDContextMenu {
 	initialize() {
 		this.initialized = true;
         PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
-        $(`.${DiscordModules.AccountDetailsClasses.container} .${DiscordModules.AccountDetailsClasses.button}`).on('contextmenu.bdcs', () => { this.bindContextMenus(); });
+        $(`.${DiscordModules.AccountDetailsClasses.container} > div > .${DiscordModules.AccountDetailsClasses.button}`).on('contextmenu.bdcs', () => { this.bindContextMenus(); });
 		PluginUtilities.showToast(this.getName() + " " + this.getVersion() + " has started.");
 	}
 	
@@ -45,8 +45,8 @@ class BDContextMenu {
 
     observer(e) {
         if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element) || !e.addedNodes[0].classList) return;
-        if (!e.addedNodes[0].querySelector(`.${DiscordModules.AccountDetailsClasses.container} .${DiscordModules.AccountDetailsClasses.button}`)) return;
-        $(`.${DiscordModules.AccountDetailsClasses.container} .${DiscordModules.AccountDetailsClasses.button}`).on('contextmenu.bdcs', () => { this.bindContextMenus(); });
+        if (!e.addedNodes[0].querySelector(`.${DiscordModules.AccountDetailsClasses.container} > div > .${DiscordModules.AccountDetailsClasses.button}`)) return;
+        $(`.${DiscordModules.AccountDetailsClasses.container} > div > .${DiscordModules.AccountDetailsClasses.button}`).on('contextmenu.bdcs', () => { this.bindContextMenus(); });
     }
     
     bindContextMenus() {
@@ -201,7 +201,7 @@ class BDContextMenu {
             }
         });
         observer.observe(document.querySelector('.app'), {childList: true, subtree: true});
-        $(`.${DiscordModules.AccountDetailsClasses.container} .${DiscordModules.AccountDetailsClasses.button}`).click();
+        $(`.${DiscordModules.AccountDetailsClasses.container} > div > .${DiscordModules.AccountDetailsClasses.button}`).click();
     }
     
 }
