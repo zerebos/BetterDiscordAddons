@@ -1,3 +1,5 @@
+//META{"name":"Radial_Status","description":"Changes status dot to a circle. Support Server: bit.ly/ZeresServer","author":"Zerebos","version":"2.0.0"}*//{}
+
 :root {
     --rs-spacing: 2px; /* spacing between avatar and status */
     --rs-width: 2px; /* width of the status */
@@ -18,7 +20,7 @@
 }
 
 [class*="avatar-"] [class*="status"],
-.member-2FrNV0 .avatarOffline-YdYOwX::after {
+.member-3W1lQa .avatarOffline-3GF27z::after {
     width:100%!important;
     background: transparent;
     border-radius: inherit !important;
@@ -40,51 +42,51 @@
 
 [class*="theme-"] [class*="avatar-"] [class*="idle"],
 [class*="theme-"] [class*="avatar-"] [class*="Idle"],
-.root-2sNHUF [class*="idle"] {
+.root-SR8cQa [class*="idle"] {
     border-color: var(--rs-idle-color) !important;
 }
 
 [class*="theme-"] [class*="avatar-"] [class*="dnd"],
 [class*="theme-"] [class*="avatar-"] [class*="Dnd"],
-.root-2sNHUF [class*="dnd"] {
+.root-SR8cQa [class*="dnd"] {
     border-color: var(--rs-dnd-color) !important;
 }
 
 [class*="theme-"] [class*="avatar-"] [class*="streaming"],
 [class*="theme-"] [class*="avatar-"] [class*="Streaming"],
-.root-2sNHUF [class*="streaming"]{
+.root-SR8cQa [class*="streaming"]{
     animation: streaming-flash 1.5s linear infinite !important;
     border-color: var(--rs-streaming-color) !important;
 }
 
 [class*="theme-"] [class*="avatar-"] [class*="online"],
 [class*="theme-"] [class*="avatar-"] [class*="Online"],
-.root-2sNHUF [class*="online"] {
+.root-SR8cQa [class*="online"] {
     border-color: var(--rs-online-color) !important;
 }
 
 [class*="theme-"] [class*="avatar-"] [class*="invisible"],
 [class*="theme-"] [class*="avatar-"] [class*="Invisible"],
-.root-2sNHUF [class*="invisible"] {
+.root-SR8cQa [class*="invisible"] {
     border-color: var(--rs-invisible-color) !important;
 }
 
 [class*="theme-"] [class*="avatar-"] [class*="offline"],
 [class*="theme-"] [class*="avatar-"] [class*="Offline"],
-.root-2sNHUF [class*="offline"] {
+.root-SR8cQa [class*="offline"] {
     border-color: var(--rs-offline-color) !important;
 }
 
-.members-1bid1J .memberOffline-lvMbAs.member-2FrNV0 .status {
+.members-1998pB .memberOffline-2lN7gt.member-3W1lQa .status {
 	display: flex !important;
 }
 
-.members-1bid1J .member-2FrNV0 {
+.members-1998pB .member-3W1lQa {
 	padding-bottom: calc((var(--rs-spacing) + var(--rs-width))*2) !important;
 	padding-top: calc((var(--rs-spacing) + var(--rs-width))*2) !important;
 }
 
-.member-2FrNV0 .avatarOffline-YdYOwX::after {
+.member-3W1lQa .avatarOffline-3GF27z::after {
 	content: "";
 	position: absolute;
 }
@@ -105,13 +107,13 @@
 	mask: none;
 }
 
-[class*="theme-"] .userPopout-11hFKo [class*="avatar-"],
-[class*="theme-"] .root-2sNHUF [class*="avatar-"] {
+[class*="theme-"] .userPopout-3XzG_A [class*="avatar-"],
+[class*="theme-"] .root-SR8cQa [class*="avatar-"] {
     border: none;
 }
 
-[class*="theme-"] .userPopout-11hFKo .avatar-1BXaQj.popout-UKvsJt [class*="status"],
-[class*="theme-"] .root-2sNHUF .header-2Lg0Oe [class*="avatar-"] [class*="status"] {
+[class*="theme-"] .userPopout-3XzG_A .avatar-16XVId.popout-2fzvxG [class*="status"],
+[class*="theme-"] .root-SR8cQa .header-QKLPzZ [class*="avatar-"] [class*="status"] {
 	border-width: var(--rs-popout-width) !important;
     top: calc(-1*var(--rs-popout-spacing) + -1*var(--rs-popout-width)) !important;
     right: calc(-1*var(--rs-popout-spacing) + -1*var(--rs-popout-width)) !important;
@@ -123,12 +125,12 @@
 	box-sizing: content-box;
 }
 
-[class*="theme-"] .root-2sNHUF .header-2Lg0Oe [class*="avatar-"] [class*="status"] {
+[class*="theme-"] .root-SR8cQa .header-QKLPzZ [class*="avatar-"] [class*="status"] {
     border-width: var(--rs-profile-width) !important;
     padding: var(--rs-profile-spacing) !important;
 }
 
-[class*="theme-"] .root-2sNHUF [class*="avatar-"] > a {
+[class*="theme-"] .root-SR8cQa [class*="avatar-"] > a {
 	width: inherit;
     height: inherit;
 	border-radius: inherit;
