@@ -239,7 +239,8 @@ var DiscordModules = {
     get UserModalClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(['profileBadge']);},
     get TextareaClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(['channelTextArea']);},
     get PopoutClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(['popouts']);},
-    get SettingsMetaClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(['defaultMarginh5']);}
+    get SettingsMetaClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(['defaultMarginh5']);},
+    get NoticeBarClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(["noticeInfo"]);}
 };
 /* ================== END MODULE ================== */
 
@@ -1748,7 +1749,7 @@ PluginUpdateUtilities.checkUpdate = function(pluginName, updateLink) {
  */
 PluginUpdateUtilities.showUpdateNotice = function(pluginName, updateLink) {
 	if (!$('#pluginNotice').length)  {
-		let noticeElement = '<div class="notice notice-info notice-3I4-y_ noticeInfo-3v29SJ size14-1wjlWP weightMedium-13x9Y8 height36-13sPn7" id="pluginNotice"><div class="notice-dismiss dismiss-1QjyJW" id="pluginNoticeDismiss"></div><span class="notice-message">The following plugins have updates:</span>&nbsp;&nbsp;<strong id="outdatedPlugins"></strong></div>';
+		let noticeElement = `<div class="${DiscordModules.NoticeBarClasses.notice + DiscordModules.NoticeBarClasses.noticeInfo}" id="pluginNotice"><div class="${DiscordModules.NoticeBarClasses.dismiss}" id="pluginNoticeDismiss"></div><span class="notice-message">The following plugins have updates:</span>&nbsp;&nbsp;<strong id="outdatedPlugins"></strong></div>`;
 		// $('.app .guilds-wrapper + div > div:first > div:first').append(noticeElement);
 		$('.app.flex-vertical').children().first().before(noticeElement);
         $('.win-buttons').addClass("win-buttons-notice");
@@ -1794,7 +1795,7 @@ PluginUpdateUtilities.downloadPlugin = function(pluginName, updateLink) {
         if (!(oldRNM || newRNM)) {
             if (!window.PluginUpdates.downloaded) {
                 window.PluginUpdates.downloaded = [];
-                let button = $('<button class="btn btn-reload button-2TvR03 size14-1wjlWP weightMedium-13x9Y8">Reload</button>');
+                let button = $(`<button class="btn btn-reload ${DiscordModules.NoticeBarClasses.btn + DiscordModules.NoticeBarClasses.button}">Reload</button>`);
                 button.on('click', (e) => {
                     e.preventDefault();
                     window.location.reload(false);
