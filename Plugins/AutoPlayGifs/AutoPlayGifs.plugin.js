@@ -1,18 +1,18 @@
 //META{"name":"AutoPlayGifs"}*//
 
-/* global PluginUtilities:false, InternalUtilities:false, PluginSettings:false */
+/* global DiscordModules:false, PluginUtilities:false, InternalUtilities:false, PluginSettings:false */
 
 class AutoPlayGifs {
 	getName() { return "AutoPlayGifs"; }
 	getShortName() { return "AutoPlayGifs"; }
-	getDescription() { return "Automatically plays avatars, GIFs and GIFVs. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.1"; }
+	getDescription() { return "Automatically plays avatars. Support Server: bit.ly/ZeresServer"; }
+	getVersion() { return "0.0.2"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
 		this.initialized = false;
-		this.settings = {avatars: true, gifs: true, gifvs: true};
-		this.cancelAvatars = () => {};
+		this.settings = {avatars: true, memberList: true};
+		this.cancelChatAvatars = () => {};
 		this.cancelGIFs = () => {};
 		this.cancelGIFVs = () => {};
 	}
@@ -37,48 +37,36 @@ class AutoPlayGifs {
 	}
 
 	stop() {
-		this.cancelAvatars();
-		this.cancelGIFs();
-		this.cancelGIFVs();
+		this.cancelChatAvatars();
+		this.cancelMemberListAvatars();
 	}
 
 	initialize() {
 		PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
 		this.loadSettings();
 
-		if (this.settings.avatars) this.patchAvatars();
-		if (this.settings.gifs) this.patchGIFs();
-		if (this.settings.gifvs) this.patchGIFVs();
+		if (this.settings.avatars) this.patchChatAvatars();
+		if (this.settings.memberList) this.patchMemberListAvatars();
 		
 		PluginUtilities.showToast(this.getName() + " " + this.getVersion() + " has started.");
 		this.initialized = true;
 	}
 
-	patchAvatars() {
+	patchChatAvatars() {
 		let MessageGroup = InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byCode(/hasAnimatedAvatar/));
-		this.cancelAvatars = InternalUtilities.monkeyPatch(MessageGroup.prototype, "render", {before: ({thisObject}) => {
+		this.cancelChatAvatars = InternalUtilities.monkeyPatch(MessageGroup.prototype, "render", {before: ({thisObject}) => {
 			thisObject.state.animate = true;
 		}});
 	}
 
-	patchGIFs() {
-		let ImageComponent = InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byPrototypeFields(['getSrc']));
-		ImageComponent.defaultProps.autoPlay = true;
-		this.cancelGIFs = () => {ImageComponent.defaultProps.autoPlay = false;};
-	}
-
-	patchGIFVs() {
-		let ReactDOM = InternalUtilities.WebpackModules.findByUniqueProperties(['findDOMNode']);
-		let EmbedComponents = InternalUtilities.WebpackModules.findByUniqueProperties(['EmbedGIFV']);
-		EmbedComponents.EmbedGIFV.prototype.componentDidMount = function() {
-			let wrapper = ReactDOM.findDOMNode(this);
-			if (!wrapper) return;
-			let video = wrapper.querySelector('video');
-			if (!video) return;
-			video.addEventListener('mouseout', (e) => {e.stopPropagation();});
-			video.play();
-		};
-		this.cancelGIFVs = () => {delete EmbedComponents.EmbedGIFV.prototype.componentDidMount;};
+	patchMemberListAvatars() {
+		let MemberList = InternalUtilities.WebpackModules.find(m => m.prototype && m.prototype.renderPlaceholder);
+		this.cancelMemberListAvatars = InternalUtilities.monkeyPatch(MemberList.prototype, "render", {before: ({thisObject}) => {
+				let id = thisObject.props.user.id;
+				let hasAnimatedAvatar = DiscordModules.ImageResolver.hasAnimatedAvatar(DiscordModules.UserStore.getUser(id));
+				if (!hasAnimatedAvatar) return;
+				thisObject.props.user.getAvatarURL = () => {return DiscordModules.ImageResolver.getUserAvatarURL(DiscordModules.UserStore.getUser(id)).replace("webp", "gif");};
+		}});
 	}
 
 	getSettingsPanel() {
@@ -91,23 +79,19 @@ class AutoPlayGifs {
 		
 		new PluginSettings.ControlGroup("Plugin Settings", () => {this.saveSettings();}, {shown: true}).appendTo(panel).append(
 			new PluginSettings.Checkbox("Autoplay Avatars", "Autoplays avatars in the chat area for Nitro users.",
-								this.settings.avatars, (checked) => {
-									this.settings.avatars = checked;
-									if (checked) this.patchAvatars();
-									else this.cancelAvatars();
-								}),
-			new PluginSettings.Checkbox("Autoplay GIFs", "Autoplays GIFs in the chat area.",
-								this.settings.gifs, (checked) => {
-									this.settings.gifs = checked;
-									if (checked) this.patchGIFs();
-									else this.cancelGIFs();
-								}),
-			new PluginSettings.Checkbox("Autoplay GIFVs", "Autoplays GIFVs in the chat area.",
-								this.settings.gifvs, (checked) => {
-									this.settings.gifvs = checked;
-									if (checked) this.patchGIFVs();
-									else this.cancelGIFVs();
-								})
+				this.settings.avatars, (checked) => {
+					this.settings.avatars = checked;
+					if (checked) this.patchChatAvatars();
+					else this.cancelChatAvatars();
+				}
+			),
+			new PluginSettings.Checkbox("Autoplay Memberlist", "Autoplays avatars in the member list for Nitro users.",
+			this.settings.memberList, (checked) => {
+				this.settings.memberList = checked;
+				if (checked) this.patchMemberListAvatars();
+				else this.cancelMemberListAvatars();
+			}
+			)
 		);
 	}
 }
