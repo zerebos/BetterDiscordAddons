@@ -1,5 +1,9 @@
 # SendButton Changelog
 
+### 0.0.4
+
+ - Fixed selector
+
 ### 0.0.3
 
  - Fixed CSS
