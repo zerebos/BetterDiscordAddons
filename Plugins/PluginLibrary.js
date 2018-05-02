@@ -1749,7 +1749,7 @@ PluginUpdateUtilities.checkUpdate = function(pluginName, updateLink) {
  */
 PluginUpdateUtilities.showUpdateNotice = function(pluginName, updateLink) {
 	if (!$('#pluginNotice').length)  {
-		let noticeElement = `<div class="${DiscordModules.NoticeBarClasses.notice + DiscordModules.NoticeBarClasses.noticeInfo}" id="pluginNotice"><div class="${DiscordModules.NoticeBarClasses.dismiss}" id="pluginNoticeDismiss"></div><span class="notice-message">The following plugins have updates:</span>&nbsp;&nbsp;<strong id="outdatedPlugins"></strong></div>`;
+		let noticeElement = `<div class="${DiscordModules.NoticeBarClasses.notice} ${DiscordModules.NoticeBarClasses.noticeInfo}" id="pluginNotice"><div class="${DiscordModules.NoticeBarClasses.dismiss}" id="pluginNoticeDismiss"></div><span class="notice-message">The following plugins have updates:</span>&nbsp;&nbsp;<strong id="outdatedPlugins"></strong></div>`;
 		// $('.app .guilds-wrapper + div > div:first > div:first').append(noticeElement);
 		$('.app.flex-vertical').children().first().before(noticeElement);
         $('.win-buttons').addClass("win-buttons-notice");
@@ -1795,7 +1795,7 @@ PluginUpdateUtilities.downloadPlugin = function(pluginName, updateLink) {
         if (!(oldRNM || newRNM)) {
             if (!window.PluginUpdates.downloaded) {
                 window.PluginUpdates.downloaded = [];
-                let button = $(`<button class="btn btn-reload ${DiscordModules.NoticeBarClasses.btn + DiscordModules.NoticeBarClasses.button}">Reload</button>`);
+                let button = $(`<button class="btn btn-reload ${DiscordModules.NoticeBarClasses.btn} ${DiscordModules.NoticeBarClasses.button}">Reload</button>`);
                 button.on('click', (e) => {
                     e.preventDefault();
                     window.location.reload(false);
