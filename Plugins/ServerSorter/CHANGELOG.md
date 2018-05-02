@@ -1,5 +1,10 @@
 # ServerSorter Changelog
 
+### 0.3.0
+
+ - Rewrite the sort options as context menu
+ - Compatible with server search
+
 ### 0.2.4
 
  - Fix most things
