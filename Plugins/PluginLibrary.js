@@ -143,7 +143,8 @@ var DiscordClassModules = {
 	get Titles() {return InternalUtilities.WebpackModules.findByUniqueProperties(['defaultMarginh5']);},
 	get Notices() {return InternalUtilities.WebpackModules.findByUniqueProperties(['noticeInfo']);},
 	get Backdrop() {return InternalUtilities.WebpackModules.findByUniqueProperties(['backdrop']);},
-	get Modals() {return InternalUtilities.WebpackModules.find(m => m.modal && m.inner && !m.header);}
+	get Modals() {return InternalUtilities.WebpackModules.find(m => m.modal && m.inner && !m.header);},
+	get AuditLog() {return InternalUtilities.WebpackModules.findByUniqueProperties(['userHook']);}
 };
 
 DiscordClassModules = GeneralUtilities.memoizeObject(DiscordClassModules);
@@ -621,6 +622,15 @@ DOMUtilities.Selector = class Selector {
 	descend(other) {
 		return this.selector(" ", other);
 	}
+
+	/**
+	 * Adds another selector to this one via `,`.
+	 * @param {string|DOMUtilities.Selector} other - Selector to add
+	 * @returns {DOMUtilities.Selector} returns self to allow chaining
+	 */
+	and(other) {
+		return this.selector(",", other);
+	}
 };
 
 /** Representation of a Class Name **/
@@ -716,28 +726,33 @@ var InternalUtilities = {};
  * @param {boolean} [options.once=false] Set to `true` if you want to automatically unpatch method after first call.
  * @param {boolean} [options.silent=false] Set to `true` if you want to suppress log messages about patching and unpatching. Useful to avoid clogging the console in case of frequent conditional patching/unpatching, for example from another monkeyPatch callback.
  * @param {string} [options.displayName] You can provide meaningful name for class/object provided in `what` param for logging purposes. By default, this function will try to determine name automatically.
+ * @param {boolean} [options.forcePatch] Set to `true` to patch even if the function doesnt exist. (Adds noop function in place).
  * @return {InternalUtilities~cancelPatch} Function with no arguments and no return value that should be called to cancel (unpatch) this patch. You should save and run it when your plugin is stopped.
  */
 InternalUtilities.monkeyPatch = (what, methodName, options) => {
-	const {before, after, instead, once = false, silent = false} = options;
+	const {before, after, instead, once = false, silent = false, forcePatch = true} = options;
 	const displayName = options.displayName || what.displayName || what.name || what.constructor.displayName || what.constructor.name;
 	if (!silent) console.log('patch', methodName, 'of', displayName); // eslint-disable-line no-console
-	const origMethod = what[methodName];
+	let origMethod = what[methodName];
+	if (!origMethod) {
+		if (!forcePatch) return console.error('Cannot patch method', methodName, 'of', displayName, 'The method does not exist');
+		else what[methodName] = function(){}, origMethod = function(){};
+	}
 	const cancel = () => {
 		if (!silent) console.log('unpatch', methodName, 'of', displayName); // eslint-disable-line no-console
 		what[methodName] = origMethod;
 	};
 	what[methodName] = function() {
-        /**
-         * @interface
-         * @name PatchData
-         * @property {object} thisObject Original `this` value in current call of patched method.
-         * @property {Arguments} methodArguments Original `arguments` object in current call of patched method. Please, never change function signatures, as it may cause a lot of problems in future.
-         * @property {InternalUtilities~cancelPatch} cancelPatch Function with no arguments and no return value that may be called to reverse patching of current method. Calling this function prevents running of this callback on further original method calls.
-         * @property {function} originalMethod Reference to the original method that is patched. You can use it if you need some special usage. You should explicitly provide a value for `this` and any method arguments when you call this function.
-         * @property {InternalUtilities~originalMethodCall} callOriginalMethod This is a shortcut for calling original method using `this` and `arguments` from original call.
-         * @property {*} returnValue This is a value returned from original function call. This property is available only in `after` callback or in `instead` callback after calling `callOriginalMethod` function.
-         */
+		/**
+		 * @interface
+		 * @name PatchData
+		 * @property {object} thisObject Original `this` value in current call of patched method.
+		 * @property {Arguments} methodArguments Original `arguments` object in current call of patched method. Please, never change function signatures, as it may cause a lot of problems in future.
+		 * @property {InternalUtilities~cancelPatch} cancelPatch Function with no arguments and no return value that may be called to reverse patching of current method. Calling this function prevents running of this callback on further original method calls.
+		 * @property {function} originalMethod Reference to the original method that is patched. You can use it if you need some special usage. You should explicitly provide a value for `this` and any method arguments when you call this function.
+		 * @property {InternalUtilities~originalMethodCall} callOriginalMethod This is a shortcut for calling original method using `this` and `arguments` from original call.
+		 * @property {*} returnValue This is a value returned from original function call. This property is available only in `after` callback or in `instead` callback after calling `callOriginalMethod` function.
+		 */
 		const data = {
 			thisObject: this,
 			methodArguments: arguments,
@@ -759,8 +774,8 @@ InternalUtilities.monkeyPatch = (what, methodName, options) => {
 		return data.returnValue;
 	};
 	what[methodName].__monkeyPatched = true;
-    what[methodName].displayName = 'patched ' + (what[methodName].displayName || methodName);
-    what[methodName].unpatch = cancel;
+	what[methodName].displayName = 'patched ' + (what[methodName].displayName || methodName);
+	what[methodName].unpatch = cancel;
 	return cancel;
 };
 

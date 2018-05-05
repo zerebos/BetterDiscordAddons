@@ -106,11 +106,11 @@ class BetterRoleColors {
 			this.colorizeAuditLog();
 		}
 
-		if (elem.querySelector(`.${DiscordModules.UserPopoutClasses.userPopout}`)) {
+		if (elem.querySelector(DiscordSelectors.UserPopout.userPopout)) {
 			this.colorizePopout();
 		}
 
-		if (elem.querySelector(`.${DiscordModules.UserModalClasses.root}`)) {
+		if (elem.querySelector(DiscordSelectors.UserModal.root)) {
 			this.colorizeModal();
 		}
 
@@ -228,19 +228,19 @@ class BetterRoleColors {
 
 	colorizePopout() {
 		if (!this.settings.popouts.username && !this.settings.popouts.discriminator && !this.settings.popouts.nickname) return;
-		let popout = document.querySelector(`.${DiscordModules.UserPopoutClasses.userPopout}`);
+		let popout = document.querySelector(DiscordSelectors.UserPopout.userPopout);
 		let user = ReactUtilities.getReactProperty(popout, "return.memoizedProps.user");
 		if (!user) return true;
 		let color = this.getUserColor(user.id);
-		var hasNickname = Boolean(popout.querySelector(`.${DiscordModules.UserPopoutClasses.headerName}`));
+		var hasNickname = Boolean(popout.querySelector(DiscordSelectors.UserPopout.headerName));
 		if ((color && this.settings.popouts.username) || (!hasNickname && this.settings.popouts.fallback)) popout.querySelector('.username').style.setProperty("color", color, "important");
 		if (color && this.settings.popouts.discriminator) popout.querySelector('.discriminator').style.setProperty("color", color, "important");
-		if (color && this.settings.popouts.nickname && hasNickname) popout.querySelector(`.${DiscordModules.UserPopoutClasses.headerName}`).style.setProperty("color", color, "important");
+		if (color && this.settings.popouts.nickname && hasNickname) popout.querySelector(DiscordSelectors.UserPopout.headerName).style.setProperty("color", color, "important");
 	}
 
 	colorizeModal() {
 		if (!this.settings.modals.username && !this.settings.modals.discriminator) return;
-		let modal = document.querySelector(`.${DiscordModules.UserModalClasses.root}`);
+		let modal = document.querySelector(DiscordSelectors.UserModal.root);
 		let user = ReactUtilities.getReactProperty(modal, "return.return.memoizedProps.user");
 		let color = this.getUserColor(user.id);
 		if (color && this.settings.modals.username) modal.querySelector('.username').style.setProperty("color", color, "important");
