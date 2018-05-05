@@ -1,4 +1,4 @@
-//META{"name":"BetterFormattingRedux"}*//
+//META{"name":"BetterFormattingRedux","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux","source":"https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js"}*//
 
 /* global PluginSettings:false, PluginUtilities:false, PluginContextMenu:false, PluginTooltip:false, BdApi:false */
 
@@ -335,14 +335,16 @@ class BetterFormattingRedux {
 	
 	start() {
 		var libraryScript = document.getElementById('zeresLibraryScript');
-		if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
-		libraryScript = document.createElement("script");
-		libraryScript.setAttribute("type", "text/javascript");
-		libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
-		libraryScript.setAttribute("id", "zeresLibraryScript");
-		document.head.appendChild(libraryScript);
+		if (!window.ZeresLibrary || window.ZeresLibrary.isOutdated) {
+			if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
+			libraryScript = document.createElement("script");
+			libraryScript.setAttribute("type", "text/javascript");
+			libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
+			libraryScript.setAttribute("id", "zeresLibraryScript");
+			document.head.appendChild(libraryScript);
+		}
 
-		if (typeof window.ZeresLibrary !== "undefined") this.initialize();
+		if (window.ZeresLibrary) this.initialize();
 		else libraryScript.addEventListener("load", () => { this.initialize(); });
 	}
 

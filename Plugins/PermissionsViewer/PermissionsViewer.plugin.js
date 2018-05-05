@@ -1,12 +1,10 @@
-//META{"name":"PermissionsViewer","pname":"PermissionsViewer"}*//
-
-/* global DiscordPermissions:false, ReactUtilities:false, DiscordModules:false, InternalUtilities:false, ColorUtilities:false, PluginUtilities:false, PluginSettings:false, BdApi:false */
+//META{"name":"PermissionsViewer","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer","source":"https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/PermissionsViewer/PermissionsViewer.plugin.js"}*//
 
 class PermissionsViewer {
 	getName() { return "PermissionsViewer"; }
 	getShortName() { return "PermissionsViewer"; }
 	getDescription() { return "Allows you to view a user's permissions. Thanks to Noodlebox for the idea! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.13"; }
+	getVersion() { return "0.0.14"; }
 	getAuthor() { return "Zerebos"; }
 	
 	constructor() {
@@ -21,19 +19,6 @@ class PermissionsViewer {
 			margin-top: 2px;
 			max-height: 160px;
 			overflow-y: auto;
-		}
-		
-		.member-perms .member-perm {
-			display: flex;
-			align-items: center;
-			font-size: 12px;
-			font-weight: 600;
-			border: 1px solid;
-			border-radius: 11px;
-			box-sizing: border-box;
-			height: 22px;
-			margin: 0 4px 4px 0;
-			padding: 4px;
 		}
 
 		.member-perms .member-perm .perm-circle {
@@ -303,30 +288,28 @@ class PermissionsViewer {
 		}
 		`;
 
-		this.listHTML = `<div class="member-perms-header bodyTitle-Y0qMQz marginBottom8-AtZOdT size12-3R0845 weightBold-2yjlgw">
-							<div class="member-perms-title">\${label}</div>
-							<span class="perm-details">
-								<svg name="Details" viewBox="0 0 24 24" class="bodyTitleIconForeground-itKW-t perm-details-button" fill="currentColor">
-									<path d="M0 0h24v24H0z" fill="none"/>
-									<path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
-								</svg>
-							</span>
-						</div>
-						<ul class="member-perms endBodySection-Rf4s-7 marginBottom20-32qID7"></ul>`;
-		
-		this.itemHTML = `<component class="member-perm">
-							<span class="name"></span>
-						</component>`;
+		this.listHTML = `<div id="permissions-popout">
+								<div class="member-perms-header \${bodyTitle}">
+								<div class="member-perms-title">\${label}</div>
+								<span class="perm-details">
+									<svg name="Details" viewBox="0 0 24 24" class="perm-details-button" fill="currentColor">
+										<path d="M0 0h24v24H0z" fill="none"/>
+										<path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+									</svg>
+								</span>
+							</div>
+							<ul class="member-perms \${root} \${rolesList} \${endBodySection}"></ul>
+						</div>`;
 						
-		this.itemHTML = `<li class="member-perm role-3rahR_">
-							<div class="perm-circle roleCircle-3-vPZq"></div>
-							<div class="name roleName-DUQZ9m"></div>
+		this.itemHTML = `<li class="member-perm \${role}">
+							<div class="perm-circle \${roleCircle}"></div>
+							<div class="name \${roleName}"></div>
 						</li>`;
 
 		this.modalHTML = `<div id="permissions-modal-wrapper">
-							<div class="callout-backdrop backdrop-1ocfXc"></div>
-							<div class="modal-wrapper modal-2LIEKY">
-								<div id="permissions-modal" class="inner-1_1f7b">
+							<div class="callout-backdrop \${backdrop}"></div>
+							<div class="modal-wrapper \${modal}">
+								<div id="permissions-modal" class="\${inner}">
 									<div class="header"><div class="title">\${header}</div></div>
 									<div class="modal-body">
 										<div class="role-side">
@@ -371,18 +354,16 @@ class PermissionsViewer {
 							<span class="perm-name"></span>
 						</div>`;
 
-		this.contextItem = '<div class="item-1XYaYf"><span></span><div class="hint-3TJykr"></div></div>';
-
 		this.initialized = false;
 		this.defaultSettings = {plugin: {popouts: true, contextMenus: true}};
 		this.settings = this.defaultSettings;
 
-		this.popoutObserver = new MutationObserver((changes) => {
-			for (let change in changes) this.observePopouts(changes[change]);
-		});
 		this.contextObserver = new MutationObserver((changes) => {
 			for (let change in changes) this.observeContextMenus(changes[change]);
 		});
+
+		this.cancels = [];
+		this.cancelUserPopout = () => {};
 	}
 	
 	load() {}
@@ -398,14 +379,16 @@ class PermissionsViewer {
 	
 	start() {
 		var libraryScript = document.getElementById('zeresLibraryScript');
-		if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
-		libraryScript = document.createElement("script");
-		libraryScript.setAttribute("type", "text/javascript");
-		libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
-		libraryScript.setAttribute("id", "zeresLibraryScript");
-		document.head.appendChild(libraryScript);
+		if (!window.ZeresLibrary || window.ZeresLibrary.isOutdated) {
+			if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
+			libraryScript = document.createElement("script");
+			libraryScript.setAttribute("type", "text/javascript");
+			libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
+			libraryScript.setAttribute("id", "zeresLibraryScript");
+			document.head.appendChild(libraryScript);
+		}
 
-		if (typeof window.ZeresLibrary !== "undefined") this.initialize();
+		if (window.ZeresLibrary) this.initialize();
 		else libraryScript.addEventListener("load", () => { this.initialize(); });
 	}
 	
@@ -413,9 +396,12 @@ class PermissionsViewer {
 		PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
 		BdApi.injectCSS(this.getShortName(), this.css);
 		this.loadSettings();
-		this.contextListener = () => {
-			this.bindMenu(document.querySelector(`.${DiscordModules.ContextMenuClasses.contextMenu}`));
-		};
+		
+		this.listHTML = PluginUtilities.formatString(this.listHTML, DiscordClasses.UserPopout);
+		this.listHTML = PluginUtilities.formatString(this.listHTML, DiscordClasses.PopoutRoles);
+		this.itemHTML = PluginUtilities.formatString(this.itemHTML, DiscordClasses.PopoutRoles);
+		this.modalHTML = PluginUtilities.formatString(this.modalHTML, DiscordClasses.Backdrop);
+		this.modalHTML = PluginUtilities.formatString(this.modalHTML, DiscordClasses.Modals);
 
 		this.GuildStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getGuild']);
 		this.SelectedGuildStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getLastSelectedGuildId']);
@@ -436,6 +422,76 @@ class PermissionsViewer {
 		this.unbindContextMenus();
 	}
 
+	bindPopouts() {
+		let pViewer = this;
+		let UserPopout = InternalUtilities.WebpackModules.find(m => m.displayName == "FluxContainer(SubscribeGuildMembersContainer(t))");
+		UserPopout.prototype.componentDidMount = function() {
+			let user = this.state.guildMember;
+			let guild = this.state.guild;
+			let name = this.state.nickname ? this.state.nickname : this.props.user.username;
+
+
+			let popout = DiscordModules.ReactDOM.findDOMNode(this);
+			let userRoles = user.roles.slice(0);
+			userRoles.push(guild.id);
+			userRoles.reverse();
+			let perms = user.userId == guild.ownerId ? DiscordPermissions.FullPermissions : 0;
+			perms = 0;
+	
+	
+			let permBlock = $(PluginUtilities.formatString(pViewer.listHTML, {label: pViewer.strings.popout.label}));
+			let memberPerms = permBlock.find('.member-perms');
+			let strings = InternalUtilities.WebpackModules.findByUniqueProperties(["Messages"]).Messages;
+			let DiscordPerms = DiscordModules.DiscordConstants.Permissions;
+			if (DiscordPerms.SEND_TSS_MESSAGES) {
+				DiscordPerms.SEND_TTS_MESSAGES = DiscordPerms.SEND_TSS_MESSAGES;
+				delete DiscordPerms.SEND_TSS_MESSAGES;
+			}
+			if (DiscordPerms.MANAGE_GUILD) {
+				DiscordPerms.MANAGE_SERVER = DiscordPerms.MANAGE_GUILD;
+				delete DiscordPerms.MANAGE_GUILD;
+			}
+			
+
+			for (let r = 0; r < userRoles.length; r++) {
+				let role = userRoles[r];
+				perms = perms | guild.roles[role].permissions;
+				for (let perm in DiscordPerms) {
+					var permName = strings[perm];
+					let hasPerm = (perms & DiscordPerms[perm]) == DiscordPerms[perm];
+					if (hasPerm && !memberPerms.find(`[data-name="${permName}"]`).length) {
+						let element = $(pViewer.itemHTML);
+						let roleColor = guild.roles[role].colorString;
+						element.find('.name').text(permName);
+						element.attr("data-name", permName);
+						if (!roleColor) roleColor = "#B9BBBE";
+						element.find('.perm-circle').css("background-color", ColorUtilities.rgbToAlpha(roleColor, 1));
+						element.css("border-color", ColorUtilities.rgbToAlpha(roleColor, 0.6));
+						memberPerms.append(element);
+					}
+				}
+			}
+
+			memberPerms.append(memberPerms.find('.member-perm').get().reverse());
+			DOMUtilities.insertAfter(permBlock[0], popout.querySelector(DiscordSelectors.UserPopout.rolesList));
+	
+			let jPopout = $(popout);
+			if (jPopout.offset().top + jPopout.outerHeight() >= ZeresLibrary.Screen.height) {
+				let shift = Math.round((jPopout.offset().top + jPopout.outerHeight() - ZeresLibrary.Screen.height) + 20);
+				popout.style.setProperty("transform", "translateY(-" + shift + "px)");
+			}
+	
+			$('.perm-details-button').on('click', () => {
+				pViewer.showModal(pViewer.createModal(name, user, guild));
+			});
+		};
+		this.cancelUserPopout = () => {delete UserPopout.prototype.componentDidMount;};
+	}
+
+	unbindPopouts() {
+		this.cancelUserPopout();
+	}
+
 	bindContextMenus() {
 		this.contextObserver.observe(document.querySelector('#app-mount'), {childList: true, subtree: true});
 	}
@@ -447,16 +503,16 @@ class PermissionsViewer {
 	observeContextMenus(e) {
 		if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element) || !e.addedNodes[0].classList) return;
 		let elem = e.addedNodes[0];
-		let context = elem.classList.contains(DiscordModules.ContextMenuClasses.contextMenu);
-		if (!context) return;
+		let isContextMenu = elem.classList.contains(DiscordClasses.ContextMenu.contextMenu);
+		if (!isContextMenu) return;
+		let context = elem;
 
+		//"USER_CHANNEL_MEMBERS""USER_CHANNEL_MESSAGE"
 		let isUserContext = ReactUtilities.getReactProperty(context, "return.memoizedProps.user");
 		let isGuildContext = ReactUtilities.getReactProperty(context, "return.memoizedProps.guildId");
-		if (!(isUserContext && isGuildContext)) return;
+		if (!isUserContext || !isGuildContext) return;
 
-		let item = $(this.contextItem);
-		item.find('span').text(this.strings.contextMenu.label);
-		item.on("click." + this.getShortName(), () => {
+		let item = new PluginContextMenu.TextItem(this.strings.contextMenu.label, {callback: () => {
 			context.style.display = "none";
 
 			let guildId = this.SelectedGuildStore.getGuildId();
@@ -467,75 +523,9 @@ class PermissionsViewer {
 			if (!user || !guild || !name) return;
 			this.showModal(this.createModal(name, user, guild));
 			
-		});
-		$(context).find(`.${DiscordModules.ContextMenuClasses.item}`).first().after(item);
+		}});
+		$(context).find(`.${DiscordModules.ContextMenuClasses.item}`).first().after(item.element);
 
-	}
-
-	bindPopouts() {
-		this.popoutObserver.observe(document.querySelector(`.${DiscordModules.PopoutClasses.popouts}`) || document.querySelector('#app-mount'), {childList: true, subtree: true});
-	}
-
-	unbindPopouts() {
-		this.popoutObserver.disconnect();
-	}
-	
-	observePopouts(e) {
-		if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element) || !e.addedNodes[0].classList) return;
-		let elem = e.addedNodes[0];
-		let popout = elem.querySelector(`.${DiscordModules.UserPopoutClasses.userPopout}`);
-		if (!popout) return;
-
-		let {user, guild, name} = this.getInfoFromPopout(popout);
-		if (!user || !guild || !name) return;
-
-		let userRoles = user.roles.slice(0);
-		userRoles.push(guild.id);
-		let perms = user.userId == guild.ownerId ? DiscordPermissions.FullPermissions : 0;
-		perms = 0;
-
-
-		$(`.${DiscordModules.UserPopoutClasses.rolesList}`).after(PluginUtilities.formatString(this.listHTML, {label: this.strings.popout.label}));
-		
-		userRoles.reverse();
-		for (let r = 0; r < userRoles.length; r++) {
-			let role = userRoles[r];
-		// userRoles.forEach((role) => {
-			perms = perms | guild.roles[role].permissions;
-			let userPerms = new DiscordPermissions(perms);
-			// console.log(guild.roles[role]);
-
-			for (let perm of userPerms) {
-				var permName = this.strings.permissions[perm].short;
-				if (userPerms[perm] && !$('.member-perms').find(`[data-name="${permName}"]`).length) {
-					let element = $(this.itemHTML);
-					let roleColor = guild.roles[role].colorString;
-					element.find('.name').text(permName);
-					element.attr("data-name", permName);
-					if (!roleColor) roleColor = "#B9BBBE";
-					// element.css("color", roleColor);
-					element.find('.perm-circle').css("background-color", ColorUtilities.rgbToAlpha(roleColor, 1));
-					element.css("border-color", ColorUtilities.rgbToAlpha(roleColor, 0.6));
-					$('.member-perms').append(element);
-				}
-			}
-		// });
-		}
-
-		// $('.member-perms .member-perm').reverse();
-		$('.member-perms').append($('.member-perms .member-perm').get().reverse());
-
-
-		const maxHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-		let jPopout = $(popout);
-		if (jPopout.offset().top + jPopout.outerHeight() >= maxHeight) {
-			let shift = Math.round((jPopout.offset().top + jPopout.outerHeight() - maxHeight) + 20);
-			popout.style.setProperty("transform", "translateY(-" + shift + "px)");
-		}
-
-		$('.perm-details-button').on('click', () => {
-			this.showModal(this.createModal(name, user, guild));
-		});
 	}
 
 	getInfoFromPopout(popout) {
@@ -548,8 +538,6 @@ class PermissionsViewer {
 	showModal(modal) {
 		$('[class*="userPopout-"]').hide();
 		$('[class*="app-"').append(modal);
-		// if (document.querySelector('.app-XZYfmp')) $('.app-XZYfmp').siblings('[class*="theme-"]:not(.popouts)').first().append(modal);
-		// else $('.app').siblings('[class*="theme-"]').first().append(modal);
 	}
 
 	createModal(name, user, guild) {
@@ -572,7 +560,17 @@ class PermissionsViewer {
 		}
 
 		//let channelOverrides = this.getSelectedChannel().permissionOverwrites;
-
+		let DiscordPerms = DiscordModules.DiscordConstants.Permissions;
+		if (DiscordPerms.SEND_TSS_MESSAGES) {
+			DiscordPerms.SEND_TTS_MESSAGES = DiscordPerms.SEND_TSS_MESSAGES;
+			delete DiscordPerms.SEND_TSS_MESSAGES;
+		}
+		if (DiscordPerms.MANAGE_GUILD) {
+			DiscordPerms.MANAGE_SERVER = DiscordPerms.MANAGE_GUILD;
+			delete DiscordPerms.MANAGE_GUILD;
+		}
+		let strings = InternalUtilities.WebpackModules.findByUniqueProperties(["Messages"]).Messages;
+		
 		for (let role of userRoles) {
 			let item = $(this.modalButton);
 			item.css("color", guildRoles[role].colorString);
@@ -581,16 +579,17 @@ class PermissionsViewer {
 			item.on('click', () => {
 				modal.find('.role-item').removeClass('selected');
 				item.addClass('selected');
-				let perms = new DiscordPermissions(guildRoles[role].permissions);
+				let perms = guildRoles[role].permissions;
 				// if (channelOverrides[role]) {
 				// 	perms.allowPermission(channelOverrides[role].allow);
 				// 	perms.denyPermission(channelOverrides[role].deny);
 				// }
 				let permList = modal.find('.perm-scroller');
 				permList.empty();
-				for (let perm of perms) {
+				for (let perm in DiscordPerms) {
 					let element = $(this.modalItem);
-					if (perms[perm]) {
+					let hasPerm = (perms & DiscordPerms[perm]) == DiscordPerms[perm];
+					if (hasPerm) {
 						element.addClass('allowed');
 						element.prepend(this.permAllowedIcon);
 					}
@@ -598,7 +597,7 @@ class PermissionsViewer {
 						element.addClass('denied');
 						element.prepend(this.permDeniedIcon);
 					}
-					element.find('.perm-name').text(this.strings.permissions[perm].name);
+					element.find('.perm-name').text(strings[perm]);
 					permList.append(element);
 				}
 			});
@@ -681,37 +680,6 @@ class PermissionsViewer {
 						permissionsLabel: "Permisos",
 						owner: "@propietario"
 					},
-					permissions: {
-						administrator: {name: "Administrador", short: "Admin"},
-						viewAuditLog: {name: "Ver el Registro de Auditoría", short: "Registro de Auditoría"},
-						manageServer: {name: "Administrar el Servidor", short: "Administrar el Servidor"},
-						manageRoles: {name: "Administrar Roles", short: "Administrar Roles"},
-						manageChannels: {name: "Administrar Canales", short: "Administrar Canales"},
-						kickMembers: {name: "Expulsar Miembros", short: "Expulsar"},
-						banMembers: {name: "Bloquear Miembros", short: "Bloquear"},
-						createInvite: {name: "Crear Invitación Instantánea", short: "Crear Invitación"},
-						changeNickname: {name: "Cambiar Apodo", short: "Apodo"},
-						manageNicknames: {name: "Administrar Apodos", short: "Administrar Apodos"},
-						manageEmojis: {name: "Administrar Emojis", short: "Administrar Emojis"},
-						manageWebhooks: {name: "Administrar Webhooks", short: "Administrar Webhooks"},
-						readMessages: {name: "Leer Mensajes", short: "Leer"},
-						sendTTSMessages: {name: "Enviar Mensajes de TTS", short: "TTS"},
-						embedLinks: {name: "Insertar Enlaces", short: "Enlaces"},
-						readMessageHistory: {name: "Leer el Historial de Mensajes", short: "Leer el Historial"},
-						useExternalEmojis: {name: "Usar Emojis Externos", short: "Emojis Externos"},
-						sendMessages: {name: "Enviar Mensajes", short: "Enviar"},
-						manageMessages: {name: "Administrar Mensajes", short: "Administrar mensajes"},
-						attachFiles: {name: "Adjuntar Archivos", short: "Adjuntar"},
-						mentionEveryone: {name: "Mencionar a Todos", short: "Mencionar a todos"},
-						addReactions: {name: "Añadir Reacciones", short: "Reacciones"},
-						viewChannel: {name: "Ver Canales de Voz", short: "Ver Canales de Voz"},
-						connect: {name: "Conectar", short: "Conectar"},
-						muteMembers: {name: "Silenciar Miembros", short: "Silenciar"},
-						moveMembers: {name: "Mover Miembros", short: "Mover"},
-						speak: {name: "Hablar", short: "Hablar"},
-						deafenMembers: {name: "Ensordecer Miembros", short: "Ensordecer"},
-						useVoiceActivity: {name: "Usar la actividad de voz", short: "Actividad de Voz"},
-					},
 					settings: {
 						pluginOptions: {
 							label: "Opciones de Plugin",
@@ -739,37 +707,6 @@ class PermissionsViewer {
 						rolesLabel: "Cargos",
 						permissionsLabel: "Permissões",
 						owner: "@dono"
-					},
-					permissions: {
-						administrator: {name: "Administrador", short: "Administrador"},
-						viewAuditLog: {name: "Ver Audit Log", short: "Audit Log"},
-						manageServer: {name: "Gerenciar servidor", short: "Gerenciar servidor"},
-						manageRoles: {name: "Gerenciar cargos", short: "Gerenciar cargos"},
-						manageChannels: {name: "Gerenciar canais", short: "Gerenciar canais"},
-						kickMembers: {name: "Expulsar membros", short: "Expulsar"},
-						banMembers: {name: "Banir membros", short: "Banir"},
-						createInvite: {name: "Criar convite instantâneo", short: "Criar convite"},
-						changeNickname: {name: "Mudar apelido", short: "Apelido"},
-						manageNicknames: {name: "Gerenciar apelidos", short: "Gerenciar apelidos"},
-						manageEmojis: {name: "Gerenciar emojis", short: "Gerenciar emojis"},
-						manageWebhooks: {name: "Gerenciar webhooks", short: "Gerenciar webhooks"},
-						readMessages: {name: "Ler mensagens", short: "Ler"},
-						sendTTSMessages: {name: "Enviar mensagens em TTS", short: "TTS"},
-						embedLinks: {name: "Inserir links", short: "Links"},
-						readMessageHistory: {name: "Ver histórico de mensagens", short: "Ver histórico"},
-						useExternalEmojis: {name: "Usar emojis externos", short: "Emojis externos"},
-						sendMessages: {name: "Enviar mensagens", short: "Enviar"},
-						manageMessages: {name: "Gerenciar mensagens", short: "Gerenciar mensagens"},
-						attachFiles: {name: "Anexar arquivos", short: "Anexar"},
-						mentionEveryone: {name: "Mencionar todos", short: "Mencionar todos"},
-						addReactions: {name: "Adicionar reações", short: "Reações"},
-						viewChannel: {name: "Ver canais de voz", short: "Ver canais de voz"},
-						connect: {name: "Conectar", short: "Conectar"},
-						muteMembers: {name: "Silenciar membros", short: "Silenciar"},
-						moveMembers: {name: "Mover membros", short: "Mover"},
-						speak: {name: "Falar", short: "Falar"},
-						deafenMembers: {name: "Ensurdecer membros", short: "Ensurdecer"},
-						useVoiceActivity: {name: "Usar detecção de voz", short: "Detecção de voz"},
 					},
 					settings: {
 						pluginOptions: {
@@ -799,37 +736,6 @@ class PermissionsViewer {
 						permissionsLabel: "Berechtigungen",
 						owner: "@eigentümer"
 					},
-					permissions: {
-						administrator: {name: "Administrator", short: "Administrator"},
-						viewAuditLog: {name: "Audit-Log anzeigen", short: "Audit-Log"},
-						manageServer: {name: "Server Verwalten", short: "Server Verwalten"},
-						manageRoles: {name: "Rollen Verwalten", short: "Rollen Verwalten"},
-						manageChannels: {name: "Kanäle Verwalten", short: "Kanäle Verwalten"},
-						kickMembers: {name: "Mitglieder Kicken", short: "Kicken"},
-						banMembers: {name: "Mitglieder Bannen", short: "Bannen"},
-						createInvite: {name: "Soforteinladung Erstellen", short: "Soforteinladung erstellen"},
-						changeNickname: {name: "Nickname ändern", short: "Nickname"},
-						manageNicknames: {name: "Nicknamen Verwalten", short: "Nicknamen Verwalten"},
-						manageEmojis: {name: "Emojis Verwalten", short: "Emojis Verwalten"},
-						manageWebhooks: {name: "WebHooks Verwalten", short: "WebHooks Verwalten"},
-						readMessages: {name: "Nachrichten Lesen", short: "Lesen"},
-						sendTTSMessages: {name: "Verschicke Text-zu-Sprache-Nachrichten", short: "Text-zu-Sprache"},
-						embedLinks: {name: "Links einbinden", short: "Einbinden"},
-						readMessageHistory: {name: "Nachrichtenverlauf Lesen", short: "Nachrichtenverlauf lesen"},
-						useExternalEmojis: {name: "Benutzerdefinierte Emojis verwenden", short: "Benutzerdefinierte Emojis verwenden"},
-						sendMessages: {name: "Nachrichten Versenden", short: "Versenden"},
-						manageMessages: {name: "Nachrichten Verwalten", short: "Nachrichten Verwalten"},
-						attachFiles: {name: "Dateien Anhängen", short: "Anhängen"},
-						mentionEveryone: {name: "Alle Erwähnen", short: "Alle erwähnen"},
-						addReactions: {name: "Reaktionen hinzufügen", short: "Reaktionen hinzufügen"},
-						viewChannel: {name: "Kanal Ansehen", short: "Kanal ansehen"},
-						connect: {name: "Verbinden", short: "Verbinden"},
-						muteMembers: {name: "Mitglieder Stumm Schalten", short: "Mitglieder stumm schalten"},
-						moveMembers: {name: "Mitglieder verschieben", short: "Mitglieder verschieben"},
-						speak: {name: "Sprechen", short: "Sprechen"},
-						deafenMembers: {name: "Mitglieder taub schalten", short: "Mitglieder taub schalten"},
-						useVoiceActivity: {name: "Sprachaktivierung verwenden", short: "Sprachaktivierung verwenden"},
-					},
 					settings: {
 						pluginOptions: {
 							label: "Plugin-Optionen",
@@ -857,37 +763,6 @@ class PermissionsViewer {
 						rolesLabel: "Roles",
 						permissionsLabel: "Permissions",
 						owner: "@owner"
-					},
-					permissions: {
-						administrator: {name: "Administrator", short: "Admin"},
-						viewAuditLog: {name: "View Audit Log", short: "Audit Log"},
-						manageServer: {name: "Manage Server", short: "Manage Server"},
-						manageRoles: {name: "Manage Roles", short: "Manage Roles"},
-						manageChannels: {name: "Manage Channels", short: "Manage Channels"},
-						kickMembers: {name: "Kick Members", short: "Kick"},
-						banMembers: {name: "Ban Members", short: "Ban"},
-						createInvite: {name: "Create Instant Invite", short: "Create Invite"},
-						changeNickname: {name: "Change Nickname", short: "Nickname"},
-						manageNicknames: {name: "Manage Nicknames", short: "Manage Nicknames"},
-						manageEmojis: {name: "Manage Emojis", short: "Manage Emojis"},
-						manageWebhooks: {name: "Manage Webhooks", short: "Manage Webhooks"},
-						readMessages: {name: "Read Messages", short: "Read"},
-						sendTTSMessages: {name: "Send TTS Messages", short: "TTS"},
-						embedLinks: {name: "Embed Links", short: "Embeds"},
-						readMessageHistory: {name: "Read Message History", short: "Read History"},
-						useExternalEmojis: {name: "Use External Emojis", short: "External Emojis"},
-						sendMessages: {name: "Send Messages", short: "Send"},
-						manageMessages: {name: "Manage Messages", short: "Manage Messages"},
-						attachFiles: {name: "Attach Files", short: "Attach"},
-						mentionEveryone: {name: "Mention Everyone", short: "Mention Everyone"},
-						addReactions: {name: "Add Reactions", short: "React"},
-						viewChannel: {name: "View Voice Channels", short: "View Voice"},
-						connect: {name: "Voice Connect", short: "Connect"},
-						muteMembers: {name: "Mute Members", short: "Mute"},
-						moveMembers: {name: "Move Members", short: "Move"},
-						speak: {name: "Speak", short: "Speak"},
-						deafenMembers: {name: "Deafen Members", short: "Deafen"},
-						useVoiceActivity: {name: "Use Voice Activity", short: "Voice Activity"},
 					},
 					settings: {
 						pluginOptions: {

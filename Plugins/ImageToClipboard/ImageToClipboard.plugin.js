@@ -1,4 +1,4 @@
-//META{"name":"ImageToClipboard"}*//
+//META{"name":"ImageToClipboard","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ImageToClipboard","source":"https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/ImageToClipboard/ImageToClipboard.plugin.js"}*//
 
 /* global PluginUtilities:false, ReactUtilities:false, PluginContextMenu:false, DiscordModules:false */
 
@@ -26,7 +26,8 @@ class ImageToClipboard {
 	
 	start() {
 		var libraryScript = document.getElementById('zeresLibraryScript');
-		if (!libraryScript) {
+		if (!window.ZeresLibrary || window.ZeresLibrary.isOutdated) {
+			if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
 			libraryScript = document.createElement("script");
 			libraryScript.setAttribute("type", "text/javascript");
 			libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
@@ -34,7 +35,7 @@ class ImageToClipboard {
 			document.head.appendChild(libraryScript);
 		}
 
-		if (typeof window.ZeresLibrary !== "undefined") this.initialize();
+		if (window.ZeresLibrary) this.initialize();
 		else libraryScript.addEventListener("load", () => { this.initialize(); });
 	}
 

@@ -1,5 +1,12 @@
 # PermissionsViewer Changelog
 
+### 0.0.14
+
+ - Switch to internal strings
+ - Partially switch to internal perms
+ - Internal classes
+ - Hopefully performance improvements
+
 ### 0.0.13
 
  - Fix for discord update

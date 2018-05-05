@@ -1,5 +1,14 @@
 # BDContextMenu Changelog
 
+### 0.0.9
+
+ - Switch to new class style
+ - Hopefully performance improvement due to memoization
+
+### 0.0.8
+
+ - Hotfix remove observer
+
 ### 0.0.7
 
  - Fix for discord update

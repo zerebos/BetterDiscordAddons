@@ -1,4 +1,4 @@
-//META{"name":"SendButton"}*//
+//META{"name":"SendButton","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/SendButton","source":"https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/SendButton/SendButton.plugin.js"}*//
 
 /* global PluginUtilities:false, BdApi:false */
 
@@ -56,7 +56,8 @@ class SendButton {
 	
 	start(){
 		var libraryScript = document.getElementById('zeresLibraryScript');
-		if (!libraryScript) {
+		if (!window.ZeresLibrary || window.ZeresLibrary.isOutdated) {
+			if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
 			libraryScript = document.createElement("script");
 			libraryScript.setAttribute("type", "text/javascript");
 			libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
@@ -64,7 +65,7 @@ class SendButton {
 			document.head.appendChild(libraryScript);
 		}
 
-		if (typeof window.ZeresLibrary !== "undefined") this.initialize();
+		if (window.ZeresLibrary) this.initialize();
 		else libraryScript.addEventListener("load", () => { this.initialize(); });
 	}
 	

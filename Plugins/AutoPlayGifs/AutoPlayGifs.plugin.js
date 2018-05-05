@@ -1,4 +1,4 @@
-//META{"name":"AutoPlayGifs"}*//
+//META{"name":"AutoPlayGifs","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AutoPlayGifs","source":"https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/AutoPlayGifs/AutoPlayGifs.plugin.js"}*//
 
 /* global DiscordModules:false, PluginUtilities:false, InternalUtilities:false, PluginSettings:false */
 
@@ -6,7 +6,7 @@ class AutoPlayGifs {
 	getName() { return "AutoPlayGifs"; }
 	getShortName() { return "AutoPlayGifs"; }
 	getDescription() { return "Automatically plays avatars. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.2"; }
+	getVersion() { return "0.0.3"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -25,14 +25,16 @@ class AutoPlayGifs {
 	
 	start(){
 		var libraryScript = document.getElementById('zeresLibraryScript');
-		if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
-		libraryScript = document.createElement("script");
-		libraryScript.setAttribute("type", "text/javascript");
-		libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
-		libraryScript.setAttribute("id", "zeresLibraryScript");
-		document.head.appendChild(libraryScript);
+		if (!window.ZeresLibrary || window.ZeresLibrary.isOutdated) {
+			if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
+			libraryScript = document.createElement("script");
+			libraryScript.setAttribute("type", "text/javascript");
+			libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
+			libraryScript.setAttribute("id", "zeresLibraryScript");
+			document.head.appendChild(libraryScript);
+		}
 
-		if (typeof window.ZeresLibrary !== "undefined") this.initialize();
+		if (window.ZeresLibrary) this.initialize();
 		else libraryScript.addEventListener("load", () => { this.initialize(); });
 	}
 
@@ -62,10 +64,11 @@ class AutoPlayGifs {
 	patchMemberListAvatars() {
 		let MemberList = InternalUtilities.WebpackModules.find(m => m.prototype && m.prototype.renderPlaceholder);
 		this.cancelMemberListAvatars = InternalUtilities.monkeyPatch(MemberList.prototype, "render", {before: ({thisObject}) => {
-				let id = thisObject.props.user.id;
-				let hasAnimatedAvatar = DiscordModules.ImageResolver.hasAnimatedAvatar(DiscordModules.UserStore.getUser(id));
-				if (!hasAnimatedAvatar) return;
-				thisObject.props.user.getAvatarURL = () => {return DiscordModules.ImageResolver.getUserAvatarURL(DiscordModules.UserStore.getUser(id)).replace("webp", "gif");};
+			if (!thisObject.props.user) return;
+			let id = thisObject.props.user.id;
+			let hasAnimatedAvatar = DiscordModules.ImageResolver.hasAnimatedAvatar(DiscordModules.UserStore.getUser(id));
+			if (!hasAnimatedAvatar) return;
+			thisObject.props.user.getAvatarURL = () => {return DiscordModules.ImageResolver.getUserAvatarURL(DiscordModules.UserStore.getUser(id)).replace("webp", "gif");};
 		}});
 	}
 
