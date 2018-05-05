@@ -76,23 +76,22 @@ ColorUtilities.rgbToAlpha = function(color, alpha) {
  * @version 0.0.1
  */
 var DiscordClassModules = {
-	__memoize: function(name, obj) {
-		delete this[name];
-		this[name] = obj;
-		return obj;
-	},
-	get ContextMenu() {return this.__memoize("ContextMenu", InternalUtilities.WebpackModules.findByUniqueProperties(['itemToggle']));},
-	get Scrollers() {return this.__memoize("Scrollers", InternalUtilities.WebpackModules.findByUniqueProperties(['scrollerWrap']));},
-	get AccountDetails() {return this.__memoize("AccountDetails", Object.assign({}, InternalUtilities.WebpackModules.findByUniqueProperties(['nameTag']), InternalUtilities.WebpackModules.findByUniqueProperties(['accountDetails'])));},
-	get Typing() {return this.__memoize("Typing", InternalUtilities.WebpackModules.findByUniqueProperties(['typing', 'text']));},
-	get UserPopout() {return this.__memoize("UserPopout", InternalUtilities.WebpackModules.findByUniqueProperties(['userPopout']));},
-	get PopoutRoles() {return this.__memoize("PopoutRoles", InternalUtilities.WebpackModules.findByUniqueProperties(['roleCircle']));},
-	get UserModal() {return this.__memoize("UserModal", InternalUtilities.WebpackModules.findByUniqueProperties(['profileBadge']));},
-	get Textarea() {return this.__memoize("Textarea", InternalUtilities.WebpackModules.findByUniqueProperties(['channelTextArea']));},
-	get Popouts() {return this.__memoize("Popouts", InternalUtilities.WebpackModules.findByUniqueProperties(['popouts']));},
-	get Titles() {return this.__memoize("Titles", InternalUtilities.WebpackModules.findByUniqueProperties(['defaultMarginh5']));},
-	get Notices() {return this.__memoize("Notices", InternalUtilities.WebpackModules.findByUniqueProperties(['noticeInfo']));}
+	get ContextMenu() {return InternalUtilities.WebpackModules.findByUniqueProperties(['itemToggle']);},
+	get Scrollers() {return InternalUtilities.WebpackModules.findByUniqueProperties(['scrollerWrap']);},
+	get AccountDetails() {return Object.assign({}, InternalUtilities.WebpackModules.findByUniqueProperties(['nameTag']), InternalUtilities.WebpackModules.findByUniqueProperties(['accountDetails']));},
+	get Typing() {return InternalUtilities.WebpackModules.findByUniqueProperties(['typing', 'text']);},
+	get UserPopout() {return InternalUtilities.WebpackModules.findByUniqueProperties(['userPopout']);},
+	get PopoutRoles() {return InternalUtilities.WebpackModules.findByUniqueProperties(['roleCircle']);},
+	get UserModal() {return InternalUtilities.WebpackModules.findByUniqueProperties(['profileBadge']);},
+	get Textarea() {return InternalUtilities.WebpackModules.findByUniqueProperties(['channelTextArea']);},
+	get Popouts() {return InternalUtilities.WebpackModules.findByUniqueProperties(['popouts']);},
+	get Titles() {return InternalUtilities.WebpackModules.findByUniqueProperties(['defaultMarginh5']);},
+	get Notices() {return InternalUtilities.WebpackModules.findByUniqueProperties(['noticeInfo']);},
+	get Backdrop() {return InternalUtilities.WebpackModules.findByUniqueProperties(['backdrop']);},
+	get Modals() {return InternalUtilities.WebpackModules.find(m => m.modal && m.inner && !m.header);}
 };
+
+DiscordClassModules = GeneralUtilities.memoizeObject(DiscordClassModules);
 
 /**
  * Proxy for all the class packages, allows us to safely attempt
@@ -105,7 +104,7 @@ var DiscordClassModules = {
  */
 var DiscordClasses = new Proxy(DiscordClassModules, {
 	get: function(list, item) {
-		if (!list.hasOwnProperty(item)) return new Proxy({}, {get: function() {return "";}});
+		if (list[item] === undefined) return new Proxy({}, {get: function() {return "";}});
 		return new Proxy(list[item], {
 			get: function(obj, prop) {
 				if (!obj.hasOwnProperty(prop)) return "";
@@ -126,7 +125,7 @@ var DiscordClasses = new Proxy(DiscordClassModules, {
  */
 var DiscordSelectors = new Proxy(DiscordClassModules, {
 	get: function(list, item) {
-		if (!list.hasOwnProperty(item)) return new Proxy({}, {get: function() {return "";}});
+		if (list[item] === undefined) return new Proxy({}, {get: function() {return "";}});
 		return new Proxy(list[item], {
 			get: function(obj, prop) {
 				if (!obj.hasOwnProperty(prop)) return "";
@@ -267,7 +266,7 @@ var DiscordModules = {
     get Timestamps() {return InternalUtilities.WebpackModules.findByUniqueProperties(["fromTimestamp"]);},
 
     /* Strings and Utils */
-    get Strings() {return InternalUtilities.WebpackModules.findByUniqueProperties(["TEXT", "TEXTAREA_PLACEHOLDER"]);},
+    get Strings() {return InternalUtilities.WebpackModules.findByUniqueProperties(["Messages"]).Messages;},
     get StringFormats() {return InternalUtilities.WebpackModules.findByUniqueProperties(['a', 'z']);},
     get StringUtils() {return InternalUtilities.WebpackModules.findByUniqueProperties(["toASCII"]);},
 
@@ -311,6 +310,8 @@ var DiscordModules = {
     get SettingsMetaClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(['defaultMarginh5']);},
     get NoticeBarClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(["noticeInfo"]);}
 };
+
+DiscordModules = GeneralUtilities.memoizeObject(DiscordModules);
 /* ================== END MODULE ================== */
 
 
@@ -511,6 +512,7 @@ DOMUtilities.Selector = class Selector {
 	
 	/**
 	 * Returns the raw selector, this is how native function get the value.
+	 * @returns {string} raw selector.
 	 */
 	toString() {
 		return this.value;
@@ -518,6 +520,7 @@ DOMUtilities.Selector = class Selector {
 	
 	/**
 	 * Returns the raw selector, this is how native function get the value.
+	 * @returns {string} raw selector.
 	 */
 	valueOf() {
 		return this.value;
@@ -531,6 +534,7 @@ DOMUtilities.Selector = class Selector {
 	/**
 	 * Adds another selector as a direct child `>` to this one.
 	 * @param {string|DOMUtilities.Selector} other - Selector to add as child
+	 * @returns {DOMUtilities.Selector} returns self to allow chaining
 	 */
 	child(other) {
 		return this.selector(">", other);
@@ -539,6 +543,7 @@ DOMUtilities.Selector = class Selector {
 	/**
 	 * Adds another selector as a adjacent sibling `+` to this one.
 	 * @param {string|DOMUtilities.Selector} other - Selector to add as adjacent sibling
+	 * @returns {DOMUtilities.Selector} returns self to allow chaining
 	 */
 	adjacent(other) {
 		return this.selector("+", other);
@@ -547,6 +552,7 @@ DOMUtilities.Selector = class Selector {
 	/**
 	 * Adds another selector as a general sibling `~` to this one.
 	 * @param {string|DOMUtilities.Selector} other - Selector to add as sibling
+	 * @returns {DOMUtilities.Selector} returns self to allow chaining
 	 */
 	sibling(other) {
 		return this.selector("~", other);
@@ -555,6 +561,7 @@ DOMUtilities.Selector = class Selector {
 	/**
 	 * Adds another selector as a descendent `(space)` to this one.
 	 * @param {string|DOMUtilities.Selector} other - Selector to add as descendent
+	 * @returns {DOMUtilities.Selector} returns self to allow chaining
 	 */
 	descend(other) {
 		return this.selector(" ", other);
@@ -574,6 +581,7 @@ DOMUtilities.ClassName = class ClassName {
 	/**
 	 * Concatenates new class names to the current one using spaces.
 	 * @param {string} classNames - list of class names to add to this class name
+	 * @returns {DOMUtilities.ClassName} returns self to allow chaining
 	 */
 	add(...classNames) {
 		for (var i = 0; i < classNames.length; i++) {
@@ -584,6 +592,7 @@ DOMUtilities.ClassName = class ClassName {
 	
 	/**
 	 * Returns the raw class name, this is how native function get the value.
+	 * @returns {string} raw class name.
 	 */
 	toString() {
 		return this.value;
@@ -591,6 +600,7 @@ DOMUtilities.ClassName = class ClassName {
 	
 	/**
 	 * Returns the raw class name, this is how native function get the value.
+	 * @returns {string} raw class name.
 	 */
 	valueOf() {
 		return this.value;
@@ -598,10 +608,66 @@ DOMUtilities.ClassName = class ClassName {
 	
 	/**
 	 * Returns the classname represented as {@link DOMUtilities.Selector}.
+	 * @returns {DOMUtilities.Selector} selector representation of this class name.
 	 */
 	get selector() {
 		return new DOMUtilities.Selector(this.value);
 	}
+};
+/* ================== END MODULE ================== */
+
+
+/**
+ * Random set of utilities that didn't fit elsewhere.
+ * @namespace
+ * @version 0.0.1
+ */
+var GeneralUtilities = {};
+
+/**
+ * Stably sorts arrays since `.sort()` has issues.
+ * @param {Array} list - array to sort
+ * @param {function} comparator - comparator to sort by
+ */
+GeneralUtilities.stableSort = function(list, comparator) {
+    var length = list.length;
+    var entries = Array(length);
+    var index;
+
+    // wrap values with initial indices
+    for (index = 0; index < length; index++) {
+        entries[index] = [index, list[index]];
+    }
+
+    // sort with fallback based on initial indices
+    entries.sort(function (a, b) {
+        var comparison = Number(this(a[1], b[1]));
+        return comparison || a[0] - b[0];
+    }.bind(comparator));
+
+    // re-map original array to stable sorted values
+    for (index = 0; index < length; index++) {
+        list[index] = entries[index][1];
+    }
+};
+
+/**
+ * Generates an automatically memoizing version of an object.
+ * @param {Object} object - object to memoize
+ * @returns {Proxy} the proxy to the object that memoizes properties
+ */
+GeneralUtilities.memoizeObject = function(object) {
+    return new Proxy(object, {
+        get: function(obj, mod) {
+            if (!obj.hasOwnProperty(mod)) return undefined;
+            if (Object.getOwnPropertyDescriptor(obj, mod).get) {
+                let value = obj[mod];
+                delete obj[mod];
+                obj[mod] = value;
+            }
+            return obj[mod];
+        }
+    });
 };
 /* ================== END MODULE ================== */
 
@@ -2522,10 +2588,13 @@ window["ZeresLibrary"] = {
 	DiscordClassModules: DiscordClassModules,
 	DiscordClasses: DiscordClasses,
 	DiscordSelectors: DiscordSelectors,
+	GeneralUtilities: GeneralUtilities,
 	Screen: {
 		get width() { return Math.max(document.documentElement.clientWidth, window.innerWidth || 0); },
 		get height() { return Math.max(document.documentElement.clientHeight, window.innerHeight || 0); }
 	},
+	creationTime: Date.now(),
+	get isOutdated() { return Date.now() - this.creationTime > 600000; },
 	version: "0.5.6"
 };
 

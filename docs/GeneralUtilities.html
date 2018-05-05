@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: MenuItem</title>
+    <title>JSDoc: Namespace: GeneralUtilities</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: MenuItem</h1>
+    <h1 class="page-title">Namespace: GeneralUtilities</h1>
 
     
 
@@ -28,10 +28,7 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>
-            <span class="ancestors"><a href="PluginContextMenu.html">PluginContextMenu</a>.</span>MenuItem<span class="signature">(label, options)</span><span class="type-signature"></span></h2>
-        
-            <div class="class-description"><p>Base class for all other menu items.</p></div>
+        <h2>GeneralUtilities</h2>
         
     
 </header>
@@ -40,18 +37,93 @@
     <div class="container-overview">
     
         
+            <div class="description"><p>Random set of utilities that didn't fit elsewhere.</p></div>
+        
 
-    
-    <h2>Constructor</h2>
-    
-
-    
-    <h4 class="name" id="MenuItem"><span class="type-signature"></span>new MenuItem<span class="signature">(label, options)</span><span class="type-signature"></span></h4>
-    
-
-    
+        
 
 
+<dl class="details">
+
+    
+    <dt class="tag-version">Version:</dt>
+    <dd class="tag-version"><ul class="dummy"><li>0.0.1</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line625">line 625</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".memoizeObject"><span class="type-signature">(static) </span>memoizeObject<span class="signature">(object)</span><span class="type-signature"> &rarr; {Proxy}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Generates an automatically memoizing version of an object.</p>
+</div>
 
 
 
@@ -86,13 +158,13 @@
 
         <tr>
             
-                <td class="name"><code>label</code></td>
+                <td class="name"><code>object</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">Object</span>
 
 
             
@@ -102,136 +174,7 @@
 
             
 
-            <td class="description last"><p>label to show on the menu item</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>additional options for the item</p>
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-        <th>Default</th>
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>danger</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    false
-                
-                </td>
-            
-
-            <td class="description last"><p>should the item show as danger</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>callback</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="PluginContextMenu.html#~clickEvent">PluginContextMenu~clickEvent</a></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last"><p>callback for when it is clicked</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
+            <td class="description last"><p>object to memoize</p></td>
         </tr>
 
     
@@ -272,7 +215,187 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1136">line 1136</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line659">line 659</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>the proxy to the object that memoizes properties</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Proxy</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".stableSort"><span class="type-signature">(static) </span>stableSort<span class="signature">(list, comparator)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Stably sorts arrays since <code>.sort()</code> has issues.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>list</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>array to sort</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>comparator</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>comparator to sort by</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line632">line 632</a>
     </li></ul></dd>
     
 
@@ -300,23 +423,7 @@
 
 
 
-    
-    </div>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
+        
     
 
     

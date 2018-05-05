@@ -10,7 +10,25 @@
     },
     "rules": {
         "semi": 2,
-		"space-infix-ops": ["error", {"int32Hint": false}],
-		no-console: ["error", { allow: ["warn", "error"] }]
+		"space-infix-ops": ["error", {"int32Hint": false}]
+    },
+    "globals": {
+        "ZeresLibrary": false,
+        "ColorUtilities": false,
+        "DOMUtilities": false,
+        "ReactUtilities": false,
+        "PluginUtilities": false,
+        "PluginUpdateUtilities": false,
+        "PluginSettings": false,
+        "PluginContextMenu": false,
+        "PluginTooltip": false,
+        "DiscordPermissions": false,
+        "InternalUtilities": false,
+        "DiscordModules": false,
+        "DiscordClassModules": false,
+        "DiscordClasses": false,
+        "DiscordSelectors": false,
+        "GeneralUtilities": false,
+        "BdApi": false
     }
 }
