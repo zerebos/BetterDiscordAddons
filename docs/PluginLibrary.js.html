@@ -98,6 +98,75 @@ ColorUtilities.rgbToAlpha = function(color, alpha) {
 
 
 /**
+ * A large list of known and labelled classes in discord.
+ * Click the label "Line xxx" below to see the whole list.
+ * @namespace
+ * @version 0.0.1
+ */
+var DiscordClassModules = {
+	__memoize: function(name, obj) {
+		delete this[name];
+		this[name] = obj;
+		return obj;
+	},
+	get ContextMenu() {return this.__memoize("ContextMenu", InternalUtilities.WebpackModules.findByUniqueProperties(['itemToggle']));},
+	get Scrollers() {return this.__memoize("Scrollers", InternalUtilities.WebpackModules.findByUniqueProperties(['scrollerWrap']));},
+	get AccountDetails() {return this.__memoize("AccountDetails", Object.assign({}, InternalUtilities.WebpackModules.findByUniqueProperties(['nameTag']), InternalUtilities.WebpackModules.findByUniqueProperties(['accountDetails'])));},
+	get Typing() {return this.__memoize("Typing", InternalUtilities.WebpackModules.findByUniqueProperties(['typing', 'text']));},
+	get UserPopout() {return this.__memoize("UserPopout", InternalUtilities.WebpackModules.findByUniqueProperties(['userPopout']));},
+	get PopoutRoles() {return this.__memoize("PopoutRoles", InternalUtilities.WebpackModules.findByUniqueProperties(['roleCircle']));},
+	get UserModal() {return this.__memoize("UserModal", InternalUtilities.WebpackModules.findByUniqueProperties(['profileBadge']));},
+	get Textarea() {return this.__memoize("Textarea", InternalUtilities.WebpackModules.findByUniqueProperties(['channelTextArea']));},
+	get Popouts() {return this.__memoize("Popouts", InternalUtilities.WebpackModules.findByUniqueProperties(['popouts']));},
+	get Titles() {return this.__memoize("Titles", InternalUtilities.WebpackModules.findByUniqueProperties(['defaultMarginh5']));},
+	get Notices() {return this.__memoize("Notices", InternalUtilities.WebpackModules.findByUniqueProperties(['noticeInfo']));}
+};
+
+/**
+ * Proxy for all the class packages, allows us to safely attempt
+ * to retrieve nested things without error. Also wraps the class in
+ * {@link DOMUtilities.ClassName} which adds features but can still
+ * be used in native function.
+ * 
+ * @namespace
+ * @version 0.0.1
+ */
+var DiscordClasses = new Proxy(DiscordClassModules, {
+	get: function(list, item) {
+		if (!list.hasOwnProperty(item)) return new Proxy({}, {get: function() {return "";}});
+		return new Proxy(list[item], {
+			get: function(obj, prop) {
+				if (!obj.hasOwnProperty(prop)) return "";
+				return new DOMUtilities.ClassName(obj[prop]);
+			}
+		});
+	}
+});
+
+/**
+ * Gives us a way to retrieve the internal classes as selectors without
+ * needing to concatenate strings or use string templates. Wraps the
+ * selector in {@link DOMUtilities.Selector} which adds features but can 
+ * still be used in native function.
+ * 
+ * @namespace
+ * @version 0.0.1
+ */
+var DiscordSelectors = new Proxy(DiscordClassModules, {
+	get: function(list, item) {
+		if (!list.hasOwnProperty(item)) return new Proxy({}, {get: function() {return "";}});
+		return new Proxy(list[item], {
+			get: function(obj, prop) {
+				if (!obj.hasOwnProperty(prop)) return "";
+				return new DOMUtilities.Selector(obj[prop]);
+			}
+		});
+	}
+});
+/* ================== END MODULE ================== */
+
+
+/**
  * A large list of known and useful webpack modules internal to Discord.
  * Click the label "Line xxx" below to see the whole list.
  * @namespace
@@ -254,9 +323,21 @@ var DiscordModules = {
     get ContextMenuActions() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byCode(/CONTEXT_MENU_CLOSE/, c => c.close));},
     get ContextMenuItemsGroup() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byCode(/itemGroup/));},
     get ContextMenuItem() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byCode(/\.label\b.*\.hint\b.*\.action\b/));},
+    get ContextMenuClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(['itemToggle']);},
 
     /* In-Message Links */
-    get ExternalLink() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byCode(/\.trusted\b/));}
+    get ExternalLink() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byCode(/\.trusted\b/));},
+
+    /* Sort Later FML */
+    get ScrollerClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(['scrollerWrap']);},
+    get AccountDetailsClasses() {return Object.assign({}, InternalUtilities.WebpackModules.findByUniqueProperties(['nameTag']), InternalUtilities.WebpackModules.findByUniqueProperties(['accountDetails']));},
+    get TypingClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(['typing', 'text']);},
+    get UserPopoutClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(['userPopout']);},
+    get UserModalClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(['profileBadge']);},
+    get TextareaClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(['channelTextArea']);},
+    get PopoutClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(['popouts']);},
+    get SettingsMetaClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(['defaultMarginh5']);},
+    get NoticeBarClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(["noticeInfo"]);}
 };
 /* ================== END MODULE ================== */
 
@@ -434,6 +515,121 @@ DOMUtilities.indexInParent = function(node) {
 		if (children[i].nodeType == 1) num++;
 	}
 	return -1;
+};
+
+/**
+ * Insert after a specific element, similar to jQuery's `element.after(newElement)`
+ * @param {HTMLElement} newNode - the node to insert
+ * @param {HTMLElement} referenceNode - node to insert after in the tree
+ */
+DOMUtilities.insertAfter = function(newNode, referenceNode) {
+    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+};
+
+
+/** Representation of a Selector **/
+DOMUtilities.Selector = class Selector {
+	/**
+	 * 
+	 * @param {string} classname - class to create selector for
+	 */
+	constructor(className) {
+		this.value = " ." + className.split(" ").join(".");
+	}
+	
+	/**
+	 * Returns the raw selector, this is how native function get the value.
+	 */
+	toString() {
+		return this.value;
+	}
+	
+	/**
+	 * Returns the raw selector, this is how native function get the value.
+	 */
+	valueOf() {
+		return this.value;
+	}
+	
+	selector(symbol, other) {
+		this.value = `${this.toString()} ${symbol} ${other.toString()}`;
+		return this;
+	}
+	
+	/**
+	 * Adds another selector as a direct child `>` to this one.
+	 * @param {string|DOMUtilities.Selector} other - Selector to add as child
+	 */
+	child(other) {
+		return this.selector(">", other);
+	}
+	
+	/**
+	 * Adds another selector as a adjacent sibling `+` to this one.
+	 * @param {string|DOMUtilities.Selector} other - Selector to add as adjacent sibling
+	 */
+	adjacent(other) {
+		return this.selector("+", other);
+	}
+	
+	/**
+	 * Adds another selector as a general sibling `~` to this one.
+	 * @param {string|DOMUtilities.Selector} other - Selector to add as sibling
+	 */
+	sibling(other) {
+		return this.selector("~", other);
+	}
+	
+	/**
+	 * Adds another selector as a descendent `(space)` to this one.
+	 * @param {string|DOMUtilities.Selector} other - Selector to add as descendent
+	 */
+	descend(other) {
+		return this.selector(" ", other);
+	}
+};
+
+/** Representation of a Class Name **/
+DOMUtilities.ClassName = class ClassName {
+	/**
+	 * 
+	 * @param {string} name - name of the class to represent
+	 */
+	constructor(name) {
+		this.value = name;
+	}
+	
+	/**
+	 * Concatenates new class names to the current one using spaces.
+	 * @param {string} classNames - list of class names to add to this class name
+	 */
+	add(...classNames) {
+		for (var i = 0; i &lt; classNames.length; i++) {
+			this.value += " " + classNames[i];
+		}
+		return this;
+	}
+	
+	/**
+	 * Returns the raw class name, this is how native function get the value.
+	 */
+	toString() {
+		return this.value;
+	}
+	
+	/**
+	 * Returns the raw class name, this is how native function get the value.
+	 */
+	valueOf() {
+		return this.value;
+	}
+	
+	/**
+	 * Returns the classname represented as {@link DOMUtilities.Selector}.
+	 */
+	get selector() {
+		return new DOMUtilities.Selector(this.value);
+	}
 };
 /* ================== END MODULE ================== */
 
@@ -727,7 +923,7 @@ InternalUtilities.removeOnSwitchListener = function(callback) {
 /**
  * Self-made context menus that emulate Discord's own context menus.
  * @namespace
- * @version 0.0.6
+ * @version 0.0.7
  */
 var PluginContextMenu = {};
 
@@ -740,11 +936,15 @@ PluginContextMenu.Menu = class Menu {
      */
 	constructor(scroll = false) {
 		this.theme = $('.theme-dark').length ? "theme-dark" : "theme-light";
-		this.element = $("&lt;div>").addClass("contextMenu-uoJTbz").addClass("plugin-context-menu").addClass(this.theme);
+		this.element = $("&lt;div>").addClass(DiscordModules.ContextMenuClasses.contextMenu).addClass("plugin-context-menu").addClass(this.theme);
 		this.scroll = scroll;
 		if (scroll) {
-			this.element.append($("&lt;div>").addClass("scrollerWrap-2uBjct").addClass("scrollerThemed-19vinI").addClass("themeGhostHairline-2H8SiW").append(
-				$("&lt;div>").addClass("scroller-fzNley").addClass("scroller-TeDoLQ")
+			this.scroller = $("&lt;div>").addClass(DiscordModules.ScrollerClasses.scroller).addClass(DiscordModules.ContextMenuClasses.scroller);
+			this.element.append($("&lt;div>")
+				.addClass(DiscordModules.ScrollerClasses.scrollerWrap)
+				.addClass(DiscordModules.ScrollerClasses.scrollerThemed)
+				.addClass(DiscordModules.ScrollerClasses.themeGhostHairline).append(
+					this.scroller
 			));
 		}
 	}
@@ -755,7 +955,7 @@ PluginContextMenu.Menu = class Menu {
      * @returns {PluginContextMenu.Menu} returns self for chaining
      */
 	addGroup(contextGroup) {
-		if (this.scroll) this.element.find(".scroller-fzNley").append(contextGroup.getElement());
+		if (this.scroll) this.scroller.append(contextGroup.getElement());
 		else this.element.append(contextGroup.getElement());
 		return this;
 	}
@@ -768,7 +968,7 @@ PluginContextMenu.Menu = class Menu {
      */
 	addItems(...contextItems) {
 		for (var i = 0; i &lt; contextItems.length; i++) {
-			if (this.scroll) this.element.find(".scroller-fzNley").append(contextItems[i].getElement());
+			if (this.scroll) this.scroller.append(contextItems[i].getElement());
 			else this.element.append(contextItems[i].getElement());
 		}
 		return this;
@@ -786,7 +986,7 @@ PluginContextMenu.Menu = class Menu {
 		const mouseX = x;
 		const mouseY = y;
 		
-		let type = this.element.parents(".plugin-context-menu").length > this.element.parents(".contextMenu-uoJTbz").length ? ".plugin-context-menu" : ".contextMenu-uoJTbz";
+		let type = this.element.parents(".plugin-context-menu").length > this.element.parents(`.${DiscordModules.ContextMenuClasses.contextMenu}`).length ? ".plugin-context-menu" : `.${DiscordModules.ContextMenuClasses.contextMenu}`;
 		var depth = this.element.parents(type).length;
 		if (depth == 0) this.element.appendTo('#app-mount');
 		this.element.css("top", mouseY).css("left", mouseX);
@@ -794,12 +994,12 @@ PluginContextMenu.Menu = class Menu {
 		if (depth > 0) {
 			var top = this.element.parents(type).last();
 			var closest = this.element.parents(type).first();
-			var negate = closest.hasClass("invertChildX-LNv3Ce") ? -1 : 1;
-			this.element.css("margin-left", negate * 170 + closest.offset().left - top.offset().left);
+			var negate = closest.hasClass(DiscordModules.ContextMenuClasses.invertChildX) ? -1 : 1;
+			this.element.css("margin-left", negate * closest.find(`.${DiscordModules.ContextMenuClasses.item}`).outerWidth() + closest.offset().left - top.offset().left);
 		}
 		
 		if (mouseY + this.element.outerHeight() >= maxHeight) {
-			this.element.addClass("invertY").addClass("undefined");
+			this.element.addClass("invertY").addClass(DiscordModules.ContextMenuClasses.invertY);
 			this.element.css("top", mouseY - this.element.outerHeight());
 			if (depth > 0) this.element.css("top", (mouseY + this.element.parent().outerHeight()) - this.element.outerHeight());
 		}
@@ -808,7 +1008,7 @@ PluginContextMenu.Menu = class Menu {
 			this.element.css("left", mouseX - this.element.outerWidth());
 		}
 		if (this.element.offset().left + 2 * this.element.outerWidth() >= maxWidth) {
-			this.element.addClass("invertChildX-LNv3Ce");
+			this.element.addClass(DiscordModules.ContextMenuClasses.invertChildX);
 		}
 
 		if (depth == 0) {
@@ -819,7 +1019,7 @@ PluginContextMenu.Menu = class Menu {
 			});
 			$(document).on("click.zctx", (e) => {
 				if (this.element.has(e.target).length) {
-					if ($._data($(e.target).closest(".item")[0], 'events').click) {
+					if ($._data($(e.target).closest(`.${DiscordModules.ContextMenuClasses.item}`)[0], 'events').click) {
 						this.removeMenu();
 					}
 				}
@@ -834,7 +1034,7 @@ PluginContextMenu.Menu = class Menu {
     
     /** Allows you to remove the menu. */
 	removeMenu() {
-		let type = this.element.parents(".plugin-context-menu").length > this.element.parents(".contextMenu-uoJTbz").length ? ".plugin-context-menu" : ".contextMenu-uoJTbz";
+		let type = this.element.parents(".plugin-context-menu").length > this.element.parents(`.${DiscordModules.ContextMenuClasses.contextMenu}`).length ? ".plugin-context-menu" : `.${DiscordModules.ContextMenuClasses.contextMenu}`;
 		this.element.detach();
 		this.element.find(type).detach();
 		$(document).off(".zctx");
@@ -852,7 +1052,7 @@ PluginContextMenu.Menu = class Menu {
 		this.menuItem = $(menuItem);
 		menuItem.on("mouseenter", () => {
 			this.element.appendTo(menuItem);
-			let type = this.element.parents(".plugin-context-menu").length > this.element.parents(".contextMenu-uoJTbz").length ? ".plugin-context-menu" : ".contextMenu-uoJTbz";
+			let type = this.element.parents(".plugin-context-menu").length > this.element.parents(`.${DiscordModules.ContextMenuClasses.contextMenu}`).length ? ".plugin-context-menu" : `.${DiscordModules.ContextMenuClasses.contextMenu}`;
 			this.show(this.element.parents(type).css("left"), menuItem.offset().top);
 		});
 		menuItem.on("mouseleave", () => { this.element.detach(); });
@@ -863,7 +1063,7 @@ PluginContextMenu.Menu = class Menu {
 PluginContextMenu.ItemGroup = class ItemGroup {
     /** Creates an item group. */
 	constructor() {
-		this.element = $("&lt;div>").addClass("itemGroup-oViAgA");
+		this.element = $("&lt;div>").addClass(DiscordModules.ContextMenuClasses.itemGroup);
 	}
     
     /**
@@ -904,9 +1104,9 @@ PluginContextMenu.MenuItem = class MenuItem {
      */
 	constructor(label, options = {}) {
 		var {danger = false, callback} = options;
-		this.element = $("&lt;div>").addClass("item-1XYaYf");
+		this.element = $("&lt;div>").addClass(DiscordModules.ContextMenuClasses.item);
 		this.label = label;
-		if (danger) this.element.addClass("danger-1oUOCl");
+		if (danger) this.element.addClass(DiscordModules.ContextMenuClasses.danger);
 		if (typeof(callback) == 'function') {
 			this.element.on("click", (event) => {
 				event.stopPropagation();
@@ -933,7 +1133,7 @@ PluginContextMenu.TextItem = class TextItem extends PluginContextMenu.MenuItem {
 		super(label, options);
 		var {hint = ""} = options;
 		this.element.append($("&lt;span>").text(label));
-		this.element.append($("&lt;div>").addClass("hint-3TJykr").text(hint));
+		this.element.append($("&lt;div>").addClass(DiscordModules.ContextMenuClasses.hint).text(hint));
 	}
 };
 
@@ -952,8 +1152,8 @@ PluginContextMenu.ImageItem = class ImageItem extends PluginContextMenu.MenuItem
      */
 	constructor(label, imageSrc, options = {}) {
 		super(label, options);
-		this.element.addClass("itemImage-24yxbi");
-		this.element.append($("&lt;div>").addClass("label-2CGfN3").text(label));
+		this.element.addClass(DiscordModules.ContextMenuClasses.itemImage);
+		this.element.append($("&lt;div>").addClass(DiscordModules.ContextMenuClasses.label).text(label));
 		this.element.append($("&lt;img>", {src: imageSrc}));
 	}
 };
@@ -974,7 +1174,7 @@ PluginContextMenu.SubMenuItem = class SubMenuItem extends PluginContextMenu.Menu
 	constructor(label, subMenu, options = {}) {
 		// if (!(subMenu instanceof ContextSubMenu)) throw "subMenu must be of ContextSubMenu type.";
 		super(label, options);
-		this.element.addClass("itemSubMenu-3ZgIw-").text(label);
+		this.element.addClass(DiscordModules.ContextMenuClasses.itemSubMenu).text(label);
 		this.subMenu = subMenu;
 		this.subMenu.attachTo(this.getElement());
 	}
@@ -997,8 +1197,8 @@ PluginContextMenu.ToggleItem = class ToggleItem extends PluginContextMenu.MenuIt
 	constructor(label, checked, options = {}) {
         var {onChange} = options;
 		super(label, options);
-		this.element.addClass("itemToggle-e7vkml");
-        this.element.append($("&lt;div>").addClass("label-2CGfN3").text(label));
+		this.element.addClass(DiscordModules.ContextMenuClasses.itemToggle);
+        this.element.append($("&lt;div>").addClass(DiscordModules.ContextMenuClasses.label).text(label));
         this.checkbox = $("&lt;div>", {class: "checkbox"});
         this.checkbox.append($("&lt;div>", {class: "checkbox-inner"}));
         this.checkbox.append("&lt;span>");
@@ -1160,7 +1360,7 @@ PluginSettings.ControlGroup = class ControlGroup {
 		this.group = $("&lt;div>").addClass("plugin-control-group").css("margin-top", "15px");
 		var collapsed = shown || !collapsible ? '' : ' collapsed';
 		var label = $('&lt;h2>').html('&lt;span class="button-collapse' + collapsed + '" style="">&lt;/span> ' + groupName);
-		label.attr("class", "h5-3KssQU title-1pmpPr marginReset-3hwONl height16-1qXrGy weightSemiBold-T8sxWH defaultMarginh5-2UwwFY marginBottom8-1mABJ4");
+		label.attr("class", `${DiscordModules.SettingsMetaClasses.h5} ${DiscordModules.SettingsMetaClasses.defaultMarginh5}`);
 		this.group.append(label);
 		this.controls = $('&lt;div class="plugin-controls collapsible' + collapsed + '">');
 		this.group.append(this.controls);
@@ -1761,7 +1961,7 @@ PluginUpdateUtilities.checkUpdate = function(pluginName, updateLink) {
  */
 PluginUpdateUtilities.showUpdateNotice = function(pluginName, updateLink) {
 	if (!$('#pluginNotice').length)  {
-		let noticeElement = '&lt;div class="notice notice-info notice-3I4-y_ noticeInfo-3v29SJ size14-1wjlWP weightMedium-13x9Y8 height36-13sPn7" id="pluginNotice">&lt;div class="notice-dismiss dismiss-1QjyJW" id="pluginNoticeDismiss">&lt;/div>&lt;span class="notice-message">The following plugins have updates:&lt;/span>&amp;nbsp;&amp;nbsp;&lt;strong id="outdatedPlugins">&lt;/strong>&lt;/div>';
+		let noticeElement = `&lt;div class="${DiscordModules.NoticeBarClasses.notice} ${DiscordModules.NoticeBarClasses.noticeInfo}" id="pluginNotice">&lt;div class="${DiscordModules.NoticeBarClasses.dismiss}" id="pluginNoticeDismiss">&lt;/div>&lt;span class="notice-message">The following plugins have updates:&lt;/span>&amp;nbsp;&amp;nbsp;&lt;strong id="outdatedPlugins">&lt;/strong>&lt;/div>`;
 		// $('.app .guilds-wrapper + div > div:first > div:first').append(noticeElement);
 		$('.app.flex-vertical').children().first().before(noticeElement);
         $('.win-buttons').addClass("win-buttons-notice");
@@ -1807,7 +2007,7 @@ PluginUpdateUtilities.downloadPlugin = function(pluginName, updateLink) {
         if (!(oldRNM || newRNM)) {
             if (!window.PluginUpdates.downloaded) {
                 window.PluginUpdates.downloaded = [];
-                let button = $('&lt;button class="btn btn-reload button-2TvR03 size14-1wjlWP weightMedium-13x9Y8">Reload&lt;/button>');
+                let button = $(`&lt;button class="btn btn-reload ${DiscordModules.NoticeBarClasses.btn} ${DiscordModules.NoticeBarClasses.button}">Reload&lt;/button>`);
                 button.on('click', (e) => {
                     e.preventDefault();
                     window.location.reload(false);
@@ -2021,7 +2221,7 @@ PluginUtilities.checkForUpdate = function(pluginName, currentVersion, updateURL)
 				}
 			);
 		});
-		window.PluginUpdates.observer.observe(document.querySelector(".layers, .layers-20RVFW"), {childList:true});
+		window.PluginUpdates.observer.observe(document.querySelector(".layers-3iHuyZ, .layers-20RVFW"), {childList:true});
 	}
 	
 	var bdbutton = document.querySelector(".bd-pfbtn");
@@ -2126,19 +2326,29 @@ PluginUtilities.getToastCSS = function() {
 };
 
 /**
+ * This shows a toast similar to android towards the bottom of the screen.
+ * 
+ * @param {string} content The string to show in the toast.
+ * @param {object} options Options object. Optional parameter.
+ * @param {string} options.type Changes the type of the toast stylistically and semantically. Choices: "", "info", "success", "danger"/"error", "warning"/"warn". Default: ""
+ * @param {boolean} options.icon Determines whether the icon should show corresponding to the type. A toast without type will always have no icon. Default: true
+ * @param {number} options.timeout Adjusts the time (in ms) the toast should be shown for before disappearing automatically. Default: 3000
+ */
+
+/**
  * Shows a simple toast, similar to Android, centered over 
  * the textarea if it exists, and center screen otherwise.
  * Vertically it shows towards the bottom like in Android.
- * @param {string} content - text content to show in the toast
+ * @param {string} content - The string to show in the toast.
  * @param {object} options - additional options for the toast
- * @param {string} [options.type] - type of toast (info, success, danger, warning) or none
- * @param {boolean} [options.icon] - whether or not to show an icon with the type
- * @param {number} [options.timeout=3000] - how long to wait (in ms) before removing the toast
+ * @param {string} [options.type=""] - Changes the type of the toast stylistically and semantically. Choices: "", "info", "success", "danger"/"error", "warning"/"warn".
+ * @param {boolean} [options.icon=true] - Determines whether the icon should show corresponding to the type. A toast without type will always have no icon.
+ * @param {number} [options.timeout=3000] - Adjusts the time (in ms) the toast should be shown for before disappearing automatically.
  */
 PluginUtilities.showToast = function(content, options = {}) {
     if (!document.querySelector('.toasts')) {
-		let container = document.querySelector('.channels-3g2vYe + div');
-		let memberlist = container.querySelector('.channel-members-wrap');
+		let container = document.querySelector('.channels-3g2vYe + div, .channels-Ie2l6A + div');
+		let memberlist = container.querySelector('.membersWrap-2h-GB4');
 		let form = container ? container.querySelector('form') : null;
 		let left = container ? container.getBoundingClientRect().left : 310;
 		let right = memberlist ? memberlist.getBoundingClientRect().left : 0;
@@ -2337,12 +2547,17 @@ window["ZeresLibrary"] = {
 	DiscordPermissions: DiscordPermissions,
 	InternalUtilities: InternalUtilities,
 	DiscordModules: DiscordModules,
+	DiscordClassModules: DiscordClassModules,
+	DiscordClasses: DiscordClasses,
+	DiscordSelectors: DiscordSelectors,
 	Screen: {
 		get width() { return Math.max(document.documentElement.clientWidth, window.innerWidth || 0); },
 		get height() { return Math.max(document.documentElement.clientHeight, window.innerHeight || 0); }
 	},
 	version: "0.5.6"
 };
+
+window.ZL = window.ZeresLibrary;
 
 BdApi.clearCSS("PluginLibraryCSS");
 BdApi.injectCSS("PluginLibraryCSS", PluginSettings.getCSS() + PluginUtilities.getToastCSS() + PluginUpdateUtilities.getCSS());
@@ -2357,13 +2572,13 @@ jQuery.extend(jQuery.easing, { easeInSine: function (x, t, b, c, d) { return -c 
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DiscordPermissions.html">DiscordPermissions</a></li><li><a href="PluginContextMenu.ImageItem.html">ImageItem</a></li><li><a href="PluginContextMenu.ItemGroup.html">ItemGroup</a></li><li><a href="PluginContextMenu.Menu.html">Menu</a></li><li><a href="PluginContextMenu.MenuItem.html">MenuItem</a></li><li><a href="PluginContextMenu.SubMenuItem.html">SubMenuItem</a></li><li><a href="PluginContextMenu.TextItem.html">TextItem</a></li><li><a href="PluginContextMenu.ToggleItem.html">ToggleItem</a></li><li><a href="PluginSettings.Checkbox.html">Checkbox</a></li><li><a href="PluginSettings.ColorPicker.html">ColorPicker</a></li><li><a href="PluginSettings.ControlGroup.html">ControlGroup</a></li><li><a href="PluginSettings.PillButton.html">PillButton</a></li><li><a href="PluginSettings.SettingField.html">SettingField</a></li><li><a href="PluginSettings.Slider.html">Slider</a></li><li><a href="PluginSettings.Textbox.html">Textbox</a></li><li><a href="PluginTooltip.Native.html">Native</a></li><li><a href="PluginTooltip.Tooltip.html">Tooltip</a></li></ul><h3>Namespaces</h3><ul><li><a href="ColorUtilities.html">ColorUtilities</a></li><li><a href="DiscordModules.html">DiscordModules</a></li><li><a href="DOMUtilities.html">DOMUtilities</a></li><li><a href="InternalUtilities.html">InternalUtilities</a></li><li><a href="InternalUtilities.Filters.html">Filters</a></li><li><a href="InternalUtilities.WebpackModules.html">WebpackModules</a></li><li><a href="PluginContextMenu.html">PluginContextMenu</a></li><li><a href="PluginSettings.html">PluginSettings</a></li><li><a href="PluginTooltip.html">PluginTooltip</a></li><li><a href="PluginUpdateUtilities.html">PluginUpdateUtilities</a></li><li><a href="PluginUtilities.html">PluginUtilities</a></li><li><a href="ReactUtilities.html">ReactUtilities</a></li></ul><h3>Interfaces</h3><ul><li><a href="PatchData.html">PatchData</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DiscordPermissions.html">DiscordPermissions</a></li><li><a href="DOMUtilities.ClassName.html">ClassName</a></li><li><a href="DOMUtilities.Selector.html">Selector</a></li><li><a href="PluginContextMenu.ImageItem.html">ImageItem</a></li><li><a href="PluginContextMenu.ItemGroup.html">ItemGroup</a></li><li><a href="PluginContextMenu.Menu.html">Menu</a></li><li><a href="PluginContextMenu.MenuItem.html">MenuItem</a></li><li><a href="PluginContextMenu.SubMenuItem.html">SubMenuItem</a></li><li><a href="PluginContextMenu.TextItem.html">TextItem</a></li><li><a href="PluginContextMenu.ToggleItem.html">ToggleItem</a></li><li><a href="PluginSettings.Checkbox.html">Checkbox</a></li><li><a href="PluginSettings.ColorPicker.html">ColorPicker</a></li><li><a href="PluginSettings.ControlGroup.html">ControlGroup</a></li><li><a href="PluginSettings.PillButton.html">PillButton</a></li><li><a href="PluginSettings.SettingField.html">SettingField</a></li><li><a href="PluginSettings.Slider.html">Slider</a></li><li><a href="PluginSettings.Textbox.html">Textbox</a></li><li><a href="PluginTooltip.Native.html">Native</a></li><li><a href="PluginTooltip.Tooltip.html">Tooltip</a></li></ul><h3>Namespaces</h3><ul><li><a href="ColorUtilities.html">ColorUtilities</a></li><li><a href="DiscordClasses.html">DiscordClasses</a></li><li><a href="DiscordClassModules.html">DiscordClassModules</a></li><li><a href="DiscordModules.html">DiscordModules</a></li><li><a href="DiscordSelectors.html">DiscordSelectors</a></li><li><a href="DOMUtilities.html">DOMUtilities</a></li><li><a href="InternalUtilities.html">InternalUtilities</a></li><li><a href="InternalUtilities.Filters.html">Filters</a></li><li><a href="InternalUtilities.WebpackModules.html">WebpackModules</a></li><li><a href="PluginContextMenu.html">PluginContextMenu</a></li><li><a href="PluginSettings.html">PluginSettings</a></li><li><a href="PluginTooltip.html">PluginTooltip</a></li><li><a href="PluginUpdateUtilities.html">PluginUpdateUtilities</a></li><li><a href="PluginUtilities.html">PluginUtilities</a></li><li><a href="ReactUtilities.html">ReactUtilities</a></li></ul><h3>Interfaces</h3><ul><li><a href="PatchData.html">PatchData</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sun Apr 15 2018 00:16:51 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sat May 05 2018 00:46:56 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

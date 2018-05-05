@@ -70,6 +70,75 @@ ColorUtilities.rgbToAlpha = function(color, alpha) {
 
 
 /**
+ * A large list of known and labelled classes in discord.
+ * Click the label "Line xxx" below to see the whole list.
+ * @namespace
+ * @version 0.0.1
+ */
+var DiscordClassModules = {
+	__memoize: function(name, obj) {
+		delete this[name];
+		this[name] = obj;
+		return obj;
+	},
+	get ContextMenu() {return this.__memoize("ContextMenu", InternalUtilities.WebpackModules.findByUniqueProperties(['itemToggle']));},
+	get Scrollers() {return this.__memoize("Scrollers", InternalUtilities.WebpackModules.findByUniqueProperties(['scrollerWrap']));},
+	get AccountDetails() {return this.__memoize("AccountDetails", Object.assign({}, InternalUtilities.WebpackModules.findByUniqueProperties(['nameTag']), InternalUtilities.WebpackModules.findByUniqueProperties(['accountDetails'])));},
+	get Typing() {return this.__memoize("Typing", InternalUtilities.WebpackModules.findByUniqueProperties(['typing', 'text']));},
+	get UserPopout() {return this.__memoize("UserPopout", InternalUtilities.WebpackModules.findByUniqueProperties(['userPopout']));},
+	get PopoutRoles() {return this.__memoize("PopoutRoles", InternalUtilities.WebpackModules.findByUniqueProperties(['roleCircle']));},
+	get UserModal() {return this.__memoize("UserModal", InternalUtilities.WebpackModules.findByUniqueProperties(['profileBadge']));},
+	get Textarea() {return this.__memoize("Textarea", InternalUtilities.WebpackModules.findByUniqueProperties(['channelTextArea']));},
+	get Popouts() {return this.__memoize("Popouts", InternalUtilities.WebpackModules.findByUniqueProperties(['popouts']));},
+	get Titles() {return this.__memoize("Titles", InternalUtilities.WebpackModules.findByUniqueProperties(['defaultMarginh5']));},
+	get Notices() {return this.__memoize("Notices", InternalUtilities.WebpackModules.findByUniqueProperties(['noticeInfo']));}
+};
+
+/**
+ * Proxy for all the class packages, allows us to safely attempt
+ * to retrieve nested things without error. Also wraps the class in
+ * {@link DOMUtilities.ClassName} which adds features but can still
+ * be used in native function.
+ * 
+ * @namespace
+ * @version 0.0.1
+ */
+var DiscordClasses = new Proxy(DiscordClassModules, {
+	get: function(list, item) {
+		if (!list.hasOwnProperty(item)) return new Proxy({}, {get: function() {return "";}});
+		return new Proxy(list[item], {
+			get: function(obj, prop) {
+				if (!obj.hasOwnProperty(prop)) return "";
+				return new DOMUtilities.ClassName(obj[prop]);
+			}
+		});
+	}
+});
+
+/**
+ * Gives us a way to retrieve the internal classes as selectors without
+ * needing to concatenate strings or use string templates. Wraps the
+ * selector in {@link DOMUtilities.Selector} which adds features but can 
+ * still be used in native function.
+ * 
+ * @namespace
+ * @version 0.0.1
+ */
+var DiscordSelectors = new Proxy(DiscordClassModules, {
+	get: function(list, item) {
+		if (!list.hasOwnProperty(item)) return new Proxy({}, {get: function() {return "";}});
+		return new Proxy(list[item], {
+			get: function(obj, prop) {
+				if (!obj.hasOwnProperty(prop)) return "";
+				return new DOMUtilities.Selector(obj[prop]);
+			}
+		});
+	}
+});
+/* ================== END MODULE ================== */
+
+
+/**
  * A large list of known and useful webpack modules internal to Discord.
  * Click the label "Line xxx" below to see the whole list.
  * @namespace
@@ -418,6 +487,121 @@ DOMUtilities.indexInParent = function(node) {
 		if (children[i].nodeType == 1) num++;
 	}
 	return -1;
+};
+
+/**
+ * Insert after a specific element, similar to jQuery's `element.after(newElement)`
+ * @param {HTMLElement} newNode - the node to insert
+ * @param {HTMLElement} referenceNode - node to insert after in the tree
+ */
+DOMUtilities.insertAfter = function(newNode, referenceNode) {
+    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+};
+
+
+/** Representation of a Selector **/
+DOMUtilities.Selector = class Selector {
+	/**
+	 * 
+	 * @param {string} classname - class to create selector for
+	 */
+	constructor(className) {
+		this.value = " ." + className.split(" ").join(".");
+	}
+	
+	/**
+	 * Returns the raw selector, this is how native function get the value.
+	 */
+	toString() {
+		return this.value;
+	}
+	
+	/**
+	 * Returns the raw selector, this is how native function get the value.
+	 */
+	valueOf() {
+		return this.value;
+	}
+	
+	selector(symbol, other) {
+		this.value = `${this.toString()} ${symbol} ${other.toString()}`;
+		return this;
+	}
+	
+	/**
+	 * Adds another selector as a direct child `>` to this one.
+	 * @param {string|DOMUtilities.Selector} other - Selector to add as child
+	 */
+	child(other) {
+		return this.selector(">", other);
+	}
+	
+	/**
+	 * Adds another selector as a adjacent sibling `+` to this one.
+	 * @param {string|DOMUtilities.Selector} other - Selector to add as adjacent sibling
+	 */
+	adjacent(other) {
+		return this.selector("+", other);
+	}
+	
+	/**
+	 * Adds another selector as a general sibling `~` to this one.
+	 * @param {string|DOMUtilities.Selector} other - Selector to add as sibling
+	 */
+	sibling(other) {
+		return this.selector("~", other);
+	}
+	
+	/**
+	 * Adds another selector as a descendent `(space)` to this one.
+	 * @param {string|DOMUtilities.Selector} other - Selector to add as descendent
+	 */
+	descend(other) {
+		return this.selector(" ", other);
+	}
+};
+
+/** Representation of a Class Name **/
+DOMUtilities.ClassName = class ClassName {
+	/**
+	 * 
+	 * @param {string} name - name of the class to represent
+	 */
+	constructor(name) {
+		this.value = name;
+	}
+	
+	/**
+	 * Concatenates new class names to the current one using spaces.
+	 * @param {string} classNames - list of class names to add to this class name
+	 */
+	add(...classNames) {
+		for (var i = 0; i < classNames.length; i++) {
+			this.value += " " + classNames[i];
+		}
+		return this;
+	}
+	
+	/**
+	 * Returns the raw class name, this is how native function get the value.
+	 */
+	toString() {
+		return this.value;
+	}
+	
+	/**
+	 * Returns the raw class name, this is how native function get the value.
+	 */
+	valueOf() {
+		return this.value;
+	}
+	
+	/**
+	 * Returns the classname represented as {@link DOMUtilities.Selector}.
+	 */
+	get selector() {
+		return new DOMUtilities.Selector(this.value);
+	}
 };
 /* ================== END MODULE ================== */
 
@@ -2335,12 +2519,17 @@ window["ZeresLibrary"] = {
 	DiscordPermissions: DiscordPermissions,
 	InternalUtilities: InternalUtilities,
 	DiscordModules: DiscordModules,
+	DiscordClassModules: DiscordClassModules,
+	DiscordClasses: DiscordClasses,
+	DiscordSelectors: DiscordSelectors,
 	Screen: {
 		get width() { return Math.max(document.documentElement.clientWidth, window.innerWidth || 0); },
 		get height() { return Math.max(document.documentElement.clientHeight, window.innerHeight || 0); }
 	},
 	version: "0.5.6"
 };
+
+window.ZL = window.ZeresLibrary;
 
 BdApi.clearCSS("PluginLibraryCSS");
 BdApi.injectCSS("PluginLibraryCSS", PluginSettings.getCSS() + PluginUtilities.getToastCSS() + PluginUpdateUtilities.getCSS());
