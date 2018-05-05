@@ -1,4 +1,59 @@
 /**
+ * Random set of utilities that didn't fit elsewhere.
+ * @namespace
+ * @version 0.0.1
+ */
+var GeneralUtilities = {};
+
+/**
+ * Stably sorts arrays since `.sort()` has issues.
+ * @param {Array} list - array to sort
+ * @param {function} comparator - comparator to sort by
+ */
+GeneralUtilities.stableSort = function(list, comparator) {
+    var length = list.length;
+    var entries = Array(length);
+    var index;
+
+    // wrap values with initial indices
+    for (index = 0; index < length; index++) {
+        entries[index] = [index, list[index]];
+    }
+
+    // sort with fallback based on initial indices
+    entries.sort(function (a, b) {
+        var comparison = Number(this(a[1], b[1]));
+        return comparison || a[0] - b[0];
+    }.bind(comparator));
+
+    // re-map original array to stable sorted values
+    for (index = 0; index < length; index++) {
+        list[index] = entries[index][1];
+    }
+};
+
+/**
+ * Generates an automatically memoizing version of an object.
+ * @param {Object} object - object to memoize
+ * @returns {Proxy} the proxy to the object that memoizes properties
+ */
+GeneralUtilities.memoizeObject = function(object) {
+    return new Proxy(object, {
+        get: function(obj, mod) {
+            if (!obj.hasOwnProperty(mod)) return undefined;
+            if (Object.getOwnPropertyDescriptor(obj, mod).get) {
+                let value = obj[mod];
+                delete obj[mod];
+                obj[mod] = value;
+            }
+            return obj[mod];
+        }
+    });
+};
+/* ================== END MODULE ================== */
+
+
+/**
  * Helpful utilities for dealing with colors.
  * @namespace
  * @version 0.0.2
@@ -613,61 +668,6 @@ DOMUtilities.ClassName = class ClassName {
 	get selector() {
 		return new DOMUtilities.Selector(this.value);
 	}
-};
-/* ================== END MODULE ================== */
-
-
-/**
- * Random set of utilities that didn't fit elsewhere.
- * @namespace
- * @version 0.0.1
- */
-var GeneralUtilities = {};
-
-/**
- * Stably sorts arrays since `.sort()` has issues.
- * @param {Array} list - array to sort
- * @param {function} comparator - comparator to sort by
- */
-GeneralUtilities.stableSort = function(list, comparator) {
-    var length = list.length;
-    var entries = Array(length);
-    var index;
-
-    // wrap values with initial indices
-    for (index = 0; index < length; index++) {
-        entries[index] = [index, list[index]];
-    }
-
-    // sort with fallback based on initial indices
-    entries.sort(function (a, b) {
-        var comparison = Number(this(a[1], b[1]));
-        return comparison || a[0] - b[0];
-    }.bind(comparator));
-
-    // re-map original array to stable sorted values
-    for (index = 0; index < length; index++) {
-        list[index] = entries[index][1];
-    }
-};
-
-/**
- * Generates an automatically memoizing version of an object.
- * @param {Object} object - object to memoize
- * @returns {Proxy} the proxy to the object that memoizes properties
- */
-GeneralUtilities.memoizeObject = function(object) {
-    return new Proxy(object, {
-        get: function(obj, mod) {
-            if (!obj.hasOwnProperty(mod)) return undefined;
-            if (Object.getOwnPropertyDescriptor(obj, mod).get) {
-                let value = obj[mod];
-                delete obj[mod];
-                obj[mod] = value;
-            }
-            return obj[mod];
-        }
-    });
 };
 /* ================== END MODULE ================== */
 
