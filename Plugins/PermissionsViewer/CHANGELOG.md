@@ -1,5 +1,9 @@
 # PermissionsViewer Changelog
 
+### 0.0.15
+
+ - hotfix for crashing in private channels
+
 ### 0.0.14
 
  - Switch to internal strings

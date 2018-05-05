@@ -4,7 +4,7 @@ class PermissionsViewer {
 	getName() { return "PermissionsViewer"; }
 	getShortName() { return "PermissionsViewer"; }
 	getDescription() { return "Allows you to view a user's permissions. Thanks to Noodlebox for the idea! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.14"; }
+	getVersion() { return "0.0.15"; }
 	getAuthor() { return "Zerebos"; }
 	
 	constructor() {
@@ -429,7 +429,7 @@ class PermissionsViewer {
 			let user = this.state.guildMember;
 			let guild = this.state.guild;
 			let name = this.state.nickname ? this.state.nickname : this.props.user.username;
-
+			if (!user || !guild || !name) return;
 
 			let popout = DiscordModules.ReactDOM.findDOMNode(this);
 			let userRoles = user.roles.slice(0);
