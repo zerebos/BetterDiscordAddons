@@ -1,5 +1,10 @@
 # BetterRoleColors Changelog
 
+### 0.7.0
+
+ - Rewrite several modules using internals
+ - Performance boosts by eliminating most jQuery
+
 ### 0.6.5
 
  - Fix for discord update

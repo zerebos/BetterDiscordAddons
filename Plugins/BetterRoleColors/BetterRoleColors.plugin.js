@@ -1,12 +1,10 @@
 //META{"name":"BetterRoleColors","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors","source":"https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js"}*//
 
-/* global DiscordModules:false, PluginSettings:false, PluginUtilities:false, ReactUtilities:false, DOMUtilities:false, ColorUtilities:false, InternalUtilities:false */
-
 class BetterRoleColors {
 	getName() { return "BetterRoleColors"; }
 	getShortName() { return "BRC"; }
 	getDescription() { return "Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.6.5"; }
+	getVersion() { return "0.7.0"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -19,10 +17,6 @@ class BetterRoleColors {
 								mentions: {changeOnHover: true}};
 		this.settings = this.defaultSettings;
 
-		this.switchObserver = new MutationObserver(() => {});
-		this.documentObserver = new MutationObserver((changes) => {
-			for (let change in changes) this.observe(changes[change]);
-		});
 		this.cancels = [];
 	}
 	
@@ -62,18 +56,21 @@ class BetterRoleColors {
 		this.SelectedChannelStore = DiscordModules.SelectedChannelStore;
 		this.UserStore = DiscordModules.UserStore;
 		this.RelationshipStore = DiscordModules.RelationshipStore;
-
-		let TypingUsers = InternalUtilities.WebpackModules.find(m => {
+		this.PopoutWrapper = InternalUtilities.WebpackModules.findByUniqueProperties(['Positions', 'Animations']);
+		this.VoiceUser = InternalUtilities.WebpackModules.find(m => typeof(m) === "function" && m.List);
+		this.UserPopout = InternalUtilities.WebpackModules.find(m => m.displayName == "FluxContainer(SubscribeGuildMembersContainer(t))");
+		this.UserModal = InternalUtilities.WebpackModules.find(m => {
+			try {
+				return m.modalConfig && m.prototype.render().type.displayName == "FluxContainer(SubscribeGuildMembersContainer(t))";
+			}
+			catch (err) {return false;}
+		});
+		this.AuditLogItem = InternalUtilities.WebpackModules.find(m => m.prototype && m.prototype.renderPermissionUpdate);
+		this.TypingUsers = InternalUtilities.WebpackModules.find(m => {
 			try { return m.displayName == "FluxContainer(t)" && !(new m({channel: 0})); }
 			catch (e) { return e.toString().includes("isPrivate"); }
-		});
-		
-		this.typingCancel = InternalUtilities.monkeyPatch(TypingUsers.prototype, "componentDidUpdate", {instead: (data) => {
-			setImmediate(() => {this.colorizeTyping(data.thisObject.state.typingUsers);});
-		}});
+		});		
 
-		this.switchObserver = PluginUtilities.createSwitchObserver(this);
-		this.documentObserver.observe(document.querySelector('#app-mount'), {childList: true, subtree: true});
 		this.colorize();
 		PluginUtilities.showToast(this.getName() + " " + this.getVersion() + " has started.");
 		this.initialized = true;
@@ -81,80 +78,38 @@ class BetterRoleColors {
 	
 	stop() {
 		this.decolorize();
-		this.saveSettings();
 		$("*").off("." + this.getShortName());
-		this.switchObserver.disconnect();
-		this.documentObserver.disconnect();
-		for (let cancel of this.cancels) cancel();
-	}
-	
-	onChannelSwitch() {
-		this.colorize();
-	}
-	
-	observe(e) {
-		if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element)) return;
-		var elem = e.addedNodes[0];
-
-		if (elem.querySelector("#friends") || elem.id == "friends") this.onChannelSwitch();
-
-		if (elem.querySelector(".draggable-1KoBzC") || elem.classList.contains("draggable-1KoBzC")) {
-			this.colorizeVoice();
-		}
-
-		if (elem.querySelector(".guild-settings-audit-logs") || elem.classList.contains("guild-settings-audit-logs") || elem.querySelector(".userHook-DFT5u7") || elem.classList.contains("userHook-DFT5u7")) {
-			this.colorizeAuditLog();
-		}
-
-		if (elem.querySelector(DiscordSelectors.UserPopout.userPopout)) {
-			this.colorizePopout();
-		}
-
-		if (elem.querySelector(DiscordSelectors.UserModal.root)) {
-			this.colorizeModal();
-		}
-
-		if (elem.classList.contains("message-group")) {
-			this.colorizeMentions(elem.querySelector('.message'));
-		}
-
-		if (elem.classList.contains("message") && !elem.classList.contains("message-sending")) {
-			this.colorizeMentions(elem);
-			
-		}
-
-		if (elem.classList.contains("messages-wrapper")) {
-			this.colorizeMentions();
-			this.colorizeBotTags();
-		}
-	}
-
-	getColorData(server, user) {
-		if (!server || !user || !this.GuildStore.getMember(server, user)) return "";
-		else return this.GuildStore.getMember(server, user).colorString;
-	}
-
-	getUserColor(user, server = null) {
-		return this.getColorData(server ? server : this.SelectedGuildStore.getGuildId(), user);
 	}
 
 	colorize() {
-		this.colorizeVoice();
-		this.colorizeMentions();
-		this.colorizeAccountStatus();
-		this.colorizeBotTags();
+		this.patchVoiceUsers();
+		this.patchMentions();
+		this.patchAccountDetails();
+		this.patchUserPopouts();
+		this.patchUserModals();
+		this.patchAuditLog();
+		this.patchTypingUsers();
 	}
 
-	colorizeAccountStatus() {
-		if (!this.settings.account.username && !this.settings.account.discriminator) return;
-		let account = document.querySelector(`.${DiscordModules.AccountDetailsClasses.accountDetails}`);
-		if (!account) return;
-		let color = this.getUserColor(this.UserStore.getCurrentUser().id);
-		if (this.settings.account.username) account.querySelector(".username").style.setProperty("color", color, "important");
-		if (this.settings.account.discriminator) {
-			account.querySelector(".discriminator").style.setProperty("color", color, "important");
-			account.querySelector(".discriminator").style.setProperty("opacity", "1");
-		}
+	decolorize() {
+		for (let cancel of this.cancels) cancel();
+	}
+
+	patchAccountDetails() {
+		let colorize = () => {
+			if (!this.settings.account.username && !this.settings.account.discriminator) return;
+			let account = document.querySelector(DiscordSelectors.AccountDetails.accountDetails);
+			if (!account) return;
+			let member = DiscordModules.GuildMemberStore.getMember(DiscordModules.SelectedGuildStore.getGuildId(), DiscordModules.UserStore.getCurrentUser().id);
+			if (!member || !member.colorString) return;
+			if (this.settings.account.username) account.querySelector(".username").style.setProperty("color", member.colorString, "important");
+			if (this.settings.account.discriminator) {
+				account.querySelector(".discriminator").style.setProperty("color", member.colorString, "important");
+				account.querySelector(".discriminator").style.setProperty("opacity", "1");
+			}
+		};
+		InternalUtilities.addOnSwitchListener(colorize);
+		this.cancels.push(() => {InternalUtilities.removeOnSwitchListener(colorize);});
 	}
 
 	filterTypingUsers(typingUsers) {
@@ -170,146 +125,125 @@ class BetterRoleColors {
 			});
 	}
 
-	colorizeTyping(typingUsers) {
-		if (!this.settings.modules.typing) return;
-		typingUsers = this.filterTypingUsers(typingUsers);
-		document.querySelectorAll(`.${DiscordModules.TypingClasses.typing} strong`).forEach((elem, index) => {
-			if (!typingUsers[index]) return;
-			var ID = typingUsers[index].id;
-			elem.style.setProperty("color", this.getUserColor(ID));
-		});
-	}
-
-	colorizeVoice() {
-		if (!this.settings.modules.voice) return;
-		document.querySelectorAll(".draggable-1KoBzC").forEach((elem) => {
-			let user = ReactUtilities.getReactProperty(elem, "return.memoizedProps.user");
-			elem.querySelector('[class*="name"]').style.setProperty("color", this.getUserColor(user.id));
-		});
-	}
-
-	colorizeMentions(elem) {
-		if (!this.settings.modules.mentions) return;
-		var searchSpace = elem ? [elem] : document.querySelectorAll(".message-group .message");
-		searchSpace.forEach((elem) => {
-			let messages = ReactUtilities.getReactProperty(elem.parentElement.parentElement, "return.memoizedProps.messages");
-			if (!messages || !messages.length) return true;
-			var messageNum = DOMUtilities.indexInParent(elem);
-			if (!messages[messageNum] || !messages[messageNum].content) return true;
-			var mentions = messages[messageNum].content.match(/<@&?!?[0-9]+>/g);
-			if (!mentions || !mentions.length) return true;
-			var mentionNum = 0;
-			mentions.forEach((mention, number, self) => {
-				self[number] = mention.replace(/<|@|&|!|>/g, "");
+	patchTypingUsers() {
+		let brc = this;
+		this.cancels.push(InternalUtilities.monkeyPatch(this.TypingUsers.prototype, "componentDidUpdate", {after: (data) => {
+			if (!brc.settings.modules.typing) return;
+			setImmediate(() => {
+				let typingUsers = data.thisObject.state.typingUsers;
+				typingUsers = this.filterTypingUsers(typingUsers);
+				document.querySelectorAll(DiscordSelectors.Typing.typing.descend("strong")).forEach((elem, index) => {
+					if (!typingUsers[index]) return;
+					let member = DiscordModules.GuildMemberStore.getMember(DiscordModules.SelectedGuildStore.getGuildId(), typingUsers[index].id);
+					if (!member) return;
+					elem.style.setProperty("color", member.colorString ? member.colorString : "");
+				});
 			});
-			elem.querySelectorAll('.message-text > .markup > .mention').forEach((elem) => {
-				let isUserMention = ReactUtilities.getReactProperty(elem, "memoizedProps.onContextMenu.name") == "bound handleUserContextMenu";
-				var user = mentions[mentionNum];
-				mentionNum += 1;
-				if (!user || !isUserMention) return true;
-				var textColor = this.getUserColor(user);
-				if (textColor) {
-					elem.style.setProperty("color", textColor);
-					elem.style.setProperty("background", ColorUtilities.rgbToAlpha(textColor,0.1));
+		}}));
+	}
 
-					if (!this.settings.mentions.changeOnHover) return;
-					$(elem).on("mouseenter." + this.getShortName(), (e)=>{
-						e.target.style.setProperty("color", "#FFFFFF");
-						e.target.style.setProperty("background", ColorUtilities.rgbToAlpha(textColor,0.7));
-					});
-					$(elem).on("mouseleave." + this.getShortName(), (e)=> {
-						e.target.style.setProperty("color", textColor);
-						e.target.style.setProperty("background", ColorUtilities.rgbToAlpha(textColor,0.1));
-					});
-				}
+	patchVoiceUsers() {
+		let brc = this;
+		let voiceUserMount = function() {
+			if (!brc.settings.modules.voice) return;
+			if (!this || !this.props || !this.props.user) return;
+			let member = DiscordModules.GuildMemberStore.getMember(DiscordModules.SelectedGuildStore.getGuildId(), this.props.user.id);
+			if (!member || !member.colorString) return;
+			let elem = DiscordModules.ReactDOM.findDOMNode(this);
+			elem.querySelector('[class*="name"]').style.setProperty("color", member.colorString);
+		};
+		this.cancels.push(InternalUtilities.monkeyPatch(this.VoiceUser.prototype, "componentDidMount", {after: ({thisObject}) => {
+			let bound = voiceUserMount.bind(thisObject); bound();
+		}}));
+	}
+
+	patchMentions() {
+		let brc = this;
+		let mentionMount = function() {
+			if (!brc.settings.modules.mentions) return;
+			if (!this || !this.props || !this.props.children || !this.props.children.props || this.props.children.props.className != "mention") return;
+			let props = this.props.render().props;
+			if (!props || !props.user) return;
+			let member = DiscordModules.GuildMemberStore.getMember(DiscordModules.SelectedGuildStore.getGuildId(), props.user.id);
+			if (!member || !member.colorString) return;
+			let elem = DiscordModules.ReactDOM.findDOMNode(this);
+			elem.style.setProperty("color", member.colorString);
+			elem.style.setProperty("background", ColorUtilities.rgbToAlpha(member.colorString,0.1));
+
+			if (!brc.settings.mentions.changeOnHover) return;
+			$(elem).on("mouseenter." + brc.getShortName(), (e)=>{
+				e.target.style.setProperty("color", "#FFFFFF");
+				e.target.style.setProperty("background", ColorUtilities.rgbToAlpha(member.colorString,0.7));
 			});
-		});
+			$(elem).on("mouseleave." + brc.getShortName(), (e)=> {
+				e.target.style.setProperty("color", member.colorString);
+				e.target.style.setProperty("background", ColorUtilities.rgbToAlpha(member.colorString,0.1));
+			});
+		};
+		this.cancels.push(InternalUtilities.monkeyPatch(this.PopoutWrapper.prototype, "componentDidMount", {after: ({thisObject}) => {
+			let bound = mentionMount.bind(thisObject); bound();
+		}}));
 	}
 
-	colorizePopout() {
-		if (!this.settings.popouts.username && !this.settings.popouts.discriminator && !this.settings.popouts.nickname) return;
-		let popout = document.querySelector(DiscordSelectors.UserPopout.userPopout);
-		let user = ReactUtilities.getReactProperty(popout, "return.memoizedProps.user");
-		if (!user) return true;
-		let color = this.getUserColor(user.id);
-		var hasNickname = Boolean(popout.querySelector(DiscordSelectors.UserPopout.headerName));
-		if ((color && this.settings.popouts.username) || (!hasNickname && this.settings.popouts.fallback)) popout.querySelector('.username').style.setProperty("color", color, "important");
-		if (color && this.settings.popouts.discriminator) popout.querySelector('.discriminator').style.setProperty("color", color, "important");
-		if (color && this.settings.popouts.nickname && hasNickname) popout.querySelector(DiscordSelectors.UserPopout.headerName).style.setProperty("color", color, "important");
+	patchUserPopouts() {
+		let brc = this;
+		let popoutMount = function() {
+			if (!brc.settings.popouts.username && !brc.settings.popouts.discriminator && !brc.settings.popouts.nickname) return;
+			if (!this || !this.props || !this.props.user) return;
+			let member = DiscordModules.GuildMemberStore.getMember(DiscordModules.SelectedGuildStore.getGuildId(), this.props.user.id);
+			if (!member || !member.colorString) return;
+			let elem = DiscordModules.ReactDOM.findDOMNode(this);
+			let hasNickname = Boolean(this.state.nickname);
+			if (brc.settings.popouts.username || (!hasNickname && brc.settings.popouts.fallback)) elem.querySelector('.username').style.setProperty("color", member.colorString, "important");
+			if (brc.settings.popouts.discriminator) elem.querySelector('.discriminator').style.setProperty("color", member.colorString, "important");
+			if (brc.settings.popouts.nickname && hasNickname) elem.querySelector(DiscordSelectors.UserPopout.headerName).style.setProperty("color", member.colorString, "important");
+		};
+		this.cancels.push(InternalUtilities.monkeyPatch(this.UserPopout.prototype, "componentDidMount", {after: ({thisObject}) => {
+			let bound = popoutMount.bind(thisObject); bound();
+		}}));
 	}
 
-	colorizeModal() {
-		if (!this.settings.modals.username && !this.settings.modals.discriminator) return;
-		let modal = document.querySelector(DiscordSelectors.UserModal.root);
-		let user = ReactUtilities.getReactProperty(modal, "return.return.memoizedProps.user");
-		let color = this.getUserColor(user.id);
-		if (color && this.settings.modals.username) modal.querySelector('.username').style.setProperty("color", color, "important");
-		if (color && this.settings.modals.discriminator) modal.querySelector('.discriminator').style.setProperty("color", color, "important");
+	patchUserModals() {
+		let brc = this;
+		let modalMount = function() {
+			if (!brc.settings.modals.username && !brc.settings.modals.discriminator) return;
+			if (!this || !this.props || !this.props.user) return;
+			let member = DiscordModules.GuildMemberStore.getMember(DiscordModules.SelectedGuildStore.getGuildId(), this.props.user.id);
+			if (!member || !member.colorString) return;
+			let elem = DiscordModules.ReactDOM.findDOMNode(this);
+			if (brc.settings.modals.username) elem.querySelector('.username').style.setProperty("color", member.colorString, "important");
+			if (brc.settings.modals.discriminator) elem.querySelector('.discriminator').style.setProperty("color", member.colorString, "important");
+		};
+
+		this.cancels.push(InternalUtilities.monkeyPatch(this.UserModal.prototype, "componentDidMount", {after: ({thisObject}) => {
+			let bound = modalMount.bind(thisObject); bound();
+		}}));
 	}
 
-	colorizeAuditLog() {
-		if (!this.settings.auditLog.username && !this.settings.auditLog.discriminator) return;
-		let server = ReactUtilities.getReactProperty(document.querySelector(".ui-standard-sidebar-view"), "return.return.return.memoizedProps.guild");
-		document.querySelectorAll('.userHook-DFT5u7').forEach((elem) => {
-			let user = ReactUtilities.getReactProperty(elem, "return.memoizedProps.user");
-			let color = this.getUserColor(user.id, server.id);
-			if (this.settings.auditLog.username) elem.children[0].style.color = color;
-			if (this.settings.auditLog.discriminator) { elem.querySelector(".discrim-xHdOK3").style.color = color;elem.querySelector(".discrim-xHdOK3").style.opacity = 1;}
-		});
-	}
+	patchAuditLog() {
+		let brc = this;
+		let auditlogMount = function() {
+			if (!brc.settings.auditLog.username && !brc.settings.auditLog.discriminator) return;
+			if (!this || !this.props || !this.props.log || !this.props.log.user) return;
+		
+			let elem = DiscordModules.ReactDOM.findDOMNode(this);
+			let hooks = elem.querySelectorAll(DiscordSelectors.AuditLog.userHook);
+			let member = DiscordModules.GuildMemberStore.getMember(this._reactInternalFiber.return.memoizedProps.guildId, this.props.log.user.id);
+			if (member && member.colorString) {
+				if (member.colorString && brc.settings.auditLog.username) hooks[0].children[0].style.color = member.colorString;
+				if (member.colorString && brc.settings.auditLog.discriminator) { hooks[0].querySelector(DiscordSelectors.AuditLog.discrim).style.color = member.colorString;hooks[0].querySelector(DiscordSelectors.AuditLog.discrim).style.opacity = 1;}
+			}
+		
+			if (hooks.length < 2 || this.props.log.targetType != "USER") return;
+			member = DiscordModules.GuildMemberStore.getMember(this._reactInternalFiber.return.memoizedProps.guildId, this.props.log.target.id);
+			if (!member || !member.colorString) return;
+			if (brc.settings.auditLog.username) hooks[1].children[0].style.color = member.colorString;
+			if (brc.settings.auditLog.discriminator) { hooks[1].querySelector(DiscordSelectors.AuditLog.discrim).style.color = member.colorString;hooks[1].querySelector(DiscordSelectors.AuditLog.discrim).style.opacity = 1;}
+		};
 
-	colorizeBotTags() {
-		if (!this.settings.modules.botTags) return;
-		document.querySelectorAll('.botTagRegular-288-ZL').forEach(node => {
-			node.style.backgroundColor = node.previousSibling.style.color;
-		});
-	}
-
-	decolorize() {
-		this.decolorizeTyping();
-		this.decolorizeMentions();
-		this.decolorizeVoice();
-		this.decolorizePopouts();
-		this.decolorizeModals();
-		this.decolorizeAuditLog();
-		this.decolorizeAccountStatus();
-		this.decolorizeBotTags();
-	}
-
-	decolorizeTyping() { if (this.typingCancel) this.typingCancel(); }
-	decolorizeVoice() { $('.draggable-1KoBzC').each((index, elem)=>{$(elem).find(".avatarContainer-303pFz").siblings().first().css("color", "");}); }
-	decolorizeMentions() { $('.mention').each((index, elem)=>{$(elem).css("color","");$(elem).css("background","");}); $(".mention").off("." + this.getShortName()); }
-	decolorizePopouts() {
-		$('div[class*="userPopout"]').each((index, elem) => {
-			$(elem).find('.headerTag-3zin_i span:first-child').each((index, elem)=>{$(elem).css("color","");});
-			$(elem).find('div[class*="headerDiscriminator"]').each((index, elem)=>{$(elem).css("color","");});
-			$(elem).find('div[class*="headerName"]').each((index, elem)=>{$(elem).css("color","");});
-		});
-	}
-
-	decolorizeModals() {
-		$("#user-profile-modal").each((index, elem) => {
-			$(elem).find('.discriminator').each((index, elem)=>{$(elem).css("color","");});
-			$(elem).find('.username').each((index, elem)=>{$(elem).css("color","");});
-		});
-	}
-
-	decolorizeAuditLog() {
-		$(".userHook-DFT5u7").each((index, elem) => {
-			$(elem).children().first().each((index, elem)=>{$(elem).css("color","");});
-			$(elem).children(".discrim-xHdOK3").each((index, elem)=>{$(elem).css("color","").css("opacity", "");});
-		});
-	}
-
-	decolorizeAccountStatus() {
-		$('div[class*="accountDetails"]').find('.username').css("color","");
-		$('div[class*="accountDetails"]').find('.discriminator').css("color","").css("opacity", "");
-	}
-
-	decolorizeBotTags() {
-		document.querySelectorAll('.bot-tag').forEach(node => {
-			node.style.backgroundColor = "";
-		});
+		this.cancels.push(InternalUtilities.monkeyPatch(this.AuditLogItem.prototype, "componentDidMount", {after: ({thisObject}) => {
+			let bound = auditlogMount.bind(thisObject); bound();
+		}}));
 	}
 	
 	getSettingsPanel() {
@@ -320,7 +254,7 @@ class BetterRoleColors {
 	
 	generateSettings(panel) {
 
-		new PluginSettings.ControlGroup("Module Settings", () => {this.saveSettings(); this.decolorize(); this.colorize();}).appendTo(panel).append(
+		new PluginSettings.ControlGroup("Module Settings", () => {this.saveSettings();}).appendTo(panel).append(
 			new PluginSettings.Checkbox("Typing", "Toggles colorizing of typing notifications. Least reliable module.", this.settings.modules.typing, (checked) => {this.settings.modules.typing = checked;}),
 			new PluginSettings.Checkbox("Voice", "Toggles colorizing of voice users.", this.settings.modules.voice, (checked) => {this.settings.modules.voice = checked;}),
 			new PluginSettings.Checkbox("Mentions", "Toggles colorizing of user mentions in the current server.", this.settings.modules.mentions, (checked) => {this.settings.modules.mentions = checked;}),
@@ -344,12 +278,12 @@ class BetterRoleColors {
 			new PluginSettings.Checkbox("Discriminator", "Toggles coloring on the discriminators in the audit log.", this.settings.auditLog.discriminator, (checked) => {this.settings.auditLog.discriminator = checked;})
 		);
 
-		new PluginSettings.ControlGroup("Account Options", () => {this.saveSettings(); this.decolorizeAccountStatus(); this.colorizeAccountStatus();}).appendTo(panel).append(
+		new PluginSettings.ControlGroup("Account Options", () => {this.saveSettings();}).appendTo(panel).append(
 			new PluginSettings.Checkbox("Username", "Toggles coloring on your username at the bottom.", this.settings.account.username, (checked) => {this.settings.account.username = checked;}),
 			new PluginSettings.Checkbox("Discriminator", "Toggles coloring on your discriminator at the bottom.", this.settings.account.discriminator, (checked) => {this.settings.account.discriminator = checked;})
 		);
 
-		new PluginSettings.ControlGroup("Mention Options", () => {this.saveSettings(); this.decolorizeAccountStatus(); this.colorizeAccountStatus();}).appendTo(panel).append(
+		new PluginSettings.ControlGroup("Mention Options", () => {this.saveSettings();}).appendTo(panel).append(
 			new PluginSettings.Checkbox("Hover Color", "Turning this on adjusts the color on hover to match role color, having it off defers to your theme.",
 										this.settings.mentions.changeOnHover, (checked) => {this.settings.mentions.changeOnHover = checked;})
 		);
