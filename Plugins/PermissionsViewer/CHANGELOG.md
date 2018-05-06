@@ -1,5 +1,9 @@
 # PermissionsViewer Changelog
 
+### 0.0.16
+
+ - Fix for compatibility with other plugins
+
 ### 0.0.15
 
  - hotfix for crashing in private channels

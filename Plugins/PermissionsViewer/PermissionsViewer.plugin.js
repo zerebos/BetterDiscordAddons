@@ -4,7 +4,7 @@ class PermissionsViewer {
 	getName() { return "PermissionsViewer"; }
 	getShortName() { return "PermissionsViewer"; }
 	getDescription() { return "Allows you to view a user's permissions. Thanks to Noodlebox for the idea! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.15"; }
+	getVersion() { return "0.0.16"; }
 	getAuthor() { return "Zerebos"; }
 	
 	constructor() {
@@ -425,7 +425,7 @@ class PermissionsViewer {
 	bindPopouts() {
 		let pViewer = this;
 		let UserPopout = InternalUtilities.WebpackModules.find(m => m.displayName == "FluxContainer(SubscribeGuildMembersContainer(t))");
-		UserPopout.prototype.componentDidMount = function() {
+		let popoutMount = function() {
 			let user = this.state.guildMember;
 			let guild = this.state.guild;
 			let name = this.state.nickname ? this.state.nickname : this.props.user.username;
@@ -485,7 +485,10 @@ class PermissionsViewer {
 				pViewer.showModal(pViewer.createModal(name, user, guild));
 			});
 		};
-		this.cancelUserPopout = () => {delete UserPopout.prototype.componentDidMount;};
+		this.cancelUserPopout = InternalUtilities.monkeyPatch(UserPopout.prototype, "componentDidMount", {after: ({thisObject}) => {
+			let bound = popoutMount.bind(thisObject); bound();
+		}});
+		
 	}
 
 	unbindPopouts() {
