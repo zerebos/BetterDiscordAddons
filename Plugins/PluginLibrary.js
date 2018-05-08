@@ -980,11 +980,11 @@ InternalUtilities.removeOnSwitchListener = function(callback) {
  * 
  * This is a modified version of what we have been working on in BDv2. {@link https://github.com/JsSucks/BetterDiscordApp/blob/master/client/src/modules/patcher.js}
  * 
- * @version 0.0.1
+ * @version 0.0.2
  */
 var Patcher = class Patcher {
 
-    static get patches() { return global._patches || (global._patches = {}); }
+    static get patches() { return global._patches || (global._patches = []); }
 
     /**
      * Returns all the patches done by a specific caller
@@ -994,12 +994,10 @@ var Patcher = class Patcher {
     static getPatchesByCaller(name) {
 		if (!name) return [];
         const patches = [];
-        for (const patch in this.patches) {
-            if (this.patches.hasOwnProperty(patch)) {
-				for (const childPatch of patch.children) {
-					if (childPatch.caller === name) patches.push(childPatch);
-				}
-            }
+        for (const patch of this.patches) {
+			for (const childPatch of patch.children) {
+				if (childPatch.caller === name) patches.push(childPatch);
+			}
         }
         return patches;
     }
@@ -1013,9 +1011,7 @@ var Patcher = class Patcher {
         if (typeof patches === 'string') patches = this.getPatchesByCaller(patches);
 
         for (const patch of patches) {
-            for (const child of patch.children) {
-                child.unpatch();
-            }
+			patch.unpatch();
         }
 	}
 	
@@ -1034,7 +1030,7 @@ var Patcher = class Patcher {
                 try {
                     superPatch.callback(this, arguments);
                 } catch (err) {
-                    window.utils.err(`Patcher:${patch.id}`, err);
+                    window.utils.err(`Patcher:${patch.name}`, err);
                 }
             }
 
@@ -1046,7 +1042,7 @@ var Patcher = class Patcher {
                     try {
                         retVal = insteadPatch.callback(this, arguments);
                     } catch (err) {
-                        window.utils.err(`Patcher:${patch.id}`, err);
+                        window.utils.err(`Patcher:${patch.name}`, err);
                     }
                 }
             }
@@ -1055,7 +1051,7 @@ var Patcher = class Patcher {
                 try {
                     slavePatch.callback(this, arguments, retVal);
                 } catch (err) {
-                    window.utils.err(`Patcher:${patch.id}`, err);
+                    window.utils.err(`Patcher:${patch.name}`, err);
                 }
             }
             return retVal;
@@ -1066,9 +1062,9 @@ var Patcher = class Patcher {
         patch.proxyFunction = patch.module[patch.functionName] = this.makeOverride(patch);
     }
 
-    static makePatch(module, functionName, id) {
+    static makePatch(module, functionName, name) {
         const patch = {
-			id,
+			name,
             module,
             functionName,
             originalFunction: module[functionName],
@@ -1082,7 +1078,7 @@ var Patcher = class Patcher {
             children: []
         };
         patch.proxyFunction = module[functionName] = this.makeOverride(patch);
-        return this.patches[id] = patch;
+        return this.patches.push(patch), patch;
     }
 
     /**
@@ -1169,7 +1165,7 @@ var Patcher = class Patcher {
         const displayName = options.displayName || module.displayName || module.name || module.constructor.displayName || module.constructor.name;
 
 		const patchId = `${displayName}.${functionName}`;
-        const patch = this.patches[patchId] || this.makePatch(module, functionName, patchId);
+        const patch = this.patches.find(p => p.module == module && p.functionName == functionName) || this.makePatch(module, functionName, patchId);
         if (!patch.proxyFunction) this.rePatch(patch);
         const child = {
             caller,
@@ -1178,7 +1174,7 @@ var Patcher = class Patcher {
             callback,
             unpatch: () => {
                 patch.children.splice(patch.children.findIndex(cpatch => cpatch.id === child.id && cpatch.type === type), 1);
-                if (patch.children.length <= 0) delete this.patches[patchId];
+                if (patch.children.length <= 0) this.patches.splice(this.patches.findIndex(p => p.module == module && p.functionName == functionName), 1);
             }
         };
         patch.children.push(child);
