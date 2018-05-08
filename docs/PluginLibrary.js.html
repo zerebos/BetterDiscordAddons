@@ -26,7 +26,90 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/**
+            <pre class="prettyprint source linenums"><code>/** 
+ * Simple logger for the lib and plugins.
+ * 
+ * @version 0.0.2
+ */
+var Logger = class Logger {
+
+    /**
+     * Logs an error using a collapsed error group with stacktrace.
+     * 
+     * @param {string} module - Name of the calling module.
+     * @param {string} message - Message to have logged.
+     * @param {Error} error - Error that occurred
+     */
+    static err(module, message, error) {
+        this.log(module, message, "error");
+        if (!error) return;
+        console.groupCollapsed('%cError: ' + error.message, 'color: red;');
+        console.error(error.stack);
+        console.groupEnd();
+    }
+
+    /**
+     * Logs a warning message/
+     * 
+     * @param {string} module - Name of the calling module.
+     * @param {string} message - Message to have logged.
+     */
+    static warn(module, message) { this.log(module, message, "warn"); }
+
+    /**
+     * Logs an informational message.
+     * 
+     * @param {string} module - Name of the calling module.
+     * @param {string} message - Message to have logged.
+     */
+    static info(module, message) { this.log(module, message, "info"); }
+
+    /**
+     * Logs used for debugging purposes.
+     * 
+     * @param {string} module - Name of the calling module.
+     * @param {string} message - Message to have logged.
+     */
+    static debug(module, message) { this.log(module, message, "debug"); }
+    
+    /**
+     * Logs strings using different console levels and a module label.
+     * 
+     * @param {string} module - Name of the calling module.
+     * @param {string} message - Message to have logged.
+     * @param {Logger.LogTypes} type - Type of log to use in console.
+     */
+    static log(module, message, type = "log") {
+        type = Logger.parseType(type);
+        console[type](`%c[${module}]%c`, 'color: #3a71c1; font-weight: 700;', '', message);
+    }
+
+    static parseType(type) {
+        return this.LogTypes.hasOwnProperty(type) ? this.LogTypes[type] : "log";
+    }
+
+};
+
+/**
+ * Different types of logging.
+ * @readonly
+ * @enum {string}
+ */
+Logger.LogTypes = {
+    /** Alias for error */
+    err: "error",
+    error: "error",
+    /** Alias for debug */
+    dbg: "debug",
+    debug: "debug",
+    log: "log",
+    warn: "warn",
+    info: "info"
+};
+/* ================== END MODULE ================== */
+
+
+/**
  * Random set of utilities that didn't fit elsewhere.
  * @namespace
  * @version 0.0.1
@@ -1001,7 +1084,6 @@ InternalUtilities.removeOnSwitchListener = function(callback) {
 /* ================== END MODULE ================== */
 
 
-
 /** 
  * Patcher that can patch other functions allowing you to run code before, after or
  * instead of the original function. Can also alter arguments and return values.
@@ -1052,37 +1134,39 @@ var Patcher = class Patcher {
 
     static makeOverride(patch) {
         return function () {
-            let retVal = undefined;
+            let returnValue = undefined;
             if (!patch.children) return patch.originalFunction.apply(this, arguments);
             for (const superPatch of patch.children.filter(c => c.type === 'before')) {
                 try {
                     superPatch.callback(this, arguments);
-                } catch (err) {
-                    window.utils.err(`Patcher:${patch.name}`, err);
+                }
+                catch (err) {
+                    Logger.err("Patcher", `Could not fire before callback for ${superPatch.caller}`, err);
                 }
             }
 
             const insteads = patch.children.filter(c => c.type === 'instead');
-            if (!insteads.length) {
-                retVal = patch.originalFunction.apply(this, arguments);
-            } else {
+            if (!insteads.length) returnValue = patch.originalFunction.apply(this, arguments);
+            else {
                 for (const insteadPatch of insteads) {
                     try {
-                        retVal = insteadPatch.callback(this, arguments);
-                    } catch (err) {
-                        window.utils.err(`Patcher:${patch.name}`, err);
+                        returnValue = insteadPatch.callback(this, arguments);
+                    }
+                    catch (err) {
+                        Logger.err("Patcher", `Could not fire instead callback for ${insteadPatch.caller}`, err);
                     }
                 }
             }
 
             for (const slavePatch of patch.children.filter(c => c.type === 'after')) {
                 try {
-                    slavePatch.callback(this, arguments, retVal);
-                } catch (err) {
-                    window.utils.err(`Patcher:${patch.name}`, err);
+                    returnValue = slavePatch.callback(this, arguments, returnValue);
+                }
+                catch (err) {
+                    Logger.err("Patcher", `Could not fire after callback for ${slavePatch.caller}`, err);
                 }
             }
-            return retVal;
+            return returnValue;
         };
     }
 
@@ -1155,6 +1239,7 @@ var Patcher = class Patcher {
     
     /**
      * This method patches onto another function, allowing your code to run afterwards.
+     * Using this, you are also able to modify the return value, using the return of your code instead.
      * 
      * @param {string} caller - Name of the caller of the patch function. Using this you can undo all patches with the same name using {@link Patcher#unpatchAll}. Use `""` if you don't care.
      * @param {object} moduleToPatch - Object with the function to be patched. Can also patch an object's prototype.
@@ -2845,6 +2930,8 @@ window["ZeresLibrary"] = {
 	DiscordClasses: DiscordClasses,
 	DiscordSelectors: DiscordSelectors,
 	GeneralUtilities: GeneralUtilities,
+	Patcher: Patcher,
+	Logger: Logger,
 	Screen: {
 		get width() { return Math.max(document.documentElement.clientWidth, window.innerWidth || 0); },
 		get height() { return Math.max(document.documentElement.clientHeight, window.innerHeight || 0); }
@@ -2869,13 +2956,13 @@ jQuery.extend(jQuery.easing, { easeInSine: function (x, t, b, c, d) { return -c 
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DiscordPermissions.html">DiscordPermissions</a></li><li><a href="DOMUtilities.ClassName.html">ClassName</a></li><li><a href="DOMUtilities.Selector.html">Selector</a></li><li><a href="Patcher.html">Patcher</a></li><li><a href="PluginContextMenu.ImageItem.html">ImageItem</a></li><li><a href="PluginContextMenu.ItemGroup.html">ItemGroup</a></li><li><a href="PluginContextMenu.Menu.html">Menu</a></li><li><a href="PluginContextMenu.MenuItem.html">MenuItem</a></li><li><a href="PluginContextMenu.SubMenuItem.html">SubMenuItem</a></li><li><a href="PluginContextMenu.TextItem.html">TextItem</a></li><li><a href="PluginContextMenu.ToggleItem.html">ToggleItem</a></li><li><a href="PluginSettings.Checkbox.html">Checkbox</a></li><li><a href="PluginSettings.ColorPicker.html">ColorPicker</a></li><li><a href="PluginSettings.ControlGroup.html">ControlGroup</a></li><li><a href="PluginSettings.PillButton.html">PillButton</a></li><li><a href="PluginSettings.SettingField.html">SettingField</a></li><li><a href="PluginSettings.Slider.html">Slider</a></li><li><a href="PluginSettings.Textbox.html">Textbox</a></li><li><a href="PluginTooltip.Native.html">Native</a></li><li><a href="PluginTooltip.Tooltip.html">Tooltip</a></li></ul><h3>Namespaces</h3><ul><li><a href="ColorUtilities.html">ColorUtilities</a></li><li><a href="DiscordClasses.html">DiscordClasses</a></li><li><a href="DiscordClassModules.html">DiscordClassModules</a></li><li><a href="DiscordModules.html">DiscordModules</a></li><li><a href="DiscordSelectors.html">DiscordSelectors</a></li><li><a href="DOMUtilities.html">DOMUtilities</a></li><li><a href="GeneralUtilities.html">GeneralUtilities</a></li><li><a href="InternalUtilities.html">InternalUtilities</a></li><li><a href="InternalUtilities.Filters.html">Filters</a></li><li><a href="InternalUtilities.WebpackModules.html">WebpackModules</a></li><li><a href="PluginContextMenu.html">PluginContextMenu</a></li><li><a href="PluginSettings.html">PluginSettings</a></li><li><a href="PluginTooltip.html">PluginTooltip</a></li><li><a href="PluginUpdateUtilities.html">PluginUpdateUtilities</a></li><li><a href="PluginUtilities.html">PluginUtilities</a></li><li><a href="ReactUtilities.html">ReactUtilities</a></li></ul><h3>Interfaces</h3><ul><li><a href="PatchData.html">PatchData</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DiscordPermissions.html">DiscordPermissions</a></li><li><a href="DOMUtilities.ClassName.html">ClassName</a></li><li><a href="DOMUtilities.Selector.html">Selector</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Patcher.html">Patcher</a></li><li><a href="PluginContextMenu.ImageItem.html">ImageItem</a></li><li><a href="PluginContextMenu.ItemGroup.html">ItemGroup</a></li><li><a href="PluginContextMenu.Menu.html">Menu</a></li><li><a href="PluginContextMenu.MenuItem.html">MenuItem</a></li><li><a href="PluginContextMenu.SubMenuItem.html">SubMenuItem</a></li><li><a href="PluginContextMenu.TextItem.html">TextItem</a></li><li><a href="PluginContextMenu.ToggleItem.html">ToggleItem</a></li><li><a href="PluginSettings.Checkbox.html">Checkbox</a></li><li><a href="PluginSettings.ColorPicker.html">ColorPicker</a></li><li><a href="PluginSettings.ControlGroup.html">ControlGroup</a></li><li><a href="PluginSettings.PillButton.html">PillButton</a></li><li><a href="PluginSettings.SettingField.html">SettingField</a></li><li><a href="PluginSettings.Slider.html">Slider</a></li><li><a href="PluginSettings.Textbox.html">Textbox</a></li><li><a href="PluginTooltip.Native.html">Native</a></li><li><a href="PluginTooltip.Tooltip.html">Tooltip</a></li></ul><h3>Namespaces</h3><ul><li><a href="ColorUtilities.html">ColorUtilities</a></li><li><a href="DiscordClasses.html">DiscordClasses</a></li><li><a href="DiscordClassModules.html">DiscordClassModules</a></li><li><a href="DiscordModules.html">DiscordModules</a></li><li><a href="DiscordSelectors.html">DiscordSelectors</a></li><li><a href="DOMUtilities.html">DOMUtilities</a></li><li><a href="GeneralUtilities.html">GeneralUtilities</a></li><li><a href="InternalUtilities.html">InternalUtilities</a></li><li><a href="InternalUtilities.Filters.html">Filters</a></li><li><a href="InternalUtilities.WebpackModules.html">WebpackModules</a></li><li><a href="PluginContextMenu.html">PluginContextMenu</a></li><li><a href="PluginSettings.html">PluginSettings</a></li><li><a href="PluginTooltip.html">PluginTooltip</a></li><li><a href="PluginUpdateUtilities.html">PluginUpdateUtilities</a></li><li><a href="PluginUtilities.html">PluginUtilities</a></li><li><a href="ReactUtilities.html">ReactUtilities</a></li></ul><h3>Interfaces</h3><ul><li><a href="PatchData.html">PatchData</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue May 08 2018 18:13:35 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue May 08 2018 19:44:38 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -1,3 +1,86 @@
+/** 
+ * Simple logger for the lib and plugins.
+ * 
+ * @version 0.0.2
+ */
+var Logger = class Logger {
+
+    /**
+     * Logs an error using a collapsed error group with stacktrace.
+     * 
+     * @param {string} module - Name of the calling module.
+     * @param {string} message - Message to have logged.
+     * @param {Error} error - Error that occurred
+     */
+    static err(module, message, error) {
+        this.log(module, message, "error");
+        if (!error) return;
+        console.groupCollapsed('%cError: ' + error.message, 'color: red;');
+        console.error(error.stack);
+        console.groupEnd();
+    }
+
+    /**
+     * Logs a warning message/
+     * 
+     * @param {string} module - Name of the calling module.
+     * @param {string} message - Message to have logged.
+     */
+    static warn(module, message) { this.log(module, message, "warn"); }
+
+    /**
+     * Logs an informational message.
+     * 
+     * @param {string} module - Name of the calling module.
+     * @param {string} message - Message to have logged.
+     */
+    static info(module, message) { this.log(module, message, "info"); }
+
+    /**
+     * Logs used for debugging purposes.
+     * 
+     * @param {string} module - Name of the calling module.
+     * @param {string} message - Message to have logged.
+     */
+    static debug(module, message) { this.log(module, message, "debug"); }
+    
+    /**
+     * Logs strings using different console levels and a module label.
+     * 
+     * @param {string} module - Name of the calling module.
+     * @param {string} message - Message to have logged.
+     * @param {Logger.LogTypes} type - Type of log to use in console.
+     */
+    static log(module, message, type = "log") {
+        type = Logger.parseType(type);
+        console[type](`%c[${module}]%c`, 'color: #3a71c1; font-weight: 700;', '', message);
+    }
+
+    static parseType(type) {
+        return this.LogTypes.hasOwnProperty(type) ? this.LogTypes[type] : "log";
+    }
+
+};
+
+/**
+ * Different types of logging.
+ * @readonly
+ * @enum {string}
+ */
+Logger.LogTypes = {
+    /** Alias for error */
+    err: "error",
+    error: "error",
+    /** Alias for debug */
+    dbg: "debug",
+    debug: "debug",
+    log: "log",
+    warn: "warn",
+    info: "info"
+};
+/* ================== END MODULE ================== */
+
+
 /**
  * Random set of utilities that didn't fit elsewhere.
  * @namespace
@@ -973,7 +1056,6 @@ InternalUtilities.removeOnSwitchListener = function(callback) {
 /* ================== END MODULE ================== */
 
 
-
 /** 
  * Patcher that can patch other functions allowing you to run code before, after or
  * instead of the original function. Can also alter arguments and return values.
@@ -1024,37 +1106,39 @@ var Patcher = class Patcher {
 
     static makeOverride(patch) {
         return function () {
-            let retVal = undefined;
+            let returnValue = undefined;
             if (!patch.children) return patch.originalFunction.apply(this, arguments);
             for (const superPatch of patch.children.filter(c => c.type === 'before')) {
                 try {
                     superPatch.callback(this, arguments);
-                } catch (err) {
-                    window.utils.err(`Patcher:${patch.name}`, err);
+                }
+                catch (err) {
+                    Logger.err("Patcher", `Could not fire before callback for ${superPatch.caller}`, err);
                 }
             }
 
             const insteads = patch.children.filter(c => c.type === 'instead');
-            if (!insteads.length) {
-                retVal = patch.originalFunction.apply(this, arguments);
-            } else {
+            if (!insteads.length) returnValue = patch.originalFunction.apply(this, arguments);
+            else {
                 for (const insteadPatch of insteads) {
                     try {
-                        retVal = insteadPatch.callback(this, arguments);
-                    } catch (err) {
-                        window.utils.err(`Patcher:${patch.name}`, err);
+                        returnValue = insteadPatch.callback(this, arguments);
+                    }
+                    catch (err) {
+                        Logger.err("Patcher", `Could not fire instead callback for ${insteadPatch.caller}`, err);
                     }
                 }
             }
 
             for (const slavePatch of patch.children.filter(c => c.type === 'after')) {
                 try {
-                    slavePatch.callback(this, arguments, retVal);
-                } catch (err) {
-                    window.utils.err(`Patcher:${patch.name}`, err);
+                    returnValue = slavePatch.callback(this, arguments, returnValue);
+                }
+                catch (err) {
+                    Logger.err("Patcher", `Could not fire after callback for ${slavePatch.caller}`, err);
                 }
             }
-            return retVal;
+            return returnValue;
         };
     }
 
@@ -1127,6 +1211,7 @@ var Patcher = class Patcher {
     
     /**
      * This method patches onto another function, allowing your code to run afterwards.
+     * Using this, you are also able to modify the return value, using the return of your code instead.
      * 
      * @param {string} caller - Name of the caller of the patch function. Using this you can undo all patches with the same name using {@link Patcher#unpatchAll}. Use `""` if you don't care.
      * @param {object} moduleToPatch - Object with the function to be patched. Can also patch an object's prototype.
@@ -2817,6 +2902,8 @@ window["ZeresLibrary"] = {
 	DiscordClasses: DiscordClasses,
 	DiscordSelectors: DiscordSelectors,
 	GeneralUtilities: GeneralUtilities,
+	Patcher: Patcher,
+	Logger: Logger,
 	Screen: {
 		get width() { return Math.max(document.documentElement.clientWidth, window.innerWidth || 0); },
 		get height() { return Math.max(document.documentElement.clientHeight, window.innerHeight || 0); }
