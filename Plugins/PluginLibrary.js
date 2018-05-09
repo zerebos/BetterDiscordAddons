@@ -9,15 +9,11 @@ var Logger = class Logger {
      * Logs an error using a collapsed error group with stacktrace.
      * 
      * @param {string} module - Name of the calling module.
-     * @param {string} message - Message to have logged.
-     * @param {Error} error - Error that occurred
+     * @param {string|Error} message - Message or error to have logged.
      */
-    static err(module, message, error) {
-        this.log(module, message, "error");
-        if (!error) return;
-        console.groupCollapsed('%cError: ' + error.message, 'color: red;');
-        console.error(error.stack);
-        console.groupEnd();
+    static err(module, message) {
+		if (message instanceof Error) this.log(module, `${message.name}: ${message.message}`, "error");
+        else this.log(module, message, "error");
     }
 
     /**
@@ -1113,7 +1109,7 @@ var Patcher = class Patcher {
                     superPatch.callback(this, arguments);
                 }
                 catch (err) {
-                    Logger.err("Patcher", `Could not fire before callback for ${superPatch.caller}`, err);
+                    Logger.err("Patcher", `Could not fire before callback for ${superPatch.caller}`);
                 }
             }
 
@@ -1125,7 +1121,7 @@ var Patcher = class Patcher {
                         returnValue = insteadPatch.callback(this, arguments);
                     }
                     catch (err) {
-                        Logger.err("Patcher", `Could not fire instead callback for ${insteadPatch.caller}`, err);
+                        Logger.err("Patcher", `Could not fire instead callback for ${insteadPatch.caller}`);
                     }
                 }
             }
@@ -1135,7 +1131,7 @@ var Patcher = class Patcher {
                     returnValue = slavePatch.callback(this, arguments, returnValue);
                 }
                 catch (err) {
-                    Logger.err("Patcher", `Could not fire after callback for ${slavePatch.caller}`, err);
+                    Logger.err("Patcher", `Could not fire after callback for ${slavePatch.caller}`);
                 }
             }
             return returnValue;
@@ -2917,4 +2913,10 @@ window.ZL = window.ZeresLibrary;
 
 BdApi.clearCSS("PluginLibraryCSS");
 BdApi.injectCSS("PluginLibraryCSS", PluginSettings.getCSS() + PluginUtilities.getToastCSS() + PluginUpdateUtilities.getCSS());
+
 jQuery.extend(jQuery.easing, { easeInSine: function (x, t, b, c, d) { return -c * Math.cos(t / d * (Math.PI / 2)) + c + b; }});
+
+Patcher.unpatchAll("ZeresLibrary");
+Patcher.before("ZeresLibrary", jQuery.fn, "find", (thisObject, args) => {
+	if (args.length && args[0] instanceof DOMUtilities.Selector) args[0] = args[0].toString();
+});
