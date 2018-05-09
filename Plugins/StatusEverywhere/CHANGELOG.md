@@ -1,5 +1,9 @@
 # StatusEverywhere Changelog
 
+### 0.3.1
+
+ - Fix a flickering issue
+
 ### 0.3.0
 
  - Rewrite using only internals
