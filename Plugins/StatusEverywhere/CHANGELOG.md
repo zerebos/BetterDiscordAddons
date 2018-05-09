@@ -1,5 +1,9 @@
 # StatusEverywhere Changelog
 
+### 0.3.0
+
+ - Rewrite using only internals
+
 ### 0.2.0
 
  - Start using internal UserStore to get statuses
