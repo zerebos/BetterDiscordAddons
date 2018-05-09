@@ -1,5 +1,9 @@
 # ImageToClipboard Changelog
 
+### 0.2.13
+
+ - Fix a class thing
+
 ### 0.2.12
 
  - Fix for discord update

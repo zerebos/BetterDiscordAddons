@@ -13,8 +13,7 @@ class AutoPlayGifs {
 		this.initialized = false;
 		this.settings = {avatars: true, memberList: true};
 		this.cancelChatAvatars = () => {};
-		this.cancelGIFs = () => {};
-		this.cancelGIFVs = () => {};
+		this.cancelMemberListAvatars = () => {};
 	}
 	
 	load(){}
@@ -24,14 +23,14 @@ class AutoPlayGifs {
 	saveSettings() {PluginUtilities.saveSettings(this.getName(), this.settings);}
 	
 	start(){
-		var libraryScript = document.getElementById('zeresLibraryScript');
-		if (!window.ZeresLibrary || window.ZeresLibrary.isOutdated) {
+        let libraryScript = document.getElementById('zeresLibraryScript');
+		if (!libraryScript || (window.ZeresLibrary && window.ZeresLibrary.isOutdated)) {
 			if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
 			libraryScript = document.createElement("script");
 			libraryScript.setAttribute("type", "text/javascript");
 			libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
 			libraryScript.setAttribute("id", "zeresLibraryScript");
-			document.head.appendChild(libraryScript);
+            document.head.appendChild(libraryScript);
 		}
 
 		if (window.ZeresLibrary) this.initialize();
@@ -56,20 +55,20 @@ class AutoPlayGifs {
 
 	patchChatAvatars() {
 		let MessageGroup = InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byCode(/hasAnimatedAvatar/));
-		this.cancelChatAvatars = InternalUtilities.monkeyPatch(MessageGroup.prototype, "render", {before: ({thisObject}) => {
+		this.cancelChatAvatars = Patcher.before(this.getName(), MessageGroup.prototype, "render", (thisObject) => {
 			thisObject.state.animate = true;
-		}});
+		});
 	}
 
 	patchMemberListAvatars() {
 		let MemberList = InternalUtilities.WebpackModules.find(m => m.prototype && m.prototype.renderPlaceholder);
-		this.cancelMemberListAvatars = InternalUtilities.monkeyPatch(MemberList.prototype, "render", {before: ({thisObject}) => {
+		this.cancelMemberListAvatars = Patcher.before(this.getName(), MemberList.prototype, "render", (thisObject) => {
 			if (!thisObject.props.user) return;
 			let id = thisObject.props.user.id;
 			let hasAnimatedAvatar = DiscordModules.ImageResolver.hasAnimatedAvatar(DiscordModules.UserStore.getUser(id));
 			if (!hasAnimatedAvatar) return;
 			thisObject.props.user.getAvatarURL = () => {return DiscordModules.ImageResolver.getUserAvatarURL(DiscordModules.UserStore.getUser(id)).replace("webp", "gif");};
-		}});
+		});
 	}
 
 	getSettingsPanel() {

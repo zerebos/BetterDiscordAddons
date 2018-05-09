@@ -1,5 +1,9 @@
 # AccountDetailsPlus Changelog
 
+### 0.0.4
+
+ - Code cleanup
+
 ### 0.0.3
 
  - Fix for updates

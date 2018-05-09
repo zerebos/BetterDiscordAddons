@@ -116,14 +116,14 @@ class ServerSearch {
 	}
 	
 	start(){
-		var libraryScript = document.getElementById('zeresLibraryScript');
-		if (!window.ZeresLibrary || window.ZeresLibrary.isOutdated) {
+        let libraryScript = document.getElementById('zeresLibraryScript');
+		if (!libraryScript || (window.ZeresLibrary && window.ZeresLibrary.isOutdated)) {
 			if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
 			libraryScript = document.createElement("script");
 			libraryScript.setAttribute("type", "text/javascript");
 			libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
 			libraryScript.setAttribute("id", "zeresLibraryScript");
-			document.head.appendChild(libraryScript);
+            document.head.appendChild(libraryScript);
 		}
 
 		if (window.ZeresLibrary) this.initialize();
@@ -221,7 +221,7 @@ class ServerSearch {
 
 	showPopout(popout, target, id, options = {}) {
 		const {onClose} = options;
-		popout.appendTo($(`.${DiscordModules.PopoutClasses.popouts}`));
+		popout.appendTo(document.querySelector(DiscordSelectors.Popouts.popouts));
 		const maxWidth = window.ZeresLibrary.Screen.width;
 		const maxHeight = window.ZeresLibrary.Screen.height;
 

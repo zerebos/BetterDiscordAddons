@@ -1,5 +1,11 @@
 # BetterRoleColors Changelog
 
+### 0.7.1
+
+ - Update to new Patcher (fixes collisions)
+ - Fix for certain themes
+ - Fix account details not updating color
+
 ### 0.7.0
 
  - Rewrite several modules using internals

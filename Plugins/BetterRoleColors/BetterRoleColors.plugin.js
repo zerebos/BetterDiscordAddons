@@ -4,7 +4,7 @@ class BetterRoleColors {
 	getName() { return "BetterRoleColors"; }
 	getShortName() { return "BRC"; }
 	getDescription() { return "Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.7.0"; }
+	getVersion() { return "0.7.1"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -32,14 +32,14 @@ class BetterRoleColors {
 	unload() {}
 	
 	start() {	
-		var libraryScript = document.getElementById('zeresLibraryScript');
-		if (!window.ZeresLibrary || window.ZeresLibrary.isOutdated) {
+        let libraryScript = document.getElementById('zeresLibraryScript');
+		if (!libraryScript || (window.ZeresLibrary && window.ZeresLibrary.isOutdated)) {
 			if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
 			libraryScript = document.createElement("script");
 			libraryScript.setAttribute("type", "text/javascript");
 			libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
 			libraryScript.setAttribute("id", "zeresLibraryScript");
-			document.head.appendChild(libraryScript);
+            document.head.appendChild(libraryScript);
 		}
 
 		if (window.ZeresLibrary) this.initialize();
@@ -92,6 +92,7 @@ class BetterRoleColors {
 	}
 
 	decolorize() {
+		Patcher.unpatchAll(this.getName());
 		for (let cancel of this.cancels) cancel();
 	}
 
@@ -101,15 +102,22 @@ class BetterRoleColors {
 			let account = document.querySelector(DiscordSelectors.AccountDetails.accountDetails);
 			if (!account) return;
 			let member = DiscordModules.GuildMemberStore.getMember(DiscordModules.SelectedGuildStore.getGuildId(), DiscordModules.UserStore.getCurrentUser().id);
-			if (!member || !member.colorString) return;
-			if (this.settings.account.username) account.querySelector(".username").style.setProperty("color", member.colorString, "important");
+			if (!member) return;
+			let color = member.colorString ? member.colorString : "";
+			if (this.settings.account.username) account.querySelector(".username").style.setProperty("color", color, "important");
 			if (this.settings.account.discriminator) {
-				account.querySelector(".discriminator").style.setProperty("color", member.colorString, "important");
+				account.querySelector(".discriminator").style.setProperty("color", color, "important");
 				account.querySelector(".discriminator").style.setProperty("opacity", "1");
 			}
 		};
 		InternalUtilities.addOnSwitchListener(colorize);
-		this.cancels.push(() => {InternalUtilities.removeOnSwitchListener(colorize);});
+		this.cancels.push(() => {
+			InternalUtilities.removeOnSwitchListener(colorize);
+			let account = document.querySelector(DiscordSelectors.AccountDetails.accountDetails);
+			account.querySelector(".username").style.setProperty("color", "");
+			account.querySelector(".discriminator").style.setProperty("color", "");
+			account.querySelector(".discriminator").style.setProperty("opacity", "");
+		});
 	}
 
 	filterTypingUsers(typingUsers) {
@@ -127,10 +135,10 @@ class BetterRoleColors {
 
 	patchTypingUsers() {
 		let brc = this;
-		this.cancels.push(InternalUtilities.monkeyPatch(this.TypingUsers.prototype, "componentDidUpdate", {after: (data) => {
+		Patcher.after(this.getName(), this.TypingUsers.prototype, "componentDidUpdate", (thisObject) => {
 			if (!brc.settings.modules.typing) return;
 			setImmediate(() => {
-				let typingUsers = data.thisObject.state.typingUsers;
+				let typingUsers = Object.assign({}, thisObject.state.typingUsers);
 				typingUsers = this.filterTypingUsers(typingUsers);
 				document.querySelectorAll(DiscordSelectors.Typing.typing.descend("strong")).forEach((elem, index) => {
 					if (!typingUsers[index]) return;
@@ -139,7 +147,7 @@ class BetterRoleColors {
 					elem.style.setProperty("color", member.colorString ? member.colorString : "");
 				});
 			});
-		}}));
+		});
 	}
 
 	patchVoiceUsers() {
@@ -152,9 +160,10 @@ class BetterRoleColors {
 			let elem = DiscordModules.ReactDOM.findDOMNode(this);
 			elem.querySelector('[class*="name"]').style.setProperty("color", member.colorString);
 		};
-		this.cancels.push(InternalUtilities.monkeyPatch(this.VoiceUser.prototype, "componentDidMount", {after: ({thisObject}) => {
+
+		Patcher.after(this.getName(), this.VoiceUser.prototype, "componentDidMount", (thisObject) => {
 			let bound = voiceUserMount.bind(thisObject); bound();
-		}}));
+		});
 	}
 
 	patchMentions() {
@@ -167,22 +176,23 @@ class BetterRoleColors {
 			let member = DiscordModules.GuildMemberStore.getMember(DiscordModules.SelectedGuildStore.getGuildId(), props.user.id);
 			if (!member || !member.colorString) return;
 			let elem = DiscordModules.ReactDOM.findDOMNode(this);
-			elem.style.setProperty("color", member.colorString);
-			elem.style.setProperty("background", ColorUtilities.rgbToAlpha(member.colorString,0.1));
+			elem.style.setProperty("color", member.colorString, "important");
+			elem.style.setProperty("background", ColorUtilities.rgbToAlpha(member.colorString,0.1), "important");
 
 			if (!brc.settings.mentions.changeOnHover) return;
 			$(elem).on("mouseenter." + brc.getShortName(), (e)=>{
-				e.target.style.setProperty("color", "#FFFFFF");
-				e.target.style.setProperty("background", ColorUtilities.rgbToAlpha(member.colorString,0.7));
+				e.target.style.setProperty("color", "#FFFFFF", "important");
+				e.target.style.setProperty("background", ColorUtilities.rgbToAlpha(member.colorString,0.7), "important");
 			});
 			$(elem).on("mouseleave." + brc.getShortName(), (e)=> {
-				e.target.style.setProperty("color", member.colorString);
-				e.target.style.setProperty("background", ColorUtilities.rgbToAlpha(member.colorString,0.1));
+				e.target.style.setProperty("color", member.colorString, "important");
+				e.target.style.setProperty("background", ColorUtilities.rgbToAlpha(member.colorString,0.1), "important");
 			});
 		};
-		this.cancels.push(InternalUtilities.monkeyPatch(this.PopoutWrapper.prototype, "componentDidMount", {after: ({thisObject}) => {
+
+		Patcher.after(this.getName(), this.PopoutWrapper.prototype, "componentDidMount", (thisObject) => {
 			let bound = mentionMount.bind(thisObject); bound();
-		}}));
+		});
 	}
 
 	patchUserPopouts() {
@@ -198,9 +208,10 @@ class BetterRoleColors {
 			if (brc.settings.popouts.discriminator) elem.querySelector('.discriminator').style.setProperty("color", member.colorString, "important");
 			if (brc.settings.popouts.nickname && hasNickname) elem.querySelector(DiscordSelectors.UserPopout.headerName).style.setProperty("color", member.colorString, "important");
 		};
-		this.cancels.push(InternalUtilities.monkeyPatch(this.UserPopout.prototype, "componentDidMount", {after: ({thisObject}) => {
+
+		Patcher.after(this.getName(), this.UserPopout.prototype, "componentDidMount", (thisObject) => {
 			let bound = popoutMount.bind(thisObject); bound();
-		}}));
+		});
 	}
 
 	patchUserModals() {
@@ -215,9 +226,9 @@ class BetterRoleColors {
 			if (brc.settings.modals.discriminator) elem.querySelector('.discriminator').style.setProperty("color", member.colorString, "important");
 		};
 
-		this.cancels.push(InternalUtilities.monkeyPatch(this.UserModal.prototype, "componentDidMount", {after: ({thisObject}) => {
+		Patcher.after(this.getName(), this.UserModal.prototype, "componentDidMount", (thisObject) => {
 			let bound = modalMount.bind(thisObject); bound();
-		}}));
+		});
 	}
 
 	patchAuditLog() {
@@ -241,9 +252,9 @@ class BetterRoleColors {
 			if (brc.settings.auditLog.discriminator) { hooks[1].querySelector(DiscordSelectors.AuditLog.discrim).style.color = member.colorString;hooks[1].querySelector(DiscordSelectors.AuditLog.discrim).style.opacity = 1;}
 		};
 
-		this.cancels.push(InternalUtilities.monkeyPatch(this.AuditLogItem.prototype, "componentDidMount", {after: ({thisObject}) => {
+		Patcher.after(this.getName(), this.AuditLogItem.prototype, "componentDidMount", (thisObject) => {
 			let bound = auditlogMount.bind(thisObject); bound();
-		}}));
+		});
 	}
 	
 	getSettingsPanel() {

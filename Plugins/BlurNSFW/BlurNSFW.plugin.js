@@ -29,14 +29,14 @@ class BlurNSFW {
 	unload() {}
 	
 	start() {
-		var libraryScript = document.getElementById('zeresLibraryScript');
-		if (!window.ZeresLibrary || window.ZeresLibrary.isOutdated) {
+        let libraryScript = document.getElementById('zeresLibraryScript');
+		if (!libraryScript || (window.ZeresLibrary && window.ZeresLibrary.isOutdated)) {
 			if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
 			libraryScript = document.createElement("script");
 			libraryScript.setAttribute("type", "text/javascript");
 			libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
 			libraryScript.setAttribute("id", "zeresLibraryScript");
-			document.head.appendChild(libraryScript);
+            document.head.appendChild(libraryScript);
 		}
 
 		if (window.ZeresLibrary) this.initialize();
@@ -53,10 +53,10 @@ class BlurNSFW {
 		let ReactDOM = DiscordModules.ReactDOM;
 		let InlineMediaWrapper = InternalUtilities.WebpackModules.findByUniqueProperties(['ImageReadyStates']).default;
 
-		let blurAccessory = (data) => {
+		let blurAccessory = (thisObject) => {
 			let channel = ChannelStore.getChannel(SelectedChannelStore.getChannelId());
 			if (!channel.isNSFW()) return;
-			let element = ReactDOM.findDOMNode(data.thisObject);
+			let element = ReactDOM.findDOMNode(thisObject);
 			let mediaElement = element.querySelector("img") || element.querySelector("video");
 			if (!mediaElement) return;
 
@@ -73,13 +73,13 @@ class BlurNSFW {
 			});
 		};
 		
-		this.cancels.push(InternalUtilities.monkeyPatch(InlineMediaWrapper.prototype, "componentDidMount", {instead: blurAccessory}));
-		this.cancels.push(InternalUtilities.monkeyPatch(InlineMediaWrapper.prototype, "componentDidUpdate", {instead: blurAccessory}));
+		Patcher.after(this.getName(), InlineMediaWrapper.prototype, "componentDidMount", blurAccessory);
+		Patcher.after(this.getName(), InlineMediaWrapper.prototype, "componentDidUpdate", blurAccessory);
 		PluginUtilities.showToast(this.getName() + " " + this.getVersion() + " has started.");
 	}
 
 	stop() {
-		for (let cancel of this.cancels) cancel();
+		Patcher.unpatchAll(this.getName());
 		BdApi.clearCSS(this.getShortName());
 	}
 

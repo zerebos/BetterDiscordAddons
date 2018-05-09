@@ -6,7 +6,7 @@ class RoleMembers {
 	getName() { return "RoleMembers"; }
 	getShortName() { return "RoleMembers"; }
 	getDescription() { return "Allows you to see the members of each role on a server. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.3"; }
+	getVersion() { return "0.0.4"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -52,14 +52,14 @@ class RoleMembers {
 	unload(){}
 	
 	start(){
-		var libraryScript = document.getElementById('zeresLibraryScript');
-		if (!window.ZeresLibrary || window.ZeresLibrary.isOutdated) {
+        let libraryScript = document.getElementById('zeresLibraryScript');
+		if (!libraryScript || (window.ZeresLibrary && window.ZeresLibrary.isOutdated)) {
 			if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
 			libraryScript = document.createElement("script");
 			libraryScript.setAttribute("type", "text/javascript");
 			libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
 			libraryScript.setAttribute("id", "zeresLibraryScript");
-			document.head.appendChild(libraryScript);
+            document.head.appendChild(libraryScript);
 		}
 
 		if (window.ZeresLibrary) this.initialize();
@@ -111,18 +111,18 @@ class RoleMembers {
 	}
 
 	showPopout(popout, target) {
-		popout.appendTo($(`.${DiscordModules.PopoutClasses.popouts}`));
+		popout.appendTo(document.querySelector(DiscordSelectors.Popouts.popouts));
 		const maxWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 		const maxHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
 		let offset = target.getBoundingClientRect();
 		if (offset.right + popout.outerHeight() >= maxWidth) {
-			popout.addClass(DiscordModules.PopoutClasses.popoutLeft);
+			popout.addClass(DiscordClasses.Popouts.popoutLeft);
 			popout.css("left", Math.round(offset.left - popout.outerWidth() - 20));
 			popout.animate({left: Math.round(offset.left - popout.outerWidth() - 10)}, 100);
 		}
 		else {
-			popout.addClass(DiscordModules.PopoutClasses.POPOUT_DID_RERENDERight).addClass(DiscordModules.PopoutClasses.popoutRight);
+			popout.addClass(DiscordClasses.Popouts.POPOUT_DID_RERENDERight).addClass(DiscordClasses.Popouts.popoutRight);
 			popout.css("left", offset.right + 10);
 			popout.animate({left: offset.right}, 100);
 		}
@@ -166,7 +166,7 @@ class RoleMembers {
 	observeContextMenus(e) {
 		if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element) || !e.addedNodes[0].classList) return;
 		let elem = e.addedNodes[0];
-		let context = elem.classList.contains(DiscordModules.ContextMenuClasses.contextMenu) ? elem : elem.querySelector(`.${DiscordModules.ContextMenuClasses.contextMenu}`);
+		let context = elem.classList.contains(DiscordClasses.ContextMenu.contextMenu) ? elem : elem.querySelector(DiscordSelectors.ContextMenu.contextMenu);
 		if (!context) return;
 
 		let isGuildContext = ReactUtilities.getReactProperty(context, "return.stateNode.props.type") == "GUILD_ICON_BAR";
@@ -191,7 +191,7 @@ class RoleMembers {
 		}
 
 		let subMenu = new PluginContextMenu.SubMenuItem("Role Members", new PluginContextMenu.Menu(true).addItems(...roleItems));
-		$(context).children(`.${DiscordModules.ContextMenuClasses.itemGroup}`).first().append(subMenu.element);
+		$(context).children(DiscordSelectors.ContextMenu.itemGroup).first().append(subMenu.element);
 	}
 
 	showRolePopout(target, guildId, roleId) {
@@ -200,7 +200,7 @@ class RoleMembers {
 		let members = this.GuildMemberStore.getMembers(guildId);
 		if (guildId != roleId) members = members.filter(m => m.roles.includes(role.id));
 
-		let popout = $(PluginUtilities.formatString(this.popout, {className: `${DiscordModules.PopoutClasses.popout} ${DiscordModules.PopoutClasses.noArrow}`, memberCount: members.length}));
+		let popout = $(PluginUtilities.formatString(this.popout, {className: DiscordClasses.Popouts.popout.add(DiscordClasses.Popouts.noArrow), memberCount: members.length}));
 		let searchInput = popout.find('input');
 		searchInput.on("keyup", () => {
 			let items = popout[0].querySelectorAll(".role-member");

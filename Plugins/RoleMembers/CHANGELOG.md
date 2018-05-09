@@ -1,5 +1,9 @@
 # RoleMembers Changelog
 
+### 0.0.4
+
+ - Minor performance improvement
+
 ### 0.0.3
 
  - Fix for discord update

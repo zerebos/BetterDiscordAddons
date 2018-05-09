@@ -11,21 +11,20 @@ class HideIconBadge {
 
 	constructor() {
 		this.initialized = false;
-		this.cancels = [];
 	}
 	
-	load(){}
-	unload(){}
+	load() {}
+	unload() {}
 	
-	start(){
-		var libraryScript = document.getElementById('zeresLibraryScript');
-		if (!window.ZeresLibrary || window.ZeresLibrary.isOutdated) {
+	start() {
+        let libraryScript = document.getElementById('zeresLibraryScript');
+		if (!libraryScript || (window.ZeresLibrary && window.ZeresLibrary.isOutdated)) {
 			if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
 			libraryScript = document.createElement("script");
 			libraryScript.setAttribute("type", "text/javascript");
 			libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
 			libraryScript.setAttribute("id", "zeresLibraryScript");
-			document.head.appendChild(libraryScript);
+            document.head.appendChild(libraryScript);
 		}
 
 		if (window.ZeresLibrary) this.initialize();
@@ -33,7 +32,7 @@ class HideIconBadge {
 	}
 
 	stop() {
-		for (let c of this.cancels) c();
+		Patcher.unpatchAll(this.getName());
 	}
 
 	initialize() {
@@ -42,14 +41,14 @@ class HideIconBadge {
 		let ElectronModule = InternalUtilities.WebpackModules.findByUniqueProperties(["setBadge"]);
 
 		ElectronModule.setBadge(0);
-		this.cancels.push(InternalUtilities.monkeyPatch(ElectronModule, "setBadge", {before: ({methodArguments}) => {
+		Patcher.before(this.getName(), ElectronModule, "setBadge", (thisObject, methodArguments) => {
 			methodArguments[0] = 0;
-		}}));
+		});
 
 		ElectronModule.setSystemTrayIcon("DEFAULT");
-		this.cancels.push(InternalUtilities.monkeyPatch(ElectronModule, "setSystemTrayIcon", {before: ({methodArguments}) => {
+		Patcher.before(this.getName(), ElectronModule, "setSystemTrayIcon", (thisObject, methodArguments) => {
 			methodArguments[0] === "UNREAD" ? methodArguments[0] = "DEFAULT" : void 0;
-		}}));
+		});
 		
 		PluginUtilities.showToast(this.getName() + " " + this.getVersion() + " has started.");
 		this.initialized = true;

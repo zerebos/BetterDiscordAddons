@@ -1,5 +1,11 @@
 # PermissionsViewer Changelog
 
+### 0.0.17
+
+ - Fix PV preventing some users from managing guilds
+ - Performance boost
+ - Fix context menu not showing
+
 ### 0.0.16
 
  - Fix for compatibility with other plugins

@@ -1,5 +1,9 @@
 # BetterFormattingRedux Changelog
 
+### 2.2.8
+
+ - Performance improvements
+
 ### 2.2.7
 
  - Fix for discord update

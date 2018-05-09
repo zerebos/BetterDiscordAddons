@@ -6,7 +6,7 @@ class ImageToClipboard {
 	getName() { return "ImageToClipboard"; }
 	getShortName() { return "i2c"; }
 	getDescription() { return "Copies images (png/jpg) directly to clipboard. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.2.12"; }
+	getVersion() { return "0.2.13"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -25,14 +25,14 @@ class ImageToClipboard {
 	unload() {}
 	
 	start() {
-		var libraryScript = document.getElementById('zeresLibraryScript');
-		if (!window.ZeresLibrary || window.ZeresLibrary.isOutdated) {
+        let libraryScript = document.getElementById('zeresLibraryScript');
+		if (!libraryScript || (window.ZeresLibrary && window.ZeresLibrary.isOutdated)) {
 			if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
 			libraryScript = document.createElement("script");
 			libraryScript.setAttribute("type", "text/javascript");
 			libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
 			libraryScript.setAttribute("id", "zeresLibraryScript");
-			document.head.appendChild(libraryScript);
+            document.head.appendChild(libraryScript);
 		}
 
 		if (window.ZeresLibrary) this.initialize();
@@ -117,7 +117,7 @@ class ImageToClipboard {
 			}
 		}
 
-		if (elem.hasClass(DiscordModules.ContextMenuClasses.contextMenu)) {
+		if (elem.hasClass(DiscordClasses.ContextMenu.contextMenu)) {
 			this.bindMenu(elem[0]);
 		}
 

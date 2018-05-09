@@ -6,7 +6,7 @@ class BetterFormattingRedux {
 	getName() { return "BetterFormattingRedux"; }
 	getShortName() { return "BFRedux"; }
 	getDescription() { return "Enables different types of formatting in standard Discord chat. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "2.2.7"; }
+	getVersion() { return "2.2.8"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -334,14 +334,14 @@ class BetterFormattingRedux {
 	unload() {}
 	
 	start() {
-		var libraryScript = document.getElementById('zeresLibraryScript');
-		if (!window.ZeresLibrary || window.ZeresLibrary.isOutdated) {
+        let libraryScript = document.getElementById('zeresLibraryScript');
+		if (!libraryScript || (window.ZeresLibrary && window.ZeresLibrary.isOutdated)) {
 			if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
 			libraryScript = document.createElement("script");
 			libraryScript.setAttribute("type", "text/javascript");
 			libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
 			libraryScript.setAttribute("id", "zeresLibraryScript");
-			document.head.appendChild(libraryScript);
+            document.head.appendChild(libraryScript);
 		}
 
 		if (window.ZeresLibrary) this.initialize();
@@ -388,9 +388,8 @@ class BetterFormattingRedux {
 		if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element) || !this.initialized) return;
 
 		var elem = e.addedNodes[0];
-		
-		if (elem.querySelector(`.${DiscordModules.TextareaClasses.textArea}`) && this.initialized) {
-			var textarea = elem.querySelector(`.${DiscordModules.TextareaClasses.textArea}`);
+		var textarea = elem.querySelector(DiscordSelectors.Textarea.textArea);
+		if (textarea && this.initialized) {
 			this.addToolbar($(textarea));
 		}
 	}
@@ -608,7 +607,7 @@ class BetterFormattingRedux {
 	
 	setupToolbar() {
 		$(".bf-toolbar").remove();
-		$(`.${DiscordModules.TextareaClasses.channelTextArea} textarea`).each((index, elem) => {
+		$(`${DiscordSelectors.Textarea.channelTextArea} textarea`).each((index, elem) => {
 			this.addToolbar($(elem));
 		});
 	}

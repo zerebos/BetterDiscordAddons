@@ -11,21 +11,20 @@ class HideDisabledEmojis {
 
 	constructor() {
         this.initialized = false;
-        this.cancels = [];
     }
 	
 	load() {}
     unload() {}
 	
 	start() {
-		var libraryScript = document.getElementById('zeresLibraryScript');
-		if (!window.ZeresLibrary || window.ZeresLibrary.isOutdated) {
+        let libraryScript = document.getElementById('zeresLibraryScript');
+		if (!libraryScript || (window.ZeresLibrary && window.ZeresLibrary.isOutdated)) {
 			if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
 			libraryScript = document.createElement("script");
 			libraryScript.setAttribute("type", "text/javascript");
 			libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
 			libraryScript.setAttribute("id", "zeresLibraryScript");
-			document.head.appendChild(libraryScript);
+            document.head.appendChild(libraryScript);
 		}
 
 		if (window.ZeresLibrary) this.initialize();
@@ -37,13 +36,13 @@ class HideDisabledEmojis {
 
         let EmojiInfo = InternalUtilities.WebpackModules.findByUniqueProperties(['isEmojiDisabled']);
         let EmojiPicker = InternalUtilities.WebpackModules.findByDisplayName('EmojiPicker');
-        this.cancels.push(InternalUtilities.monkeyPatch(EmojiInfo, "isEmojiFiltered", {after: (data) => {
-            data.returnValue = data.returnValue || EmojiInfo.isEmojiDisabled(data.methodArguments[0], data.methodArguments[1]);
-        }}));
+        Patcher.after(this.getName(), EmojiInfo, "isEmojiFiltered", (thisObject, methodArguments, returnValue) => {
+            return returnValue || EmojiInfo.isEmojiDisabled(methodArguments[0], methodArguments[1]);
+        });
 
-        this.cancels.push(InternalUtilities.monkeyPatch(EmojiPicker.prototype, "render", {before: (data) => {
-            let cats = data.thisObject.categories;
-            let filtered = data.thisObject.computeMetaData();
+        Patcher.before(this.getName(), EmojiPicker.prototype, "render", (thisObject) => {
+            let cats = thisObject.categories;
+            let filtered = thisObject.computeMetaData();
             let newcats = {};
 
             for (let c of filtered) newcats[c.category] ? newcats[c.category] += 1 : newcats[c.category] = 1;
@@ -55,18 +54,18 @@ class HideDisabledEmojis {
                     cat.offsetTop = i * 32;
                     i += newcats[cat.category] + 1;
                 }
-                data.thisObject.categoryOffsets[cat.category] = cat.offsetTop;
+                thisObject.categoryOffsets[cat.category] = cat.offsetTop;
             }
 
             cats.sort((a,b) => a.offsetTop - b.offsetTop);
-        }}));
+        });
 
         PluginUtilities.showToast(this.getName() + " " + this.getVersion() + " has started.");
         this.initialized = true;
 	}
 	
     stop() {
-       for (let cancel of this.cancels) cancel();
+       Patcher.unpatchAll(this.getName());
     }
 
 }

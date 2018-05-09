@@ -4,7 +4,7 @@ class BDContextMenu {
 	getName() { return "BDContextMenu"; }
 	getShortName() { return "BDContextMenu"; }
 	getDescription() { return "Adds BD shortcuts to the settings context menu. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.9"; }
+	getVersion() { return "0.0.10"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -18,14 +18,14 @@ class BDContextMenu {
 	unload() {}
 	
 	start() {
-		var libraryScript = document.getElementById('zeresLibraryScript');
-		if (!window.ZeresLibrary || window.ZeresLibrary.isOutdated) {
+        let libraryScript = document.getElementById('zeresLibraryScript');
+		if (!libraryScript || (window.ZeresLibrary && window.ZeresLibrary.isOutdated)) {
 			if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
 			libraryScript = document.createElement("script");
 			libraryScript.setAttribute("type", "text/javascript");
 			libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
 			libraryScript.setAttribute("id", "zeresLibraryScript");
-			document.head.appendChild(libraryScript);
+            document.head.appendChild(libraryScript);
 		}
 
 		if (window.ZeresLibrary) this.initialize();
@@ -197,7 +197,7 @@ class BDContextMenu {
             }
         });
         observer.observe(document.querySelector('.app'), {childList: true, subtree: true});
-        $(DiscordSelectors.AccountDetails.container.child("div").child(DiscordSelectors.AccountDetails.button)).click();
+        document.querySelector(DiscordSelectors.AccountDetails.container.child("div").child(DiscordSelectors.AccountDetails.button)).click();
     }
     
 }

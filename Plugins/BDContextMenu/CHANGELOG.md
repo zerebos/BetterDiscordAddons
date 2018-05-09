@@ -1,5 +1,9 @@
 # BDContextMenu Changelog
 
+### 0.0.10
+
+ - Fix a bug where menus wouldn't open
+
 ### 0.0.9
 
  - Switch to new class style

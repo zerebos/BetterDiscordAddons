@@ -4,7 +4,7 @@ class AccountDetailsPlus {
 	getName() { return "AccountDetailsPlus"; }
 	getShortName() { return "acp"; }
 	getDescription() { return "Lets you view popout, nickname and more from your account panel at the bottom. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.3"; }
+	getVersion() { return "0.0.4"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -32,59 +32,30 @@ class AccountDetailsPlus {
     unload() {}
     
     saveSettings() { PluginUtilities.saveSettings(this.getShortName(), this.settings); }
-    loadSettings() { PluginUtilities.checkForUpdate(this.getName(), this.getVersion()); }
+    loadSettings() { this.settings = PluginUtilities.loadSettings(this.getShortName(), this.defaultSettings); }
 	
 	start() {
-		var libraryScript = document.getElementById('zeresLibraryScript');
-		if (!window.ZeresLibrary || window.ZeresLibrary.isOutdated) {
+        let libraryScript = document.getElementById('zeresLibraryScript');
+		if (!libraryScript || (window.ZeresLibrary && window.ZeresLibrary.isOutdated)) {
 			if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
 			libraryScript = document.createElement("script");
 			libraryScript.setAttribute("type", "text/javascript");
 			libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
 			libraryScript.setAttribute("id", "zeresLibraryScript");
-			document.head.appendChild(libraryScript);
+            document.head.appendChild(libraryScript);
 		}
 
 		if (window.ZeresLibrary) this.initialize();
 		else libraryScript.addEventListener("load", () => { this.initialize(); });
 	}
 	
-	initialize() {
-        /*
-            I feel I should explain why the filter is done this way. Here's the thing,
-            FluxContainer(t) has different wrappers for different things. In this case,
-            I want to get the one wrapped for the UserPopout. This is easily done (with
-            the current packages) as webpackJsonp([],{},[1221]). But obviously this isn't
-            sustainable because the order and numbering of modules can and will change.
-            After looking through the other wrapped FluxContainers, the one for UserPopout
-            is the only one that is a class (can be created with new keyword as opposed
-            to a function) *and* is looking for a user object. So by attempting (and 
-            failing) to instantiate the object, then checking the error to see if the 
-            module required the user object, we can relatively safely say this is the 
-            correct module for UserPopout.
-        
-        this.FluxContainer = InternalUtilities.WebpackModules.find(m => {
-            try { return m.displayName == "FluxContainer(t)" && !(new m()); }
-            catch (e) { return e.toString().includes("user"); }
-        });
-		*/
-		
-		this.FluxContainer = InternalUtilities.WebpackModules.find(m => m.displayName == "FluxContainer(SubscribeGuildMembersContainer(t))");
-
+	initialize() {		
+        PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
         this.loadSettings();
-        this.settings = PluginUtilities.loadSettings(this.getShortName(), this.defaultSettings);
-        this.SelectedGuildStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getLastSelectedGuildId']);
-        this.GuildMemberStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getMember']);
-        this.UserStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getCurrentUser']);
-        this.PopoutManager = InternalUtilities.WebpackModules.findByUniqueProperties(['openPopout']);
-        this.KeyGenerator = InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byCode(/"binary"/));
-        this.React = InternalUtilities.WebpackModules.findByUniqueProperties(['createElement']);
-        this.SelectedGuildStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getLastSelectedGuildId']);
-        this.SelectedChannelStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getLastSelectedChannelId']);
-
-        this.currentUser = this.UserStore.getCurrentUser();
-
-        this.popoutWrapper = ReactUtilities.getReactProperty(document.querySelector(`.${DiscordModules.AccountDetailsClasses.container} .avatar-small`), "return.return.return.return.stateNode");
+        
+        this.FluxContainer = InternalUtilities.WebpackModules.find(m => m.displayName == "FluxContainer(SubscribeGuildMembersContainer(t))");
+        this.currentUser = DiscordModules.UserStore.getCurrentUser();
+        this.popoutWrapper = ReactUtilities.getReactProperty(document.querySelector(DiscordSelectors.AccountDetails.container + " .avatar-small"), "return.return.return.return.stateNode");
         this.originalRender = this.popoutWrapper.props.render;
      
         this.activateShit();
@@ -102,34 +73,34 @@ class AccountDetailsPlus {
     }
 
     activateShit() {
-        $(`.${DiscordModules.AccountDetailsClasses.container} .${DiscordModules.AccountDetailsClasses.nameTag}`).off('.' + this.getShortName());
-        $(`.${DiscordModules.AccountDetailsClasses.container} .avatar-small`).off('.' + this.getShortName());
+        $(DiscordSelectors.AccountDetails.container + DiscordSelectors.AccountDetails.nameTag).off('.' + this.getShortName());
+        $(DiscordSelectors.AccountDetails.container + " .avatar-small").off('.' + this.getShortName());
         $(document).off('.' + this.getShortName());
-        this.usernameCSS = `.${DiscordModules.AccountDetailsClasses.container} .${DiscordModules.AccountDetailsClasses.nameTag} { cursor: pointer; }`;
+        this.usernameCSS = DiscordSelectors.AccountDetails.container + DiscordSelectors.AccountDetails.nameTag + "{ cursor: pointer; }";
         BdApi.clearCSS(this.getName() + "-css");
-        document.querySelector(`.${DiscordModules.AccountDetailsClasses.container} .username`).textContent = this.currentUser.username;
+        document.querySelector(DiscordSelectors.AccountDetails.container.descend(".username")).textContent = this.currentUser.username;
         
         if (this.settings.nickname.showNickname || this.settings.nickname.oppositeOnHover) {
            $(document).on('mousemove.' + this.getShortName(), (e) => { this.adjustNickname(e); });
         }
         if (this.settings.popout.username) {
             BdApi.injectCSS(this.getName() + "-css", this.usernameCSS);
-            $(`.${DiscordModules.AccountDetailsClasses.container} .${DiscordModules.AccountDetailsClasses.nameTag}`).on('mousedown.' + this.getShortName(), () => { this.popoutOpen = this.popoutWrapper.state.isOpen; });
-            $(`.${DiscordModules.AccountDetailsClasses.container} .${DiscordModules.AccountDetailsClasses.nameTag}`).on('click.' + this.getShortName(), (e) => { if (!this.popoutOpen) this.showUserPopout(e); });
+            $(DiscordSelectors.AccountDetails.container + DiscordSelectors.AccountDetails.nameTag).on('mousedown.' + this.getShortName(), () => { this.popoutOpen = this.popoutWrapper.state.isOpen; });
+            $(DiscordSelectors.AccountDetails.container + DiscordSelectors.AccountDetails.nameTag).on('click.' + this.getShortName(), (e) => { if (!this.popoutOpen) this.showUserPopout(e); });
         }
         if (this.settings.popout.avatar) {
-            $(`.${DiscordModules.AccountDetailsClasses.container} .${DiscordModules.AccountDetailsClasses.nameTag}`).on('mousedown.' + this.getShortName(), () => { this.popoutOpen = this.popoutWrapper.state.isOpen; });
-            $(`.${DiscordModules.AccountDetailsClasses.container} .avatar-small`).on('click.' + this.getShortName(), (e) => { if (!this.popoutOpen) this.showUserPopout(e); });
+            $(DiscordSelectors.AccountDetails.container + DiscordSelectors.AccountDetails.nameTag).on('mousedown.' + this.getShortName(), () => { this.popoutOpen = this.popoutWrapper.state.isOpen; });
+            $(DiscordSelectors.AccountDetails.container + " .avatar-small").on('click.' + this.getShortName(), (e) => { if (!this.popoutOpen) this.showUserPopout(e); });
         }
         if (this.settings.statusPicker.username) {
-            $(`.${DiscordModules.AccountDetailsClasses.container} .${DiscordModules.AccountDetailsClasses.nameTag}`).on('mousedown.' + this.getShortName(), () => { this.popoutOpen = this.popoutWrapper.state.isOpen; });
-            $(`.${DiscordModules.AccountDetailsClasses.container} .${DiscordModules.AccountDetailsClasses.nameTag}`).on('contextmenu.' + this.getShortName(), (e) => {
+            $(DiscordSelectors.AccountDetails.container + DiscordSelectors.AccountDetails.nameTag).on('mousedown.' + this.getShortName(), () => { this.popoutOpen = this.popoutWrapper.state.isOpen; });
+            $(DiscordSelectors.AccountDetails.container + DiscordSelectors.AccountDetails.nameTag).on('contextmenu.' + this.getShortName(), (e) => {
                 if (!this.popoutOpen) this.showStatusPicker(e);
             });
         }
         if (this.settings.statusPicker.avatar) {
-            $(`.${DiscordModules.AccountDetailsClasses.container} .avatar-small`).on('mousedown.' + this.getShortName(), () => { this.popoutOpen = this.popoutWrapper.state.isOpen; });
-            $(`.${DiscordModules.AccountDetailsClasses.container} .avatar-small`).on('contextmenu.' + this.getShortName(), (e) => {
+            $(DiscordSelectors.AccountDetails.container + " .avatar-small").on('mousedown.' + this.getShortName(), () => { this.popoutOpen = this.popoutWrapper.state.isOpen; });
+            $(DiscordSelectors.AccountDetails.container + " .avatar-small").on('contextmenu.' + this.getShortName(), (e) => {
                 if (!this.popoutOpen) this.showStatusPicker(e);
             });
         }
@@ -137,13 +108,13 @@ class AccountDetailsPlus {
 
     adjustNickname(e) {
         if (!e || !e.target || !(e.target instanceof Element)) return;
-        let accountDetails = document.querySelector(`.${DiscordModules.AccountDetailsClasses.container}`);
+        let accountDetails = document.querySelector(DiscordSelectors.AccountDetails.container);
         if (!accountDetails) return;
 
         let isHovering = accountDetails.contains(e.target);
         let nameElement = accountDetails.querySelector('.username');
 
-        let nick = this.GuildMemberStore.getNick(this.SelectedGuildStore.getGuildId(), this.currentUser.id);
+        let nick = DiscordModules.GuildMemberStore.getNick(DiscordModules.SelectedGuildStore.getGuildId(), this.currentUser.id);
         nick = nick ? nick : this.currentUser.username;
 
         if (isHovering && this.settings.nickname.oppositeOnHover) {
@@ -164,7 +135,7 @@ class AccountDetailsPlus {
     showStatusPicker(e) {
         e.preventDefault();
         e.stopPropagation();
-        e.target = e.currentTarget = e.toElement = e.delegateTarget = document.querySelector(`.${DiscordModules.AccountDetailsClasses.container} .avatar-small`);
+        e.target = e.currentTarget = e.toElement = e.delegateTarget = document.querySelector(DiscordSelectors.AccountDetails.container + " .avatar-small");
         this.setRender(this.originalRender, {position: "top-left", animationType: "spring"});
         this.popoutWrapper.toggle(e);
     }
@@ -172,11 +143,11 @@ class AccountDetailsPlus {
     showUserPopout(e) {
         e.preventDefault();
         e.stopPropagation();
-        e.target = e.currentTarget = e.toElement = e.delegateTarget = document.querySelector(`.${DiscordModules.AccountDetailsClasses.container}`);
+        e.target = e.currentTarget = e.toElement = e.delegateTarget = document.querySelector(DiscordSelectors.AccountDetails.container);
         this.setRender((props) => {
-            let guild = this.SelectedGuildStore.getGuildId();
-            let channel = this.SelectedChannelStore.getChannelId();
-            return this.React.createElement(this.FluxContainer, Object.assign({}, props, {
+            let guild = DiscordModules.SelectedGuildStore.getGuildId();
+            let channel = DiscordModules.SelectedChannelStore.getChannelId();
+            return DiscordModules.React.createElement(this.FluxContainer, Object.assign({}, props, {
                 user: this.currentUser,
                 guildId: guild,
                 channelId: channel

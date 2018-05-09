@@ -4,7 +4,7 @@ class PermissionsViewer {
 	getName() { return "PermissionsViewer"; }
 	getShortName() { return "PermissionsViewer"; }
 	getDescription() { return "Allows you to view a user's permissions. Thanks to Noodlebox for the idea! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.16"; }
+	getVersion() { return "0.0.17"; }
 	getAuthor() { return "Zerebos"; }
 	
 	constructor() {
@@ -362,7 +362,6 @@ class PermissionsViewer {
 			for (let change in changes) this.observeContextMenus(changes[change]);
 		});
 
-		this.cancels = [];
 		this.cancelUserPopout = () => {};
 	}
 	
@@ -378,14 +377,14 @@ class PermissionsViewer {
 	}
 	
 	start() {
-		var libraryScript = document.getElementById('zeresLibraryScript');
-		if (!window.ZeresLibrary || window.ZeresLibrary.isOutdated) {
+        let libraryScript = document.getElementById('zeresLibraryScript');
+		if (!libraryScript || (window.ZeresLibrary && window.ZeresLibrary.isOutdated)) {
 			if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
 			libraryScript = document.createElement("script");
 			libraryScript.setAttribute("type", "text/javascript");
 			libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
 			libraryScript.setAttribute("id", "zeresLibraryScript");
-			document.head.appendChild(libraryScript);
+            document.head.appendChild(libraryScript);
 		}
 
 		if (window.ZeresLibrary) this.initialize();
@@ -409,6 +408,15 @@ class PermissionsViewer {
 		this.UserStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getCurrentUser']);
 		this.PermissionsCalc = InternalUtilities.WebpackModules.findByUniqueProperties(['getHighestRole']);
 		this.ChannelStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getChannels', 'getDMFromUserId']);
+		this.DiscordPerms = Object.assign({}, DiscordModules.DiscordConstants.Permissions);
+		if (this.DiscordPerms.SEND_TSS_MESSAGES) {
+			this.DiscordPerms.SEND_TTS_MESSAGES = this.DiscordPerms.SEND_TSS_MESSAGES;
+			delete this.DiscordPerms.SEND_TSS_MESSAGES;
+		}
+		if (this.DiscordPerms.MANAGE_GUILD) {
+			this.DiscordPerms.MANAGE_SERVER = this.DiscordPerms.MANAGE_GUILD;
+			delete this.DiscordPerms.MANAGE_GUILD;
+		}
 
 		if (this.settings.plugin.popouts) this.bindPopouts();
 		if (this.settings.plugin.contextMenus) this.bindContextMenus();
@@ -442,23 +450,13 @@ class PermissionsViewer {
 			let permBlock = $(PluginUtilities.formatString(pViewer.listHTML, {label: pViewer.strings.popout.label}));
 			let memberPerms = permBlock.find('.member-perms');
 			let strings = InternalUtilities.WebpackModules.findByUniqueProperties(["Messages"]).Messages;
-			let DiscordPerms = DiscordModules.DiscordConstants.Permissions;
-			if (DiscordPerms.SEND_TSS_MESSAGES) {
-				DiscordPerms.SEND_TTS_MESSAGES = DiscordPerms.SEND_TSS_MESSAGES;
-				delete DiscordPerms.SEND_TSS_MESSAGES;
-			}
-			if (DiscordPerms.MANAGE_GUILD) {
-				DiscordPerms.MANAGE_SERVER = DiscordPerms.MANAGE_GUILD;
-				delete DiscordPerms.MANAGE_GUILD;
-			}
-			
 
 			for (let r = 0; r < userRoles.length; r++) {
 				let role = userRoles[r];
 				perms = perms | guild.roles[role].permissions;
-				for (let perm in DiscordPerms) {
+				for (let perm in pViewer.DiscordPerms) {
 					var permName = strings[perm];
-					let hasPerm = (perms & DiscordPerms[perm]) == DiscordPerms[perm];
+					let hasPerm = (perms & pViewer.DiscordPerms[perm]) == pViewer.DiscordPerms[perm];
 					if (hasPerm && !memberPerms.find(`[data-name="${permName}"]`).length) {
 						let element = $(pViewer.itemHTML);
 						let roleColor = guild.roles[role].colorString;
@@ -485,9 +483,10 @@ class PermissionsViewer {
 				pViewer.showModal(pViewer.createModal(name, user, guild));
 			});
 		};
-		this.cancelUserPopout = InternalUtilities.monkeyPatch(UserPopout.prototype, "componentDidMount", {after: ({thisObject}) => {
+
+		this.cancelUserPopout = Patcher.after(this.getName(), UserPopout.prototype, "componentDidMount", (thisObject) => {
 			let bound = popoutMount.bind(thisObject); bound();
-		}});
+		});
 		
 	}
 
@@ -527,7 +526,7 @@ class PermissionsViewer {
 			this.showModal(this.createModal(name, user, guild));
 			
 		}});
-		$(context).find(`.${DiscordModules.ContextMenuClasses.item}`).first().after(item.element);
+		$(context).find(DiscordSelectors.ContextMenu.item).first().after(item.element);
 
 	}
 
@@ -563,15 +562,6 @@ class PermissionsViewer {
 		}
 
 		//let channelOverrides = this.getSelectedChannel().permissionOverwrites;
-		let DiscordPerms = DiscordModules.DiscordConstants.Permissions;
-		if (DiscordPerms.SEND_TSS_MESSAGES) {
-			DiscordPerms.SEND_TTS_MESSAGES = DiscordPerms.SEND_TSS_MESSAGES;
-			delete DiscordPerms.SEND_TSS_MESSAGES;
-		}
-		if (DiscordPerms.MANAGE_GUILD) {
-			DiscordPerms.MANAGE_SERVER = DiscordPerms.MANAGE_GUILD;
-			delete DiscordPerms.MANAGE_GUILD;
-		}
 		let strings = InternalUtilities.WebpackModules.findByUniqueProperties(["Messages"]).Messages;
 		
 		for (let role of userRoles) {
@@ -589,9 +579,9 @@ class PermissionsViewer {
 				// }
 				let permList = modal.find('.perm-scroller');
 				permList.empty();
-				for (let perm in DiscordPerms) {
+				for (let perm in this.DiscordPerms) {
 					let element = $(this.modalItem);
-					let hasPerm = (perms & DiscordPerms[perm]) == DiscordPerms[perm];
+					let hasPerm = (perms & this.DiscordPerms[perm]) == this.DiscordPerms[perm];
 					if (hasPerm) {
 						element.addClass('allowed');
 						element.prepend(this.permAllowedIcon);
