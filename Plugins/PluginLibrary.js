@@ -9,11 +9,12 @@ var Logger = class Logger {
      * Logs an error using a collapsed error group with stacktrace.
      * 
      * @param {string} module - Name of the calling module.
-     * @param {string|Error} message - Message or error to have logged.
+     * @param {string} message - Message or error to have logged.
+	 * @param {Error} error - Optional error to log with the message.
      */
-    static err(module, message) {
-		if (message instanceof Error) this.log(module, `${message.name}: ${message.message}`, "error");
-        else this.log(module, message, "error");
+    static err(module, message, error) {
+		if (error) return console.error(`%c[${module}]%c ${message}\n%c`, 'color: #3a71c1; font-weight: 700;', 'color: red; font-weight: 700;', 'color: red;', error);
+		else this.log(module, message, "error");
     }
 
     /**
@@ -58,12 +59,7 @@ var Logger = class Logger {
 
 };
 
-/**
- * Different types of logging.
- * @readonly
- * @enum {string}
- */
-Logger.LogTypes = {
+global.Logger.LogTypes = {
     /** Alias for error */
     err: "error",
     error: "error",
@@ -1109,7 +1105,7 @@ var Patcher = class Patcher {
                     superPatch.callback(this, arguments);
                 }
                 catch (err) {
-                    Logger.err("Patcher", `Could not fire before callback for ${superPatch.caller}`);
+                    Logger.err("Patcher", `Could not fire before callback of ${patch.functionName} for ${superPatch.caller}`, err);
                 }
             }
 
@@ -1118,20 +1114,22 @@ var Patcher = class Patcher {
             else {
                 for (const insteadPatch of insteads) {
                     try {
-                        returnValue = insteadPatch.callback(this, arguments);
+						const tempReturn = insteadPatch.callback(this, arguments);
+                        if (typeof(tempReturn) !== "undefined") returnValue = tempReturn;
                     }
                     catch (err) {
-                        Logger.err("Patcher", `Could not fire instead callback for ${insteadPatch.caller}`);
+                        Logger.err("Patcher", `Could not fire instead callback of ${patch.functionName} for ${insteadPatch.caller}`, err);
                     }
                 }
             }
 
             for (const slavePatch of patch.children.filter(c => c.type === 'after')) {
                 try {
-                    returnValue = slavePatch.callback(this, arguments, returnValue);
+					const tempReturn = slavePatch.callback(this, arguments, returnValue);
+                    if (typeof(tempReturn) !== "undefined") returnValue = tempReturn;
                 }
                 catch (err) {
-                    Logger.err("Patcher", `Could not fire after callback for ${slavePatch.caller}`);
+                    Logger.err("Patcher", `Could not fire after callback of ${patch.functionName} for ${slavePatch.caller}`, err);
                 }
             }
             return returnValue;
@@ -1152,7 +1150,7 @@ var Patcher = class Patcher {
             revert: () => { // Calling revert will destroy any patches added to the same module after this
                 patch.module[patch.functionName] = patch.originalFunction;
                 patch.proxyFunction = null;
-                patch.slaves = patch.supers = [];
+                patch.children = [];
             },
             counter: 0,
             children: []
@@ -1255,7 +1253,11 @@ var Patcher = class Patcher {
             callback,
             unpatch: () => {
                 patch.children.splice(patch.children.findIndex(cpatch => cpatch.id === child.id && cpatch.type === type), 1);
-                if (patch.children.length <= 0) this.patches.splice(this.patches.findIndex(p => p.module == module && p.functionName == functionName), 1);
+                if (patch.children.length <= 0) {
+					let patchNum = this.patches.findIndex(p => p.module == module && p.functionName == functionName);
+					this.patches[patchNum].revert();
+					this.patches.splice(patchNum, 1);
+				}
             }
         };
         patch.children.push(child);
