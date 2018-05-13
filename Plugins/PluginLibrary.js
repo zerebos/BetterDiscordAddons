@@ -2922,3 +2922,7 @@ Patcher.unpatchAll("ZeresLibrary");
 Patcher.before("ZeresLibrary", jQuery.fn, "find", (thisObject, args) => {
 	if (args.length && args[0] instanceof DOMUtilities.Selector) args[0] = args[0].toString();
 });
+
+Patcher.before("ZeresLibrary", global, "$", (thisObject, args) => {
+	if (args.length && args[0] instanceof DOMUtilities.Selector) args[0] = args[0].toString();
+});
