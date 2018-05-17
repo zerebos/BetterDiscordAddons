@@ -13,7 +13,7 @@ var Logger = class Logger {
 	 * @param {Error} error - Optional error to log with the message.
      */
     static err(module, message, error) {
-		if (error) return console.error(`%c[${module}]%c ${message}\n%c`, 'color: #3a71c1; font-weight: 700;', 'color: red; font-weight: 700;', 'color: red;', error);
+		if (error) return console.error(`%c[${module}]%c ${message}\n\n%c`, 'color: #3a71c1; font-weight: 700;', 'color: red; font-weight: 700;', 'color: red;', error);
 		else this.log(module, message, "error");
     }
 
@@ -1110,7 +1110,7 @@ var Patcher = class Patcher {
             }
 
             const insteads = patch.children.filter(c => c.type === 'instead');
-            if (!insteads.length) returnValue = patch.originalFunction.apply(this, arguments);
+            if (!insteads.length) returnValue = patch.originalFunction.apply(this, arguments, patch.originalFunction);
             else {
                 for (const insteadPatch of insteads) {
                     try {
@@ -1166,11 +1166,15 @@ var Patcher = class Patcher {
 
     /**
      * A callback that modifies method logic. This callback is called on each call of the original method and is provided all data about original call. Any of the data can be modified if necessary, but do so wisely.
+     * 
+     * The third argument for the callback will be `undefined` for `before` patches. `originalFunction` for `instead` patches and `returnValue` for `after` patches.
+     * 
      * @callback Patcher~patchCallback
      * @param {object} thisObject - `this` in the context of the original function.
      * @param {arguments} arguments - The original arguments of the original function.
-     * @param {*} returnValue - The return value of the original function. This is only present for `after` patches.
-     * @return {*} Makes sense only when used as `instead` parameter in {@link Patcher.instead}. If something other than `undefined` is returned, the returned value replaces the value of `returnValue`. If used for `before` or `after`, the return value is ignored.
+     * @param {function} originalFunction - The original function from the module. This the third argument for `instead` patches.
+     * @param {*} returnValue - The return value of the original function. This the third argument for `after` patches.
+     * @return {*} Makes sense only when using an `instead` or `after` patch. If something other than `undefined` is returned, the returned value replaces the value of `returnValue`. If used for `before` the return value is ignored.
      */
 
     /**
