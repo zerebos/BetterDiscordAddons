@@ -208,7 +208,8 @@ ColorUtilities.rgbToAlpha = function(color, alpha) {
 var DiscordClassModules = {
 	get ContextMenu() {return InternalUtilities.WebpackModules.findByUniqueProperties(['itemToggle']);},
 	get Scrollers() {return InternalUtilities.WebpackModules.findByUniqueProperties(['scrollerWrap']);},
-	get AccountDetails() {return Object.assign({}, InternalUtilities.WebpackModules.findByUniqueProperties(['nameTag']), InternalUtilities.WebpackModules.findByUniqueProperties(['accountDetails']));},
+	get AccountDetails() {return Object.assign({}, InternalUtilities.WebpackModules.findByUniqueProperties(['nameTag']),
+													InternalUtilities.WebpackModules.findByUniqueProperties(['accountDetails']));},
 	get Typing() {return InternalUtilities.WebpackModules.findByUniqueProperties(['typing', 'text']);},
 	get UserPopout() {return InternalUtilities.WebpackModules.findByUniqueProperties(['userPopout']);},
 	get PopoutRoles() {return InternalUtilities.WebpackModules.findByUniqueProperties(['roleCircle']);},
@@ -219,7 +220,15 @@ var DiscordClassModules = {
 	get Notices() {return InternalUtilities.WebpackModules.findByUniqueProperties(['noticeInfo']);},
 	get Backdrop() {return InternalUtilities.WebpackModules.findByUniqueProperties(['backdrop']);},
 	get Modals() {return InternalUtilities.WebpackModules.find(m => m.modal && m.inner && !m.header);},
-	get AuditLog() {return InternalUtilities.WebpackModules.findByUniqueProperties(['userHook']);}
+	get AuditLog() {return InternalUtilities.WebpackModules.findByUniqueProperties(['userHook']);},
+	get ChannelList() {return Object.assign({}, InternalUtilities.WebpackModules.findByUniqueProperties(["containerDefault"]),
+												InternalUtilities.WebpackModules.findByUniqueProperties(["nameDefaultText"]),
+												InternalUtilities.WebpackModules.findByUniqueProperties(["channels", "container"]));},
+	get MemberList() {return Object.assign({}, InternalUtilities.WebpackModules.findByUniqueProperties(["member", "memberInner"]),
+												InternalUtilities.WebpackModules.findByUniqueProperties(["members", "membersWrap"]));},
+	get TitleWrap() {return InternalUtilities.WebpackModules.findByUniqueProperties(["titleWrapper"]);},
+	get Titlebar() {return InternalUtilities.WebpackModules.findByUniqueProperties(["titleBar"]);},
+	get Embeds() {return InternalUtilities.WebpackModules.findByUniqueProperties(["embed", "embedAuthor"]);}
 };
 
 DiscordClassModules = GeneralUtilities.memoizeObject(DiscordClassModules);
@@ -306,7 +315,7 @@ var DiscordModules = {
     get UserSettingsUpdater() {return InternalUtilities.WebpackModules.findByUniqueProperties(['updateRemoteSettings']);},
     get OnlineWatcher() {return InternalUtilities.WebpackModules.findByUniqueProperties(['isOnline']);},
     get CurrentUserIdle() {return InternalUtilities.WebpackModules.findByUniqueProperties(['getIdleTime']);},
-    get RelationshipStore() {return InternalUtilities.WebpackModules.findByUniqueProperties(['isBlocked']);},
+    get RelationshipStore() {return InternalUtilities.WebpackModules.findByUniqueProperties(['isBlocked', 'getFriendIDs']);},
     get RelationshipManager() {return InternalUtilities.WebpackModules.findByUniqueProperties(['addRelationship']);},
     get MentionStore() {return InternalUtilities.WebpackModules.findByUniqueProperties(["getMentions"]);},
 
