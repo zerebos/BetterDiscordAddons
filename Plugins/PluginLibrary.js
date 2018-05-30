@@ -423,12 +423,16 @@ var DiscordModules = {
     /* Modals */
     get ModalStack() {return InternalUtilities.WebpackModules.findByUniqueProperties(['push', 'update', 'pop', 'popWithKey']);},
     get UserProfileModals() {return InternalUtilities.WebpackModules.findByUniqueProperties(['fetchMutualFriends', 'setSection']);},
+	get UserProfileModal() {return WebpackModules.getByProps(["fetchMutualFriends", "setSection"]);},
     get ConfirmModal() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byPrototypeFields(['handleCancel', 'handleSubmit', 'handleMinorConfirm']));},
+	get AlertModal() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byPrototypeFields(['handleCancel', 'handleSubmit', 'handleMinorConfirm']));},
+	get ConfirmationModal() {return InternalUtilities.WebpackModules.find(m => m.defaultProps && m.key && m.key() == "confirm-modal");},
 
     /* Popouts */
     get PopoutStack() {return InternalUtilities.WebpackModules.findByUniqueProperties(['open', 'close', 'closeAll']);},
     get PopoutOpener() {return InternalUtilities.WebpackModules.findByUniqueProperties(['openPopout']);},
     get EmojiPicker() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byPrototypeFields(['onHoverEmoji', 'selectEmoji']));},
+	get UserPopout() {return InternalUtilities.WebpackModules.findByDisplayName("FluxContainer(SubscribeGuildMembersContainer(t))");},
 
     /* Context Menus */
     get ContextMenuActions() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byCode(/CONTEXT_MENU_CLOSE/, c => c.close));},
@@ -438,6 +442,7 @@ var DiscordModules = {
 
     /* In-Message Links */
     get ExternalLink() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byCode(/\.trusted\b/));},
+	get TextElement() {return InternalUtilities.WebpackModules.findByUniqueProperties(["Sizes", "Weights"]);},
 
     /* Sort Later FML */
     get ScrollerClasses() {return InternalUtilities.WebpackModules.findByUniqueProperties(['scrollerWrap']);},
@@ -2820,6 +2825,71 @@ PluginUtilities.onSwitchObserver = function(onSwitch) {
 	});
 	switchObserver.observe(document.querySelector('.app'), {childList: true, subtree:true});
 	return switchObserver;
+};
+
+    /**
+     * 
+     * @param {*} title 
+     * @param {*} content 
+     * @param {*} options 
+     */
+PluginUtilities.showConfirmationModal = function(title, content, options = {}) {
+	const {danger = false, confirmText = "Okay", cancelText = "Cancel", onConfirm = () => {}, onCancel = () => {}} = options;
+	DiscordModules.ModalStack.push(function(props) {
+		return DiscordModules.React.createElement(DiscordModules.ConfirmationModal, Object.assign({
+			header: title,
+			red: danger,
+			confirmText: confirmText,
+			cancelText: cancelText,
+			onConfirm: onConfirm,
+			onCancel: onCancel,
+			children: [DiscordModules.TextElement.default({color: DiscordModules.TextElement.Colors.PRIMARY, children: [content]})]
+		}, props));
+	});
+};
+
+    /**
+     * 
+     * @param {*} title 
+     * @param {*} body 
+     */
+ PluginUtilities.showAlertModal = function(title, body) {
+	DiscordModules.ModalStack.push(function(props) {
+		return DiscordModules.React.createElement(DiscordModules.AlertModal, Object.assign({
+			title: title,
+			body: body,
+		}, props));
+	});
+};
+
+PluginUtilities.showUserProfile = function(userId) {
+	return DiscordModules.UserProfileModal.open(userId);
+};
+
+PluginUtilities.showUserPopout = function(target, user, guildId, channelId) {
+	let guild = guildId ? guildId : DiscordModules.SelectedGuildStore.getGuildId();
+	let channel = channelId ? channelId : DiscordModules.SelectedChannelStore.getChannelId();
+	let position = "right";
+	if (target.getBoundingClientRect().right + 250 >= Screen.width) position = "left";
+	DiscordModules.PopoutOpener.openPopout(target, {
+		position: position,
+		offsetX: 0,
+		offsetY: 0,
+		animationType: "default",
+		preventInvert: false,
+		zIndexBoost: 0,
+		closeOnScroll: false,
+		shadow: false,
+		backdrop: false,
+		toggleClose: true,
+		render: (props) => {
+			return DiscordModules.React.createElement(DiscordModules.UserPopout, Object.assign({}, props, {
+				user: user,
+				guildId: guild,
+				channelId: channel
+			}));
+		}
+	}, "ZeresLibrary");
 };
 /* ================== END MODULE ================== */
 
