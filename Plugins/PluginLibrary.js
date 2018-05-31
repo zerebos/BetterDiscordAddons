@@ -214,7 +214,7 @@ var DiscordClassModules = {
 	get UserPopout() {return InternalUtilities.WebpackModules.findByUniqueProperties(['userPopout']);},
 	get PopoutRoles() {return InternalUtilities.WebpackModules.findByUniqueProperties(['roleCircle']);},
 	get UserModal() {return InternalUtilities.WebpackModules.findByUniqueProperties(['profileBadge']);},
-	get Textarea() {return InternalUtilities.WebpackModules.findByUniqueProperties(['channelTextArea']);},
+	get Textarea() {return InternalUtilities.WebpackModules.findByUniqueProperties(['channelTextArea', 'textArea']);},
 	get Popouts() {return InternalUtilities.WebpackModules.findByUniqueProperties(['popouts']);},
 	get Titles() {return InternalUtilities.WebpackModules.findByUniqueProperties(['defaultMarginh5']);},
 	get Notices() {return InternalUtilities.WebpackModules.findByUniqueProperties(['noticeInfo']);},
