@@ -2843,7 +2843,7 @@ PluginUtilities.showConfirmationModal = function(title, content, options = {}) {
 			cancelText: cancelText,
 			onConfirm: onConfirm,
 			onCancel: onCancel,
-			children: [DiscordModules.TextElement.default({color: DiscordModules.TextElement.Colors.PRIMARY, children: [content]})]
+			children: [DiscordModules.TextElement({color: DiscordModules.TextElement.Colors.PRIMARY, children: [content]})]
 		}, props));
 	});
 };
