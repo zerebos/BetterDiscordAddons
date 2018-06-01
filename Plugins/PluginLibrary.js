@@ -1127,7 +1127,7 @@ var Patcher = class Patcher {
             else {
                 for (const insteadPatch of insteads) {
                     try {
-						const tempReturn = insteadPatch.callback(this, arguments, patch.originalFunction);
+						const tempReturn = insteadPatch.callback(this, arguments, patch.originalFunction.bind(this));
                         if (typeof(tempReturn) !== "undefined") returnValue = tempReturn;
                     }
                     catch (err) {
