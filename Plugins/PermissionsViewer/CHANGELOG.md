@@ -1,5 +1,9 @@
 # PermissionsViewer Changelog
 
+### 0.0.18
+
+ - Popout changes
+
 ### 0.0.17
 
  - Fix PV preventing some users from managing guilds

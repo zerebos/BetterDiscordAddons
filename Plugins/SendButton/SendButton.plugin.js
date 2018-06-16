@@ -6,7 +6,7 @@ class SendButton {
 	getName() { return "SendButton"; }
 	getShortName() { return "SendButton"; }
 	getDescription() { return "Adds a clickable send button"; }
-	getVersion() { return "0.0.4"; }
+	getVersion() { return "0.0.5"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -44,7 +44,7 @@ class SendButton {
 	addButton(elem) {
 		if (elem.querySelector(".send-button")) return;
 		var button = $(this.buttonString);
-		$(elem).find('[class*="innerEnabled"]').append(button);
+		$(elem).find(DiscordSelectors.Textarea.inner.toString()).append(button);
 		$(elem).find('[class*="emojiButton-"]').css('margin-right', button.outerWidth() + 10);
 		button.on("click", () => {
 			var textarea = button.siblings('textarea');
@@ -55,14 +55,14 @@ class SendButton {
 	}
 	
 	start(){
-		var libraryScript = document.getElementById('zeresLibraryScript');
-		if (!window.ZeresLibrary || window.ZeresLibrary.isOutdated) {
+        let libraryScript = document.getElementById('zeresLibraryScript');
+		if (!libraryScript || (window.ZeresLibrary && window.ZeresLibrary.isOutdated)) {
 			if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
 			libraryScript = document.createElement("script");
 			libraryScript.setAttribute("type", "text/javascript");
 			libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
 			libraryScript.setAttribute("id", "zeresLibraryScript");
-			document.head.appendChild(libraryScript);
+            document.head.appendChild(libraryScript);
 		}
 
 		if (window.ZeresLibrary) this.initialize();
@@ -87,7 +87,7 @@ class SendButton {
 	
 	observer(e) {
 		if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element) || !this.initialized) return;
-		if (e.addedNodes[0].querySelector('[class*="innerEnabled"]')) {
+		if (e.addedNodes[0].querySelector(DiscordSelectors.Textarea.inner.toString())) {
 			this.addButton(e.addedNodes[0]);
 		}
 	}

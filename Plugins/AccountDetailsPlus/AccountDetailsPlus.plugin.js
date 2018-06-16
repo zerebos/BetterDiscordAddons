@@ -4,7 +4,7 @@ class AccountDetailsPlus {
 	getName() { return "AccountDetailsPlus"; }
 	getShortName() { return "acp"; }
 	getDescription() { return "Lets you view popout, nickname and more from your account panel at the bottom. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.4"; }
+	getVersion() { return "0.0.5"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -53,7 +53,10 @@ class AccountDetailsPlus {
         PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
         this.loadSettings();
         
-        this.FluxContainer = InternalUtilities.WebpackModules.find(m => m.displayName == "FluxContainer(SubscribeGuildMembersContainer(t))");
+        this.FluxContainer = InternalUtilities.WebpackModules.find(m => {
+			try { return m.displayName == "FluxContainer(Component)" && !(new m()); }
+			catch (e) { return e.toString().includes("user"); }
+		});
         this.currentUser = DiscordModules.UserStore.getCurrentUser();
         this.popoutWrapper = ReactUtilities.getReactProperty(document.querySelector(DiscordSelectors.AccountDetails.container + " .avatar-small"), "return.return.return.return.stateNode");
         this.originalRender = this.popoutWrapper.props.render;

@@ -1,5 +1,9 @@
 # AccountDetailsPlus Changelog
 
+### 0.0.5
+
+ - Popout fix
+
 ### 0.0.4
 
  - Code cleanup

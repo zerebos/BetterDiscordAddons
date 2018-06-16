@@ -1,5 +1,10 @@
 # BetterRoleColors Changelog
 
+### 0.7.2
+
+ - Popout changes
+ - Modal changes
+
 ### 0.7.1
 
  - Update to new Patcher (fixes collisions)

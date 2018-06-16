@@ -6,7 +6,7 @@ class ImageToClipboard {
 	getName() { return "ImageToClipboard"; }
 	getShortName() { return "i2c"; }
 	getDescription() { return "Copies images (png/jpg) directly to clipboard. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.2.13"; }
+	getVersion() { return "0.2.14"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -17,7 +17,7 @@ class ImageToClipboard {
 		this.path = require("path");
 		this.fileSystem = require("fs");
 		this.process = require("process");
-		this.link = '<a target="_blank" rel="noreferrer" class="downloadLink-2oSgiF size14-3iUx6q weightMedium-2iZe9B">${modalLabel}</a>';
+		this.link = '<a target="_blank" rel="noreferrer" class="anchor-3Z-8Bb downloadLink-1ywL9o size14-3iUx6q weightMedium-2iZe9B">${modalLabel}</a>';
 		// this.contextItem = '<div class="itemGroup-oViAgA i2c-group"><div class="item-1XYaYf i2c-item"><span>${contextMenuLabel}</span><div class="hint"></div></div></div>';
 	}
 	
@@ -108,12 +108,15 @@ class ImageToClipboard {
 
 		if (elem.hasClass("modal-1UGdnR") && elem.find(".inner-1JeGVc .imageWrapper-2p5ogY").length) {
 			var linkElement = $(PluginUtilities.formatString(this.link, this.strings));
-			var openElement = $('.inner-1JeGVc>div>div>a');
-			var originalLink = openElement.attr("href").replace(/:large$/, '');
-			var imageLink = originalLink.split('?')[0];
-			if (imageLink.endsWith('.png') || imageLink.endsWith('.jpg') || imageLink.endsWith('.jpeg')) {
-				openElement.after($('<span class="downloadLink-2oSgiF size14-3iUx6q weightMedium-2iZe9B"> | </span>'), linkElement);
-				linkElement.on("click", () => { this.copyToClipboard(originalLink); });
+			var openElement = $('.inner-1JeGVc>div>a');
+			if (openElement.length) {
+				var originalLink = openElement.attr("href").replace(/:large$/, '');
+				var imageLink = originalLink.split('?')[0];
+				if (imageLink.endsWith('.png') || imageLink.endsWith('.jpg') || imageLink.endsWith('.jpeg')) {
+					//openElement.after($('<span class="anchor-3Z-8Bb downloadLink-1ywL9o size14-3iUx6q weightMedium-2iZe9B"> | </span>'), linkElement);
+					openElement.after(linkElement);
+					linkElement.on("click", () => { this.copyToClipboard(originalLink); });
+				}
 			}
 		}
 

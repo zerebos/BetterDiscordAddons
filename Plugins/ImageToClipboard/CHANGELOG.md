@@ -1,5 +1,9 @@
 # ImageToClipboard Changelog
 
+### 0.2.14
+
+ - Fix modal link
+
 ### 0.2.13
 
  - Fix a class thing

@@ -4,7 +4,7 @@ class BetterRoleColors {
 	getName() { return "BetterRoleColors"; }
 	getShortName() { return "BRC"; }
 	getDescription() { return "Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.7.1"; }
+	getVersion() { return "0.7.2"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -58,10 +58,13 @@ class BetterRoleColors {
 		this.RelationshipStore = DiscordModules.RelationshipStore;
 		this.PopoutWrapper = InternalUtilities.WebpackModules.findByUniqueProperties(['Positions', 'Animations']);
 		this.VoiceUser = InternalUtilities.WebpackModules.find(m => typeof(m) === "function" && m.List);
-		this.UserPopout = InternalUtilities.WebpackModules.find(m => m.displayName == "FluxContainer(SubscribeGuildMembersContainer(t))");
+		this.UserPopout = InternalUtilities.WebpackModules.find(m => {
+			try { return m.displayName == "FluxContainer(Component)" && !(new m()); }
+			catch (e) { return e.toString().includes("user"); }
+		});
 		this.UserModal = InternalUtilities.WebpackModules.find(m => {
 			try {
-				return m.modalConfig && m.prototype.render().type.displayName == "FluxContainer(SubscribeGuildMembersContainer(t))";
+				return m.modalConfig && m.prototype.render().type.displayName == "FluxContainer(Component)";
 			}
 			catch (err) {return false;}
 		});

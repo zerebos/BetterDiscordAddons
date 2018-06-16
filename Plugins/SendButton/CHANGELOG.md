@@ -1,5 +1,9 @@
 # SendButton Changelog
 
+### 0.0.5
+
+ - Fix for textarea changes
+
 ### 0.0.4
 
  - Fixed selector
