@@ -1,5 +1,9 @@
 # RoleMembers Changelog
 
+### 0.0.5
+
+ - Fix popout render
+
 ### 0.0.4
 
  - Minor performance improvement
