@@ -32,6 +32,7 @@
 	transition: all 200ms ease !important;
 	border: var(--rs-width) solid #636b75 !important;
 	margin: 0 !important;
+	pointer-events: none;
 }
 
 [class*="user-info"] [class*="status"] {
