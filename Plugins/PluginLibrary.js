@@ -423,7 +423,18 @@ var DiscordModules = {
     /* Modals */
     get ModalStack() {return InternalUtilities.WebpackModules.findByUniqueProperties(['push', 'update', 'pop', 'popWithKey']);},
     get UserProfileModals() {return InternalUtilities.WebpackModules.findByUniqueProperties(['fetchMutualFriends', 'setSection']);},
-	get UserProfileModal() {return WebpackModules.getByProps(["fetchMutualFriends", "setSection"]);},
+	get UserProfileModal() {return InternalUtilities.WebpackModules.find(m => {
+			try {
+				return m.modalConfig && m.prototype.render().type.displayName == "FluxContainer(SubscribeGuildMembersContainer(t))";
+			}
+			catch (err) {return false;}
+		}) || InternalUtilities.WebpackModules.find(m => {
+			try {
+				return m.modalConfig && m.prototype.render().type.displayName == "FluxContainer(Component)";
+			}
+			catch (err) {return false;}
+		});
+	},
     get ConfirmModal() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byPrototypeFields(['handleCancel', 'handleSubmit', 'handleMinorConfirm']));},
 	get AlertModal() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byPrototypeFields(['handleCancel', 'handleSubmit', 'handleMinorConfirm']));},
 	get ConfirmationModal() {return InternalUtilities.WebpackModules.find(m => m.defaultProps && m.key && m.key() == "confirm-modal");},
@@ -432,7 +443,11 @@ var DiscordModules = {
     get PopoutStack() {return InternalUtilities.WebpackModules.findByUniqueProperties(['open', 'close', 'closeAll']);},
     get PopoutOpener() {return InternalUtilities.WebpackModules.findByUniqueProperties(['openPopout']);},
     get EmojiPicker() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byPrototypeFields(['onHoverEmoji', 'selectEmoji']));},
-	get UserPopout() {return InternalUtilities.WebpackModules.findByDisplayName("FluxContainer(SubscribeGuildMembersContainer(t))");},
+	get UserPopout() {return InternalUtilities.WebpackModules.findByDisplayName("FluxContainer(SubscribeGuildMembersContainer(t))") || InternalUtilities.WebpackModules.find(m => {
+			try { return m.displayName == "FluxContainer(Component)" && !(new m()); }
+			catch (e) { return e.toString().includes("user"); }
+		});
+	},
 
     /* Context Menus */
     get ContextMenuActions() {return InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byCode(/CONTEXT_MENU_CLOSE/, c => c.close));},
