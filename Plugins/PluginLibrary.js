@@ -419,6 +419,16 @@ var DiscordModules = {
     get UserSettingsWindow() {return InternalUtilities.WebpackModules.findByUniqueProperties(['open', 'updateAccount']);},
     get LayerManager() {return InternalUtilities.WebpackModules.findByUniqueProperties(['popLayer', 'pushLayer']);},
     get Tooltips() {return InternalUtilities.WebpackModules.find(m => m.hide && m.show && !m.search && !m.submit && !m.search && !m.activateRagingDemon && !m.dismiss);},
+	get Avatar() {return InternalUtilities.WebpackModules.findByDisplayName("Avatar") || 
+		InternalUtilities.WebpackModules.find(m => {
+			if (m.displayName != "FluxContainer(t)") return false;
+			try {
+				const temp = new m();
+				return temp && temp.state && temp.state.hasOwnProperty("isFocused");
+			}
+			catch (err) {return false;}
+		});
+	},
 
     /* Modals */
     get ModalStack() {return InternalUtilities.WebpackModules.findByUniqueProperties(['push', 'update', 'pop', 'popWithKey']);},
