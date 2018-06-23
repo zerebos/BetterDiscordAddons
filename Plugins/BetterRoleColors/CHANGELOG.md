@@ -1,5 +1,9 @@
 # BetterRoleColors Changelog
 
+### 0.7.3
+
+ - User popouts aka fuck discord
+
 ### 0.7.2
 
  - Popout changes

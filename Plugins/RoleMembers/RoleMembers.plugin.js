@@ -6,7 +6,7 @@ class RoleMembers {
 	getName() { return "RoleMembers"; }
 	getShortName() { return "RoleMembers"; }
 	getDescription() { return "Allows you to see the members of each role on a server. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.5"; }
+	getVersion() { return "0.0.6"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -76,10 +76,7 @@ class RoleMembers {
 
 	initialize() {
 		PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
-		this.FluxContainer = InternalUtilities.WebpackModules.find(m => {
-			try { return m.displayName == "FluxContainer(Component)" && !(new m()); }
-			catch (e) { return e.toString().includes("user"); }
-		});
+		this.FluxContainer = DiscordModules.UserPopout;
 		const from = arr => arr && arr.length > 0 && Object.assign(...arr.map( ([k, v]) => ({[k]: v}) ));
 		this.filter = (obj, predicate) => from(Object.entries(obj).filter((o) => {return predicate(o[1]);}));
 

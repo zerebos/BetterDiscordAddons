@@ -1,5 +1,9 @@
 # AccountDetailsPlus Changelog
 
+### 0.0.6
+
+ - User popouts aka fuck discord
+
 ### 0.0.5
 
  - Popout fix

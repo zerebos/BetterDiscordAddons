@@ -1,5 +1,9 @@
 # PermissionsViewer Changelog
 
+### 0.0.19
+
+ - User popouts aka fuck discord
+
 ### 0.0.18
 
  - Popout changes
