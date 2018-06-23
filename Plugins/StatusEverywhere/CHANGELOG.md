@@ -1,5 +1,9 @@
 # StatusEverywhere Changelog
 
+### 0.3.2
+
+ - Fix for avatar changes
+
 ### 0.3.1
 
  - Fix a flickering issue

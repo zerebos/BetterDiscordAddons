@@ -6,7 +6,7 @@ class StatusEverywhere {
 	getName() { return "StatusEverywhere"; }
 	getShortName() { return "StatusEverywhere"; }
 	getDescription() { return "Adds user status everywhere Discord doesn't. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.3.1"; }
+	getVersion() { return "0.3.2"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -40,7 +40,7 @@ class StatusEverywhere {
 
 	initialize() {
 		PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
-		let Avatar = InternalUtilities.WebpackModules.findByDisplayName("Avatar");
+		let Avatar = DiscordModules.Avatar;
 
 		Patcher.after(this.getName(), Avatar.prototype, "getDefaultProps", (thisObject, args, returnValue) => {
 			return returnValue.status = "offline";
