@@ -1,5 +1,9 @@
 # BDContextMenu Changelog
 
+### 0.0.11
+
+ - Use the new lib
+
 ### 0.0.10
 
  - Fix a bug where menus wouldn't open
