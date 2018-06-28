@@ -44,7 +44,7 @@ class DoNotTrack {
 
         const Sentry = InternalUtilities.WebpackModules.findByUniqueProperties(["_originalConsoleMethods", "_wrappedBuiltIns"]);
         Sentry.uninstall();
-        Patcher.instead(this.getName(), Sentry, "_breadcrumbEventHandler", () => {});
+        Patcher.instead(this.getName(), Sentry, "_breadcrumbEventHandler", () => () => {});
         Patcher.instead(this.getName(), Sentry, "captureBreadcrumb", () => {});
         Patcher.instead(this.getName(), Sentry, "_makeRequest", () => {});
         Patcher.instead(this.getName(), Sentry, "_sendProcessedPayload", () => {});
