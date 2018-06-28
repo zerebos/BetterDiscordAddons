@@ -131,30 +131,15 @@ module.exports = {"info":{"name":"ZeresPluginLibrary","authors":[{"name":"Zerebo
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var modules__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! modules */ "./src/modules/modules.js");
-/* harmony import */ var ui__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ui */ "./src/ui/ui.js");
-
-
-
-const Library = {};
-Library.ContextMenu = ui__WEBPACK_IMPORTED_MODULE_1__["ContextMenu"];
-Library.Tooltip = ui__WEBPACK_IMPORTED_MODULE_1__["Tooltip"];
-Library.Toasts = ui__WEBPACK_IMPORTED_MODULE_1__["Toasts"];
-Library.Settings = ui__WEBPACK_IMPORTED_MODULE_1__["Settings"];
-Library.Popouts = ui__WEBPACK_IMPORTED_MODULE_1__["Popouts"];
-Library.Modals = ui__WEBPACK_IMPORTED_MODULE_1__["Modals"];
-for (const mod in modules__WEBPACK_IMPORTED_MODULE_0__) Library[mod] = modules__WEBPACK_IMPORTED_MODULE_0__[mod];
-
-global.ZLibrary = Library;
-
-const {PluginUpdater, Patcher, Structs, Logger} = Library;
-
-/* harmony default export */ __webpack_exports__["default"] = ((BasePlugin) => {
+/* harmony default export */ __webpack_exports__["default"] = ((BasePlugin, Library) => {
+    const {PluginUpdater, Patcher, Structs, Logger, Settings, Toasts} = Library;
     return class ZeresPluginLibrary extends BasePlugin {
+        get Library() {return Library;}
+        
         load() {
             this.start();
             BdApi.clearCSS("ZeresLibraryCSS");
-            BdApi.injectCSS("ZeresLibraryCSS", ui__WEBPACK_IMPORTED_MODULE_1__["Settings"].CSS + ui__WEBPACK_IMPORTED_MODULE_1__["Toasts"].CSS + PluginUpdater.CSS);
+            BdApi.injectCSS("ZeresLibraryCSS", Settings.CSS + Toasts.CSS + PluginUpdater.CSS);
 
             jQuery.extend(jQuery.easing, { easeInSine: function (x, t, b, c, d) { return -c * Math.cos(t / d * (Math.PI / 2)) + c + b; }});
 
@@ -211,34 +196,49 @@ const {PluginUpdater, Patcher, Structs, Logger} = Library;
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var modules__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! modules */ "./src/modules/modules.js");
+/* harmony import */ var ui__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ui */ "./src/ui/ui.js");
 
-const {Plugin} = modules__WEBPACK_IMPORTED_MODULE_0__["Structs"];
+
+
+const Library = {};
+Library.ContextMenu = ui__WEBPACK_IMPORTED_MODULE_1__["ContextMenu"];
+Library.Tooltip = ui__WEBPACK_IMPORTED_MODULE_1__["Tooltip"];
+Library.Toasts = ui__WEBPACK_IMPORTED_MODULE_1__["Toasts"];
+Library.Settings = ui__WEBPACK_IMPORTED_MODULE_1__["Settings"];
+Library.Popouts = ui__WEBPACK_IMPORTED_MODULE_1__["Popouts"];
+Library.Modals = ui__WEBPACK_IMPORTED_MODULE_1__["Modals"];
+for (const mod in modules__WEBPACK_IMPORTED_MODULE_0__) Library[mod] = modules__WEBPACK_IMPORTED_MODULE_0__[mod];
 
 const config = __webpack_require__(/*! ../plugins/0PluginLibrary/config.json */ "./plugins/0PluginLibrary/config.json");
 const pluginModule = __webpack_require__("./plugins/0PluginLibrary sync recursive ^\\.\\/.*$")("./" + config.main).default;
 
-const name = config.info.name;
-const BoundAPI = {
-	Logger: {
-		log: (message) => Logger.log(name, message),
-		error: (message, error) => Logger.err(name, message, error),
-		err: (message, error) => Logger.err(name, message, error),
-		warn: (message) => Logger.warn(name, message),
-		info: (message) => Logger.info(name, message),
-		debug: (message) => Logger.debug(name, message)
-	},
-	Patcher: {
-		getPatchesByCaller: () => {return Patcher.getPatchesByCaller(name);},
-		unpatchAll: () => {return Patcher.unpatchAll(name);},
-		before: (moduleToPatch, functionName, callback, options = {}) => {return Patcher.before(name, moduleToPatch, functionName, callback, options);},
-		instead: (moduleToPatch, functionName, callback, options = {}) => {return Patcher.instead(name, moduleToPatch, functionName, callback, options);},
-		after: (moduleToPatch, functionName, callback, options = {}) => {return Patcher.after(name, moduleToPatch, functionName, callback, options);}
-	}
+const getBoundLibrary = () => {
+	const name = config.info.name;
+	const BoundAPI = {
+		Logger: {
+			log: (message) => Library.Logger.log(name, message),
+			error: (message, error) => Library.Logger.err(name, message, error),
+			err: (message, error) => Library.Logger.err(name, message, error),
+			warn: (message) => Library.Logger.warn(name, message),
+			info: (message) => Library.Logger.info(name, message),
+			debug: (message) => Library.Logger.debug(name, message)
+		},
+		Patcher: {
+			getPatchesByCaller: () => {return Library.Patcher.getPatchesByCaller(name);},
+			unpatchAll: () => {return Library.Patcher.unpatchAll(name);},
+			before: (moduleToPatch, functionName, callback, options = {}) => {return Library.Patcher.before(name, moduleToPatch, functionName, callback, options);},
+			instead: (moduleToPatch, functionName, callback, options = {}) => {return Library.Patcher.instead(name, moduleToPatch, functionName, callback, options);},
+			after: (moduleToPatch, functionName, callback, options = {}) => {return Library.Patcher.after(name, moduleToPatch, functionName, callback, options);}
+		}
+	};
+
+	const BoundLib = Object.assign({}, Library);
+	BoundLib.Logger = BoundAPI.Logger;
+	BoundLib.Patcher = BoundAPI.Patcher;
+	return BoundLib;
 };
 
-for (const mod in modules__WEBPACK_IMPORTED_MODULE_0__) BoundAPI[mod] = modules__WEBPACK_IMPORTED_MODULE_0__[mod];
-
-/* harmony default export */ __webpack_exports__["default"] = (pluginModule(Plugin(config), BoundAPI));
+/* harmony default export */ __webpack_exports__["default"] = (pluginModule(Library.Structs.Plugin(config),  false ? undefined : Library));
 
 /***/ }),
 
@@ -731,7 +731,18 @@ __webpack_require__.r(__webpack_exports__);
     get UserProfileModals() {return _webpackmodules__WEBPACK_IMPORTED_MODULE_1__["default"].getByProps("fetchMutualFriends", "setSection");},
     get AlertModal() {return _webpackmodules__WEBPACK_IMPORTED_MODULE_1__["default"].getByPrototypes("handleCancel", "handleSubmit", "handleMinorConfirm");},
     get ConfirmationModal() {return _webpackmodules__WEBPACK_IMPORTED_MODULE_1__["default"].getModule(m => m.defaultProps && m.key && m.key() == "confirm-modal");},
-    get UserProfileModal() {return _webpackmodules__WEBPACK_IMPORTED_MODULE_1__["default"].getByProps(["fetchMutualFriends", "setSection"]);},
+    get UserProfileModal() {return _webpackmodules__WEBPACK_IMPORTED_MODULE_1__["default"].find(m => {
+            try {
+                return m.modalConfig && m.prototype.render().type.displayName == "FluxContainer(SubscribeGuildMembersContainer(t))";
+            }
+            catch (err) {return false;}
+        }) || _webpackmodules__WEBPACK_IMPORTED_MODULE_1__["default"].find(m => {
+            try {
+                return m.modalConfig && m.prototype.render().type.displayName == "FluxContainer(Component)";
+            }
+            catch (err) {return false;}
+        });
+    },
     get ChangeNicknameModal() {return _webpackmodules__WEBPACK_IMPORTED_MODULE_1__["default"].getByProps(["open", "changeNickname"]);},
     get CreateChannelModal() {return _webpackmodules__WEBPACK_IMPORTED_MODULE_1__["default"].getByProps(["open", "createChannel"]);},
     get PruneMembersModal() {return _webpackmodules__WEBPACK_IMPORTED_MODULE_1__["default"].getByProps(["open", "prune"]);},
@@ -739,12 +750,25 @@ __webpack_require__.r(__webpack_exports__);
     get PrivacySettingsModal() {return _webpackmodules__WEBPACK_IMPORTED_MODULE_1__["default"].getByRegex(/PRIVACY_SETTINGS_MODAL_OPEN/, m => m.open);},
     get CreateInviteModal() {return _webpackmodules__WEBPACK_IMPORTED_MODULE_1__["default"].getByProps(["open", "createInvite"]);},
     get Changelog() {return _webpackmodules__WEBPACK_IMPORTED_MODULE_1__["default"].getModule((m => m.defaultProps && m.defaultProps.selectable == false));},
+    get Avatar() {return _webpackmodules__WEBPACK_IMPORTED_MODULE_1__["default"].find(m => {
+            if (m.displayName != "FluxContainer(t)") return false;
+            try {
+                const temp = new m();
+                return temp && temp.state && temp.state.hasOwnProperty("isFocused");
+            }
+            catch (err) {return false;}
+        });
+    },
 
     /* Popouts */
     get PopoutStack() {return _webpackmodules__WEBPACK_IMPORTED_MODULE_1__["default"].getByProps("open", "close", "closeAll");},
     get PopoutOpener() {return _webpackmodules__WEBPACK_IMPORTED_MODULE_1__["default"].getByProps("openPopout");},
     get EmojiPicker() {return _webpackmodules__WEBPACK_IMPORTED_MODULE_1__["default"].getByPrototypes("onHoverEmoji", "selectEmoji");},
-    get UserPopout() {return _webpackmodules__WEBPACK_IMPORTED_MODULE_1__["default"].getByDisplayName("FluxContainer(SubscribeGuildMembersContainer(t))");},
+    get UserPopout() {return _webpackmodules__WEBPACK_IMPORTED_MODULE_1__["default"].getByDisplayName("FluxContainer(SubscribeGuildMembersContainer(t))")  || _webpackmodules__WEBPACK_IMPORTED_MODULE_1__["default"].find(m => {
+            try { return m.displayName == "FluxContainer(Component)" && !(new m()); }
+            catch (e) { return e.toString().includes("user"); }
+        });
+    },
 
     /* Context Menus */
     get ContextMenuActions() {return _webpackmodules__WEBPACK_IMPORTED_MODULE_1__["default"].getByRegex(/CONTEXT_MENU_CLOSE/, c => c.close);},
@@ -1897,12 +1921,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _patcher__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./patcher */ "./src/modules/patcher.js");
 /* harmony import */ var _domtools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./domtools */ "./src/modules/domtools.js");
 /* harmony import */ var _logger__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./logger */ "./src/modules/logger.js");
-/* harmony import */ var ui__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ui */ "./src/ui/ui.js");
+/* harmony import */ var _discordclasses__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./discordclasses */ "./src/modules/discordclasses.js");
+/* harmony import */ var ui__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ui */ "./src/ui/ui.js");
 /**
  * Functions that check for and update existing plugins.
  * @module PluginUpdater
  * @version 0.1.0
  */
+
 
 
 
@@ -2040,7 +2066,7 @@ class PluginUpdater {
 		updateButton.onclick = function () {
 			window.PluginUpdates.checkAll();
 		};
-		let tooltip = new ui__WEBPACK_IMPORTED_MODULE_4__["Tooltip"](updateButton, "Checks for updates of plugins that support this feature. Right-click for a list.");
+		let tooltip = new ui__WEBPACK_IMPORTED_MODULE_5__["Tooltip"](updateButton, "Checks for updates of plugins that support this feature. Right-click for a list.");
 		updateButton.oncontextmenu = function () {
 			if (!window.PluginUpdates || !window.PluginUpdates.plugins) return;
 			tooltip.label = Object.values(window.PluginUpdates.plugins).map(p => p.name).join(", ");
@@ -2072,7 +2098,7 @@ class PluginUpdater {
 			filename = filename[filename.length - 1];
 			const file = path.join(_pluginutilities__WEBPACK_IMPORTED_MODULE_0__["default"].getPluginsFolder(), filename);
 			await fileSystem.writeFile(file, body);
-			ui__WEBPACK_IMPORTED_MODULE_4__["Toasts"].success(`${pluginName} ${window.PluginUpdates.plugins[updateLink].version} has been replaced by ${pluginName} ${remoteVersion}`);
+			ui__WEBPACK_IMPORTED_MODULE_5__["Toasts"].success(`${pluginName} ${window.PluginUpdates.plugins[updateLink].version} has been replaced by ${pluginName} ${remoteVersion}`);
 			this.removeUpdateNotice(pluginName);
 
 			let oldRNM = window.bdplugins["Restart-No-More"] && window.pluginCookie["Restart-No-More"];
@@ -2080,8 +2106,8 @@ class PluginUpdater {
 			if (oldRNM || newRNM) return;
 			if (!window.PluginUpdates.downloaded) {
 				window.PluginUpdates.downloaded = [];
-				const button = _domtools__WEBPACK_IMPORTED_MODULE_2__["default"].parseHTML(`<button class="btn btn-reload ${_domtools__WEBPACK_IMPORTED_MODULE_2__["DiscordClasses"].Notices.btn} ${_domtools__WEBPACK_IMPORTED_MODULE_2__["DiscordClasses"].Notices.button}">Reload</button>`);
-				const tooltip = new ui__WEBPACK_IMPORTED_MODULE_4__["Tooltip"](button, window.PluginUpdates.downloaded.join(", "), {side: "top"});
+				const button = _domtools__WEBPACK_IMPORTED_MODULE_2__["default"].parseHTML(`<button class="btn btn-reload ${_discordclasses__WEBPACK_IMPORTED_MODULE_4__["default"].Notices.btn} ${_discordclasses__WEBPACK_IMPORTED_MODULE_4__["default"].Notices.button}">Reload</button>`);
+				const tooltip = new ui__WEBPACK_IMPORTED_MODULE_5__["Tooltip"](button, window.PluginUpdates.downloaded.join(", "), {side: "top"});
 				button.addEventListener("click", (e) => {
 					e.preventDefault();
 					window.location.reload(false);
@@ -2104,8 +2130,8 @@ class PluginUpdater {
 	 */
 	static showUpdateNotice(pluginName, updateLink) {
 		if (!document.getElementById("pluginNotice"))  {
-			const noticeElement = _domtools__WEBPACK_IMPORTED_MODULE_2__["default"].parseHTML(`<div class="${_domtools__WEBPACK_IMPORTED_MODULE_2__["DiscordClasses"].Notices.notice} ${_domtools__WEBPACK_IMPORTED_MODULE_2__["DiscordClasses"].Notices.noticeInfo}" id="pluginNotice">
-														<div class="${_domtools__WEBPACK_IMPORTED_MODULE_2__["DiscordClasses"].Notices.dismiss}" id="pluginNoticeDismiss"></div>
+			const noticeElement = _domtools__WEBPACK_IMPORTED_MODULE_2__["default"].parseHTML(`<div class="${_discordclasses__WEBPACK_IMPORTED_MODULE_4__["default"].Notices.notice} ${_discordclasses__WEBPACK_IMPORTED_MODULE_4__["default"].Notices.noticeInfo}" id="pluginNotice">
+														<div class="${_discordclasses__WEBPACK_IMPORTED_MODULE_4__["default"].Notices.dismiss}" id="pluginNoticeDismiss"></div>
 														<span class="notice-message">The following plugins have updates:</span>&nbsp;&nbsp;<strong id="outdatedPlugins"></strong>
 													</div>`);
 			_domtools__WEBPACK_IMPORTED_MODULE_2__["default"].query(".app").prepend(noticeElement);
@@ -2895,9 +2921,11 @@ class WebpackModules {
     static get require() {
         if (this._require) return this._require;
         const id = "zl-webpackmodules";
-        const __webpack_require__ = window["webpackJsonp"]([], {
+        const __webpack_require__ = typeof(window["webpackJsonp"]) == "function" ? window["webpackJsonp"]([], {
             [id]: (module, exports, __webpack_require__) => exports.default = __webpack_require__
-        }, [id]).default;
+        }, [id]).default : window["webpackJsonp"].push([[], {
+            [id]: (module, exports, __webpack_require__) => module.exports = __webpack_require__
+        }, [[id]]]);
         delete __webpack_require__.m[id];
         delete __webpack_require__.c[id];
         return this._require = __webpack_require__;
@@ -5045,10 +5073,12 @@ class Listenable {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_pluginupdater__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../modules/pluginupdater */ "./src/modules/pluginupdater.js");
-/* harmony import */ var _modules_reacttools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../modules/reacttools */ "./src/modules/reacttools.js");
-/* harmony import */ var _ui_modals__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../ui/modals */ "./src/ui/modals.js");
-/* harmony import */ var _modules_pluginutilities__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../modules/pluginutilities */ "./src/modules/pluginutilities.js");
-/* harmony import */ var _ui_settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../ui/settings */ "./src/ui/settings/index.js");
+/* harmony import */ var _modules_logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../modules/logger */ "./src/modules/logger.js");
+/* harmony import */ var _modules_reacttools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../modules/reacttools */ "./src/modules/reacttools.js");
+/* harmony import */ var _ui_modals__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../ui/modals */ "./src/ui/modals.js");
+/* harmony import */ var _modules_pluginutilities__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../modules/pluginutilities */ "./src/modules/pluginutilities.js");
+/* harmony import */ var _ui_settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../ui/settings */ "./src/ui/settings/index.js");
+
 
 
 
@@ -5062,14 +5092,14 @@ __webpack_require__.r(__webpack_exports__);
             this._enabled = false;
             if (typeof(config.defaultConfig) != "undefined") {
                 this.defaultSettings = {};
-                for (let s = 0; s < config.length; s++) {
-                    const current = config[s];
+                for (let s = 0; s < config.defaultConfig.length; s++) {
+                    const current = config.defaultConfig[s];
                     if (current.type != "category") this.defaultSettings[current.id] = current.value;
                     else {
                         this.defaultSettings[current.id] = {};
-                        for (let s = 0; s < config.length; s++) {
-                            const current = config[s];
-                            this.defaultSettings[current.id][current.id] = current.value;
+                        for (let s = 0; s < current.settings.length; s++) {
+                            const subCurrent = current.settings[s];
+                            this.defaultSettings[current.id][subCurrent.id] = subCurrent.value;
                         }
                     }
                 }
@@ -5083,17 +5113,19 @@ __webpack_require__.r(__webpack_exports__);
         getAuthor() { return this._config.info.authors.map(a => a.name).join(", "); }
         load() {}
         start() {
+            _modules_logger__WEBPACK_IMPORTED_MODULE_1__["default"].info(this.getName(), "Started");
             if (this.defaultSettings) this.settings = this.loadSettings();
-            const currentVersionInfo = _modules_pluginutilities__WEBPACK_IMPORTED_MODULE_3__["default"].loadData(this.getName(), "currentVersionInfo", {version: this.getVersion(), hasShownChangelog: false});
+            const currentVersionInfo = _modules_pluginutilities__WEBPACK_IMPORTED_MODULE_4__["default"].loadData(this.getName(), "currentVersionInfo", {version: this.getVersion(), hasShownChangelog: false});
             if (currentVersionInfo.version != this.getVersion() || !currentVersionInfo.hasShownChangelog) {
                 this.showChangelog();
-                _modules_pluginutilities__WEBPACK_IMPORTED_MODULE_3__["default"].saveData(this.getName(), "currentVersionInfo", {version: this.getVersion(), hasShownChangelog: true});
+                _modules_pluginutilities__WEBPACK_IMPORTED_MODULE_4__["default"].saveData(this.getName(), "currentVersionInfo", {version: this.getVersion(), hasShownChangelog: true});
             }
             _modules_pluginupdater__WEBPACK_IMPORTED_MODULE_0__["default"].checkForUpdate(this.getName(), this.getVersion(), this._config.info.github_raw);
             this._enabled = true;
             if (typeof(this.onStart) == "function") this.onStart();
         }
         stop() {
+            _modules_logger__WEBPACK_IMPORTED_MODULE_1__["default"].info(this.getName(), "Stopped");
             this._enabled = false;
             if (typeof(this.onStop) == "function") this.onStop();
         }
@@ -5102,48 +5134,48 @@ __webpack_require__.r(__webpack_exports__);
 
         showSettingsModal() {
             if (typeof(this.getSettingsPanel) != "function") return;
-            _ui_modals__WEBPACK_IMPORTED_MODULE_2__["default"].showModal(this.getName() + " Settings", _modules_reacttools__WEBPACK_IMPORTED_MODULE_1__["default"].createWrappedElement(this.getSettingsPanel()), {
+            _ui_modals__WEBPACK_IMPORTED_MODULE_3__["default"].showModal(this.getName() + " Settings", _modules_reacttools__WEBPACK_IMPORTED_MODULE_2__["default"].createWrappedElement(this.getSettingsPanel()), {
                 cancelText: "",
                 confirmText: "Done",
-                size: _ui_modals__WEBPACK_IMPORTED_MODULE_2__["default"].ModalSizes.MEDIUM
+                size: _ui_modals__WEBPACK_IMPORTED_MODULE_3__["default"].ModalSizes.MEDIUM
             });
         }
 
         showChangelog(footer) {
             if (typeof(this._config.changelog) == "undefined") return;
-            _ui_modals__WEBPACK_IMPORTED_MODULE_2__["default"].showChangelogModal(this.getName() + " Changelog", this.getVersion(), this._config.changelog, footer);
+            _ui_modals__WEBPACK_IMPORTED_MODULE_3__["default"].showChangelogModal(this.getName() + " Changelog", this.getVersion(), this._config.changelog, footer);
         }
 
         saveSettings(settings) {
-            _modules_pluginutilities__WEBPACK_IMPORTED_MODULE_3__["default"].saveSettings(this.getName(), this.settings ? this.settings : settings);
+            _modules_pluginutilities__WEBPACK_IMPORTED_MODULE_4__["default"].saveSettings(this.getName(), this.settings ? this.settings : settings);
         }
 
         loadSettings(defaultSettings) {
-            return _modules_pluginutilities__WEBPACK_IMPORTED_MODULE_3__["default"].loadSettings(this.getName(), this.defaultSettings ? this.defaultSettings : defaultSettings);
+            return _modules_pluginutilities__WEBPACK_IMPORTED_MODULE_4__["default"].loadSettings(this.getName(), this.defaultSettings ? this.defaultSettings : defaultSettings);
         }
 
         buildSetting(data) {
             const {name, note, type, value, onChange} = data;
             if (type == "color")
-                return new _ui_settings__WEBPACK_IMPORTED_MODULE_4__["ColorPicker"](name, note, value, onChange, {disabled: data.disabled, presetColors: data.presetColors});
+                return new _ui_settings__WEBPACK_IMPORTED_MODULE_5__["ColorPicker"](name, note, value, onChange, {disabled: data.disabled, presetColors: data.presetColors});
             else if (type == "dropdown")
-                return new _ui_settings__WEBPACK_IMPORTED_MODULE_4__["Dropdown"](name, note, value, data.options, onChange);
+                return new _ui_settings__WEBPACK_IMPORTED_MODULE_5__["Dropdown"](name, note, value, data.options, onChange);
             else if (type == "file")
-                return new _ui_settings__WEBPACK_IMPORTED_MODULE_4__["FilePicker"](name, note, onChange);
+                return new _ui_settings__WEBPACK_IMPORTED_MODULE_5__["FilePicker"](name, note, onChange);
             else if (type == "keybind")
-                return new _ui_settings__WEBPACK_IMPORTED_MODULE_4__["Keybind"](name, note, value, onChange);
+                return new _ui_settings__WEBPACK_IMPORTED_MODULE_5__["Keybind"](name, note, value, onChange);
             else if (type == "radio")
-                return new _ui_settings__WEBPACK_IMPORTED_MODULE_4__["RadioGroup"](name, note, value, data.options, onChange, {disabled: data.disabled});
+                return new _ui_settings__WEBPACK_IMPORTED_MODULE_5__["RadioGroup"](name, note, value, data.options, onChange, {disabled: data.disabled});
             else if (type == "slider") {
                 const options = {};
                 if (typeof(data.markers) != "undefined") options.markers = data.markers;
                 if (typeof(data.stickToMarkers) != "undefined") options.stickToMarkers = data.stickToMarkers;
-                return new _ui_settings__WEBPACK_IMPORTED_MODULE_4__["Slider"](name, note, data.min, data.max, value, onChange, options);
+                return new _ui_settings__WEBPACK_IMPORTED_MODULE_5__["Slider"](name, note, data.min, data.max, value, onChange, options);
             }
             else if (type == "switch")
-                return new _ui_settings__WEBPACK_IMPORTED_MODULE_4__["Switch"](name, note, value, onChange, {disabled: data.disabled});
+                return new _ui_settings__WEBPACK_IMPORTED_MODULE_5__["Switch"](name, note, value, onChange, {disabled: data.disabled});
             else if (type == "textbox")
-                return new _ui_settings__WEBPACK_IMPORTED_MODULE_4__["Textbox"](name, note, value, onChange, {placeholder: data.placeholder || ""});
+                return new _ui_settings__WEBPACK_IMPORTED_MODULE_5__["Textbox"](name, note, value, onChange, {placeholder: data.placeholder || ""});
         }
 
         buildSettingsPanel() {
@@ -5162,7 +5194,7 @@ __webpack_require__.r(__webpack_exports__);
                     list.push(this.buildSetting(current));
                 }
                 
-                return new _ui_settings__WEBPACK_IMPORTED_MODULE_4__["SettingGroup"](name, {shown, collapsible}).append(...list);
+                return new _ui_settings__WEBPACK_IMPORTED_MODULE_5__["SettingGroup"](name, {shown, collapsible}).append(...list);
             };
             const list = [];
             for (let s = 0; s < config.length; s++) {
@@ -5177,7 +5209,7 @@ __webpack_require__.r(__webpack_exports__);
                 else list.push(buildGroup(current));
             }
 
-            return new _ui_settings__WEBPACK_IMPORTED_MODULE_4__["SettingPanel"](this.saveSettings.bind(this), ...list);
+            return new _ui_settings__WEBPACK_IMPORTED_MODULE_5__["SettingPanel"](this.saveSettings.bind(this), ...list);
         }
     };
 });
@@ -5363,7 +5395,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ImageItem", function() { return ImageItem; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SubMenuItem", function() { return SubMenuItem; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ToggleItem", function() { return ToggleItem; });
-/* harmony import */ var modules__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! modules */ "./src/modules/modules.js");
+/* harmony import */ var _modules_discordclasses__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../modules/discordclasses */ "./src/modules/discordclasses.js");
+/* harmony import */ var _modules_discordselectors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../modules/discordselectors */ "./src/modules/discordselectors.js");
 /**
  * Self-made context menus that emulate Discord's own context menus.
  * @module ContextMenu
@@ -5381,14 +5414,14 @@ class Menu {
      */
 	constructor(scroll = false) {
 		this.theme = $(".theme-dark").length ? "theme-dark" : "theme-light";
-		this.element = $("<div>").addClass(modules__WEBPACK_IMPORTED_MODULE_0__["DiscordClasses"].ContextMenuClasses.contextMenu).addClass("plugin-context-menu").addClass(this.theme);
+		this.element = $("<div>").addClass(_modules_discordclasses__WEBPACK_IMPORTED_MODULE_0__["default"].ContextMenu.contextMenu.toString()).addClass("plugin-context-menu").addClass(this.theme);
 		this.scroll = scroll;
 		if (scroll) {
-			this.scroller = $("<div>").addClass(modules__WEBPACK_IMPORTED_MODULE_0__["DiscordClasses"].ScrollerClasses.scroller).addClass(modules__WEBPACK_IMPORTED_MODULE_0__["DiscordClasses"].ContextMenuClasses.scroller);
+			this.scroller = $("<div>").addClass(_modules_discordclasses__WEBPACK_IMPORTED_MODULE_0__["default"].Scrollers.scroller.toString()).addClass(_modules_discordclasses__WEBPACK_IMPORTED_MODULE_0__["default"].ContextMenu.scroller.toString());
 			this.element.append($("<div>")
-				.addClass(modules__WEBPACK_IMPORTED_MODULE_0__["DiscordClasses"].ScrollerClasses.scrollerWrap)
-				.addClass(modules__WEBPACK_IMPORTED_MODULE_0__["DiscordClasses"].ScrollerClasses.scrollerThemed)
-				.addClass(modules__WEBPACK_IMPORTED_MODULE_0__["DiscordClasses"].ScrollerClasses.themeGhostHairline).append(
+				.addClass(_modules_discordclasses__WEBPACK_IMPORTED_MODULE_0__["default"].Scrollers.scrollerWrap.toString())
+				.addClass(_modules_discordclasses__WEBPACK_IMPORTED_MODULE_0__["default"].Scrollers.scrollerThemed.toString())
+				.addClass(_modules_discordclasses__WEBPACK_IMPORTED_MODULE_0__["default"].Scrollers.themeGhostHairline.toString()).append(
 					this.scroller
 			));
 		}
@@ -5431,7 +5464,7 @@ class Menu {
 		const mouseX = x;
 		const mouseY = y;
 		
-		let type = this.element.parents(".plugin-context-menu").length > this.element.parents(modules__WEBPACK_IMPORTED_MODULE_0__["DiscordSelectors"].ContextMenuClasses.contextMenu).length ? ".plugin-context-menu" : modules__WEBPACK_IMPORTED_MODULE_0__["DiscordSelectors"].ContextMenuClasses.contextMenu;
+		let type = this.element.parents(".plugin-context-menu").length > this.element.parents(_modules_discordselectors__WEBPACK_IMPORTED_MODULE_1__["default"].ContextMenu.contextMenu.toString()).length ? ".plugin-context-menu" : _modules_discordselectors__WEBPACK_IMPORTED_MODULE_1__["default"].ContextMenu.contextMenu.toString();
 		var depth = this.element.parents(type).length;
 		if (depth == 0) this.element.appendTo("#app-mount");
 		this.element.css("top", mouseY).css("left", mouseX);
@@ -5439,12 +5472,12 @@ class Menu {
 		if (depth > 0) {
 			var top = this.element.parents(type).last();
 			var closest = this.element.parents(type).first();
-			var negate = closest.hasClass(modules__WEBPACK_IMPORTED_MODULE_0__["DiscordClasses"].ContextMenuClasses.invertChildX) ? -1 : 1;
-			this.element.css("margin-left", negate * closest.find(`.${modules__WEBPACK_IMPORTED_MODULE_0__["DiscordClasses"].ContextMenuClasses.item}`).outerWidth() + closest.offset().left - top.offset().left);
+			var negate = closest.hasClass(_modules_discordclasses__WEBPACK_IMPORTED_MODULE_0__["default"].ContextMenu.invertChildX.toString()) ? -1 : 1;
+			this.element.css("margin-left", negate * closest.find(`.${_modules_discordclasses__WEBPACK_IMPORTED_MODULE_0__["default"].ContextMenu.item}`).outerWidth() + closest.offset().left - top.offset().left);
 		}
 		
 		if (mouseY + this.element.outerHeight() >= maxHeight) {
-			this.element.addClass("invertY").addClass(modules__WEBPACK_IMPORTED_MODULE_0__["DiscordClasses"].ContextMenuClasses.invertY);
+			this.element.addClass("invertY").addClass(_modules_discordclasses__WEBPACK_IMPORTED_MODULE_0__["default"].ContextMenu.invertY.toString());
 			this.element.css("top", mouseY - this.element.outerHeight());
 			if (depth > 0) this.element.css("top", (mouseY + this.element.parent().outerHeight()) - this.element.outerHeight());
 		}
@@ -5453,7 +5486,7 @@ class Menu {
 			this.element.css("left", mouseX - this.element.outerWidth());
 		}
 		if (this.element.offset().left + 2 * this.element.outerWidth() >= maxWidth) {
-			this.element.addClass(modules__WEBPACK_IMPORTED_MODULE_0__["DiscordClasses"].ContextMenuClasses.invertChildX);
+			this.element.addClass(_modules_discordclasses__WEBPACK_IMPORTED_MODULE_0__["default"].ContextMenu.invertChildX.toString());
 		}
 
 		if (depth == 0) {
@@ -5464,7 +5497,7 @@ class Menu {
 			});
 			$(document).on("click.zctx", (e) => {
 				if (this.element.has(e.target).length) {
-					if ($._data($(e.target).closest(modules__WEBPACK_IMPORTED_MODULE_0__["DiscordSelectors"].ContextMenuClasses.item)[0], "events").click) {
+					if ($._data($(e.target).closest(_modules_discordselectors__WEBPACK_IMPORTED_MODULE_1__["default"].ContextMenu.item.toString())[0], "events").click) {
 						this.removeMenu();
 					}
 				}
@@ -5479,7 +5512,7 @@ class Menu {
     
     /** Allows you to remove the menu. */
 	removeMenu() {
-		let type = this.element.parents(".plugin-context-menu").length > this.element.parents(modules__WEBPACK_IMPORTED_MODULE_0__["DiscordSelectors"].ContextMenuClasses.contextMenu).length ? ".plugin-context-menu" : modules__WEBPACK_IMPORTED_MODULE_0__["DiscordSelectors"].ContextMenuClasses.contextMenu;
+		let type = this.element.parents(".plugin-context-menu").length > this.element.parents(_modules_discordselectors__WEBPACK_IMPORTED_MODULE_1__["default"].ContextMenu.contextMenu.toString()).length ? ".plugin-context-menu" : _modules_discordselectors__WEBPACK_IMPORTED_MODULE_1__["default"].ContextMenu.contextMenu.toString();
 		this.element.detach();
 		this.element.find(type).detach();
 		$(document).off(".zctx");
@@ -5497,7 +5530,7 @@ class Menu {
 		this.menuItem = $(menuItem);
 		menuItem.on("mouseenter", () => {
 			this.element.appendTo(menuItem);
-			let type = this.element.parents(".plugin-context-menu").length > this.element.parents(modules__WEBPACK_IMPORTED_MODULE_0__["DiscordSelectors"].ContextMenuClasses.contextMenu).length ? ".plugin-context-menu" : modules__WEBPACK_IMPORTED_MODULE_0__["DiscordSelectors"].ContextMenuClasses.contextMenu;
+			let type = this.element.parents(".plugin-context-menu").length > this.element.parents(_modules_discordselectors__WEBPACK_IMPORTED_MODULE_1__["default"].ContextMenu.contextMenu.toString()).length ? ".plugin-context-menu" : _modules_discordselectors__WEBPACK_IMPORTED_MODULE_1__["default"].ContextMenu.contextMenu.toString();
 			this.show(this.element.parents(type).css("left"), menuItem.offset().top);
 		});
 		menuItem.on("mouseleave", () => { this.element.detach(); });
@@ -5508,7 +5541,7 @@ class Menu {
 class ItemGroup {
     /** Creates an item group. */
 	constructor() {
-		this.element = $("<div>").addClass(modules__WEBPACK_IMPORTED_MODULE_0__["DiscordClasses"].ContextMenuClasses.itemGroup);
+		this.element = $("<div>").addClass(_modules_discordclasses__WEBPACK_IMPORTED_MODULE_0__["default"].ContextMenu.itemGroup.toString());
 	}
     
     /**
@@ -5549,9 +5582,9 @@ class MenuItem {
      */
 	constructor(label, options = {}) {
 		var {danger = false, callback} = options;
-		this.element = $("<div>").addClass(modules__WEBPACK_IMPORTED_MODULE_0__["DiscordClasses"].ContextMenuClasses.item);
+		this.element = $("<div>").addClass(_modules_discordclasses__WEBPACK_IMPORTED_MODULE_0__["default"].ContextMenu.item.toString());
 		this.label = label;
-		if (danger) this.element.addClass(modules__WEBPACK_IMPORTED_MODULE_0__["DiscordClasses"].ContextMenuClasses.danger);
+		if (danger) this.element.addClass(_modules_discordclasses__WEBPACK_IMPORTED_MODULE_0__["default"].ContextMenu.danger.toString());
 		if (typeof(callback) == "function") {
 			this.element.on("click", (event) => {
 				event.stopPropagation();
@@ -5578,7 +5611,7 @@ class TextItem extends MenuItem {
 		super(label, options);
 		var {hint = ""} = options;
 		this.element.append($("<span>").text(label));
-		this.element.append($("<div>").addClass(modules__WEBPACK_IMPORTED_MODULE_0__["DiscordClasses"].ContextMenuClasses.hint).text(hint));
+		this.element.append($("<div>").addClass(_modules_discordclasses__WEBPACK_IMPORTED_MODULE_0__["default"].ContextMenu.hint.toString()).text(hint));
 	}
 }
 
@@ -5597,8 +5630,8 @@ class ImageItem extends MenuItem {
      */
 	constructor(label, imageSrc, options = {}) {
 		super(label, options);
-		this.element.addClass(modules__WEBPACK_IMPORTED_MODULE_0__["DiscordClasses"].ContextMenuClasses.itemImage);
-		this.element.append($("<div>").addClass(modules__WEBPACK_IMPORTED_MODULE_0__["DiscordClasses"].ContextMenuClasses.label).text(label));
+		this.element.addClass(_modules_discordclasses__WEBPACK_IMPORTED_MODULE_0__["default"].ContextMenu.itemImage.toString());
+		this.element.append($("<div>").addClass(_modules_discordclasses__WEBPACK_IMPORTED_MODULE_0__["default"].ContextMenu.label.toString()).text(label));
 		this.element.append($("<img>", {src: imageSrc}));
 	}
 }
@@ -5619,7 +5652,7 @@ class SubMenuItem extends MenuItem {
 	constructor(label, subMenu, options = {}) {
 		// if (!(subMenu instanceof ContextSubMenu)) throw "subMenu must be of ContextSubMenu type.";
 		super(label, options);
-		this.element.addClass(modules__WEBPACK_IMPORTED_MODULE_0__["DiscordClasses"].ContextMenuClasses.itemSubMenu).text(label);
+		this.element.addClass(_modules_discordclasses__WEBPACK_IMPORTED_MODULE_0__["default"].ContextMenu.itemSubMenu.toString()).text(label);
 		this.subMenu = subMenu;
 		this.subMenu.attachTo(this.getElement());
 	}
@@ -5642,8 +5675,8 @@ class ToggleItem extends MenuItem {
 	constructor(label, checked, options = {}) {
         var {onChange} = options;
 		super(label, options);
-		this.element.addClass(modules__WEBPACK_IMPORTED_MODULE_0__["DiscordClasses"].ContextMenuClasses.itemToggle);
-        this.element.append($("<div>").addClass(modules__WEBPACK_IMPORTED_MODULE_0__["DiscordClasses"].ContextMenuClasses.label).text(label));
+		this.element.addClass(_modules_discordclasses__WEBPACK_IMPORTED_MODULE_0__["default"].ContextMenu.itemToggle.toString());
+        this.element.append($("<div>").addClass(_modules_discordclasses__WEBPACK_IMPORTED_MODULE_0__["default"].ContextMenu.label.toString()).text(label));
         this.checkbox = $("<div>", {class: "checkbox"});
         this.checkbox.append($("<div>", {class: "checkbox-inner"}));
         this.checkbox.append("<span>");
