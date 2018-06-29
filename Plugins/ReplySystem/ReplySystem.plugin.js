@@ -8,7 +8,7 @@ var ReplySystem = (() => {
 			catch(err) {reject(err);}
 		});
 	});
-	const config = {"info":{"name":"ReplySystem","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.1","description":"Adds a native-esque reply button with preview. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","github_raw":"https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/ReplySystem/ReplySystem.plugin.js"},"main":"index.js"};
+	const config = {"info":{"name":"ReplySystem","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.2","description":"Adds a native-esque reply button with preview. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","github_raw":"https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/ReplySystem/ReplySystem.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Reply button should show properly in compact mode now."]}],"main":"index.js"};
 	const compilePlugin = ([Plugin, Api]) => {
 		const plugin = (Plugin, Api) => {
     const {WebpackModules, DiscordModules, Settings, Patcher, ReactTools} = Api;
@@ -212,8 +212,12 @@ var ReplySystem = (() => {
                 margin: 0;
             }
             
-            .message-group.compact .timestamp {
+            .message-group.compact .reply-button+.timestamp {
                 width: 50px;
+            }
+
+            .message-group.compact .timestamp {
+                width: 65px;
             }
     
             .reply-list {
@@ -397,7 +401,7 @@ var ReplySystem = (() => {
                 });
     
                 let children = this.safelyGetNestedProp(returnValue,
-                    thisObject.props.compact ? "props.children.0.props.children.2.props.children" : "props.children.0.props.children.0.props.children"
+                    !thisObject.props.compact ? "props.children.0.props.children.0.props.children" : window.pluginCookie["Quoter"] ? "props.children.0.props.children.2.1.props.children" : "props.children.0.props.children.2.props.children"
                 );
                 if (!children || !Array.isArray(children)) return returnValue;
     
