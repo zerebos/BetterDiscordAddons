@@ -14,6 +14,7 @@ A series of plugins and themes for BetterDiscord. For support or announcements o
  - [ImageToClipboard](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ImageToClipboard) - Allows you to copy images (png/jpg) directly to your system clipboard.
  - [PermissionsViewer](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer) - Allows you to view a user's permissions. Thanks to Noodlebox for the idea!
  - [RemoveMinimumSize](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RemoveMinimumSize) - Removes the minimum window size forced by Discord.
+ - [ReplySystem](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem) - Adds a native-esque reply button with preview.
  - [ResizableCSS](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ResizableCSS) - Allows you to resize the detached CustomCSS window.
  - [RoleMembers](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers) - Allows you to see the members of each role on a server.
  - [SendButton](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/SendButton) - Adds a send button to discord.
