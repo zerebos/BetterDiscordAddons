@@ -1,4 +1,4 @@
-//META{"name":"ReplySystem","displayName":"ReplySystem","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","source":"https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/ReplySystem/ReplySystem.plugin.js"}*//
+//META{"name":"ReplySystem","displayName":"ReplySystem","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","source":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ReplySystem/ReplySystem.plugin.js"}*//
 
 var ReplySystem = (() => {
 	if (!global.ZLibrary && !global.ZLibraryPromise) global.ZLibraryPromise = new Promise((resolve, reject) => {
@@ -8,7 +8,7 @@ var ReplySystem = (() => {
 			catch(err) {reject(err);}
 		});
 	});
-	const config = {"info":{"name":"ReplySystem","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.2","description":"Adds a native-esque reply button with preview. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","github_raw":"https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/ReplySystem/ReplySystem.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Reply button should show properly in compact mode now."]}],"main":"index.js"};
+	const config = {"info":{"name":"ReplySystem","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.2","description":"Adds a native-esque reply button with preview. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ReplySystem/ReplySystem.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Reply button should show properly in compact mode now."]}],"main":"index.js"};
 	const compilePlugin = ([Plugin, Api]) => {
 		const plugin = (Plugin, Api) => {
     const {WebpackModules, DiscordModules, Settings, Patcher, ReactTools} = Api;
