@@ -12,12 +12,12 @@ This is a small collection of my CSS Snippets that people may enjoy. Adjust any 
 
 ```css
 /* Hover and popout like RadialStatus */
-.channel-members .member .status {
+.members-1998pB .member-3W1lQa .status-oxiHuE {
 	transition: all 150ms ease;
     will-change: border-color, width, background, height, padding;
 }
 
-.channel-members .member:hover .status, .channel-members .member.popout-open .status {
+.members-1998pB .member-3W1lQa:hover .status-oxiHuE, .members-1998pB .member-3W1lQa.popout-open .status-oxiHuE {
     width:100% !important;
     background: transparent;
     border-radius: inherit;
@@ -30,37 +30,20 @@ This is a small collection of my CSS Snippets that people may enjoy. Adjust any 
 	margin: 0;
 }
 
-.channel-members .member:hover .status.status-online,
-.channel-members .member.popout-open .status.status-online {border-color: #43b581 !important}
-.channel-members .member:hover .status.status-idle,
-.channel-members .member.popout-open .status.status-idle {border-color: #faa61a !important}
-.channel-members .member:hover .status.status-dnd,
-.channel-members .member.popout-open .status.status-dnd {border-color: #f04747 !important}
-.channel-members .member:hover .status.status-offline,
-.channel-members .member.popout-open .status.status-offline {border-color: #636b75 !important}
-.channel-members .member:hover .status-streaming.status,
-.channel-members .member.popout-open .status-streaming.status {border-color: #593695 !important}
-.channel-members .member.popout-open .status.status-typing,
-.channel-members .member:hover .status.status-typing {background-color: rgba(0, 0, 0, 0.4) !important;}
-.channel-members .member.popout-open .status.status-typing .spinner .spinner-inner,
-.channel-members .member:hover .status.status-typing .spinner .spinner-inner {left: 1px !important;top: 1px !important;}
-```
-
-## Colored Game
-
-Colors the current game in the userlist to match their status. Does not work with streaming unfortunately.
-
-### Preview
-
-![ColoredGame](http://i.zackrauen.com/wA8OgT.png)
-
-### CSS
-
-```css
-.channel-members .member.member-status-online .member-inner .member-activity-text strong {color: #43b581}
-.channel-members .member.member-status-idle .member-inner .member-activity-text strong {color: #faa61a}
-.channel-members .member.member-status-dnd .member-inner .member-activity-text strong {color: #f04747}
-.channel-members .member.member-status-offline .member-inner .member-activity-text strong {color: #636b75}
+.members-1998pB .member-3W1lQa:hover .status-oxiHuE.online-2S838R,
+.members-1998pB .member-3W1lQa.popout-open .status-oxiHuE.online-2S838R {border-color: #43b581 !important}
+.members-1998pB .member-3W1lQa:hover .status-oxiHuE.idle-3DEnRT,
+.members-1998pB .member-3W1lQa.popout-open .status-oxiHuE.idle-3DEnRT {border-color: #faa61a !important}
+.members-1998pB .member-3W1lQa:hover .status-oxiHuE.dnd-1_xrcq,
+.members-1998pB .member-3W1lQa.popout-open .status-oxiHuE.dnd-1_xrcq {border-color: #f04747 !important}
+.members-1998pB .member-3W1lQa:hover .status-oxiHuE.offline-3qoTek,
+.members-1998pB .member-3W1lQa.popout-open .status-oxiHuE.offline-3qoTek {border-color: #636b75 !important}
+.members-1998pB .member-3W1lQa:hover .status-oxiHuE.streaming-2_dnHe,
+.members-1998pB .member-3W1lQa.popout-open .status-oxiHuE.streaming-2_dnHe {border-color: #593695 !important}
+.members-1998pB .member-3W1lQa.popout-open .status-oxiHuE.typing-1KJk_j,
+.members-1998pB .member-3W1lQa:hover .status-oxiHuE.typing-1KJk_j {background-color: rgba(0, 0, 0, 0.4) !important;}
+.members-1998pB .member-3W1lQa.popout-open .status-oxiHuE.typing-1KJk_j .inner-1gJC7_,
+.members-1998pB .member-3W1lQa:hover .status-oxiHuE.typing-1KJk_j .inner-1gJC7_ {left: 1px !important;top: 1px !important;}
 ```
 
 
@@ -77,21 +60,23 @@ Underlines and centers the headers in userlist, channel list, and DM list.
 
 ```css
 /* underline roles in memberlist & DMs */
-.channel-members h2, .private-channels header {
+.members-1998pB .membersGroup-v9BXpm, .private-channels header {
 	text-align: center;
+	overflow: visible;
+	margin-bottom: 10px;
 }
 
-.channel-members h2::after, .private-channels header::after {
+.members-1998pB .membersGroup-v9BXpm::after, .private-channels header::after {
 	content: "";
 	display: block;
 	height: 1px;
 	width: 100%;
 	border-bottom: 2px solid white;
-	padding-bottom: 10px;
 }
+.private-channels header::after {padding-bottom: 10px;}
 
 /* underline labels in channellist */
-.channels-3g2vYe .wrapperDefault-1Dl4SS, .channels-3g2vYe .wrapperHovered-1KDCyZ {
+.channels-Ie2l6A .wrapperDefault-10Jfvz, .channels-Ie2l6A .wrapperHovered-28fu1D {
 	padding-top: 28px;
 	padding-right: 8px;
 	padding-left: 18px;
@@ -100,8 +85,7 @@ Underlines and centers the headers in userlist, channel list, and DM list.
 	margin: 28px 8px 4px 18px;
 	border-bottom: 2px solid white;
 }
-.channels-3g2vYe .nameDefault-Lnjrwm, .channels-3g2vYe .nameHovered-1YFSWq {text-align: center;}
-.channels-3g2vYe .wrapperDefault-1Dl4SS .flex-lFgbSz, .channels-3g2vYe .wrapperHovered-1KDCyZ .flex-lFgbSz {margin-right:0;}
+.channels-Ie2l6A .nameDefault-2DI02H, .channels-Ie2l6A .nameHovered-1gxhWH {text-align: center;}
 ```
 
 ## Alternate Speaking Notification
@@ -120,10 +104,10 @@ Alt 2:
 
 Alt 1:
 ```css
-.avatarSpeaking-3teDH6 {
+.avatarSpeaking-1wJCNq {
 	box-shadow: none;
 }
-.avatarSpeaking-3teDH6::before {
+.avatarSpeaking-1wJCNq::before {
 	content: "";
 	display: block;
 	height: 20px;
@@ -135,13 +119,13 @@ Alt 1:
 
 Alt 2:
 ```css
-.avatarSpeaking-3teDH6, .avatarDefault-3jtQoc, .avatarContainer-303pFz {
+.avatarSpeaking-1wJCNq, .avatarDefault-35WC3R, .avatarContainer-72bSfM {
 	border-color: transparent !important;
 	box-shadow: none !important;
 	z-index: 10;
 }
 
-.avatarSpeaking-3teDH6::before {
+.avatarSpeaking-1wJCNq::before {
 	content: "";
 	position: absolute;
 	left: -5px;
@@ -150,7 +134,7 @@ Alt 2:
 	background: #43b581;
 }
 
-.avatarSpeaking-3teDH6::after {
+.avatarSpeaking-1wJCNq::after {
 	content: "";
 	position: absolute;
 	height: 20px;
@@ -174,13 +158,13 @@ Blurs the email in account settings for showing off themes. Email will show on h
 
 ```css
 /* Blur account email */
-.user-settings-account .ui-form-item:last-of-type .view-body.selectable-prgIYK:last-of-type {
-	filter: blur(5px);
-	transition: 200ms cubic-bezier(.2, .11, 0, 1);
+.userInfoViewing-16kqK3 .flexChild-faoVW3 > div:nth-child(2) .viewBody-2Qz-jg.selectable-x8iAUj {
+    filter: blur(5px);
+    transition: 200ms cubic-bezier(.2, .11, 0, 1);
 }
 
-.user-settings-account .ui-form-item:last-of-type .view-body.selectable-prgIYK:last-of-type:hover {
-	filter: none;
-	transition: 200ms cubic-bezier(.2, .11, 0, 1);
+.userInfoViewing-16kqK3 .flexChild-faoVW3 > div:nth-child(2) .viewBody-2Qz-jg.selectable-x8iAUj:hover {
+    filter: none;
+    transition: 200ms cubic-bezier(.2, .11, 0, 1);
 }
 ```
