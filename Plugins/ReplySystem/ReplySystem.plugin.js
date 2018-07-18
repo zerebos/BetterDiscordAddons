@@ -8,7 +8,7 @@ var ReplySystem = (() => {
 			catch(err) {reject(err);}
 		});
 	});
-	const config = {"info":{"name":"ReplySystem","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.2","description":"Adds a native-esque reply button with preview. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ReplySystem/ReplySystem.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Reply button should show properly in compact mode now."]}],"main":"index.js"};
+	const config = {"info":{"name":"ReplySystem","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.3","description":"Adds a native-esque reply button with preview. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ReplySystem/ReplySystem.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Reply button should show properly in compact mode now.", "Adapted to internal restructuring."]}],"main":"index.js"};
 	const compilePlugin = ([Plugin, Api]) => {
 		const plugin = (Plugin, Api) => {
     const {WebpackModules, DiscordModules, Settings, Patcher, ReactTools} = Api;
@@ -390,9 +390,10 @@ var ReplySystem = (() => {
             });
     
             Patcher.after(Message.prototype, "render", (thisObject, args, returnValue) => {
-                if (!thisObject.props.first || thisObject.props.message.type != 0) return returnValue;
-                let id = thisObject.props.message.author.id;
-                let name = thisObject.props.message.author.username;
+                const props = this.safelyGetNestedProp(returnValue, "_owner.return.memoizedProps");
+				if (!props.first || props.message.type != 0) return returnValue;
+
+				let { id, username: name } = props.message.author;
                 if (id == this.currentUser.id) return;
                 let button = DiscordModules.React.createElement(ReplyButton, {
                     id: id,
@@ -401,11 +402,11 @@ var ReplySystem = (() => {
                 });
     
                 let children = this.safelyGetNestedProp(returnValue,
-                    !thisObject.props.compact ? "props.children.0.props.children.0.props.children" : window.pluginCookie["Quoter"] ? "props.children.0.props.children.2.1.props.children" : "props.children.0.props.children.2.props.children"
+                    !props.compact ? "props.children.0.props.children.0.props.children" : window.pluginCookie["Quoter"] ? "props.children.0.props.children.2.1.props.children" : "props.children.0.props.children.2.props.children"
                 );
                 if (!children || !Array.isArray(children)) return returnValue;
     
-                if (thisObject.props.compact) children.splice(0, 0, button);
+                if (props.compact) children.splice(0, 0, button);
                 else children.push(button);
     
                 return returnValue;
