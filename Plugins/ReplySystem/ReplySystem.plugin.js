@@ -2,13 +2,13 @@
 
 var ReplySystem = (() => {
 	if (!global.ZLibrary && !global.ZLibraryPromise) global.ZLibraryPromise = new Promise((resolve, reject) => {
-		require("request").get({url: "https://rauenzi.github.io/BetterDiscordAddons/Plugins/ZLibrary.js", timeout: 10000}, (err, res, body) => { //https://zackrauen.com/BetterDiscordApp/ZLibrary.js | https://rauenzi.github.io/BetterDiscordAddons/Plugins/ZLibrary.js
-			if (err || 200 !== res.statusCode) reject(err || res.statusMessage);
+		require("request").get({url: "https://rauenzi.github.io/BDPluginLibrary/release/ZLibrary.js", timeout: 10000}, (err, res, body) => {
+			if (err || 200 !== res.statusCode) return reject(err || res.statusMessage);
 			try {const vm = require("vm"), script = new vm.Script(body, {displayErrors: true}); resolve(script.runInThisContext());}
 			catch(err) {reject(err);}
 		});
 	});
-	const config = {"info":{"name":"ReplySystem","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.2","description":"Adds a native-esque reply button with preview. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ReplySystem/ReplySystem.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Reply button should show properly in compact mode now."]}],"main":"index.js"};
+	const config = {"info":{"name":"ReplySystem","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.3","description":"Adds a native-esque reply button with preview. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ReplySystem/ReplySystem.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Fixed a conflict with Discord's changes."]}],"main":"index.js"};
 	const compilePlugin = ([Plugin, Api]) => {
 		const plugin = (Plugin, Api) => {
     const {WebpackModules, DiscordModules, Settings, Patcher, ReactTools} = Api;
@@ -377,7 +377,7 @@ var ReplySystem = (() => {
         async patchMessageComponent() {
             let Message = await new Promise(resolve => {
                 let msg = document.querySelector(".message");
-                if (msg) return resolve(ReactTools.getOwnerInstance(msg).constructor);
+                if (msg) return resolve(ReactTools.getOwnerInstance(msg, {filter: m => m.props.avatarSize}).constructor);
         
                 let MessageGroup = WebpackModules.find(m => m.defaultProps && m.defaultProps.renderReactions);
                 let unpatch = Patcher.after(MessageGroup.prototype, "componentDidMount", (t) => {
@@ -385,7 +385,7 @@ var ReplySystem = (() => {
                     if (!elem) return;
                     unpatch();
                     let msg = elem.querySelector(".message");
-                    resolve(ReactTools.getOwnerInstance(msg).constructor);
+                    resolve(ReactTools.getOwnerInstance(msg, {filter: m => m.props.avatarSize}).constructor);
                 });
             });
     
