@@ -8,10 +8,10 @@ var ReplySystem = (() => {
 			catch(err) {reject(err);}
 		});
 	});
-	const config = {"info":{"name":"ReplySystem","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.3","description":"Adds a native-esque reply button with preview. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ReplySystem/ReplySystem.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Fixed a conflict with Discord's changes."]}],"main":"index.js"};
+	const config = {"info":{"name":"ReplySystem","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.4","description":"Adds a native-esque reply button with preview. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ReplySystem/ReplySystem.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["More fixes for Discord being bad."]}],"main":"index.js"};
 	const compilePlugin = ([Plugin, Api]) => {
 		const plugin = (Plugin, Api) => {
-    const {WebpackModules, DiscordModules, Settings, Patcher, ReactTools} = Api;
+    const {WebpackModules, DiscordModules, Settings, Patcher, ReactTools, DiscordSelectors} = Api;
 
     const Dispatcher = WebpackModules.getByProps("ComponentDispatch").ComponentDispatch;
     const TooltipWrapper = WebpackModules.getByPrototypes("showDelayed");
@@ -200,23 +200,27 @@ var ReplySystem = (() => {
                 vertical-align: top;
             }
             
-            .message-group:hover .reply-button {
+            .container-1YxwTf:hover .reply-button {
                 opacity: 0.4;
             }
             
-            .message-group .reply:hover {
+            .container-1YxwTf .reply:hover {
                 opacity: 1;
             }
+
+            .messageCompact-kQa7ES {
+                flex-direction: row;
+            }
             
-            .message-group.compact .reply-button {
+            .containerCompact-3V0ioj .reply-button {
                 margin: 0;
             }
             
-            .message-group.compact .reply-button+.timestamp {
+            .containerCompact-3V0ioj .reply-button+.contentCompact-1QLHBj time {
                 width: 50px;
             }
 
-            .message-group.compact .timestamp {
+            .containerCompact-3V0ioj time {
                 width: 65px;
             }
     
@@ -376,21 +380,21 @@ var ReplySystem = (() => {
     
         async patchMessageComponent() {
             let Message = await new Promise(resolve => {
-                let msg = document.querySelector(".message");
-                if (msg) return resolve(ReactTools.getOwnerInstance(msg, {filter: m => m.props.avatarSize}).constructor);
+                let msg = document.querySelector(DiscordSelectors.Messages.message);
+                if (msg) return resolve(ReactTools.getOwnerInstance(msg).constructor);
         
-                let MessageGroup = WebpackModules.find(m => m.defaultProps && m.defaultProps.renderReactions);
+                let MessageGroup = WebpackModules.getModule(m => m.defaultProps && m.defaultProps.disableManageMessages);
                 let unpatch = Patcher.after(MessageGroup.prototype, "componentDidMount", (t) => {
                     let elem = DiscordModules.ReactDOM.findDOMNode(t);
                     if (!elem) return;
                     unpatch();
-                    let msg = elem.querySelector(".message");
-                    resolve(ReactTools.getOwnerInstance(msg, {filter: m => m.props.avatarSize}).constructor);
+                    let msg = elem.querySelector(DiscordSelectors.Messages.message);
+                    resolve(ReactTools.getOwnerInstance(msg).constructor);
                 });
             });
     
             Patcher.after(Message.prototype, "render", (thisObject, args, returnValue) => {
-                if (!thisObject.props.first || thisObject.props.message.type != 0) return returnValue;
+                if (!thisObject.props.isHeader || thisObject.props.message.type != 0) return returnValue;
                 let id = thisObject.props.message.author.id;
                 let name = thisObject.props.message.author.username;
                 if (id == this.currentUser.id) return;
@@ -401,11 +405,11 @@ var ReplySystem = (() => {
                 });
     
                 let children = this.safelyGetNestedProp(returnValue,
-                    !thisObject.props.compact ? "props.children.0.props.children.0.props.children" : window.pluginCookie["Quoter"] ? "props.children.0.props.children.2.1.props.children" : "props.children.0.props.children.2.props.children"
+                    !thisObject.props.isCompact ? "props.children.0.props.children.1.props.children" : window.pluginCookie["Quoter"] ? "props.children.0.props.children.2.1.props.children" : "props.children"
                 );
                 if (!children || !Array.isArray(children)) return returnValue;
     
-                if (thisObject.props.compact) children.splice(0, 0, button);
+                if (thisObject.props.isCompact) children.splice(0, 0, button);
                 else children.push(button);
     
                 return returnValue;
@@ -415,7 +419,7 @@ var ReplySystem = (() => {
         }
     
         forceUpdateMessages() {
-            let messages = document.querySelectorAll(".message");
+            let messages = document.querySelectorAll(DiscordSelectors.Messages.message);
             for (let m = 0; m < messages.length; m++) ReactTools.getOwnerInstance(messages[m]).forceUpdate();
         }
     
