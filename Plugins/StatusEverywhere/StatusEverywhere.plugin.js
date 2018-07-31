@@ -1,94 +1,55 @@
-//META{"name":"StatusEverywhere","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/StatusEverywhere","source":"https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/StatusEverywhere/StatusEverywhere.plugin.js"}*//
+//META{"name":"StatusEverywhere","displayName":"StatusEverywhere","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/StatusEverywhere","source":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/StatusEverywhere/StatusEverywhere.plugin.js"}*//
 
-/* global PluginUtilities:false, ReactUtilities:false, BdApi:false */
+var StatusEverywhere = (() => {
+	if (!global.ZLibrary && !global.ZLibraryPromise) global.ZLibraryPromise = new Promise((resolve, reject) => {
+		require("request").get({url: "https://rauenzi.github.io/BDPluginLibrary/release/ZLibrary.js", timeout: 10000}, (err, res, body) => {
+			if (err || 200 !== res.statusCode) return reject(err || res.statusMessage);
+			try {const vm = require("vm"), script = new vm.Script(body, {displayErrors: true}); resolve(script.runInThisContext());}
+			catch(err) {reject(err);}
+		});
+	});
+	const config = {"info":{"name":"StatusEverywhere","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.4.0","description":"Adds user status everywhere Discord doesn't. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/StatusEverywhere","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/StatusEverywhere/StatusEverywhere.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Updated for Discord changes."]}],"main":"index.js"};
+	const compilePlugin = ([Plugin, Api]) => {
+		const plugin = (Plugin, Api) => {
+    const {Patcher, WebpackModules} = Api;
+    return class HideDisabledEmojis extends Plugin {
+        onStart() {
+            const Avatar = WebpackModules.getByProps("AvatarWrapper");
+            const original = Avatar.default;
+            Patcher.before(Avatar, "default", (_, args) => {
+                if (args[0].status) return;
+                const id = args[0].src.split("/")[4];
+                args[0].status = DiscordModules.UserStatusStore.getStatus(id);
+            });
+            Object.assign(Avatar.default, original);
+        }
+        
+        onStop() {
+            Patcher.unpatchAll();
+        }
 
-class StatusEverywhere {
-	getName() { return "StatusEverywhere"; }
-	getShortName() { return "StatusEverywhere"; }
-	getDescription() { return "Adds user status everywhere Discord doesn't. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.3.2"; }
-	getAuthor() { return "Zerebos"; }
-
-	constructor() {
-		this.initialized = false;
-	}
+    };
+};
+		return plugin(Plugin, Api);
+	};
 	
-	load() {}
-	unload() {}
-	
-	start() {
-        let libraryScript = document.getElementById('zeresLibraryScript');
-		if (!libraryScript || (window.ZeresLibrary && window.ZeresLibrary.isOutdated)) {
-			if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
-			libraryScript = document.createElement("script");
-			libraryScript.setAttribute("type", "text/javascript");
-			libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
-			libraryScript.setAttribute("id", "zeresLibraryScript");
-            document.head.appendChild(libraryScript);
+	return !global.ZLibrary ? class {
+		getName() {return config.info.name.replace(" ", "");} getAuthor() {return config.info.authors.map(a => a.name).join(", ");} getDescription() {return config.info.description;} getVersion() {return config.info.version;} stop() {}
+		showAlert() {window.mainCore.alert("Loading Error",`Something went wrong trying to load the library for the plugin. Try reloading?`);}
+		async load() {
+			try {await global.ZLibraryPromise;}
+			catch(err) {return this.showAlert();}
+			const vm = require("vm"), plugin = compilePlugin(global.ZLibrary.buildPlugin(config));
+			try {new vm.Script(plugin, {displayErrors: true});} catch(err) {return bdpluginErrors.push({name: this.getName(), file: this.getName() + ".plugin.js", reason: "Plugin could not be compiled.", error: {message: err.message, stack: err.stack}});}
+			global[this.getName()] = plugin;
+			try {new vm.Script(`new global["${this.getName()}"]();`, {displayErrors: true});} catch(err) {return bdpluginErrors.push({name: this.getName(), file: this.getName() + ".plugin.js", reason: "Plugin could not be constructed", error: {message: err.message, stack: err.stack}});}
+			bdplugins[this.getName()].plugin = new global[this.getName()]();
+			bdplugins[this.getName()].plugin.load();
 		}
-
-		if (window.ZeresLibrary) this.initialize();
-		else libraryScript.addEventListener("load", () => { this.initialize(); });
-	}
-
-	stop() {
-		$('.message-group .avatar-large').each((index, elem) => {
-			if ($(elem).find('.status').length) $(elem).empty();
-		});
-		Patcher.unpatchAll(this.getName());
-	}
-
-	initialize() {
-		PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
-		let Avatar = DiscordModules.Avatar;
-
-		Patcher.after(this.getName(), Avatar.prototype, "getDefaultProps", (thisObject, args, returnValue) => {
-			return returnValue.status = "offline";
-		});
-
-		Patcher.after(this.getName(), Avatar.prototype, "componentWillMount", (thisObject) => {	
-			if (thisObject.props.size != "large") return;
-
-			let userId = thisObject.props.user.id;
-			let channelId = DiscordModules.SelectedChannelStore.getChannelId();
-
-			thisObject.props.onTypingUpdate = () => {
-				let newStatus = DiscordModules.UserTypingStore.isTyping(channelId, userId);
-				if (thisObject.props.typing == newStatus) return;
-				thisObject.props.typing = newStatus;
-				thisObject.forceUpdate();
-			};
-
-			thisObject.props.onStatusUpdate = () => {
-				let newStatus = DiscordModules.UserStatusStore.getStatus(userId);
-				let newStreaming = DiscordModules.UserActivityStore.getActivity(userId) && DiscordModules.UserActivityStore.getActivity(userId).type === 1;
-				if (thisObject.props.status == newStatus && thisObject.props.streaming == newStreaming) return;
-				thisObject.props.status = newStatus;
-				thisObject.props.streaming = newStreaming;
-				thisObject.forceUpdate();
-			};
-
-			DiscordModules.UserTypingStore.addChangeListener(thisObject.props.onTypingUpdate);
-			DiscordModules.UserStatusStore.addChangeListener(thisObject.props.onStatusUpdate);
-
-			thisObject.props.onTypingUpdate();
-			thisObject.props.onStatusUpdate();
-		});
-
-		Patcher.before(this.getName(), Avatar.prototype, "render", (thisObject) => {
-			if (thisObject.props.size != "large") return;
-			thisObject.props.status = DiscordModules.UserStatusStore.getStatus(thisObject.props.user.id);
-			thisObject.props.streaming = DiscordModules.UserActivityStore.getActivity(thisObject.props.user.id) && DiscordModules.UserActivityStore.getActivity(thisObject.props.user.id).type === 1;
-			thisObject.props.typing = DiscordModules.UserTypingStore.isTyping(DiscordModules.SelectedChannelStore.getChannelId(), thisObject.props.user.id);
-		});
-
-		Patcher.after(this.getName(), Avatar.prototype, "componentWillUnmount", (thisObject) => {
-			if (thisObject.props.size != "large") return;
-			DiscordModules.UserTypingStore.removeChangeListener(thisObject.props.onTypingUpdate);
-			DiscordModules.UserStatusStore.removeChangeListener(thisObject.props.onStatusUpdate);
-		});
-
-		PluginUtilities.showToast(this.getName() + " " + this.getVersion() + " has started.");
-		this.initialized = true;
-	}
-}
+		async start() {
+			try {await global.ZLibraryPromise;}
+			catch(err) {return this.showAlert();}
+			bdplugins[this.getName()].plugin.start();
+		}
+	} : compilePlugin(global.ZLibrary.buildPlugin(config));
+})();

@@ -1,5 +1,10 @@
 # StatusEverywhere Changelog
 
+### 0.4.0
+
+ - Rewrite to use new lib
+ - Rewrite for new discord changes (simple design)
+
 ### 0.3.2
 
  - Fix for avatar changes
