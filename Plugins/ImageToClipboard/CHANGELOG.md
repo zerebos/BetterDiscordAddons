@@ -1,5 +1,10 @@
 # ImageToClipboard Changelog
 
+### 0.3.0
+
+ - Rewrite for new lib
+ - Rewrite to only patch internal renders (no DOM manipulation)
+
 ### 0.2.14
 
  - Fix modal link
