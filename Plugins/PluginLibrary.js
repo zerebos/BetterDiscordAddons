@@ -228,7 +228,9 @@ var DiscordClassModules = {
 												InternalUtilities.WebpackModules.findByUniqueProperties(["members", "membersWrap"]));},
 	get TitleWrap() {return InternalUtilities.WebpackModules.findByUniqueProperties(["titleWrapper"]);},
 	get Titlebar() {return InternalUtilities.WebpackModules.findByUniqueProperties(["titleBar"]);},
-	get Embeds() {return InternalUtilities.WebpackModules.findByUniqueProperties(["embed", "embedAuthor"]);}
+	get Embeds() {return InternalUtilities.WebpackModules.findByUniqueProperties(["embed", "embedAuthor"]);},
+	get Messages() {return InternalUtilities.WebpackModules.findByUniqueProperties(["message", "containerCozy"]);},
+	get Guilds() {return InternalUtilities.WebpackModules.findByUniqueProperties(["guildsWrapper"]);}
 };
 
 DiscordClassModules = GeneralUtilities.memoizeObject(DiscordClassModules);
