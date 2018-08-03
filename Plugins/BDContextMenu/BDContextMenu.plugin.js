@@ -1,17 +1,14 @@
-//META{"name":"BDContextMenu","displayName":"BDContextMenu","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu","source":"https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"}*//
+//META{"name":"BDContextMenu","displayName":"BDContextMenu","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu","source":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"}*//
 
 var BDContextMenu = (() => {
-	if ((!global.ZLibrary && !global.ZLibraryPromise) || (global.ZLibrary && global.ZLibrary.isOutdated)) global.ZLibraryPromise = new Promise((resolve, reject) => {
-		setTimeout(reject, 5000);
-		if (document.getElementById("ZLibraryScript")) document.getElementById("ZLibraryScript").remove();
-		const libraryScript = document.createElement("script");
-		libraryScript.setAttribute("type", "text/javascript");
-		libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/ZLibrary.js");
-		libraryScript.setAttribute("id", "ZLibraryScript");
-		document.head.appendChild(libraryScript);
-		libraryScript.addEventListener("load", resolve);
+	if (!global.ZLibrary && !global.ZLibraryPromise) global.ZLibraryPromise = new Promise((resolve, reject) => {
+		require("request").get("https://rauenzi.github.io/BetterDiscordAddons/Plugins/ZLibrary.js", (err, res, body) => { //https://zackrauen.com/BetterDiscordApp/ZLibrary.js | https://rauenzi.github.io/BetterDiscordAddons/Plugins/ZLibrary.js
+			if (err || 200 !== res.statusCode) reject(err || res.statusMessage);
+			try {const vm = require("vm"), script = new vm.Script(body, {displayErrors: true}); resolve(script.runInThisContext());}
+			catch(err) {reject(err);}
+		});
 	});
-    const config = {"info":{"name":"BDContextMenu","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.11","description":"Adds BD shortcuts to the settings context menu. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu","github_raw":"https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"},"main":"index.js"};
+	const config = {"info":{"name":"BDContextMenu","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.12","description":"Adds BD shortcuts to the settings context menu. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"},"main":"index.js"};
 	const compilePlugin = ([Plugin, Api]) => {
 		const plugin = (Plugin, Api) => {
     const {DiscordSelectors, ContextMenu, Toasts} = Api;
@@ -192,20 +189,20 @@ var BDContextMenu = (() => {
 
     };
 };
-        return plugin(Plugin, Api);
-    };
+		return plugin(Plugin, Api);
+	};
 	
-    return !global.ZLibrary ? class {
-        getName() {return config.info.name;} getAuthor() {return config.info.authors.map(a => a.name).join(", ");} getDescription() {return config.info.description;} getVersion() {return config.info.version;} stop() {}
-        showAlert() {window.mainCore.alert("Library Missing",`The Library needed for this plugin is missing, please download it from here: <a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ZeresPluginLibrary/0PluginLibrary.plugin.js">https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ZeresPluginLibrary</a>`);}
+	return !global.ZLibrary ? class {
+		getName() {return config.info.name.replace(" ", "");} getAuthor() {return config.info.authors.map(a => a.name).join(", ");} getDescription() {return config.info.description;} getVersion() {return config.info.version;} stop() {}
+		showAlert() {window.mainCore.alert("Loading Error",`Something went wrong trying to load the library for the plugin. Try reloading?`);}
 		async load() {
 			try {await global.ZLibraryPromise;}
 			catch(err) {return this.showAlert();}
 			const vm = require("vm"), plugin = compilePlugin(global.ZLibrary.buildPlugin(config));
 			try {new vm.Script(plugin, {displayErrors: true});} catch(err) {return bdpluginErrors.push({name: this.getName(), file: this.getName() + ".plugin.js", reason: "Plugin could not be compiled.", error: {message: err.message, stack: err.stack}});}
-			global["BDContextMenu"] = plugin;
-			try {new vm.Script(`new global["BDContextMenu"]();`, {displayErrors: true});} catch(err) {return bdpluginErrors.push({name: this.getName(), file: this.getName() + ".plugin.js", reason: "Plugin could not be constructed", error: {message: err.message, stack: err.stack}});}
-			bdplugins[this.getName()].plugin = new global["BDContextMenu"]();
+			global[this.getName()] = plugin;
+			try {new vm.Script(`new global["${this.getName()}"]();`, {displayErrors: true});} catch(err) {return bdpluginErrors.push({name: this.getName(), file: this.getName() + ".plugin.js", reason: "Plugin could not be constructed", error: {message: err.message, stack: err.stack}});}
+			bdplugins[this.getName()].plugin = new global[this.getName()]();
 			bdplugins[this.getName()].plugin.load();
 		}
 		async start() {
@@ -213,5 +210,5 @@ var BDContextMenu = (() => {
 			catch(err) {return this.showAlert();}
 			bdplugins[this.getName()].plugin.start();
 		}
-    } : compilePlugin(global.ZLibrary.buildPlugin(config));
+	} : compilePlugin(global.ZLibrary.buildPlugin(config));
 })();
