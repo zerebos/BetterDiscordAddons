@@ -8,10 +8,10 @@ var ReplySystem = (() => {
 			catch(err) {reject(err);}
 		});
 	});
-	const config = {"info":{"name":"ReplySystem","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.4","description":"Adds a native-esque reply button with preview. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ReplySystem/ReplySystem.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["More fixes for Discord being bad."]}],"main":"index.js"};
+	const config = {"info":{"name":"ReplySystem","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.5","description":"Adds a native-esque reply button with preview. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ReplySystem/ReplySystem.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Fix compatibility with quoter.","Adjust colors for light mode.","Make the list actually appear."]}],"main":"index.js"};
 	const compilePlugin = ([Plugin, Api]) => {
 		const plugin = (Plugin, Api) => {
-    const {WebpackModules, DiscordModules, Settings, Patcher, ReactTools, DiscordSelectors} = Api;
+    const {WebpackModules, DiscordModules, Settings, Patcher, ReactTools, DiscordSelectors, DOMTools} = Api;
 
     const Dispatcher = WebpackModules.getByProps("ComponentDispatch").ComponentDispatch;
     const TooltipWrapper = WebpackModules.getByPrototypes("showDelayed");
@@ -183,7 +183,7 @@ var ReplySystem = (() => {
         }
     };
 
-    return class BDContextMenu extends Plugin {
+    return class ReplySystem extends Plugin {
 
         constructor() {
             super();
@@ -194,10 +194,19 @@ var ReplySystem = (() => {
                 opacity: 0;
                 transition: opacity 200ms ease;
                 cursor: pointer;
+                color: white;
             }
             .reply-icon {
                 fill: white;
                 vertical-align: top;
+            }
+
+            .theme-light .reply-button {
+                color: gray;
+            }
+
+            .theme-light .reply-icon {
+                fill: gray;
             }
             
             .container-1YxwTf:hover .reply-button {
@@ -236,6 +245,7 @@ var ReplySystem = (() => {
                 padding: 0 18px 5px 5px;
                 border-radius: 5px 5px 0 0;
                 font-size: 14px;
+                color: white;
             }
             
             @keyframes reply-add {
@@ -298,8 +308,7 @@ var ReplySystem = (() => {
         }
 
         onStart() {
-            BdApi.injectCSS(this.getName(), this.css);    
-            this.currentUser = DiscordModules.UserStore.getCurrentUser();
+            document.head.append(DOMTools.createElement(`<style id="${this.getName}">${this.css}</style>`));
             Dispatcher.subscribe("ADD_REPLY", this.addReply);
             Dispatcher.subscribe("REMOVE_REPLY", this.removeReply);
             Dispatcher.subscribe("CLEAR_REPLY", this.clearReply);
@@ -319,7 +328,7 @@ var ReplySystem = (() => {
         }
         
         onStop() {
-            BdApi.clearCSS(this.getName());
+            document.querySelector(`style#${this.getName()}`).remove();
             Patcher.unpatchAll(this.getName());
             this.forceUpdateMessages();
             this.forceUpdateTextarea();
@@ -349,14 +358,14 @@ var ReplySystem = (() => {
     
         async patchTextareaComponent() {
             let Textarea = await new Promise(resolve => {
-                let form = document.querySelector(".chat form");
+                let form = document.querySelector(".chat-3bRxxu form");
                 if (form) resolve(ReactTools.getOwnerInstance(form).constructor);
                 else {
                     let channel = WebpackModules.find(m => m.prototype && m.prototype.renderEmptyChannel);
                     let unpatch = Patcher.before(channel.prototype, "componentDidUpdate", (t) => {
                         let elem = DiscordModules.ReactDOM.findDOMNode(t);
                         if (!elem) return;
-                        let form = elem.querySelector(".chat form");
+                        let form = elem.querySelector(".chat-3bRxxu form");
                         if (!form) return;
                         unpatch();
                         resolve(ReactTools.getOwnerInstance(form).constructor);
@@ -374,7 +383,7 @@ var ReplySystem = (() => {
         }
     
         forceUpdateTextarea() {
-            let form = document.querySelector(".chat form");
+            let form = document.querySelector(".chat-3bRxxu form");
             form && ReactTools.getOwnerInstance(form).forceUpdate();
         }
     
@@ -397,7 +406,7 @@ var ReplySystem = (() => {
                 if (!thisObject.props.isHeader || thisObject.props.message.type != 0) return returnValue;
                 let id = thisObject.props.message.author.id;
                 let name = thisObject.props.message.author.username;
-                if (id == this.currentUser.id) return;
+                if (id == DiscordModules.UserStore.getCurrentUser().id) return;
                 let button = DiscordModules.React.createElement(ReplyButton, {
                     id: id,
                     name: name,
@@ -405,7 +414,7 @@ var ReplySystem = (() => {
                 });
     
                 let children = this.safelyGetNestedProp(returnValue,
-                    !thisObject.props.isCompact ? "props.children.0.props.children.1.props.children" : window.pluginCookie["Quoter"] ? "props.children.0.props.children.2.1.props.children" : "props.children"
+                    !thisObject.props.isCompact ? "props.children.0.props.children.1.props.children" : "props.children"
                 );
                 if (!children || !Array.isArray(children)) return returnValue;
     
