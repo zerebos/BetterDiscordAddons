@@ -6,14 +6,15 @@ class ServerSorter {
 	getName() { return "ServerSorter"; }
 	getShortName() { return "ServerSorter"; }
 	getDescription() { return "Adds server sorting abilities to Discord. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.3.0"; }
+	getVersion() { return "0.3.1"; }
 	getAuthor() { return "Zerebos"; }
 	
 	load() {}
 	unload() {}
 	
-	start() {
+	async start() {
         let libraryScript = document.getElementById('zeresLibraryScript');
+		if (!window.ZeresLibraryPromise && libraryScript) window.ZeresLibraryPromise = new Promise(resolve => libraryScript.addEventListener("load", resolve));
 		if (!libraryScript || (window.ZeresLibrary && window.ZeresLibrary.isOutdated)) {
 			if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
 			libraryScript = document.createElement("script");
@@ -21,10 +22,11 @@ class ServerSorter {
 			libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
 			libraryScript.setAttribute("id", "zeresLibraryScript");
             document.head.appendChild(libraryScript);
+			window.ZeresLibraryPromise = new Promise(resolve => libraryScript.addEventListener("load", resolve));
 		}
 
-		if (window.ZeresLibrary) this.initialize();
-		else libraryScript.addEventListener("load", () => { this.initialize(); });
+		await window.ZeresLibraryPromise;
+		this.initialize();
 	}
 
 	stop() {
@@ -39,7 +41,13 @@ class ServerSorter {
 		"#sort-options.open { pointer-events:initial;opacity:1;transition: 300ms cubic-bezier(.2,0,0,1); transform-origin: 0 0; transform: translateY(0px);}");
 		this.SortedGuildStore = InternalUtilities.WebpackModules.findByUniqueProperties(['getSortedGuilds']);
 		
-		let sortButton = $('<div class="guild guild-sorter" id="bd-pub-li" style="height: 20px; margin-bottom:10px;"><div class="guild-inner" style="height: 20px; border-radius: 4px;"><a><div id="bd-pub-button" class="sort-button" style="line-height: 20px; font-size: 12px;">Sort</div></a></div></div>');
+		let sortButton = $(`<div class="guild-1EfMGQ guild-sorter" id="bd-pub-li" style="height: 20px; margin-bottom:10px;">
+								<div class="guildInner-3DSoA4" style="height: 20px; border-radius: 4px;">
+									<a>
+										<div id="bd-pub-button" class="sort-button" style="line-height: 20px; font-size: 12px;">Sort</div>
+									</a>
+								</div>
+							</div>`);
 
 		let contextMenu = new PluginContextMenu.Menu().addItems(
 			new PluginContextMenu.ItemGroup().addItems(
@@ -62,12 +70,12 @@ class ServerSorter {
 		sortButton.find('.sort-button').on("click." + this.getShortName(), (e) => {
 			contextMenu.show(e.clientX, e.clientY);
 		});
-		sortButton.insertBefore($('.dms + .guild-separator'));
+		sortButton.insertBefore($('.dms-rcsEnV + .guildSeparator-1X4GQ1'));
 		PluginUtilities.showToast(this.getName() + " " + this.getVersion() + " has started.");
 	}
 
 	getGuilds() {
-		return $('div.guild:has(div[draggable="true"]):not(#server-search)');
+		return $('div.guild-1EfMGQ:has(div[draggable="true"]):not(#server-search)');
 	}
 	
 	getGuildData(guild) {
@@ -111,7 +119,7 @@ class ServerSorter {
 			}
 			return 0;
 		});
-		guilds.detach().insertBefore($('button.guild'));
+		guilds.detach().insertBefore($('button.guild-1EfMGQ'));
 	}
 	
 	observer() {}

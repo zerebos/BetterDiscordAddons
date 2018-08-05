@@ -1,5 +1,9 @@
 # ServerSearch Changelog
 
+### 0.0.4
+
+ - Adjust classnames
+
 ### 0.0.3
 
  - Fix for discord update

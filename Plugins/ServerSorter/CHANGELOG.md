@@ -1,5 +1,9 @@
 # ServerSorter Changelog
 
+### 0.3.1
+
+ - Adjust classnames
+
 ### 0.3.0
 
  - Rewrite the sort options as context menu

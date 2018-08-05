@@ -1,11 +1,9 @@
 //META{"name":"ServerSearch","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch","source":"https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/ServerSearch/ServerSearch.plugin.js"}*//
 
-/* global ColorUtilities:false, PluginUtilities:false, DiscordModules:false, InternalUtilities:false, ReactUtilities:false, PluginTooltip:false, PluginSettings:false, BdApi:false */
-
 class ServerSearch {
 	getName() { return "ServerSearch"; }
 	getDescription() { return "Adds a button to search your servers. Search in place or in popout. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.3"; }
+	getVersion() { return "0.0.4"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -14,21 +12,11 @@ class ServerSearch {
 		this.css = `.avatar-search {
 			background-image: url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjQ4IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSI0OCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTE1LjUgMTRoLS43OWwtLjI4LS4yN0MxNS40MSAxMi41OSAxNiAxMS4xMSAxNiA5LjUgMTYgNS45MSAxMy4wOSAzIDkuNSAzUzMgNS45MSAzIDkuNSA1LjkxIDE2IDkuNSAxNmMxLjYxIDAgMy4wOS0uNTkgNC4yMy0xLjU3bC4yNy4yOHYuNzlsNSA0Ljk5TDIwLjQ5IDE5bC00Ljk5LTV6bS02IDBDNy4wMSAxNCA1IDExLjk5IDUgOS41UzcuMDEgNSA5LjUgNSAxNCA3LjAxIDE0IDkuNSAxMS45OSAxNCA5LjUgMTR6Ii8+ICAgIDxwYXRoIGQ9Ik0wIDBoMjR2MjRIMHoiIGZpbGw9Im5vbmUiLz48L3N2Zz4=);
 			background-size: 50%!important;
+			background-repeat: no-repeat;
 		}
 
 		#server-search {
 			margin-bottom: 10px;
-		}
-
-		#server-search .guild-inner {
-		}
-		
-		#server-search:hover .guild-inner {
-
-		}
-
-		#server-search.selected .guild-inner {
-
 		}
 
 		.popout-2RRwAO.popout-server-search,
@@ -53,14 +41,16 @@ class ServerSearch {
 		}
 		`;
 
-		this.guildHtml = `<div class="guild" id="server-search">
+		this.guildHtml = `<div class="guild-1EfMGQ" id="server-search">
 								<div draggable="true">
-									<div class="guild-inner" draggable="false" style="border-radius: 25px; background-color: rgb(47, 49, 54);">
-										<a draggable="false" class="avatar-small avatar-search"></a>
+									<div class="guildInner-3DSoA4" draggable="false" style="border-radius: 25px; background-color: rgb(47, 49, 54);">
+										<a draggable="false">
+											<div class="icon-3o6xvg guildIcon-CT-ZDq iconSizeLarge-161qtT iconInactive-98JN5i avatar-search" draggable="false"></div>
+										</a>
 									</div>
 								</div>
 							</div>`;
-		this.separatorHtml = `<div class="guild-separator server-search-separator"></div>`;
+		this.separatorHtml = `<div class="guildSeparator-1X4GQ1 server-search-separator"></div>`;
 
 		this.smallPopoutHtml = `<div class="popout-3sVMXz noArrow-3BYQ0Z POPOUT_DID_RERENDERight-3DdP6m popoutRight-ru2QHm popout-server-search-small">
 								<div class="search-bar">
@@ -115,8 +105,9 @@ class ServerSearch {
 		PluginUtilities.saveSettings(this.getName(), this.settings);
 	}
 	
-	start(){
+	async start(){
         let libraryScript = document.getElementById('zeresLibraryScript');
+		if (!window.ZeresLibraryPromise && libraryScript) window.ZeresLibraryPromise = new Promise(resolve => libraryScript.addEventListener("load", resolve));
 		if (!libraryScript || (window.ZeresLibrary && window.ZeresLibrary.isOutdated)) {
 			if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
 			libraryScript = document.createElement("script");
@@ -124,10 +115,11 @@ class ServerSearch {
 			libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
 			libraryScript.setAttribute("id", "zeresLibraryScript");
             document.head.appendChild(libraryScript);
+			window.ZeresLibraryPromise = new Promise(resolve => libraryScript.addEventListener("load", resolve));
 		}
 
-		if (window.ZeresLibrary) this.initialize();
-		else libraryScript.addEventListener("load", () => { this.initialize(); });
+		await window.ZeresLibraryPromise;
+		this.initialize();
 	}
 
 	stop() {
@@ -154,8 +146,8 @@ class ServerSearch {
 
 	addSearchButton() {
 		let guildElement = $(this.guildHtml);
-		let guildElementInner = guildElement.find('.guild-inner');
-		$(".dms").after($(this.separatorHtml), guildElement);
+		let guildElementInner = guildElement.find('.guildInner-3DSoA4');
+		$(".dms-rcsEnV").after($(this.separatorHtml), guildElement);
 
 		
 		let gray = this.DiscordConstants.Colors.CHANNELS_GREY;
@@ -244,7 +236,7 @@ class ServerSearch {
 			let target = $(e.target);
 			if (!target.hasClass(id) && !target.parents(`.${id}`).length) {
 				popout.remove();
-				document.removeEventListener(listener);
+				document.removeEventListener("click", listener);
 				if (onClose) onClose();
 			}
 		});
@@ -303,7 +295,7 @@ class ServerSearch {
 
 	updateSearch(query) {
 		if (!query) return this.resetGuilds();
-		$('.guild:has([draggable="true"]):not(#server-search)').each((_, guild) => {
+		$('.guild-1EfMGQ:has([draggable="true"]):not(#server-search)').each((_, guild) => {
 			let name = ReactUtilities.getReactProperty(guild, "return.memoizedProps.guild.name");
 			if (name.toLowerCase().includes(query.toLowerCase())) guild.style.display = "";
 			else guild.style.display = "none";
@@ -311,7 +303,7 @@ class ServerSearch {
 	}
 
 	resetGuilds() {
-		$('.guild:has([draggable="true"]):not(#server-search)').each((_, guild) => {
+		$('.guild-1EfMGQ:has([draggable="true"]):not(#server-search)').each((_, guild) => {
 			guild.style.display = "";
 		});
 	}
