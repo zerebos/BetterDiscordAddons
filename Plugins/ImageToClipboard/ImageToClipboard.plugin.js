@@ -35,7 +35,7 @@ var ImageToClipboard = (() => {
                     label: this.strings.contextMenuLabel,
                     action: () => {
                         ContextMenuActions.closeContextMenu();
-                        this.copyToClipboard(t.props.href);
+                        this.copyToClipboard(t.props.href || t.props.src);
                     }
                 }));
             });
