@@ -207,7 +207,7 @@ ColorUtilities.rgbToAlpha = function(color, alpha) {
  */
 var DiscordClassModules = {
 	get ContextMenu() {return InternalUtilities.WebpackModules.findByUniqueProperties(['itemToggle']);},
-	get Scrollers() {return InternalUtilities.WebpackModules.findByUniqueProperties(['scrollerWrap']);},
+	get Scrollers() {return InternalUtilities.WebpackModules.findByUniqueProperties(['scrollerWrap', 'scrollerTrack']);},
 	get AccountDetails() {return Object.assign({}, InternalUtilities.WebpackModules.findByUniqueProperties(['nameTag']),
 													InternalUtilities.WebpackModules.findByUniqueProperties(['accountDetails']));},
 	get Typing() {return InternalUtilities.WebpackModules.findByUniqueProperties(['typing', 'text']);},
