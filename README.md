@@ -22,16 +22,10 @@ A series of plugins and themes for BetterDiscord. For support or announcements o
  - [ServerSorter](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSorter) - Adds the ability to sort the servers that you're in.
  - [StatusEverywhere](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/StatusEverywhere) - Adds user status everywhere Discord doesn't.
  - [TransparencyPatcher](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/TransparencyPatcher) - Allows you to make your discord see-through.
- - ~~[AlwaysTyping](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AlwaysTyping) - Makes people think you're always typing, even when you're not.~~
  
 ## Themes
  - [RadialStatus](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/RadialStatus) - An extension (and update/fix) of Zerthox's Status Circles.
  - [TransientMaterial](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/TransientMaterial) - Transparency patch theme for Beard's Material Design Theme. Also works fairly well on it's own.
- - [SwitchFix](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/SwitchFix) - Makes the checkboxes on the plugins and themes pages look like switches again.
- - [FixEmoteModifiers](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/FixEmoteModifiers) - Makes the emote modifiers work again.
  
 ## Snippets
  - [Snippet Collection](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/Snippets) - A collection of useful CSS snippets, could be considered mini-themes.
- 
-## Fixes
- - ~~[ColoredVoice & ColoredTyping](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ColoredStuff) - Fixed versions of Anxeal's ColoredVoice and ColoredTyping.~~ Outdated: See my new plugin [Better Role Colors](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors)
