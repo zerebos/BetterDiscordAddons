@@ -98,7 +98,7 @@ instead of the original function. Can also alter arguments and return values.</p
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1059">line 1059</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1099">line 1099</a>
     </li></ul></dd>
     
 
@@ -452,7 +452,7 @@ Using this, you are also able to modify the return value, using the return of yo
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1204">line 1204</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1248">line 1248</a>
     </li></ul></dd>
     
 
@@ -808,7 +808,7 @@ Using this, you are also able to modify the incoming arguments before the origin
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1189">line 1189</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1233">line 1233</a>
     </li></ul></dd>
     
 
@@ -965,7 +965,7 @@ Using this, you are also able to modify the incoming arguments before the origin
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1068">line 1068</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1108">line 1108</a>
     </li></ul></dd>
     
 
@@ -1299,7 +1299,7 @@ Using this, you are also able to modify the return value, using the return of yo
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1219">line 1219</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1263">line 1263</a>
     </li></ul></dd>
     
 
@@ -1695,7 +1695,7 @@ value before the original function actually returns.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1236">line 1236</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1280">line 1280</a>
     </li></ul></dd>
     
 
@@ -1856,7 +1856,7 @@ patches done by that specific caller.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1084">line 1084</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1124">line 1124</a>
     </li></ul></dd>
     
 
@@ -1896,7 +1896,7 @@ patches done by that specific caller.</p>
     
 
     
-    <h4 class="name" id="~patchCallback"><span class="type-signature"></span>patchCallback<span class="signature">(thisObject, arguments, returnValue)</span><span class="type-signature"> &rarr; {*}</span></h4>
+    <h4 class="name" id="~patchCallback"><span class="type-signature"></span>patchCallback<span class="signature">(thisObject, arguments, originalFunction, returnValue)</span><span class="type-signature"> &rarr; {*}</span></h4>
     
 
     
@@ -1905,6 +1905,7 @@ patches done by that specific caller.</p>
 
 <div class="description">
     <p>A callback that modifies method logic. This callback is called on each call of the original method and is provided all data about original call. Any of the data can be modified if necessary, but do so wisely.</p>
+<p>The third argument for the callback will be <code>undefined</code> for <code>before</code> patches. <code>originalFunction</code> for <code>instead</code> patches and <code>returnValue</code> for <code>after</code> patches.</p>
 </div>
 
 
@@ -1986,6 +1987,29 @@ patches done by that specific caller.</p>
 
         <tr>
             
+                <td class="name"><code>originalFunction</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The original function from the module. This the third argument for <code>instead</code> patches.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
                 <td class="name"><code>returnValue</code></td>
             
 
@@ -2002,7 +2026,7 @@ patches done by that specific caller.</p>
 
             
 
-            <td class="description last"><p>The return value of the original function. This is only present for <code>after</code> patches.</p></td>
+            <td class="description last"><p>The return value of the original function. This the third argument for <code>after</code> patches.</p></td>
         </tr>
 
     
@@ -2043,7 +2067,7 @@ patches done by that specific caller.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1167">line 1167</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1207">line 1207</a>
     </li></ul></dd>
     
 
@@ -2070,7 +2094,7 @@ patches done by that specific caller.</p>
 
         
 <div class="param-desc">
-    <p>Makes sense only when used as <code>instead</code> parameter in <a href="Patcher.html#.instead">Patcher.instead</a>. If something other than <code>undefined</code> is returned, the returned value replaces the value of <code>returnValue</code>. If used for <code>before</code> or <code>after</code>, the return value is ignored.</p>
+    <p>Makes sense only when using an <code>instead</code> or <code>after</code> patch. If something other than <code>undefined</code> is returned, the returned value replaces the value of <code>returnValue</code>. If used for <code>before</code> the return value is ignored.</p>
 </div>
 
 
@@ -2151,7 +2175,7 @@ patches done by that specific caller.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1162">line 1162</a>
+        <a href="PluginLibrary.js.html">PluginLibrary.js</a>, <a href="PluginLibrary.js.html#line1202">line 1202</a>
     </li></ul></dd>
     
 
@@ -2199,7 +2223,7 @@ patches done by that specific caller.</p>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sat May 12 2018 17:00:38 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Aug 08 2018 16:05:33 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
