@@ -8,7 +8,7 @@ var ImageToClipboard = (() => {
 			catch(err) {reject(err);}
 		});
 	});
-	const config = {"info":{"name":"ImageToClipboard","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.3.0","description":"Copies images (png/jpg) directly to clipboard. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ImageToClipboard","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ImageToClipboard/ImageToClipboard.plugin.js"},"main":"index.js"};
+	const config = {"info":{"name":"ImageToClipboard","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.3.1","description":"Copies images (png/jpg) directly to clipboard. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ImageToClipboard","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ImageToClipboard/ImageToClipboard.plugin.js"},"strings":{"es":{"contextMenuLabel":"Copiar Imagen","modalLabel":"Copiar Original","copySuccess":"Imagen copiada al portapapeles.","copyFailed":"Hubo un problema al copiar la imagen."},"pt":{"contextMenuLabel":"Copiar imagem","modalLabel":"Copiar original","copySuccess":"Imagem copiada para a área de transferência","copyFailed":"Houve um problema ao copiar a imagem"},"de":{"contextMenuLabel":"Kopiere das Bild","modalLabel":"Original Kopieren","copySuccess":"Bild in die Zwischenablage kopiert.","copyFailed":"Beim Kopieren des Bildes ist ein Problem aufgetreten."},"en":{"contextMenuLabel":"Copy Image","modalLabel":"Copy Original","copySuccess":"Image copied to clipboard.","copyFailed":"There was an issue copying the image."}},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Add separator in image modals."]},{"title":"Internal Changes","type":"improved","items":["Change how string localization is handled."]}],"main":"index.js"};
 	const compilePlugin = ([Plugin, Api]) => {
 		const plugin = (Plugin, Api) => {
     const {Patcher, WebpackModules, DiscordModules, Toasts} = Api;
@@ -41,7 +41,10 @@ var ImageToClipboard = (() => {
             });
 
             Patcher.after(ImageModal.prototype, "render", (t,a,r) => {
-                if (r) r.props.children.push(DiscordModules.React.createElement(DownloadLink, {
+                if (r) r.props.children.push(DiscordModules.React.createElement("span", {
+                            className: DLClasses.downloadLink,
+                            style: {margin: "0 5px"}
+                        }, " | ")), r.props.children.push(DiscordModules.React.createElement(DownloadLink, {
                             className: DLClasses.downloadLink,
                             title: this.strings.modalLabel,
                             target: "_blank",
@@ -78,40 +81,6 @@ var ImageToClipboard = (() => {
                 Toasts.success(this.strings.copySuccess, {type: "success"});
             });
         }
-
-        get strings() {
-            switch (DiscordModules.UserSettingsStore.locale.split("-")[0]) {
-                case "es": // Spanish
-                    return {
-                        contextMenuLabel: "Copiar Imagen",
-                        modalLabel: "Copiar Original",
-                        copySuccess: "Imagen copiada al portapapeles.",
-                        copyFailed: "Hubo un problema al copiar la imagen."
-                    };
-                case "pt": // Portuguese
-                    return {
-                        contextMenuLabel: "Copiar imagem",
-                        modalLabel: "Copiar original",
-                        copySuccess: "Imagem copiada para a área de transferência",
-                        copyFailed: "Houve um problema ao copiar a imagem"
-                    };
-                case "de": // German
-                    return {
-                        contextMenuLabel: "Kopiere das Bild",
-                        modalLabel: "Original Kopieren",
-                        copySuccess: "Bild in die Zwischenablage kopiert.",
-                        copyFailed: "Beim Kopieren des Bildes ist ein Problem aufgetreten."
-                    };
-                default: // English
-                    return {
-                        contextMenuLabel: "Copy Image",
-                        modalLabel: "Copy Original",
-                        copySuccess: "Image copied to clipboard.",
-                        copyFailed: "There was an issue copying the image."
-                    };
-            }
-        }
-
     };
 };
 		return plugin(Plugin, Api);
