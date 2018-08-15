@@ -6,7 +6,7 @@ class BetterFormattingRedux {
 	getName() { return "BetterFormattingRedux"; }
 	getShortName() { return "BFRedux"; }
 	getDescription() { return "Enables different types of formatting in standard Discord chat. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "2.2.8"; }
+	getVersion() { return "2.2.9"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -18,6 +18,7 @@ class BetterFormattingRedux {
 		this.upsideDownList = " ¡\"#$%℘,)(*+'-˙/0ƖᄅƐㄣϛ9ㄥ86:;>=<¿@∀qƆpƎℲפHIſʞ˥WNOԀQɹS┴∩ΛMXλZ]\\[^‾,ɐqɔpǝɟƃɥᴉɾʞlɯuodbɹsʇnʌʍxʎz}|{";
 		this.fullwidthList = "　！＂＃＄％＆＇（）＊＋，－．／０１２３４５６７８９：；＜＝＞？＠ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ［＼］＾＿｀ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ｛｜｝";
 		this.leetList = " !\"#$%&'()*+,-./0123456789:;<=>?@48CD3FG#IJK1MN0PQЯ57UVWXY2[\\]^_`48cd3fg#ijk1mn0pqЯ57uvwxy2{|}";
+		this.thiccList = "　!\"#$%&'()*+,-./0123456789:;<=>?@卂乃匚刀乇下厶卄工丁长乚从ん口尸㔿尺丂丅凵リ山乂丫乙[\\]^_`卂乃匚刀乇下厶卄工丁长乚从ん口尸㔿尺丂丅凵リ山乂丫乙{|}";
 
 		this.toolbarString = `<div id="bfredux" class='bf-toolbar'><div class='bf-arrow'></div></div>`;
 		
@@ -25,9 +26,9 @@ class BetterFormattingRedux {
 
 		this.defaultSettings = {toolbar: {bold: {enabled: true, order: 0}, italic: {enabled: true, order: 1}, underline: {enabled: true, order: 2}, strikethrough: {enabled: true, order: 3},
 										code: {enabled: true, order: 4}, codeblock: {enabled: true, order: 5}, superscript: {enabled: true, order: 6}, smallcaps: {enabled: true, order: 7},
-										fullwidth: {enabled: true, order: 8}, upsidedown: {enabled: true, order: 9}, varied: {enabled: true, order: 10}, leet: {enabled: false, order: 11}},
-								formats: {superscript: true, smallcaps: true, fullwidth: true, upsidedown: true, varied: true, leet: false},
-								wrappers: {superscript: "^^", smallcaps: "%%", fullwidth: "##", upsidedown: "&&", varied: "||", leet: "++"},
+										fullwidth: {enabled: true, order: 8}, upsidedown: {enabled: true, order: 9}, varied: {enabled: true, order: 10}, leet: {enabled: false, order: 11}, thicc: {enabled: false, order: 12}},
+								formats: {superscript: true, smallcaps: true, fullwidth: true, upsidedown: true, varied: true, leet: false, thicc: false},
+								wrappers: {superscript: "^^", smallcaps: "%%", fullwidth: "##", upsidedown: "&&", varied: "||", leet: "++", thicc: "$$"},
 								formatting: {fullWidthMap: true, reorderUpsidedown: true, startCaps: true},
 								plugin: {hoverOpen: true, closeOnSend: true, chainFormats: true, icons: true},
 								style: {rightSide: true, opacity: 1, fontSize: "85%"}};
@@ -84,7 +85,12 @@ class BetterFormattingRedux {
 			leet: {type: "bfr-format",
 					name: "Leet",
 					displayName: "1337",
-					icon: "<img src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAABnklEQVRoge2YL1MCQRiHCRf8EATCBZwhEPwARILR4DeQaDDeDIFgMPAhDAQDgaDdYDAQcMYZMThDNBgIBsJj2GXmXFdub937g/M+kfe3w+/ZeQ8YGg1BEITaAbSAa2BF9ayACRDnKb+utrOVNS4SqJuvK1MXgUXVLXfw4iLwDae9K5DcfUQgMCKQev3OnBXIrAiB81KqK86KEDgE3kooPweawQX0zPYl1wNGwDJnyQQ4sswuXfv4CPQsb9hJzbs7ZLal41S+Y2Q2pG4/uICePxuRgSXTtAg0LbmBkZnk7eMj0DciCyAyMolFYGhkIuAxNf8EWoUL6MzUiN0AMermE9QqmGyAoc7E+kyaxLePj0BL31gWc9we7iVwUJqAztnWZMsGONW5CBhnCPT/2sdHIOLnGmzLn1jyV7+UH4fo43VAS4xQq/IB3ALdHflj4F5nH4CLkH38DhSMCJTQMWyf/yDwZB6qEa8uAraPxrowcxGIqe8fW23XvWujfu+8V9sZUB1muJYX9p2sfai6XyZ7IxDi6axUTAREQBAEoQ58Aaheq+k8olaNAAAAAElFTkSuQmCC'>"}
+					icon: "<img src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAABnklEQVRoge2YL1MCQRiHCRf8EATCBZwhEPwARILR4DeQaDDeDIFgMPAhDAQDgaDdYDAQcMYZMThDNBgIBsJj2GXmXFdub937g/M+kfe3w+/ZeQ8YGg1BEITaAbSAa2BF9ayACRDnKb+utrOVNS4SqJuvK1MXgUXVLXfw4iLwDae9K5DcfUQgMCKQev3OnBXIrAiB81KqK86KEDgE3kooPweawQX0zPYl1wNGwDJnyQQ4sswuXfv4CPQsb9hJzbs7ZLal41S+Y2Q2pG4/uICePxuRgSXTtAg0LbmBkZnk7eMj0DciCyAyMolFYGhkIuAxNf8EWoUL6MzUiN0AMermE9QqmGyAoc7E+kyaxLePj0BL31gWc9we7iVwUJqAztnWZMsGONW5CBhnCPT/2sdHIOLnGmzLn1jyV7+UH4fo43VAS4xQq/IB3ALdHflj4F5nH4CLkH38DhSMCJTQMWyf/yDwZB6qEa8uAraPxrowcxGIqe8fW23XvWujfu+8V9sZUB1muJYX9p2sfai6XyZ7IxDi6axUTAREQBAEoQ58Aaheq+k8olaNAAAAAElFTkSuQmCC'>"},
+			thicc: {type: "bfr-format",
+					name: "Extra Thicc",
+					displayName: "乇乂下尺卂 下卄工匚匚",
+					icon: "<img src='data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxNi4wLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB3aWR0aD0iMjRweCIgaGVpZ2h0PSIyNHB4IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDI0IDI0IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxwYXRoIGRpc3BsYXk9Im5vbmUiIGZpbGw9IiNGRkZGRkYiIGQ9Ik0xNS42LDEwLjc5YzAuOTcxLTAuNjcsMS42NS0xLjc3LDEuNjUtMi43OWMwLTIuMjYtMS43NS00LTQtNEg3djE0aDcuMDQNCgljMi4wOSwwLDMuNzEtMS43LDMuNzEtMy43OUMxNy43NSwxMi42ODksMTYuODkxLDExLjM5LDE1LjYsMTAuNzl6IE0xMCw2LjVoM2MwLjgzLDAsMS41LDAuNjcsMS41LDEuNVMxMy44Myw5LjUsMTMsOS41aC0zVjYuNXoNCgkgTTEzLjUsMTUuNUgxMHYtM2gzLjVjMC44MywwLDEuNSwwLjY3LDEuNSwxLjVTMTQuMzMsMTUuNSwxMy41LDE1LjV6Ii8+DQo8cGF0aCBmaWxsPSJub25lIiBkPSJNMCwwaDI0djI0SDBWMHoiLz4NCjx0ZXh0IHRyYW5zZm9ybT0ibWF0cml4KDEgMCAwIDEgNS45MzU1IDE0Ljk5NzEpIiBmaWxsPSIjRkZGRkZGIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgZm9udC1mYW1pbHk9IidLb3pHb1ByNk4tUmVndWxhci04M3B2LVJLU0otSCciIGZvbnQtc2l6ZT0iMTIuNTY0Ij7kuYc8L3RleHQ+DQo8L3N2Zz4NCg=='>"
+					},
 		};
 
 		this.allLanguages = {
@@ -462,6 +468,7 @@ class BetterFormattingRedux {
 				else if (wrapper == this.settings.wrappers.smallcaps) {return index != -1 ? this.smallCapsList[index] : letter;}
 				else if (wrapper == this.settings.wrappers.upsidedown) {return index != -1 ? this.upsideDownList[index] : letter;}
 				else if (wrapper == this.settings.wrappers.leet) {return index != -1 ? this.leetList[index] : letter;}
+				else if (wrapper == this.settings.wrappers.thicc) {return index != -1 ? this.thiccList[index] : letter;}
 				else if (wrapper == this.settings.wrappers.varied) {
 					var compare = this.settings.formatting.startCaps ? 1 : 0;
 					if (letter.toLowerCase() == letter.toUpperCase()) letterNum = letterNum - 1;
@@ -649,7 +656,8 @@ class BetterFormattingRedux {
 			new PluginSettings.Checkbox("Full Width", "", this.settings.toolbar.fullwidth.enabled, (checked) => {this.settings.toolbar.fullwidth.enabled = checked;}),
 			new PluginSettings.Checkbox("Upsidedown", "", this.settings.toolbar.upsidedown.enabled, (checked) => {this.settings.toolbar.upsidedown.enabled = checked;}),
 			new PluginSettings.Checkbox("Varied Caps", "", this.settings.toolbar.varied.enabled, (checked) => {this.settings.toolbar.varied.enabled = checked;}),
-			new PluginSettings.Checkbox("Leet (1337)", "", this.settings.toolbar.leet.enabled, (checked) => {this.settings.toolbar.leet.enabled = checked;})
+			new PluginSettings.Checkbox("Leet (1337)", "", this.settings.toolbar.leet.enabled, (checked) => {this.settings.toolbar.leet.enabled = checked;}),
+			new PluginSettings.Checkbox("Extra Thicc", "", this.settings.toolbar.thicc.enabled, (checked) => {this.settings.toolbar.thicc.enabled = checked;})
 		);
 		
 		new PluginSettings.ControlGroup("Active Formats", () => {this.saveSettings();}).appendTo(panel).append(
@@ -658,7 +666,8 @@ class BetterFormattingRedux {
 			new PluginSettings.Checkbox("Full Width", "", this.settings.formats.fullwidth, (checked) => {this.settings.formats.fullwidth = checked;}),
 			new PluginSettings.Checkbox("Upsidedown", "", this.settings.formats.upsidedown, (checked) => {this.settings.formats.upsidedown = checked;}),
 			new PluginSettings.Checkbox("Varied Caps", "", this.settings.formats.varied, (checked) => {this.settings.formats.varied = checked;}),
-			new PluginSettings.Checkbox("Leet (1337)", "", this.settings.formats.leet, (checked) => {this.settings.formats.leet = checked;})
+			new PluginSettings.Checkbox("Leet (1337)", "", this.settings.formats.leet, (checked) => {this.settings.formats.leet = checked;}),
+			new PluginSettings.Checkbox("Extra Thicc", "", this.settings.formats.thicc, (checked) => {this.settings.formats.thicc = checked;})
 		);
 		
 		new PluginSettings.ControlGroup("Wrapper Options", () => {this.saveSettings();}).appendTo(panel).append(
@@ -673,7 +682,9 @@ class BetterFormattingRedux {
 			new PluginSettings.Textbox("Varied Caps", "The wrapper to VaRy the capitalization.", this.settings.wrappers.varied, this.defaultSettings.wrappers.varied,
 							(text) => {this.settings.wrappers.varied = text != "" ? text : this.defaultSettings.wrappers.varied;}),
 			new PluginSettings.Textbox("LeetSpeak", "The wrapper to talk in 13375p34k.", this.settings.wrappers.leet, this.defaultSettings.wrappers.leet,
-							(text) => {this.settings.wrappers.leet = text != "" ? text : this.defaultSettings.wrappers.leet;})
+							(text) => {this.settings.wrappers.leet = text != "" ? text : this.defaultSettings.wrappers.leet;}),
+			new PluginSettings.Textbox("Extra Thicc", "The wrapper to get 乇乂下尺卂 下卄工匚匚.", this.settings.wrappers.thicc, this.defaultSettings.wrappers.thicc,
+							(text) => {this.settings.wrappers.thicc = text != "" ? text : this.defaultSettings.wrappers.thicc;})
 		);
 		
 		new PluginSettings.ControlGroup("Formatting Options", () => {this.saveSettings();}).appendTo(panel).append(
