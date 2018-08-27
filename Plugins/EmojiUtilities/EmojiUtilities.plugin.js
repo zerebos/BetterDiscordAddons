@@ -1,7 +1,7 @@
 //META{"name":"EmojiUtilities","displayName":"EmojiUtilities","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmojiUtilities","source":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/EmojiUtilities/EmojiUtilities.plugin.js"}*//
 
 var EmojiUtilities = (() => {
-    const config = {"info":{"name":"EmojiUtilities","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.1","description":"Allows you to blacklist and favorite emojis. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmojiUtilities","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/EmojiUtilities/EmojiUtilities.plugin.js"},"main":"index.js"};
+    const config = {"info":{"name":"EmojiUtilities","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.2","description":"Allows you to blacklist and favorite emojis. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmojiUtilities","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/EmojiUtilities/EmojiUtilities.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Sometimes favorites would error when being added to emoji menu."]},{"title":"Internal Changes","type":"improved","items":["Get rid of the modal on click."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         getName() {return config.info.name;}
@@ -103,9 +103,9 @@ var EmojiUtilities = (() => {
                     this.fixMenuLocation(menu);
                 };
 
-                returnValue.props.onClick = () => {
-                    Modals.showConfirmationModal(thisObject.props.emojiName, "You clicked it, what did you expect.");
-                };
+                // returnValue.props.onClick = () => {
+                //     Modals.showConfirmationModal(thisObject.props.emojiName, "You clicked it, what did you expect.");
+                // };
                 
                 return returnValue;
             });
@@ -144,7 +144,7 @@ var EmojiUtilities = (() => {
 
             // Add favorites category and filter other categories
             Patcher.after(EmojiStore, "getByCategory", (_, args, returnValue) => {
-                if (args[0] == "favorites") return this.favoriteEmojis.map(e => this.resolveEmoji(e));
+                if (args[0] == "favorites") return this.favoriteEmojis.map(e => this.resolveEmoji(e)).filter(e => this.isResolvable(e));
                 return returnValue.filter(e => !this.isBlacklisted(e.uniqueName));
             });
 

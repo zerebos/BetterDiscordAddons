@@ -8,10 +8,10 @@ var ReplySystem = (() => {
 			catch(err) {reject(err);}
 		});
 	});
-	const config = {"info":{"name":"ReplySystem","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.5","description":"Adds a native-esque reply button with preview. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ReplySystem/ReplySystem.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Fix compatibility with quoter.","Adjust colors for light mode.","Make the list actually appear."]}],"main":"index.js"};
+	const config = {"info":{"name":"ReplySystem","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.6","description":"Adds a native-esque reply button with preview. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ReplySystem/ReplySystem.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Don't add multiple arrows.","Properly add/remove the css.","Fix unpatching on stop."]}],"main":"index.js"};
 	const compilePlugin = ([Plugin, Api]) => {
 		const plugin = (Plugin, Api) => {
-    const {WebpackModules, DiscordModules, Settings, Patcher, ReactTools, DiscordSelectors, DOMTools} = Api;
+    const {WebpackModules, DiscordModules, Settings, Patcher, ReactTools, DiscordSelectors, DOMTools, PluginUtilities} = Api;
 
     const Dispatcher = WebpackModules.getByProps("ComponentDispatch").ComponentDispatch;
     const TooltipWrapper = WebpackModules.getByPrototypes("showDelayed");
@@ -308,7 +308,7 @@ var ReplySystem = (() => {
         }
 
         onStart() {
-            document.head.append(DOMTools.createElement(`<style id="${this.getName}">${this.css}</style>`));
+            PluginUtilities.addStyle(this.getName(), this.css);
             Dispatcher.subscribe("ADD_REPLY", this.addReply);
             Dispatcher.subscribe("REMOVE_REPLY", this.removeReply);
             Dispatcher.subscribe("CLEAR_REPLY", this.clearReply);
@@ -328,8 +328,8 @@ var ReplySystem = (() => {
         }
         
         onStop() {
-            document.querySelector(`style#${this.getName()}`).remove();
-            Patcher.unpatchAll(this.getName());
+            PluginUtilities.removeStyle(this.getName());
+            Patcher.unpatchAll();
             this.forceUpdateMessages();
             this.forceUpdateTextarea();
             Dispatcher.unsubscribe("ADD_REPLY", this.addReply);
@@ -449,7 +449,7 @@ var ReplySystem = (() => {
 	
 	return !global.ZLibrary ? class {
 		getName() {return config.info.name.replace(" ", "");} getAuthor() {return config.info.authors.map(a => a.name).join(", ");} getDescription() {return config.info.description;} getVersion() {return config.info.version;} stop() {}
-		showAlert() {window.mainCore.alert("Loading Error",`Something went wrong trying to load the library for the plugin. Try reloading?`);}
+		showAlert() {window.mainCore.alert("Loading Error",`Something went wrong trying to load the library for the plugin. You can try using a local copy of the library to fix this.<br /><br /><a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js">Click here to download the library!</a>`);}
 		async load() {
 			try {await global.ZLibraryPromise;}
 			catch(err) {return this.showAlert();}

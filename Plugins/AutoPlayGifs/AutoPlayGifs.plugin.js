@@ -6,7 +6,7 @@ class AutoPlayGifs {
 	getName() { return "AutoPlayGifs"; }
 	getShortName() { return "AutoPlayGifs"; }
 	getDescription() { return "Automatically plays avatars. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.3"; }
+	getVersion() { return "0.0.4"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -54,7 +54,7 @@ class AutoPlayGifs {
 	}
 
 	patchChatAvatars() {
-		let MessageGroup = InternalUtilities.WebpackModules.find(InternalUtilities.Filters.byCode(/hasAnimatedAvatar/));
+		let MessageGroup = InternalUtilities.WebpackModules.find(m => m.defaultProps && m.defaultProps.disableManageMessages);
 		this.cancelChatAvatars = Patcher.before(this.getName(), MessageGroup.prototype, "render", (thisObject) => {
 			thisObject.state.animate = true;
 		});
