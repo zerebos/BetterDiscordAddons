@@ -11,7 +11,7 @@ var StatusEverywhere = (() => {
 	const config = {"info":{"name":"StatusEverywhere","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.4.0","description":"Adds user status everywhere Discord doesn't. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/StatusEverywhere","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/StatusEverywhere/StatusEverywhere.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Updated for Discord changes."]}],"main":"index.js"};
 	const compilePlugin = ([Plugin, Api]) => {
 		const plugin = (Plugin, Api) => {
-    const {Patcher, WebpackModules} = Api;
+    const {Patcher, WebpackModules, DiscordModules} = Api;
     return class HideDisabledEmojis extends Plugin {
         onStart() {
             const Avatar = WebpackModules.getByProps("AvatarWrapper");
