@@ -2519,7 +2519,7 @@ PluginUtilities.getAllUsers = function() {
  * @returns {object} the combined saved and default data
 */
 PluginUtilities.loadData = function(name, key, defaultData) {
-	try { return $.extend(true, defaultData ? defaultData : {}, bdPluginStorage.get(name, key)); }
+	try { return $.extend(true, defaultData ? defaultData : {}, BdApi.getData(name, key)); }
 	catch (err) { console.warn(name, "unable to load data:", err); }
 };
 
@@ -2530,7 +2530,7 @@ PluginUtilities.loadData = function(name, key, defaultData) {
  * @param {object} data - data to save
 */
 PluginUtilities.saveData = function(name, key, data) {
-	try { bdPluginStorage.set(name, key, data); }
+	try { BdApi.setData(name, key, data); }
 	catch (err) { console.warn(name, "unable to save data:", err); }
 };
 
