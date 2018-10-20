@@ -2777,16 +2777,8 @@ PluginUtilities.showToast = function(content, options = {}) {
  * @returns {string} full path to the plugins folder
  */
 PluginUtilities.getPluginsFolder = function() {
-    let process = require("process");
-    let path = require("path");
-    switch (process.platform) {
-        case "win32":
-        return path.resolve(process.env.appdata, "BetterDiscord/plugins/");
-        case "darwin":
-        return path.resolve(process.env.HOME, "Library/Preferences/", "BetterDiscord/plugins/");
-        default:
-        return path.resolve(process.env.HOME, ".config/", "BetterDiscord/plugins/");
-    }
+	const path = require("path");
+	return path.resolve(window.bdConfig.dataPath, "plugins");
 };
 
 /**
@@ -2794,16 +2786,8 @@ PluginUtilities.getPluginsFolder = function() {
  * @returns {string} full path to the themes folder
  */
 PluginUtilities.getThemesFolder = function() {
-    let process = require("process");
-    let path = require("path");
-    switch (process.platform) {
-        case "win32":
-        return path.resolve(process.env.appdata, "BetterDiscord/themes/");
-        case "darwin":
-        return path.resolve(process.env.HOME, "Library/Preferences/", "BetterDiscord/themes/");
-        default:
-        return path.resolve(process.env.HOME, ".config/", "BetterDiscord/themes/");
-    }
+	const path = require("path");
+	return path.resolve(window.bdConfig.dataPath, "themes");
 };
 
 /**

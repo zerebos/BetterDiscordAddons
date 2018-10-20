@@ -1,5 +1,9 @@
 # TransparencyPatcher Changelog
 
+### 0.0.3
+
+ - Deprecate and discontinue
+
 ### 0.0.2
 
  - Fix for discord updates
