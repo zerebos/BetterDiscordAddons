@@ -53,6 +53,7 @@ var BetterRoleColors = (() => {
         }
 
         showAnnouncement() {
+            if (window.ZeresPluginLibrary) return; // they already have it
             const hasShownAnnouncement = PluginUtilities.loadData(this.getName(), "announcements", {localLibNotice: false}).localLibNotice;
             if (hasShownAnnouncement) return;
             Modals.showConfirmationModal("Local Library Notice", DiscordModules.React.createElement("span", null, `This version of ${this.getName()} is the final version that will be released using a remotely loaded library. Future versions will require my local library that gets placed in the plugins folder.`, DiscordModules.React.createElement("br"), DiscordModules.React.createElement("br"), "You can download the library now to be prepared, or wait until the next version which will prompt you to download it."), {
