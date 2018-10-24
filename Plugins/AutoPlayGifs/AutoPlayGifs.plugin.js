@@ -6,7 +6,7 @@ class AutoPlayGifs {
 	getName() { return "AutoPlayGifs"; }
 	getShortName() { return "AutoPlayGifs"; }
 	getDescription() { return "Automatically plays avatars. Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.4"; }
+	getVersion() { return "0.0.5"; }
 	getAuthor() { return "Zerebos"; }
 
 	constructor() {
@@ -50,18 +50,17 @@ class AutoPlayGifs {
 		if (this.settings.memberList) this.patchMemberListAvatars();
 		
 		PluginUtilities.showToast(this.getName() + " " + this.getVersion() + " has started.");
-		this.initialized = true;
 	}
 
 	patchChatAvatars() {
 		let MessageGroup = InternalUtilities.WebpackModules.find(m => m.defaultProps && m.defaultProps.disableManageMessages);
 		this.cancelChatAvatars = Patcher.before(this.getName(), MessageGroup.prototype, "render", (thisObject) => {
-			thisObject.state.animate = true;
+			thisObject.state.disableAvatarAnimation = false;
 		});
 	}
 
 	patchMemberListAvatars() {
-		let MemberList = InternalUtilities.WebpackModules.find(m => m.prototype && m.prototype.renderPlaceholder);
+		let MemberList = InternalUtilities.WebpackModules.findByDisplayName("MemberListItem");
 		this.cancelMemberListAvatars = Patcher.before(this.getName(), MemberList.prototype, "render", (thisObject) => {
 			if (!thisObject.props.user) return;
 			let id = thisObject.props.user.id;
@@ -73,7 +72,7 @@ class AutoPlayGifs {
 
 	getSettingsPanel() {
 		var panel = $("<form>").addClass("form").css("width", "100%");
-		if (this.initialized) this.generateSettings(panel);
+		this.generateSettings(panel);
 		return panel[0];
 	}
 
