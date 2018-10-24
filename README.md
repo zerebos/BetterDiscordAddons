@@ -10,7 +10,7 @@ A series of plugins and themes for BetterDiscord. For support or announcements o
  - [BlurNSFW](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BlurNSFW) - Blurs images in NSFW channels until you hover over it.
  - [DoNotTrack](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/DoNotTrack) - Stops Discord from tracking everything you do like Sentry and Analytics.
  - [EmojiUtilities](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmojiUtilities) - Allows you to blacklist and favorite emojis.
- - [EmoteSearch](https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/EmoteSearch/EmoteSearch.plugin.js) - Search through all emotes in BD.
+ - [EmoteSearch](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmoteSearch) - Search through all emotes in BD.
  - [HideDisabledEmojis](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideDisabledEmojis) - Hides disabled emojis from the emoji picker.
  - [HideIconBadge](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideIconBadge) - Hides the badge that appears on the taskbar icon.
  - [ImageToClipboard](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ImageToClipboard) - Allows you to copy images (png/jpg) directly to your system clipboard.

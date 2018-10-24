@@ -1,5 +1,10 @@
 # BetterRoleColors Changelog
 
+### 0.7.4
+
+ - Start changeover betweeen libs
+ - Fix typing changes
+
 ### 0.7.3
 
  - User popouts aka fuck discord
