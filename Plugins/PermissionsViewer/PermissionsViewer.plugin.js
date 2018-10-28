@@ -4,7 +4,7 @@ class PermissionsViewer {
 	getName() { return "PermissionsViewer"; }
 	getShortName() { return "PermissionsViewer"; }
 	getDescription() { return "Allows you to view a user's permissions. Thanks to Noodlebox for the idea! Support Server: bit.ly/ZeresServer"; }
-	getVersion() { return "0.0.19"; }
+	getVersion() { return "0.0.20"; }
 	getAuthor() { return "Zerebos"; }
 	
 	constructor() {
@@ -505,13 +505,13 @@ class PermissionsViewer {
 	observeContextMenus(e) {
 		if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element) || !e.addedNodes[0].classList) return;
 		let elem = e.addedNodes[0];
-		let isContextMenu = elem.classList.contains(DiscordClasses.ContextMenu.contextMenu);
+		let isContextMenu = elem.matches(DiscordSelectors.ContextMenu.contextMenu);
 		if (!isContextMenu) return;
 		let context = elem;
 
 		//"USER_CHANNEL_MEMBERS""USER_CHANNEL_MESSAGE"
-		let isUserContext = ReactUtilities.getReactProperty(context, "return.memoizedProps.user");
-		let isGuildContext = ReactUtilities.getReactProperty(context, "return.memoizedProps.guildId");
+		let isUserContext = ReactUtilities.getReactProperty(context, "return.return.return.return.memoizedProps.user");
+		let isGuildContext = ReactUtilities.getReactProperty(context, "return.return.return.return.memoizedProps.guildId");
 		if (!isUserContext || !isGuildContext) return;
 
 		let item = new PluginContextMenu.TextItem(this.strings.contextMenu.label, {callback: () => {

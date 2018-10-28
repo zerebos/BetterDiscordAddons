@@ -1,5 +1,9 @@
 # PermissionsViewer Changelog
 
+### 0.0.20
+
+ - Fix for context menu
+
 ### 0.0.19
 
  - User popouts aka fuck discord
