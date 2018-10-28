@@ -2779,6 +2779,7 @@ PluginUtilities.showToast = function(content, options = {}) {
  */
 PluginUtilities.getPluginsFolder = function() {
 	const path = require("path");
+	if (process.env.injDir) return path.resolve(process.env.injDir, "plugins");
 	return path.resolve(window.bdConfig.dataPath, "plugins");
 };
 
