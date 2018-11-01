@@ -11,7 +11,7 @@ var RoleMembers = (() => {
 	const config = {"info":{"name":"RoleMembers","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.0","description":"Allows you to see the members of each role on a server. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"},"changelog":[{"title":"What's New?","items":["Rewrite to the new library","Deprecate remote linking library"]},{"title":"Bugs Squashed","type":"fixed","items":["Context menu being misaligned","Roles option not showing in context menu"]}],"main":"index.js"};
 	const compilePlugin = ([Plugin, Api]) => {
 		const plugin = (Plugin, Api) => {
-    const {ContextMenu, Popouts, DiscordModules, Modals, DiscordSelectors, DiscordClasses, PluginUtilities} = Api;
+    const {ContextMenu, Popouts, DiscordModules, Modals, DiscordSelectors, DiscordClasses, PluginUtilities, ReactTools, Utilities} = Api;
 
     const from = arr => arr && arr.length > 0 && Object.assign(...arr.map( ([k, v]) => ({[k]: v}) ));
     const filter = (obj, predicate) => from(Object.entries(obj).filter((o) => {return predicate(o[1]);}));
@@ -64,7 +64,7 @@ var RoleMembers = (() => {
 			this.showAnnouncement();    
             this.contextObserver.observe(document.querySelector("#app-mount"), {childList: true, subtree: true});
             $(document).on("click." + this.getName(), ".mention", (e) => {
-                let isRoleMention = ReactUtilities.getReactProperty(e.target, "return.memoizedState") == null || ReactUtilities.getReactProperty(e.target, "return.memoizedState.isOpen") === undefined;
+                let isRoleMention = ReactTools.getReactProperty(e.target, "return.memoizedState") == null || ReactTools.getReactProperty(e.target, "return.memoizedState.isOpen") === undefined;
                 if (!isRoleMention) return;
                 let currentServer = SelectedGuildStore.getGuildId();
     
@@ -132,10 +132,10 @@ var RoleMembers = (() => {
             let context = elem.matches(DiscordSelectors.ContextMenu.contextMenu) ? elem : elem.querySelector(DiscordSelectors.ContextMenu.contextMenu);
             if (!context) return;
     
-            let isGuildContext = ReactUtilities.getReactProperty(context, "return.memoizedProps.type") == "GUILD_ICON_BAR";
+            let isGuildContext = ReactTools.getReactProperty(context, "return.memoizedProps.type") == "GUILD_ICON_BAR";
             if (!isGuildContext) return;
     
-            let guildId = ReactUtilities.getReactProperty(context, "return.memoizedProps.guild.id");
+            let guildId = ReactTools.getReactProperty(context, "return.memoizedProps.guild.id");
             let roles = GuildStore.getGuild(guildId).roles;
             let roleItems = [];
     
@@ -163,7 +163,7 @@ var RoleMembers = (() => {
             let members = GuildMemberStore.getMembers(guildId);
             if (guildId != roleId) members = members.filter(m => m.roles.includes(role.id));
     
-            let popout = $(PluginUtilities.formatString(this.popout, {className: DiscordClasses.Popouts.popout.add(DiscordClasses.Popouts.noArrow), memberCount: members.length}));
+            let popout = $(Utilities.formatTString(this.popout, {className: DiscordClasses.Popouts.popout.add(DiscordClasses.Popouts.noArrow), memberCount: members.length}));
             let searchInput = popout.find("input");
             searchInput.on("keyup", () => {
                 let items = popout[0].querySelectorAll(".role-member");
@@ -180,7 +180,7 @@ var RoleMembers = (() => {
             
             for (let member of members) {
                 let user = UserStore.getUser(member.userId);
-                let elem = $(PluginUtilities.formatString(this.item, {username: user.username, discriminator: "#" + user.discriminator, avatar_url: ImageResolver.getUserAvatarURL(user)}));
+                let elem = $(Utilities.formatTString(this.item, {username: user.username, discriminator: "#" + user.discriminator, avatar_url: ImageResolver.getUserAvatarURL(user)}));
                 elem.on("click", () => {
                     PopoutStack.close("role-members");
                     elem.addClass("popout-open");
