@@ -11,7 +11,7 @@ var StatusEverywhere = (() => {
 	const config = {"info":{"name":"StatusEverywhere","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.4.1","description":"Adds user status everywhere Discord doesn't. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/StatusEverywhere","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/StatusEverywhere/StatusEverywhere.plugin.js"},"changelog":[{"title":"Improvements","type":"improved","items":["Tapped into Discord's secondary status cache to show less members as offline when they aren't."]}],"main":"index.js"};
 	const compilePlugin = ([Plugin, Api]) => {
 		const plugin = (Plugin, Api) => {
-    const {Patcher, WebpackModules, DiscordModules, Modals} = Api;
+    const {Patcher, WebpackModules, DiscordModules, Modals, PluginUtilities} = Api;
     return class StatusEverywhere extends Plugin {
         onStart() {
 			this.showAnnouncement();

@@ -11,7 +11,7 @@ var RoleMembers = (() => {
 	const config = {"info":{"name":"RoleMembers","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.0","description":"Allows you to see the members of each role on a server. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"},"changelog":[{"title":"What's New?","items":["Rewrite to the new library","Deprecate remote linking library"]},{"title":"Bugs Squashed","type":"fixed","items":["Context menu being misaligned","Roles option not showing in context menu"]}],"main":"index.js"};
 	const compilePlugin = ([Plugin, Api]) => {
 		const plugin = (Plugin, Api) => {
-    const {ContextMenu, Popouts, DiscordModules, Modals, DiscordSelectors, DiscordClasses} = Api;
+    const {ContextMenu, Popouts, DiscordModules, Modals, DiscordSelectors, DiscordClasses, PluginUtilities} = Api;
 
     const from = arr => arr && arr.length > 0 && Object.assign(...arr.map( ([k, v]) => ({[k]: v}) ));
     const filter = (obj, predicate) => from(Object.entries(obj).filter((o) => {return predicate(o[1]);}));
