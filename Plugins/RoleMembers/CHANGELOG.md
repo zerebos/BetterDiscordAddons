@@ -1,5 +1,11 @@
 # RoleMembers Changelog
 
+### 0.1.0
+
+ - Rewrite to new lib
+ - Fix maligned context menus
+ - Fix "roles" not showing in context menu
+
 ### 0.0.6
 
  - User popouts aka fuck discord
