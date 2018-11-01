@@ -1,5 +1,10 @@
 # StatusEverywhere Changelog
 
+### 0.4.1
+
+ - Tap into secondary cache's
+ - Add library notice
+
 ### 0.4.0
 
  - Rewrite to use new lib
