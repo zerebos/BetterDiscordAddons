@@ -1,5 +1,11 @@
 # PermissionsViewer Changelog
 
+### 0.1.0
+
+ - Rewrite to new lib
+ - Add guild permissions
+ - Add channel overrides
+
 ### 0.0.20
 
  - Fix for context menu
