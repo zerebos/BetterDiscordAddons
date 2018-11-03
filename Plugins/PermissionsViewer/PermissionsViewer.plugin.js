@@ -1,16 +1,18 @@
 //META{"name":"PermissionsViewer","displayName":"PermissionsViewer","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer","source":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/PermissionsViewer/PermissionsViewer.plugin.js"}*//
 
 var PermissionsViewer = (() => {
-	if (!global.ZLibrary && !global.ZLibraryPromise) global.ZLibraryPromise = new Promise((resolve, reject) => {
-		require("request").get({url: "https://rauenzi.github.io/BDPluginLibrary/release/ZLibrary.js", timeout: 10000}, (err, res, body) => {
-			if (err || 200 !== res.statusCode) return reject(err || res.statusMessage);
-			try {const vm = require("vm"), script = new vm.Script(body, {displayErrors: true}); resolve(script.runInThisContext());}
-			catch(err) {reject(err);}
-		});
-	});
-	const config = {"info":{"name":"PermissionsViewer","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.0","description":"Allows you to view a user's permissions. Thanks to Noodlebox for the idea! Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/PermissionsViewer/PermissionsViewer.plugin.js"},"changelog":[{"title":"What's New?","items":["Right click on guilds to view permissions for all roles in a server.","Right click on a channel (in the channel list) to view the specific overrides for that channel.","Rewrite to the new library.","Deprecate remote linking library."]}],"defaultConfig":[{"type":"switch","id":"contextMenus","name":"Context Menus","note":"Toggles colorizing of typing notifications.","value":true},{"type":"switch","id":"popouts","name":"Popouts","note":"Toggles colorizing of typing notifications.","value":true}],"strings":{"es":{"contextMenuLabel":"Permisos","popoutLabel":"Permisos","modal":{"header":"Permisos de ${name}","rolesLabel":"Roles","permissionsLabel":"Permisos","owner":"@propietario"},"settings":{"popouts":{"name":"Mostrar en Popouts","note":"Mostrar los permisos de usuario en popouts como los roles."},"contextMenus":{"name":"Botón de menú contextual","note":"Añadir un botón para ver permisos en los menús contextuales."}}},"pt":{"contextMenuLabel":"Permissões","popoutLabel":"Permissões","modal":{"header":"Permissões de ${name}","rolesLabel":"Cargos","permissionsLabel":"Permissões","owner":"@dono"},"settings":{"popouts":{"name":"Mostrar em Popouts","note":"Mostrar as permissões em popouts como os cargos."},"contextMenus":{"name":"Botão do menu de contexto","note":"Adicionar um botão parar ver permissões ao menu de contexto."}}},"de":{"contextMenuLabel":"Berechtigungen","popoutLabel":"Berechtigungen","modal":{"header":"${name}s Berechtigungen","rolesLabel":"Rollen","permissionsLabel":"Berechtigungen","owner":"@eigentümer"},"settings":{"popouts":{"name":"In Popouts anzeigen","note":"Zeigt die Gesamtberechtigungen eines Benutzers in seinem Popup ähnlich den Rollen an."},"contextMenus":{"name":"Kontextmenü-Schaltfläche","note":"Fügt eine Schaltfläche hinzu, um die Berechtigungen mithilfe von Kontextmenüs anzuzeigen."}}},"en":{"contextMenuLabel":"Permissions","popoutLabel":"Permissions","modal":{"header":"${name}'s Permissions","rolesLabel":"Roles","permissionsLabel":"Permissions","owner":"@owner"},"settings":{"popouts":{"name":"Show In Popouts","note":"Shows a user's total permissions in their popout similar to roles."},"contextMenus":{"name":"Context Menu Button","note":"Adds a button to view the permissions modal to select context menus."}}}},"main":"index.js"};
-	const compilePlugin = ([Plugin, Api]) => {
-		const plugin = (Plugin, Api) => {
+    const config = {"info":{"name":"PermissionsViewer","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.1","description":"Allows you to view a user's permissions. Thanks to Noodlebox for the idea! Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/PermissionsViewer/PermissionsViewer.plugin.js"},"changelog":[{"title":"What's New?","items":["View overrides for categories."]},{"title":"Bugs Squashed","type":"fixed","items":["Context menus sometimes went offscreen.","Button would appear for channels without overrides."]}],"defaultConfig":[{"type":"switch","id":"contextMenus","name":"Context Menus","note":"Toggles colorizing of typing notifications.","value":true},{"type":"switch","id":"popouts","name":"Popouts","note":"Toggles colorizing of typing notifications.","value":true}],"strings":{"es":{"contextMenuLabel":"Permisos","popoutLabel":"Permisos","modal":{"header":"Permisos de ${name}","rolesLabel":"Roles","permissionsLabel":"Permisos","owner":"@propietario"},"settings":{"popouts":{"name":"Mostrar en Popouts","note":"Mostrar los permisos de usuario en popouts como los roles."},"contextMenus":{"name":"Botón de menú contextual","note":"Añadir un botón para ver permisos en los menús contextuales."}}},"pt":{"contextMenuLabel":"Permissões","popoutLabel":"Permissões","modal":{"header":"Permissões de ${name}","rolesLabel":"Cargos","permissionsLabel":"Permissões","owner":"@dono"},"settings":{"popouts":{"name":"Mostrar em Popouts","note":"Mostrar as permissões em popouts como os cargos."},"contextMenus":{"name":"Botão do menu de contexto","note":"Adicionar um botão parar ver permissões ao menu de contexto."}}},"de":{"contextMenuLabel":"Berechtigungen","popoutLabel":"Berechtigungen","modal":{"header":"${name}s Berechtigungen","rolesLabel":"Rollen","permissionsLabel":"Berechtigungen","owner":"@eigentümer"},"settings":{"popouts":{"name":"In Popouts anzeigen","note":"Zeigt die Gesamtberechtigungen eines Benutzers in seinem Popup ähnlich den Rollen an."},"contextMenus":{"name":"Kontextmenü-Schaltfläche","note":"Fügt eine Schaltfläche hinzu, um die Berechtigungen mithilfe von Kontextmenüs anzuzeigen."}}},"en":{"contextMenuLabel":"Permissions","popoutLabel":"Permissions","modal":{"header":"${name}'s Permissions","rolesLabel":"Roles","permissionsLabel":"Permissions","owner":"@owner"},"settings":{"popouts":{"name":"Show In Popouts","note":"Shows a user's total permissions in their popout similar to roles."},"contextMenus":{"name":"Context Menu Button","note":"Adds a button to view the permissions modal to select context menus."}}}},"main":"index.js"};
+
+    return !global.ZeresPluginLibrary ? class {
+        getName() {return config.info.name;}
+        getAuthor() {return config.info.authors.map(a => a.name).join(", ");}
+        getDescription() {return config.info.description;}
+        getVersion() {return config.info.version;}
+        load() {window.BdApi.alert("Library Missing",`The library plugin needed for ${config.info.name} is missing.<br /><br /> <a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js">Click here to download the library!</a>`);}
+        start() {}
+        stop() {}
+    } : (([Plugin, Api]) => {
+        const plugin = (Plugin, Api) => {
     const {Patcher, DiscordModules, PluginUtilities, Modals, DiscordClasses, DiscordSelectors, Utilities, DOMTools, ReactTools, ContextMenu, ColorConverter} = Api;
 
     const GuildStore = DiscordModules.GuildStore;
@@ -368,7 +370,6 @@ var PermissionsViewer = (() => {
         }
 
         onStart() {
-            this.showAnnouncement();
             PluginUtilities.addStyle(this.getName(), this.css);
             
             this.listHTML = Utilities.formatTString(this.listHTML, DiscordClasses.UserPopout);
@@ -379,20 +380,6 @@ var PermissionsViewer = (() => {
 
             if (this.settings.popouts) this.bindPopouts();
             if (this.settings.contextMenus) this.bindContextMenus();
-        }
-
-        showAnnouncement() {
-            if (window.ZeresPluginLibrary) return; // they already have it
-            const hasShownAnnouncement = PluginUtilities.loadData(this.getName(), "announcements", {localLibNotice: false}).localLibNotice;
-            if (hasShownAnnouncement) return;
-            Modals.showConfirmationModal("Local Library Notice", DiscordModules.React.createElement("span", null, `This version of ${this.getName()} is the final version that will be released using a remotely loaded library. Future versions will require my local library that gets placed in the plugins folder.`, DiscordModules.React.createElement("br"), DiscordModules.React.createElement("br"), "You can download the library now to be prepared, or wait until the next version which will prompt you to download it."), {
-                confirmText: "Download Now",
-                cancelText: "Wait",
-                onConfirm: () => {
-                    require("electron").shell.openExternal("https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js");
-                }
-            });
-            PluginUtilities.saveData(this.getName(), "announcements", {localLibNotice: true});
         }
         
         onStop() {
@@ -471,35 +458,38 @@ var PermissionsViewer = (() => {
             const contextMenu = elem;
             const memberContext = ReactTools.getReactProperty(contextMenu, "return.return.return.return.memoizedProps.user");
             const messageUser = ReactTools.getReactProperty(contextMenu, "return.return.return.return.memoizedProps.guildId");
-            if (memberContext || messageUser) return this.userContextMenu(contextMenu, memberContext.id);
+            let menuItem = null;
+            if (memberContext || messageUser) menuItem = this.userContextMenu(contextMenu, memberContext.id);
 
             let isGuildContext = ReactTools.getReactProperty(contextMenu, "return.memoizedProps.type") == "GUILD_ICON_BAR";
-            if (isGuildContext) return this.guildContextMenu(contextMenu, ReactTools.getReactProperty(contextMenu, "return.memoizedProps.guild"));
+            if (isGuildContext) menuItem = this.guildContextMenu(contextMenu, ReactTools.getReactProperty(contextMenu, "return.memoizedProps.guild"));
     
             let isChannelContext = ReactTools.getReactProperty(contextMenu, "return.memoizedProps.type");
-            if (isChannelContext && isChannelContext.startsWith("CHANNEL_LIST")) return this.channelContextMenu(contextMenu, ReactTools.getReactProperty(contextMenu, "return.memoizedProps.channel"), ReactTools.getReactProperty(contextMenu, "return.memoizedProps.guild"));
+            if (isChannelContext && isChannelContext.startsWith("CHANNEL_")) menuItem = this.channelContextMenu(contextMenu, ReactTools.getReactProperty(contextMenu, "return.memoizedProps.channel"), ReactTools.getReactProperty(contextMenu, "return.memoizedProps.guild"));
+            if (!menuItem) return;
+            contextMenu.find(DiscordSelectors.ContextMenu.item).after(menuItem.getElement()[0]);
+            ContextMenu.updateDiscordMenu(contextMenu);
         }
 
         channelContextMenu(contextMenu, channel, guild) {
-            const item = new ContextMenu.TextItem(this.strings.contextMenuLabel, {callback: () => {
+            if (!Object.keys(channel.permissionOverwrites).length) return null;
+            return new ContextMenu.TextItem(this.strings.contextMenuLabel, {callback: () => {
                 contextMenu.style.display = "none";
                 this.showModal(this.createModalChannel(channel.name, channel, guild));
                 
 			}});
-            contextMenu.find(DiscordSelectors.ContextMenu.item).after(item.getElement()[0]);
         }
 
         guildContextMenu(contextMenu, guild) {
-            const item = new ContextMenu.TextItem(this.strings.contextMenuLabel, {callback: () => {
+            return new ContextMenu.TextItem(this.strings.contextMenuLabel, {callback: () => {
                 contextMenu.style.display = "none";
                 this.showModal(this.createModalGuild(guild.name, guild));
                 
 			}});
-            contextMenu.find(DiscordSelectors.ContextMenu.item).after(item.getElement()[0]);
         }
 
         userContextMenu(contextMenu, id) {
-            const item = new ContextMenu.TextItem(this.strings.contextMenuLabel, {callback: () => {
+            return new ContextMenu.TextItem(this.strings.contextMenuLabel, {callback: () => {
                 contextMenu.style.display = "none";
                 const guildId = SelectedGuildStore.getGuildId();
                 const user = MemberStore.getMember(guildId, id);
@@ -509,7 +499,6 @@ var PermissionsViewer = (() => {
                 this.showModal(this.createModalUser(name, user, guild));
                 
 			}});
-            contextMenu.find(DiscordSelectors.ContextMenu.item).after(item.getElement()[0]);
         }
     
         showModal(modal) {
@@ -603,26 +592,6 @@ var PermissionsViewer = (() => {
 
     };
 };
-		return plugin(Plugin, Api);
-	};
-	
-	return !global.ZLibrary ? class {
-		getName() {return config.info.name.replace(" ", "");} getAuthor() {return config.info.authors.map(a => a.name).join(", ");} getDescription() {return config.info.description;} getVersion() {return config.info.version;} stop() {}
-		showAlert() {window.BdApi.alert("Loading Error",`Something went wrong trying to load the library for the plugin. You can try using a local copy of the library to fix this.<br /><br /><a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js" target="_blank">Click here to download the library!</a>`);}
-		async load() {
-			try {await global.ZLibraryPromise;}
-			catch(err) {return this.showAlert();}
-			const vm = require("vm"), plugin = compilePlugin(global.ZLibrary.buildPlugin(config));
-			try {new vm.Script(plugin, {displayErrors: true});} catch(err) {return bdpluginErrors.push({name: this.getName(), file: this.getName() + ".plugin.js", reason: "Plugin could not be compiled.", error: {message: err.message, stack: err.stack}});}
-			global[this.getName()] = plugin;
-			try {new vm.Script(`new global["${this.getName()}"]();`, {displayErrors: true});} catch(err) {return bdpluginErrors.push({name: this.getName(), file: this.getName() + ".plugin.js", reason: "Plugin could not be constructed", error: {message: err.message, stack: err.stack}});}
-			bdplugins[this.getName()].plugin = new global[this.getName()]();
-			bdplugins[this.getName()].plugin.load();
-		}
-		async start() {
-			try {await global.ZLibraryPromise;}
-			catch(err) {return this.showAlert();}
-			bdplugins[this.getName()].plugin.start();
-		}
-	} : compilePlugin(global.ZLibrary.buildPlugin(config));
+        return plugin(Plugin, Api);
+    })(global.ZeresPluginLibrary.buildPlugin(config));
 })();

@@ -1,5 +1,11 @@
 # PermissionsViewer Changelog
 
+### 0.1.1
+
+ - Don't show button when nothing to show
+ - Overrides for categories
+ - Fix context menus sometimes going offscreen
+
 ### 0.1.0
 
  - Rewrite to new lib

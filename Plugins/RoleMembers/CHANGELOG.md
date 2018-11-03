@@ -1,5 +1,9 @@
 # RoleMembers Changelog
 
+### 0.1.1
+
+ - Fix context menus sometimes going offscreen
+
 ### 0.1.0
 
  - Rewrite to new lib

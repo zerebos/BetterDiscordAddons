@@ -1,16 +1,18 @@
 //META{"name":"RoleMembers","displayName":"RoleMembers","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers","source":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"}*//
 
 var RoleMembers = (() => {
-	if (!global.ZLibrary && !global.ZLibraryPromise) global.ZLibraryPromise = new Promise((resolve, reject) => {
-		require("request").get({url: "https://rauenzi.github.io/BDPluginLibrary/release/ZLibrary.js", timeout: 10000}, (err, res, body) => {
-			if (err || 200 !== res.statusCode) return reject(err || res.statusMessage);
-			try {const vm = require("vm"), script = new vm.Script(body, {displayErrors: true}); resolve(script.runInThisContext());}
-			catch(err) {reject(err);}
-		});
-	});
-	const config = {"info":{"name":"RoleMembers","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.0","description":"Allows you to see the members of each role on a server. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"},"changelog":[{"title":"What's New?","items":["Rewrite to the new library","Deprecate remote linking library"]},{"title":"Bugs Squashed","type":"fixed","items":["Context menu being misaligned","Roles option not showing in context menu"]}],"main":"index.js"};
-	const compilePlugin = ([Plugin, Api]) => {
-		const plugin = (Plugin, Api) => {
+    const config = {"info":{"name":"RoleMembers","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.1","description":"Allows you to see the members of each role on a server. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Context menus sometimes went offscreen."]}],"main":"index.js"};
+
+    return !global.ZeresPluginLibrary ? class {
+        getName() {return config.info.name;}
+        getAuthor() {return config.info.authors.map(a => a.name).join(", ");}
+        getDescription() {return config.info.description;}
+        getVersion() {return config.info.version;}
+        load() {window.BdApi.alert("Library Missing",`The library plugin needed for ${config.info.name} is missing.<br /><br /> <a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js">Click here to download the library!</a>`);}
+        start() {}
+        stop() {}
+    } : (([Plugin, Api]) => {
+        const plugin = (Plugin, Api) => {
     const {ContextMenu, Popouts, DiscordModules, Modals, DiscordSelectors, DiscordClasses, PluginUtilities, ReactTools, Utilities} = Api;
 
     const from = arr => arr && arr.length > 0 && Object.assign(...arr.map( ([k, v]) => ({[k]: v}) ));
@@ -23,7 +25,7 @@ var RoleMembers = (() => {
     const UserStore = DiscordModules.UserStore;
     const ImageResolver = DiscordModules.ImageResolver;
 
-    return class StatusEverywhere extends Plugin {
+    return class RoleMembers extends Plugin {
         constructor() {
             super();
             this.popout = `<div class="\${className} popout-role-members">
@@ -60,8 +62,7 @@ var RoleMembers = (() => {
             });
         }
 
-        onStart() {
-			this.showAnnouncement();    
+        onStart() {   
             this.contextObserver.observe(document.querySelector("#app-mount"), {childList: true, subtree: true});
             $(document).on("click." + this.getName(), ".mention", (e) => {
                 let isRoleMention = ReactTools.getReactProperty(e.target, "return.memoizedState") == null || ReactTools.getReactProperty(e.target, "return.memoizedState.isOpen") === undefined;
@@ -77,20 +78,6 @@ var RoleMembers = (() => {
     
                 this.showRolePopout(e.target, currentServer, role.id);
             });
-        }
-
-        showAnnouncement() {
-            if (window.ZeresPluginLibrary) return; // they already have it
-            const hasShownAnnouncement = PluginUtilities.loadData(this.getName(), "announcements", {localLibNotice: false}).localLibNotice;
-            if (hasShownAnnouncement) return;
-            Modals.showConfirmationModal("Local Library Notice", DiscordModules.React.createElement("span", null, `This version of ${this.getName()} is the final version that will be released using a remotely loaded library. Future versions will require my local library that gets placed in the plugins folder.`, DiscordModules.React.createElement("br"), DiscordModules.React.createElement("br"), "You can download the library now to be prepared, or wait until the next version which will prompt you to download it."), {
-                confirmText: "Download Now",
-                cancelText: "Wait",
-                onConfirm: () => {
-                    require("electron").shell.openExternal("https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js");
-                }
-            });
-            PluginUtilities.saveData(this.getName(), "announcements", {localLibNotice: true});
         }
         
         onStop() {
@@ -155,6 +142,7 @@ var RoleMembers = (() => {
     
             let subMenu = new ContextMenu.SubMenuItem("Role Members", new ContextMenu.Menu(true).addItems(...roleItems));
             $(context).children(DiscordSelectors.ContextMenu.itemGroup).first().append(subMenu.element);
+            ContextMenu.updateDiscordMenu(context);
         }
     
         showRolePopout(target, guildId, roleId) {
@@ -195,26 +183,6 @@ var RoleMembers = (() => {
 
     };
 };
-		return plugin(Plugin, Api);
-	};
-	
-	return !global.ZLibrary ? class {
-		getName() {return config.info.name.replace(" ", "");} getAuthor() {return config.info.authors.map(a => a.name).join(", ");} getDescription() {return config.info.description;} getVersion() {return config.info.version;} stop() {}
-		showAlert() {window.BdApi.alert("Loading Error",`Something went wrong trying to load the library for the plugin. You can try using a local copy of the library to fix this.<br /><br /><a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js" target="_blank">Click here to download the library!</a>`);}
-		async load() {
-			try {await global.ZLibraryPromise;}
-			catch(err) {return this.showAlert();}
-			const vm = require("vm"), plugin = compilePlugin(global.ZLibrary.buildPlugin(config));
-			try {new vm.Script(plugin, {displayErrors: true});} catch(err) {return bdpluginErrors.push({name: this.getName(), file: this.getName() + ".plugin.js", reason: "Plugin could not be compiled.", error: {message: err.message, stack: err.stack}});}
-			global[this.getName()] = plugin;
-			try {new vm.Script(`new global["${this.getName()}"]();`, {displayErrors: true});} catch(err) {return bdpluginErrors.push({name: this.getName(), file: this.getName() + ".plugin.js", reason: "Plugin could not be constructed", error: {message: err.message, stack: err.stack}});}
-			bdplugins[this.getName()].plugin = new global[this.getName()]();
-			bdplugins[this.getName()].plugin.load();
-		}
-		async start() {
-			try {await global.ZLibraryPromise;}
-			catch(err) {return this.showAlert();}
-			bdplugins[this.getName()].plugin.start();
-		}
-	} : compilePlugin(global.ZLibrary.buildPlugin(config));
+        return plugin(Plugin, Api);
+    })(global.ZeresPluginLibrary.buildPlugin(config));
 })();
