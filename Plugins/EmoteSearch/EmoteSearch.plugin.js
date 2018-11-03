@@ -160,7 +160,7 @@ class EmoteSearch {
 	}
 
 	attachParser() {
-		var el = $('.' + this.textAreaClasses.textArea);
+		var el = $('.' + this.textAreaClasses.textArea.split(" ")[0]);
 		if (el.length == 0) return;
 		el.on("keydown." + this.getName(), this.handleKeypress.bind(this));
 	}
@@ -169,7 +169,7 @@ class EmoteSearch {
 		var code = e.keyCode || e.which;
 		if(code !== 13) return;
 		try {
-			var val = $('.' + this.textAreaClasses.textArea).val().trim(),
+			var val = $('.' + this.textAreaClasses.textArea.split(" ")[0]).val().trim(),
 				split = val.split(' '),
 				commandIndex = split.indexOf('/es'),
 				text = "",
@@ -259,7 +259,7 @@ class EmoteSearch {
 
 	setText(new_val) {
 		try {
-			var textarea = $('.' + this.textAreaClasses.textArea)[0];
+			var textarea = $('.' + this.textAreaClasses.textArea.split(" ")[0])[0];
 			textarea.focus();
 			textarea.selectionStart = 0;
 			textarea.selectionEnd = textarea.value.length;
@@ -270,7 +270,7 @@ class EmoteSearch {
 	addText(new_val) {
 		try {
 			new_val = ' ' + new_val;
-			var textarea = $('.' + this.textAreaClasses.textArea)[0];
+			var textarea = $('.' + this.textAreaClasses.textArea.split(" ")[0])[0];
 			textarea.focus();
 			textarea.selectionStart = textarea.value.length;
 			textarea.selectionEnd = textarea.value.length;
@@ -280,7 +280,7 @@ class EmoteSearch {
 
 	observer(e) {
 		if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element)) return;
-		if (e.addedNodes[0].querySelector('.' + this.textAreaClasses.textArea))	this.attachParser();
+		if (e.addedNodes[0].querySelector('.' + this.textAreaClasses.textArea.split(" ")[0]))	this.attachParser();
 	}
 
 	get component() {
@@ -307,6 +307,6 @@ class EmoteSearch {
 	onSwitch() { this.attachParser(); }
 	getName() { return "EmoteSearch"; }
 	getDescription() { return "Search through all emotes in bd with /es emoteuwant"; }
-	getVersion() { return "1.2.3"; }
+	getVersion() { return "1.2.4"; }
 	getAuthor() { return "Ckat/Cate edited by confus, rewritten by zerebos"; }
 }

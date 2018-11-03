@@ -12,3 +12,7 @@
 ### 1.2.3
 
  - moved over completely to zerebos from cates repo
+ 
+### 1.2.4
+
+ - Fix selector splitting
