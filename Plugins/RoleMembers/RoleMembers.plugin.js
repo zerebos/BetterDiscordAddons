@@ -1,7 +1,7 @@
 //META{"name":"RoleMembers","displayName":"RoleMembers","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers","source":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"}*//
 
 var RoleMembers = (() => {
-    const config = {"info":{"name":"RoleMembers","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.2","description":"Allows you to see the members of each role on a server. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"},"changelog":[{"title":"Improvements","type":"improved","items":["Context menus no longer use jQuery."]}],"main":"index.js"};
+    const config = {"info":{"name":"RoleMembers","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.3","description":"Allows you to see the members of each role on a server. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"},"changelog":[{"title":"Sorry","type":"fixes","items":["I keep breaking shit, hopefully this time it's fixed."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         getName() {return config.info.name;}
@@ -13,7 +13,7 @@ var RoleMembers = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {ContextMenu, Popouts, DiscordModules, Modals, DiscordSelectors, DiscordClasses, PluginUtilities, ReactTools, Utilities} = Api;
+    const {ContextMenu, Popouts, DiscordModules, DiscordSelectors, DiscordClasses, ReactTools, Utilities} = Api;
 
     const from = arr => arr && arr.length > 0 && Object.assign(...arr.map( ([k, v]) => ({[k]: v}) ));
     const filter = (obj, predicate) => from(Object.entries(obj).filter((o) => {return predicate(o[1]);}));
@@ -28,7 +28,7 @@ var RoleMembers = (() => {
     return class RoleMembers extends Plugin {
         constructor() {
             super();
-            this.popout = `<div class="\${className} popout-role-members">
+            this.popout = `<div class="\${className} popout-role-members" style="margin-top: 0;">
                         <div class="popoutList-T9CKZQ guildSettingsAuditLogsUserFilterPopout-3Jg5NE elevationBorderHigh-2WYJ09 role-members-popout">
                             <div class="flex-1xMQg5 flex-1O1GKY horizontal-1ae9ci horizontal-2EEEnY flex-1O1GKY directionRow-3v3tfG justifyStart-2NDFzi alignStretch-DpGPf3 noWrap-3jynv6 searchBar-1MOL6S popoutListInput-1l9TUI size14-3iUx6q" style="flex: 1 1 auto;">
                                 <input class="input-3Xdcic flexChild-faoVW3" value="" placeholder="Search Members — \${memberCount}" style="flex: 1 1 auto;">
@@ -94,12 +94,12 @@ var RoleMembers = (() => {
     
             let offset = target.getBoundingClientRect();
             if (offset.right + popout.outerHeight() >= maxWidth) {
-                popout.addClass(DiscordClasses.Popouts.popoutLeft);
+                popout[0].addClass(DiscordClasses.Popouts.popoutLeft);
                 popout.css("left", Math.round(offset.left - popout.outerWidth() - 20));
                 popout.animate({left: Math.round(offset.left - popout.outerWidth() - 10)}, 100);
             }
             else {
-                popout.addClass(DiscordClasses.Popouts.POPOUT_DID_RERENDERight).addClass(DiscordClasses.Popouts.popoutRight);
+                popout[0].addClass(DiscordClasses.Popouts.popoutRight);
                 popout.css("left", offset.right + 10);
                 popout.animate({left: offset.right}, 100);
             }
@@ -109,7 +109,7 @@ var RoleMembers = (() => {
     
             let listener = document.addEventListener("click", (e) => {
                 let target = $(e.target);
-                if (!target.hasClass("popout-role-members") && !target.parents(".popout-role-members").length) popout.remove(), document.removeEventListener(listener);
+                if (!target.hasClass("popout-role-members") && !target.parents(".popout-role-members").length) popout.remove(), document.removeEventListener("click", listener);
             });
         }
 
@@ -130,7 +130,8 @@ var RoleMembers = (() => {
                 //if (roleId == guildId) continue;
                 let role = roles[roleId];
                 let item = new ContextMenu.TextItem(role.name, {
-                    callback: () => {
+                    callback: (event) => {
+                        event.stopPropagation();
                         $(".popout-role-members").remove();
                         this.showRolePopout(item.element, guildId, role.id);
                         // $(context).hide();

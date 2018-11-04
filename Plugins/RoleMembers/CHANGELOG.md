@@ -1,5 +1,9 @@
 # RoleMembers Changelog
 
+### 0.1.3
+
+ - I'm a failure
+
 ### 0.1.2
 
  - Context menus no longer use jQuery
