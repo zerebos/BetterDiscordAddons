@@ -1,5 +1,9 @@
 # BetterRoleColors Changelog
 
+### 0.7.5
+
+ - Fix account color in DMs
+
 ### 0.7.4
 
  - Start changeover betweeen libs
