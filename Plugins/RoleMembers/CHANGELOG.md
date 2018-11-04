@@ -1,5 +1,9 @@
 # RoleMembers Changelog
 
+### 0.1.2
+
+ - Context menus no longer use jQuery
+
 ### 0.1.1
 
  - Fix context menus sometimes going offscreen

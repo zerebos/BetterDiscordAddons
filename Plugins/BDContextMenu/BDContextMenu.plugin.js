@@ -2,16 +2,16 @@
 
 var BDContextMenu = (() => {
 	if (!global.ZLibrary && !global.ZLibraryPromise) global.ZLibraryPromise = new Promise((resolve, reject) => {
-		require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/ZLibrary.js", (err, res, body) => { //https://zackrauen.com/BetterDiscordApp/ZLibrary.js | https://rauenzi.github.io/BetterDiscordAddons/Plugins/ZLibrary.js
-			if (err || 200 !== res.statusCode) reject(err || res.statusMessage);
+		require("request").get({url: "https://rauenzi.github.io/BDPluginLibrary/release/ZLibrary.js", timeout: 10000}, (err, res, body) => {
+			if (err || 200 !== res.statusCode) return reject(err || res.statusMessage);
 			try {const vm = require("vm"), script = new vm.Script(body, {displayErrors: true}); resolve(script.runInThisContext());}
 			catch(err) {reject(err);}
 		});
 	});
-	const config = {"info":{"name":"BDContextMenu","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.13","description":"Adds BD shortcuts to the settings context menu. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"},"main":"index.js"};
+	const config = {"info":{"name":"BDContextMenu","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.14","description":"Adds BD shortcuts to the settings context menu. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Fixed order of plugins/themes","Use native content toggles","Not using correct IDs for themes"]}],"main":"index.js"};
 	const compilePlugin = ([Plugin, Api]) => {
 		const plugin = (Plugin, Api) => {
-    const {DiscordSelectors, ContextMenu, Toasts} = Api;
+    const {DiscordSelectors, ContextMenu} = Api;
     return class BDContextMenu extends Plugin {
 
         constructor() {
@@ -22,10 +22,26 @@ var BDContextMenu = (() => {
             });
         }
 
-        onStart() {
+        async onStart() {
+            this.showAnnouncement();
+            if (!document.querySelector(DiscordSelectors.AccountDetails.container.child("div").child(DiscordSelectors.AccountDetails.button))) await new Promise(resolve => setTimeout(resolve, 1000));
             this.contextListener = () => { this.bindContextMenus(); };
             this.button = document.querySelector(DiscordSelectors.AccountDetails.container.child("div").child(DiscordSelectors.AccountDetails.button));
             this.button.addEventListener("contextmenu", this.contextListener);
+        }
+
+        showAnnouncement() {
+            if (window.ZeresPluginLibrary) return; // they already have it
+            const hasShownAnnouncement = Api.PluginUtilities.loadData(this.getName(), "announcements", {localLibNotice: false}).localLibNotice;
+            if (hasShownAnnouncement) return;
+            Api.Modals.showConfirmationModal("Local Library Notice", Api.DiscordModules.React.createElement("span", null, `This version of ${this.getName()} is the final version that will be released using a remotely loaded library. Future versions will require my local library that gets placed in the plugins folder.`, Api.DiscordModules.React.createElement("br"), Api.DiscordModules.React.createElement("br"), "You can download the library now to be prepared, or wait until the next version which will prompt you to download it."), {
+                confirmText: "Download Now",
+                cancelText: "Wait",
+                onConfirm: () => {
+                    require("electron").shell.openExternal("https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js");
+                }
+            });
+            Api.PluginUtilities.saveData(this.getName(), "announcements", {localLibNotice: true});
         }
         
         onStop() {
@@ -42,16 +58,16 @@ var BDContextMenu = (() => {
     
         observeContextMenus(e) {
             if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element) || !e.addedNodes[0].classList) return;
-            let elem = e.addedNodes[0];
-            let isContext = elem.matches(DiscordSelectors.ContextMenu.contextMenu);
+            const elem = e.addedNodes[0];
+            const isContext = elem.matches(DiscordSelectors.ContextMenu.contextMenu);
             if (!isContext) return;
-            let contextMenu = $(elem);
-    
-            let coreMenu = new ContextMenu.Menu(true);
-            let forkMenu = new ContextMenu.Menu(true);
-            let emoteMenu = new ContextMenu.Menu(true);
-            let pluginMenu = new ContextMenu.Menu(true);
-            let themeMenu = new ContextMenu.Menu(true);
+            this.unbindContextMenus();
+
+            const coreMenu = new ContextMenu.Menu(true);
+            const forkMenu = new ContextMenu.Menu(true);
+            const emoteMenu = new ContextMenu.Menu(true);
+            const pluginMenu = new ContextMenu.Menu(true);
+            const themeMenu = new ContextMenu.Menu(true);
     
             for (let setting in window.settings) {
                 ((setting) => {
@@ -76,99 +92,43 @@ var BDContextMenu = (() => {
                 })(setting);
             }
     
-            for (let plugin in window.bdplugins) {
+            const pluginList = Object.keys(window.bdplugins).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+            for (let plugin of pluginList) {
                 ((plugin) => {
                     pluginMenu.addItems(new ContextMenu.ToggleItem(plugin, window.pluginCookie[plugin], {callback: () => { this.togglePlugin(plugin); }}));
                 })(plugin);
             }
             
-            for (let theme in window.bdthemes) {
+            const themeList = Object.keys(window.bdthemes).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+            for (let theme of themeList) {
                 ((theme) => {
                     themeMenu.addItems(new ContextMenu.ToggleItem(theme, window.themeCookie[theme], {callback: () => { this.toggleTheme(theme); }}));
                 })(theme);
             }
-    
             
-            let menu = null;
-            if (window.bbdVersion) {
-                menu = new ContextMenu.SubMenuItem("BetterDiscord", new ContextMenu.Menu(false).addItems(
-                    new ContextMenu.SubMenuItem("Core", coreMenu, {callback: () => { contextMenu.hide(); this.openMenu(0); }}),
-                    new ContextMenu.SubMenuItem("Zere's Fork", forkMenu, {callback: () => { contextMenu.hide(); this.openMenu(1); }}),
-                    new ContextMenu.SubMenuItem("Emotes", emoteMenu, {callback: () => { contextMenu.hide(); this.openMenu(2); }}),
-                    new ContextMenu.TextItem("Custom CSS", {callback: () => { contextMenu.hide(); this.openMenu(3); }}),
-                    new ContextMenu.SubMenuItem("Plugins", pluginMenu, {callback: () => { contextMenu.hide(); this.openMenu(4); }}),
-                    new ContextMenu.SubMenuItem("Themes", themeMenu, {callback: () => { contextMenu.hide(); this.openMenu(5); }})
-                ));
-            }
-            else {
-                menu = new ContextMenu.SubMenuItem("BetterDiscord", new ContextMenu.Menu(false).addItems(
-                    new ContextMenu.SubMenuItem("Core", coreMenu, {callback: () => { contextMenu.hide(); this.openMenu(0); }}),
-                    new ContextMenu.SubMenuItem("Emotes", emoteMenu, {callback: () => { contextMenu.hide(); this.openMenu(1); }}),
-                    new ContextMenu.TextItem("Custom CSS", {callback: () => { contextMenu.hide(); this.openMenu(2); }}),
-                    new ContextMenu.SubMenuItem("Plugins", pluginMenu, {callback: () => { contextMenu.hide(); this.openMenu(3); }}),
-                    new ContextMenu.SubMenuItem("Themes", themeMenu, {callback: () => { contextMenu.hide(); this.openMenu(4); }})
-                ));
-            }
-            contextMenu.append(new ContextMenu.ItemGroup().addItems(menu).getElement());
-            contextMenu.css("top", "-=" + menu.getElement().outerHeight());
-    
-    
-            this.unbindContextMenus();
-    
+            const menu = new ContextMenu.SubMenuItem("BetterDiscord", new ContextMenu.Menu(false).addItems(
+                new ContextMenu.SubMenuItem("Core", coreMenu, {callback: () => { elem.style.display = "none"; this.openMenu(0); }}),
+                new ContextMenu.SubMenuItem("Zere's Fork", forkMenu, {callback: () => { elem.style.display = "none"; this.openMenu(1); }}),
+                new ContextMenu.SubMenuItem("Emotes", emoteMenu, {callback: () => { elem.style.display = "none"; this.openMenu(2); }}),
+                new ContextMenu.TextItem("Custom CSS", {callback: () => { elem.style.display = "none"; this.openMenu(3); }}),
+                new ContextMenu.SubMenuItem("Plugins", pluginMenu, {callback: () => { elem.style.display = "none"; this.openMenu(4); }}),
+                new ContextMenu.SubMenuItem("Themes", themeMenu, {callback: () => { elem.style.display = "none"; this.openMenu(5); }})
+            ));
+            elem.append(new ContextMenu.ItemGroup().addItems(menu).getElement());
+            ContextMenu.updateDiscordMenu(elem);
         }
     
         changeBDSetting(setting) {
             window.settingsCookie[setting] = !window.settingsCookie[setting];
-            if (window.settingsPanel.v2SettingsPanel) window.settingsPanel.v2SettingsPanel.updateSettings();
-            else window.settingsPanel.updateSettings();
-        }
-    
-        enablePlugin(plugin) {
-            let enabled = window.pluginCookie[plugin];
-            if (!enabled) this.togglePlugin(plugin);
-        }
-    
-        disablePlugin(plugin) {
-            let enabled = window.pluginCookie[plugin];
-            if (enabled) this.togglePlugin(plugin);
+            window.settingsPanel.updateSettings();
         }
     
         togglePlugin(plugin) {
-            let enabled = window.pluginCookie[plugin];
-            if (enabled) {
-                try {window.bdplugins[plugin].plugin.stop(); }
-                catch (e) { Toasts.error("There was an issue stopping " + plugin); }
-            }
-            else {
-                try { window.bdplugins[plugin].plugin.start(); }
-                catch (e) { Toasts.error("There was an issue starting " + plugin); }
-            }
-            window.pluginCookie[plugin] = !window.pluginCookie[plugin];
-            window.pluginModule.savePluginData();
-        }
-    
-        enableTheme(theme) {
-            let enabled = window.themeCookie[theme];
-            if (!enabled) this.toggleTheme(theme);
-        }
-    
-        disableTheme(theme) {
-            let enabled = window.themeCookie[theme];
-            if (enabled) this.toggleTheme(theme);
+            window.pluginModule.togglePlugin(plugin);
         }
     
         toggleTheme(theme) {
-            let enabled = window.themeCookie[theme];
-            if (enabled) {
-                let elem = document.getElementById(theme);
-                if (elem) elem.remove();
-            }
-            else {
-                $("<style>", {id: theme, html: unescape(window.bdthemes[theme].css)}).appendTo(document.head);
-                Toasts.success(theme + " was successfully applied!");
-            }
-            window.themeCookie[theme] = !window.themeCookie[theme];
-            window.themeModule.saveThemeData();
+            window.themeModule.toggleTheme(theme);
         }
     
         openMenu(index) {
@@ -194,7 +154,7 @@ var BDContextMenu = (() => {
 	
 	return !global.ZLibrary ? class {
 		getName() {return config.info.name.replace(" ", "");} getAuthor() {return config.info.authors.map(a => a.name).join(", ");} getDescription() {return config.info.description;} getVersion() {return config.info.version;} stop() {}
-		showAlert() {window.mainCore.alert("Loading Error",`Something went wrong trying to load the library for the plugin. Try reloading?`);}
+		showAlert() {window.BdApi.alert("Loading Error",`Something went wrong trying to load the library for the plugin. You can try using a local copy of the library to fix this.<br /><br /><a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js" target="_blank">Click here to download the library!</a>`);}
 		async load() {
 			try {await global.ZLibraryPromise;}
 			catch(err) {return this.showAlert();}

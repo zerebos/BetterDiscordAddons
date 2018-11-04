@@ -1,5 +1,10 @@
 # PermissionsViewer Changelog
 
+### 0.1.2
+
+ - Give a notice when channels have no overrides
+ - Context menus no longer use jQuery
+
 ### 0.1.1
 
  - Don't show button when nothing to show

@@ -1,5 +1,11 @@
 # BDContextMenu Changelog
 
+### 0.0.14
+
+ - Use native toggles
+ - Lexical sorting
+ - Context menus no longer use jQuery
+
 ### 0.0.11
 
  - Use the new lib
