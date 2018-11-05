@@ -1,5 +1,10 @@
 # PermissionsViewer Changelog
 
+### 0.1.3
+
+ - Permissions button showing in DMs
+ - Owner pseudo-role not showing permissions
+
 ### 0.1.2
 
  - Give a notice when channels have no overrides
