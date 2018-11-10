@@ -1,5 +1,9 @@
 # BDContextMenu Changelog
 
+### 0.0.15
+
+ - Fix not updating bd settings
+
 ### 0.0.14
 
  - Use native toggles
