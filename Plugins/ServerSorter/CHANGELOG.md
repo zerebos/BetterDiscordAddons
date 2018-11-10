@@ -1,5 +1,10 @@
 # ServerSorter Changelog
 
+### 0.4.0
+
+ - Initial rewrite
+ - Fixed ordering of multiple options
+
 ### 0.3.1
 
  - Adjust classnames
