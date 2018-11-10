@@ -1,5 +1,14 @@
 # BetterFormattingRedux Changelog
 
+### 2.3.0
+
+ - Rewrite to use new library
+ - Compatibility with Zalgo plugin -- BFRedux will add a button to the toolbar if it detects the Zalgo plugin enabled.
+
+### 2.2.9
+
+ - Who knows
+
 ### 2.2.8
 
  - Performance improvements
