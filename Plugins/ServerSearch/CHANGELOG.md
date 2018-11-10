@@ -1,5 +1,10 @@
 # ServerSearch Changelog
 
+### 0.1.0
+
+ - Intial rewrite
+ - Fix position of popouts
+
 ### 0.0.4
 
  - Adjust classnames
