@@ -1,5 +1,9 @@
 # AutoPlayGifs Changelog
 
+### 0.1.0
+
+ - Rewrite to new lib
+
 ### 0.0.5
 
  - Fixed everything
