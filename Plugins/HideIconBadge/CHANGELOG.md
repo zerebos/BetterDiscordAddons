@@ -1,5 +1,9 @@
 # HideIconBadge Changelog
 
+### 0.0.4
+
+ - Rewrite to new lib
+
 ### 0.0.3
 
  - Fix for discord update
