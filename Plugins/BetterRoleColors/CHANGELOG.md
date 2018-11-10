@@ -1,5 +1,10 @@
 # BetterRoleColors Changelog
 
+### 0.7.6
+
+ - Role headers in member list match role color
+ - Code cleanup
+
 ### 0.7.5
 
  - Fix account color in DMs
