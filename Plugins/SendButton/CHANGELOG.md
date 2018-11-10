@@ -1,5 +1,9 @@
 # SendButton Changelog
 
+### 0.1.0
+
+ - Rewrite to use new library.
+
 ### 0.0.5
 
  - Fix for textarea changes
