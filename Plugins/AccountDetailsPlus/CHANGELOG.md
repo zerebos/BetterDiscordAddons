@@ -1,5 +1,9 @@
 # AccountDetailsPlus Changelog
 
+### 0.1.0 
+
+ - Rewrite to new lib
+
 ### 0.0.6
 
  - User popouts aka fuck discord
