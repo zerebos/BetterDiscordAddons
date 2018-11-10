@@ -1,5 +1,9 @@
 # BlurNSFW Changelog
 
+### 0.2.1
+
+ - Rewrite to new lib
+
 ### 0.2.0
 
  - Rewrite using internals (should be more consistent)
