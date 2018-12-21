@@ -1,32 +1,33 @@
 //META{"name":"ReplySystem","displayName":"ReplySystem","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","source":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ReplySystem/ReplySystem.plugin.js"}*//
 
 var ReplySystem = (() => {
-	if (!global.ZLibrary && !global.ZLibraryPromise) global.ZLibraryPromise = new Promise((resolve, reject) => {
-		require("request").get({url: "https://rauenzi.github.io/BDPluginLibrary/release/ZLibrary.js", timeout: 10000}, (err, res, body) => {
-			if (err || 200 !== res.statusCode) return reject(err || res.statusMessage);
-			try {const vm = require("vm"), script = new vm.Script(body, {displayErrors: true}); resolve(script.runInThisContext());}
-			catch(err) {reject(err);}
-		});
-	});
-	const config = {"info":{"name":"ReplySystem","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.6","description":"Adds a native-esque reply button with preview. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ReplySystem/ReplySystem.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Don't add multiple arrows.","Properly add/remove the css.","Fix unpatching on stop."]}],"main":"index.js"};
-	const compilePlugin = ([Plugin, Api]) => {
-		const plugin = (Plugin, Api) => {
-    const {WebpackModules, DiscordModules, Settings, Patcher, ReactTools, DiscordSelectors, DOMTools, PluginUtilities} = Api;
+    const config = {"info":{"name":"ReplySystem","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.7","description":"Adds a native-esque reply button with preview. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ReplySystem/ReplySystem.plugin.js"},"changelog":[{"title":"Internal Changes","type":"improved","items":["Move to more stable local library."]}],"main":"index.js"};
+
+    return !global.ZeresPluginLibrary ? class {
+        getName() {return config.info.name;}
+        getAuthor() {return config.info.authors.map(a => a.name).join(", ");}
+        getDescription() {return config.info.description;}
+        getVersion() {return config.info.version;}
+        load() {window.BdApi.alert("Library Missing",`The library plugin needed for ${config.info.name} is missing.<br /><br /> <a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js" target="_blank">Click here to download the library!</a>`);}
+        start() {}
+        stop() {}
+    } : (([Plugin, Api]) => {
+        const plugin = (Plugin, Api) => {
+    const {WebpackModules, DiscordModules, Settings, Patcher, ReactTools, DiscordSelectors, PluginUtilities} = Api;
 
     const Dispatcher = WebpackModules.getByProps("ComponentDispatch").ComponentDispatch;
-    const TooltipWrapper = WebpackModules.getByPrototypes("showDelayed");
-
-    const CloseButton = class CloseButton extends DiscordModules.React.Component {
+    const CloseButton = (({DiscordModules}) => {
+    return class CloseButton extends DiscordModules.React.Component {
         constructor(props) {
             super(props);
-    
+
             this.onClick = this.onClick.bind(this);
         }
-    
+
         onClick() {
             if (this.props.onClick) this.props.onClick();
         }
-    
+
         render() {
             return DiscordModules.React.createElement(
                 "svg", {
@@ -41,8 +42,11 @@ var ReplySystem = (() => {
             );
         }
     };
-
-	const ReplyButton = class ReplyButton extends DiscordModules.React.Component {
+})(Api);
+	const ReplyButton = (({DiscordModules, WebpackModules}) => {
+    const Dispatcher = WebpackModules.getByProps("ComponentDispatch").ComponentDispatch;
+    const TooltipWrapper = WebpackModules.getByPrototypes("showDelayed");
+    return class ReplyButton extends DiscordModules.React.Component {
         constructor(props) {
             super(props);
             this.onClick = this.onClick.bind(this);
@@ -78,8 +82,37 @@ var ReplySystem = (() => {
             );
         }
     };
-
-	const ReplyList = class ReplyList extends DiscordModules.React.Component {
+})(Api);
+    const ReplyItem = (({DiscordModules, WebpackModules}, CloseButton) => {
+    const Dispatcher = WebpackModules.getByProps("ComponentDispatch").ComponentDispatch;
+    return class ReplyItem extends DiscordModules.React.Component {
+        constructor(props) {
+            super(props);
+    
+            this.onClick = this.onClick.bind(this);
+        }
+    
+        shouldComponentUpdate(next) {
+            return this.props.id != next.id || this.props.guild_id != next.guild_id;
+        }
+    
+        onClick() {
+            Dispatcher.dispatch("REMOVE_REPLY", this.props.id);
+            if (this.props.onClick) this.props.onClick(this.props.id);
+        }
+    
+        render() {
+            let color = DiscordModules.GuildMemberStore.getMember(this.props.guild_id, this.props.id);
+            color = color && color.colorString ? color.colorString : "";
+            return DiscordModules.React.createElement("div", {className: "reply-item", style: {color}},
+                [this.props.name, DiscordModules.React.createElement(CloseButton, {onClick: this.onClick})]
+            );
+        }
+    };
+})(Api, CloseButton);
+	const ReplyList = (({DiscordModules, WebpackModules}, ReplyItem, CloseButton) => {
+    const Dispatcher = WebpackModules.getByProps("ComponentDispatch").ComponentDispatch;
+    return class ReplyList extends DiscordModules.React.Component {
         constructor(props) {
             super(props);
             this.state = {
@@ -156,149 +189,121 @@ var ReplySystem = (() => {
             );
         }
     };
-	
-	
-	const ReplyItem = class ReplyItem extends DiscordModules.React.Component {
-        constructor(props) {
-            super(props);
-    
-            this.onClick = this.onClick.bind(this);
-        }
-    
-        shouldComponentUpdate(next) {
-            return this.props.id != next.id || this.props.guild_id != next.guild_id;
-        }
-    
-        onClick() {
-            Dispatcher.dispatch("REMOVE_REPLY", this.props.id);
-            if (this.props.onClick) this.props.onClick(this.props.id);
-        }
-    
-        render() {
-            let color = DiscordModules.GuildMemberStore.getMember(this.props.guild_id, this.props.id);
-            color = color && color.colorString ? color.colorString : "";
-            return DiscordModules.React.createElement("div", {className: "reply-item", style: {color}},
-                [this.props.name, DiscordModules.React.createElement(CloseButton, {onClick: this.onClick})]
-            );
-        }
-    };
+})(Api, ReplyItem, CloseButton);
 
     return class ReplySystem extends Plugin {
 
         constructor() {
             super();
-            this.css = `
-            .reply-button {
-                margin-left: 6px;
-                font-size: 0.75rem;
-                opacity: 0;
-                transition: opacity 200ms ease;
-                cursor: pointer;
-                color: white;
-            }
-            .reply-icon {
-                fill: white;
-                vertical-align: top;
-            }
+            this.css = `.reply-button {
+    margin-left: 6px;
+    font-size: 0.75rem;
+    opacity: 0;
+    transition: opacity 200ms ease;
+    cursor: pointer;
+    color: white;
+}
+.reply-icon {
+    fill: white;
+    vertical-align: top;
+}
 
-            .theme-light .reply-button {
-                color: gray;
-            }
+.theme-light .reply-button {
+    color: gray;
+}
 
-            .theme-light .reply-icon {
-                fill: gray;
-            }
-            
-            .container-1YxwTf:hover .reply-button {
-                opacity: 0.4;
-            }
-            
-            .container-1YxwTf .reply:hover {
-                opacity: 1;
-            }
+.theme-light .reply-icon {
+    fill: gray;
+}
 
-            .messageCompact-kQa7ES {
-                flex-direction: row;
-            }
-            
-            .containerCompact-3V0ioj .reply-button {
-                margin: 0;
-            }
-            
-            .containerCompact-3V0ioj .reply-button+.contentCompact-1QLHBj time {
-                width: 50px;
-            }
+.container-1YxwTf:hover .reply-button {
+    opacity: 0.4;
+}
 
-            .containerCompact-3V0ioj time {
-                width: 65px;
-            }
-    
-            .reply-list {
-                position: absolute;
-                bottom: 100%;
-                left: 0;
-                right: 0;
-                display: flex;
-                flex-wrap: wrap;
-                align-items: center;
-                background: #2f3136;
-                padding: 0 18px 5px 5px;
-                border-radius: 5px 5px 0 0;
-                font-size: 14px;
-                color: white;
-            }
-            
-            @keyframes reply-add {
-                from {
-                    transform: scale(0.5);
-                }
-            }
-            
-            .reply-item {
-                animation: reply-add 200ms;
-                transform: scale(1);
-                display: flex;
-                background: #36393f;
-                align-items: center;
-                padding: 3px;
-                border-radius: 3px;
-                font-weight: 500;
-                margin-right: 3px;
-                margin-top: 5px;
-            }
-            
-            .reply-remove {
-                fill: white;
-                margin-left: 3px;
-                margin-top: 3px;
-                opacity: 0.4;
-                cursor: pointer;
-            }
-            
-            .reply-remove:hover {
-                opacity: 1;
-            }
-    
-            .reply-list-label {
-                display: flex;
-                align-items: center;
-                padding: 3px;
-                margin-right: 3px;
-                margin-top: 5px;
-            }
-            
-            .reply-clear {
-                fill: white;
-                cursor: pointer;
-                opacity: 0.4;
-                position: absolute;
-                top: 2px;
-                right: 2px;
-            }
-            
-            .reply-clear:hover {opacity: 1;}
-            `;
-    
+.container-1YxwTf .reply:hover {
+    opacity: 1;
+}
+
+.messageCompact-kQa7ES {
+    flex-direction: row;
+}
+
+.containerCompact-3V0ioj .reply-button {
+    margin: 0;
+}
+
+.containerCompact-3V0ioj .reply-button+.contentCompact-1QLHBj time {
+    width: 50px;
+}
+
+.containerCompact-3V0ioj time {
+    width: 65px;
+}
+
+.reply-list {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    background: #2f3136;
+    padding: 0 18px 5px 5px;
+    border-radius: 5px 5px 0 0;
+    font-size: 14px;
+    color: white;
+}
+
+@keyframes reply-add {
+    from {
+        transform: scale(0.5);
+    }
+}
+
+.reply-item {
+    animation: reply-add 200ms;
+    transform: scale(1);
+    display: flex;
+    background: #36393f;
+    align-items: center;
+    padding: 3px;
+    border-radius: 3px;
+    font-weight: 500;
+    margin-right: 3px;
+    margin-top: 5px;
+}
+
+.reply-remove {
+    fill: white;
+    margin-left: 3px;
+    margin-top: 3px;
+    opacity: 0.4;
+    cursor: pointer;
+}
+
+.reply-remove:hover {
+    opacity: 1;
+}
+
+.reply-list-label {
+    display: flex;
+    align-items: center;
+    padding: 3px;
+    margin-right: 3px;
+    margin-top: 5px;
+}
+
+.reply-clear {
+    fill: white;
+    cursor: pointer;
+    opacity: 0.4;
+    position: absolute;
+    top: 2px;
+    right: 2px;
+}
+
+.reply-clear:hover {opacity: 1;}`;
             this.replies = [];
             this.defaultSettings = {icon: true, roleColor: true};
             this.settings = Object.assign({}, this.defaultSettings);
@@ -359,7 +364,7 @@ var ReplySystem = (() => {
         async patchTextareaComponent() {
             let Textarea = await new Promise(resolve => {
                 let form = document.querySelector(".chat-3bRxxu form");
-                if (form) resolve(ReactTools.getOwnerInstance(form).constructor);
+                if (form) {resolve(ReactTools.getOwnerInstance(form).constructor);}
                 else {
                     let channel = WebpackModules.find(m => m.prototype && m.prototype.renderEmptyChannel);
                     let unpatch = Patcher.before(channel.prototype, "componentDidUpdate", (t) => {
@@ -444,26 +449,6 @@ var ReplySystem = (() => {
         }
     };
 };
-		return plugin(Plugin, Api);
-	};
-	
-	return !global.ZLibrary ? class {
-		getName() {return config.info.name.replace(" ", "");} getAuthor() {return config.info.authors.map(a => a.name).join(", ");} getDescription() {return config.info.description;} getVersion() {return config.info.version;} stop() {}
-		showAlert() {window.mainCore.alert("Loading Error",`Something went wrong trying to load the library for the plugin. You can try using a local copy of the library to fix this.<br /><br /><a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js">Click here to download the library!</a>`);}
-		async load() {
-			try {await global.ZLibraryPromise;}
-			catch(err) {return this.showAlert();}
-			const vm = require("vm"), plugin = compilePlugin(global.ZLibrary.buildPlugin(config));
-			try {new vm.Script(plugin, {displayErrors: true});} catch(err) {return bdpluginErrors.push({name: this.getName(), file: this.getName() + ".plugin.js", reason: "Plugin could not be compiled.", error: {message: err.message, stack: err.stack}});}
-			global[this.getName()] = plugin;
-			try {new vm.Script(`new global["${this.getName()}"]();`, {displayErrors: true});} catch(err) {return bdpluginErrors.push({name: this.getName(), file: this.getName() + ".plugin.js", reason: "Plugin could not be constructed", error: {message: err.message, stack: err.stack}});}
-			bdplugins[this.getName()].plugin = new global[this.getName()]();
-			bdplugins[this.getName()].plugin.load();
-		}
-		async start() {
-			try {await global.ZLibraryPromise;}
-			catch(err) {return this.showAlert();}
-			bdplugins[this.getName()].plugin.start();
-		}
-	} : compilePlugin(global.ZLibrary.buildPlugin(config));
+        return plugin(Plugin, Api);
+    })(global.ZeresPluginLibrary.buildPlugin(config));
 })();
