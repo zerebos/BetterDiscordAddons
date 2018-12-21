@@ -1,19 +1,19 @@
 //META{"name":"EmojiUtilities","displayName":"EmojiUtilities","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmojiUtilities","source":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/EmojiUtilities/EmojiUtilities.plugin.js"}*//
 
 var EmojiUtilities = (() => {
-    const config = {"info":{"name":"EmojiUtilities","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.2","description":"Allows you to blacklist and favorite emojis. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmojiUtilities","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/EmojiUtilities/EmojiUtilities.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Sometimes favorites would error when being added to emoji menu."]},{"title":"Internal Changes","type":"improved","items":["Get rid of the modal on click."]}],"main":"index.js"};
+    const config = {"info":{"name":"EmojiUtilities","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.3","description":"Allows you to blacklist and favorite emojis. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmojiUtilities","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/EmojiUtilities/EmojiUtilities.plugin.js"},"changelog":[{"title":"What's New?","items":["You can now right click on reaction to add/remove favorites."]},{"title":"Bugs Squashed","type":"fixed","items":["Fixed favorites not showing up.","Right clicking on emojis in the picker works again.","Right clicking emojis in the chat works again."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         getName() {return config.info.name;}
         getAuthor() {return config.info.authors.map(a => a.name).join(", ");}
         getDescription() {return config.info.description;}
         getVersion() {return config.info.version;}
-        load() {window.BdApi.alert("Library Missing",`The library plugin needed for ${config.info.name} is missing.<br /><br /> <a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js">Click here to download the library!</a>`);}
+        load() {window.BdApi.alert("Library Missing",`The library plugin needed for ${config.info.name} is missing.<br /><br /> <a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js" target="_blank">Click here to download the library!</a>`);}
         start() {}
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {Patcher, WebpackModules, PluginUtilities, DiscordModules, ContextMenu, DiscordSelectors, ReactTools, Modals} = Api;
+    const {Patcher, WebpackModules, PluginUtilities, DiscordModules, ContextMenu, DiscordSelectors, ReactTools, Utilities, ReactComponents} = Api;
 
     const EmojiUtils = DiscordModules.EmojiUtils;
     const EmojiStore = DiscordModules.EmojiStore;
@@ -99,7 +99,8 @@ var EmojiUtilities = (() => {
                 returnValue.props.onContextMenu = async () => {
                     const menu = await this.waitForContextMenu();
                     //menu.append(menuGroup.element[0]);
-                    menu.querySelector(DiscordSelectors.ContextMenu.itemGroup).insertAdjacentElement("afterend", menuGroup.element[0]);
+                    if (menu.querySelectorAll(DiscordSelectors.ContextMenu.itemGroup).length == 1) return;
+                    menu.querySelector(DiscordSelectors.ContextMenu.itemGroup).insertAdjacentElement("afterend", menuGroup.element);
                     this.fixMenuLocation(menu);
                 };
 
@@ -110,31 +111,38 @@ var EmojiUtilities = (() => {
                 return returnValue;
             });
 
-            const ReactionsComponent = WebpackModules.find(m => m.toString && m.toString([]).includes("reactionsCount"));
-            Patcher.after(ReactionsComponent.prototype, "render", (thisObject, methodArguments, returnValue) => {
-                if (!returnValue) return;
-                const reactions = returnValue.props.children[0]; //[2].props.emoji array.splice(index, 1);
-                let hiddenReactionCount = 0;
-                for (let r = 0; r < reactions.length; r++) {
-                    const emoji = reactions[r].props.emoji;
-                    const resolved = this.resolveEmojiIdentifier(emoji.id || emoji.name);
-                    if (resolved && this.isBlacklisted(resolved)) {
-                        hiddenReactionCount += reactions[r].props.count;
-                        reactions.splice(r, 1);
-                        r = r - 1;
-                    }
-                }
-                if (hiddenReactionCount) {
-                    returnValue.props.children.splice(1, 0, DiscordModules.TextElement.default({
-                        style: {margin: "0 5px"},
-                        className: "reactions-hidden",
-                        size: DiscordModules.TextElement.Sizes.SMALL,
-                        color: DiscordModules.TextElement.Colors.GREY,
-                        children: [`${hiddenReactionCount} reactions hidden`]
-                    }));
-                }
-                return returnValue;
+            const ReactionsComponent = WebpackModules.getByRegex(/reactionsCount/);
+			Patcher.after(ReactionsComponent.prototype, "render", (thisObject, methodArguments, retVal) => {
+                if (!retVal || !retVal.props || !retVal.props.children) return;
+				const original = retVal.props.children;
+				const myself = this;
+				retVal.props.children = function() {
+					const returnValue = original.apply(thisObject, arguments);
+					if (!returnValue) return returnValue;
+					const reactions = returnValue.props.children[0]; //[2].props.emoji array.splice(index, 1);
+					let hiddenReactionCount = 0;
+					for (let r = 0; r < reactions.length; r++) {
+						const emoji = reactions[r].props.emoji;
+						const resolved = myself.resolveEmojiIdentifier(emoji.id || emoji.name);
+						if (resolved && myself.isBlacklisted(resolved)) {
+							hiddenReactionCount += reactions[r].props.count;
+							reactions.splice(r, 1);
+							r = r - 1;
+                        }
+					}
+					if (hiddenReactionCount) {
+						returnValue.props.children.splice(1, 0, DiscordModules.TextElement.default({
+							style: {margin: "0 5px"},
+							className: "reactions-hidden",
+							size: DiscordModules.TextElement.Sizes.SMALL,
+							color: DiscordModules.TextElement.Colors.GREY,
+							children: [`${hiddenReactionCount} reactions hidden`]
+						}));
+					}
+					return returnValue;
+				};
             });
+            this.patchReactionComponent();
 
             //favorites
             DiscordModules.Strings.EMOJI_CATEGORY_FAVORITES = "Favorites";
@@ -158,8 +166,43 @@ var EmojiUtilities = (() => {
                 };
             });
 
-            // Add context menu to emojis in emoji picker
-            Patcher.after(DiscordModules.EmojiPicker.prototype, "render", (thisObject, args, returnValue) => {
+            this.patchEmojiPicker();
+        }
+
+        async patchReactionComponent() {
+            const Reaction = await ReactComponents.getComponent("Reaction", DiscordSelectors.Reactions.reaction, m => m.displayName == "Reaction");
+            Patcher.after(Reaction.component.prototype, "render", (thisObject, args, returnValue) => {
+                const emoji = Utilities.getNestedProp(returnValue, "props.children.props.children.props.children.0.props");
+                const reactionInner = Utilities.getNestedProp(returnValue, "props.children.props.children.props");
+                if (!emoji || !reactionInner) return;
+                const resolved = this.resolveEmojiIdentifier(emoji.emojiId || emoji.emojiName);
+                reactionInner.onContextMenu = (e) => {
+                    const isFavorite = this.isFavorite(resolved);
+                    const menu = new ContextMenu.Menu().addGroup(new ContextMenu.ItemGroup().addItems(
+                        new ContextMenu.TextItem("Blacklist Emoji", {callback: (e) => {
+                            e.stopPropagation();
+                            menu.removeMenu();
+                            this.addBlacklisted(resolved);
+                            thisObject.forceUpdate();
+                        }}),
+                        new ContextMenu.TextItem(isFavorite ? "Remove From Favorites" : "Favorite Emoji", {callback: (e) => {
+                            e.stopPropagation();
+                            menu.removeMenu();
+                            if (isFavorite) this.removeFavorite(resolved);
+                            else this.addFavorite(resolved);
+                            thisObject.forceUpdate();
+                        }})
+                    ));
+                    menu.show(e.clientX, e.clientY);
+                };
+            });
+            Reaction.forceUpdateAll();
+        }
+
+        // Add context menu to emojis in emoji picker
+        async patchEmojiPicker() {
+            const EmojiPicker = await ReactComponents.getComponentByName("EmojiPicker", DiscordSelectors.EmojiPicker.emojiPicker);
+            Patcher.after(EmojiPicker.component.prototype, "render", (thisObject, args, returnValue) => {
                 const rows = returnValue.props.children[2].props.children;
                 for (let row of rows) {
                     if (!Array.isArray(row.props.children)) continue;
@@ -170,7 +213,6 @@ var EmojiUtilities = (() => {
                         const matched = emoji.key.match(emojiKeyRegex); // Grab name if it has colons or diversity
                         if (matched && matched.length == 2) emoji.props.identifier = matched[1];
                         if (emoji.props.style) emoji.props.identifier = emoji.props.style.backgroundImage.match(emojiUrlRegex)[1];
-
                         emoji.props.onContextMenu = (e) => {
                             const isFavorite = this.isFavorite(emoji.props.identifier);
                             const menu = new ContextMenu.Menu().addGroup(new ContextMenu.ItemGroup().addItems(
@@ -194,6 +236,7 @@ var EmojiUtilities = (() => {
                     }
                 }
             });
+            EmojiPicker.forceUpdateAll();
         }
         
         onStop() {

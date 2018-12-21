@@ -1,7 +1,7 @@
 //META{"name":"HideDisabledEmojis","displayName":"HideDisabledEmojis","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideDisabledEmojis","source":"https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/HideDisabledEmojis/HideDisabledEmojis.plugin.js"}*//
 
 var HideDisabledEmojis = (() => {
-    const config = {"info":{"name":"HideDisabledEmojis","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.4","description":"Hides disabled emojis from the emoji picker. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideDisabledEmojis","github_raw":"https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/HideDisabledEmojis/HideDisabledEmojis.plugin.js"},"changelog":[{"title":"What's New?","items":["Use only local lib loading."]}],"main":"index.js"};
+    const config = {"info":{"name":"HideDisabledEmojis","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.5","description":"Hides disabled emojis from the emoji picker. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideDisabledEmojis","github_raw":"https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/HideDisabledEmojis/HideDisabledEmojis.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Fixed that issue where it didn't work."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         getName() {return config.info.name;}
@@ -13,15 +13,14 @@ var HideDisabledEmojis = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {Patcher, Toasts, WebpackModules} = Api;
+    const {Patcher, DiscordModules, ReactComponents, DiscordSelectors} = Api;
     return class HideDisabledEmojis extends Plugin {
-        onStart() {
-            let EmojiInfo = WebpackModules.findByUniqueProperties(["isEmojiDisabled"]);
-            let EmojiPicker = WebpackModules.findByDisplayName("EmojiPicker");
-            Patcher.after(EmojiInfo, "isEmojiFiltered", (thisObject, methodArguments, returnValue) => {
-                return returnValue || EmojiInfo.isEmojiDisabled(methodArguments[0], methodArguments[1]);
+        async onStart() {            
+            Patcher.after(DiscordModules.EmojiInfo, "isEmojiFiltered", (thisObject, methodArguments, returnValue) => {
+                return returnValue || DiscordModules.EmojiInfo.isEmojiDisabled(methodArguments[0], methodArguments[1]);
             });
 
+            const EmojiPicker = await ReactComponents.getComponentByName("EmojiPicker", DiscordSelectors.EmojiPicker.emojiPicker);
             Patcher.before(EmojiPicker.prototype, "render", (thisObject) => {
                 let cats = thisObject.categories;
                 let filtered = thisObject.computeMetaData();
@@ -43,8 +42,6 @@ var HideDisabledEmojis = (() => {
 
                 cats.sort((a,b) => a.offsetTop - b.offsetTop);
             });
-
-            Toasts.default(this.getName() + " " + this.getVersion() + " has started.");
         }
         
         onStop() {
