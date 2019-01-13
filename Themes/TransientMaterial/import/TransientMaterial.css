@@ -36,7 +36,7 @@ html, span:not(.spinner-item) {
 [class*="theme-"] .ui-standard-sidebar-view,
 [class*="theme-"] .chat-3bRxxu,
 .chat-3bRxxu>.titleWrapper-1l0xT9>.title-3qD0b-,
-.messages-3amgkR.scroller, 
+.messages-3amgkR.scroller-2FKFPG, 
 .messagesWrapper-3lZDfY .messages-3amgkR .message-group:not(.has-divider),
 [class*="theme-"] .messagesWrapper-3lZDfY, #friends .friends-table,
 .container-2Rl01u, [class*="theme-"] .chat-3bRxxu>.content-yTz4x3,
@@ -229,7 +229,7 @@ html, span:not(.spinner-item) {
 	background: rgba(0,0,0, var(--tm-messages-opacity)) !important;
 }
 
-.messages-3amgkR.scroller, .content-yTz4x3 > .theme-dark {
+.messages-3amgkR.scroller-2FKFPG, .content-yTz4x3 > .theme-dark {
     background: rgba(48,48,48, var(--tm-chat-opacity)) !important;
 }
 

@@ -1,5 +1,9 @@
 # TransientMaterial Changelog
 
+### 1.2.5
+
+ - Hotpatch for discord changes
+
 ### 1.2.4
 
  - Start changelog (oops)
