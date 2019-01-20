@@ -13,6 +13,7 @@ A series of plugins and themes for BetterDiscord. For support or announcements o
  - [EmoteSearch](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmoteSearch) - Search through all emotes in BD.
  - [HideDisabledEmojis](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideDisabledEmojis) - Hides disabled emojis from the emoji picker.
  - [HideIconBadge](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideIconBadge) - Hides the badge that appears on the taskbar icon.
+ - [HideMutedServers](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideMutedServers) - Hides muted servers with a context menu option to show/hide.
  - [ImageToClipboard](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ImageToClipboard) - Allows you to copy images (png/jpg) directly to your system clipboard.
  - [PermissionsViewer](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer) - Allows you to view a user's permissions. Thanks to Noodlebox for the idea!
  - [RemoveMinimumSize](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RemoveMinimumSize) - Removes the minimum window size forced by Discord.
@@ -23,11 +24,12 @@ A series of plugins and themes for BetterDiscord. For support or announcements o
  - [ServerSearch](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch) - Adds a button to search your servers.
  - [ServerSorter](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSorter) - Adds the ability to sort the servers that you're in.
  - [StatusEverywhere](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/StatusEverywhere) - Adds user status everywhere Discord doesn't.
- - [TransparencyPatcher](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/TransparencyPatcher) - Allows you to make your discord see-through.
+ - [ZeresPluginLibrary](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ZeresPluginLibrary) - Gives other plugins utility functions and the ability to emulate v2.
  
 ## Themes
  - [RadialStatus](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/RadialStatus) - An extension (and update/fix) of Zerthox's Status Circles.
- - [TransientMaterial](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/TransientMaterial) - Transparency patch theme for Beard's Material Design Theme. Also works fairly well on it's own.
+ - [TransientMaterial](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/TransientMaterial) - Transparency patch theme for Nox. Also works fairly well on it's own.
+ - [Nox](https://github.com/rauenzi/Nox) - A beautiful dark material theme for Discord. This is the rebrand and continuation of Beard's Material Design Theme which has been discontinued.
  
 ## Snippets
  - [Snippet Collection](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/Snippets) - A collection of useful CSS snippets, could be considered mini-themes.
