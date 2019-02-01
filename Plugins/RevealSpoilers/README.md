@@ -1,6 +1,6 @@
 # RevealSpoilers - [Download](https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RevealSpoilers/RevealSpoilers.plugin.js)
 
-Makes all spoilers revealed by default and removes the revealed background color. For support and update announcements you can visit [Zere's server](https://bit.ly/ZeresServer).
+Makes all spoilers revealed by default and optionally removes the revealed background color. For support and update announcements you can visit [Zere's server](https://bit.ly/ZeresServer).
 
 ## Before
 
