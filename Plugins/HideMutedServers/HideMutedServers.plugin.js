@@ -1,7 +1,7 @@
 //META{"name":"HideMutedServers","displayName":"HideMutedServers","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideMutedServers","source":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/HideMutedServers/HideMutedServers.plugin.js"}*//
 
 var HideMutedServers = (() => {
-    const config = {"info":{"name":"HideMutedServers","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"1.0.0","description":"Hides muted servers with a context menu option to show/hide. Acts similar to Discord's Hide Muted Channels option. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideMutedServers","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/HideMutedServers/HideMutedServers.plugin.js"},"main":"index.js"};
+    const config = {"info":{"name":"HideMutedServers","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"1.0.1","description":"Hides muted servers with a context menu option to show/hide. Acts similar to Discord's Hide Muted Channels option. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideMutedServers","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/HideMutedServers/HideMutedServers.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Fixed that bug where it didn't work","Fixed that other bug where it also hid muted channels"]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         getName() {return config.info.name;}
@@ -13,7 +13,7 @@ var HideMutedServers = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {DiscordSelectors, WebpackModules, ReactTools, Patcher, ContextMenu} = Api;
+    const {DiscordSelectors, WebpackModules, ReactTools, Patcher, ContextMenu, Utilities} = Api;
     return class HideMutedServers extends Plugin {
         constructor() {
             super();
@@ -37,9 +37,9 @@ var HideMutedServers = (() => {
             const isMuted = WebpackModules.getByProps("isMuted").isMuted;
             const Guilds = WebpackModules.getByDisplayName("Guilds");
             Patcher.after(Guilds.prototype, "render", (thisObject, args, ret) => {
-                var guilds = ret.props.children[1].props.children[4];
-                var newGuilds = guilds.filter(g => !isMuted(g.key));
-                ret.props.children[1].props.children[4] = newGuilds;
+                const guilds = Utilities.findInReactTree(ret, a => a && a[0] && a[0].key && a[0].props && a[0].props.guild);
+                if (!guilds) return;
+                guilds.splice(0, guilds.length, ...guilds.filter(g => !isMuted(g.key)));
             });
             this.updateGuildList();
         }
