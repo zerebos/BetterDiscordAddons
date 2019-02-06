@@ -1,5 +1,11 @@
 # PermissionsViewer Changelog
 
+### 0.1.4
+
+ - Fixed modal bugs
+ - Fixed button in textarea
+ - Switch to menu patching
+
 ### 0.1.3
 
  - Permissions button showing in DMs
