@@ -1,5 +1,9 @@
 # AccountDetailsPlus Changelog
 
+### 0.1.3
+
+ - Fix settings panel
+
 ### 0.1.0 
 
  - Rewrite to new lib
