@@ -1,5 +1,10 @@
 # PermissionsViewer Changelog
 
+### 0.1.5
+
+ - Escape html names
+ - Fix misnamed context menu items
+
 ### 0.1.4
 
  - Fixed modal bugs

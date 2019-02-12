@@ -1,7 +1,7 @@
 //META{"name":"PermissionsViewer","displayName":"PermissionsViewer","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer","source":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/PermissionsViewer/PermissionsViewer.plugin.js"}*//
 
 var PermissionsViewer = (() => {
-    const config = {"info":{"name":"PermissionsViewer","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.4","description":"Allows you to view a user's permissions. Thanks to Noodlebox for the idea! Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/PermissionsViewer/PermissionsViewer.plugin.js"},"changelog":[{"title":"Improvements","type":"improved","items":["Switched to patching for context menus.","Use internal menu items for maximum blending."]},{"title":"Bugs Squashed","type":"fixed","items":["Fixed errors for users without roles.","Fixed errors for users with funky names.","Permissions button no longer falsely appears in the textarea's context menu."]}],"defaultConfig":[{"type":"switch","id":"contextMenus","name":"Context Menus","note":"Toggles colorizing of typing notifications.","value":true},{"type":"switch","id":"popouts","name":"Popouts","note":"Toggles colorizing of typing notifications.","value":true}],"strings":{"es":{"contextMenuLabel":"Permisos","popoutLabel":"Permisos","modal":{"header":"Permisos de ${name}","rolesLabel":"Roles","permissionsLabel":"Permisos","owner":"@propietario"},"settings":{"popouts":{"name":"Mostrar en Popouts","note":"Mostrar los permisos de usuario en popouts como los roles."},"contextMenus":{"name":"Botón de menú contextual","note":"Añadir un botón para ver permisos en los menús contextuales."}}},"pt":{"contextMenuLabel":"Permissões","popoutLabel":"Permissões","modal":{"header":"Permissões de ${name}","rolesLabel":"Cargos","permissionsLabel":"Permissões","owner":"@dono"},"settings":{"popouts":{"name":"Mostrar em Popouts","note":"Mostrar as permissões em popouts como os cargos."},"contextMenus":{"name":"Botão do menu de contexto","note":"Adicionar um botão parar ver permissões ao menu de contexto."}}},"de":{"contextMenuLabel":"Berechtigungen","popoutLabel":"Berechtigungen","modal":{"header":"${name}s Berechtigungen","rolesLabel":"Rollen","permissionsLabel":"Berechtigungen","owner":"@eigentümer"},"settings":{"popouts":{"name":"In Popouts anzeigen","note":"Zeigt die Gesamtberechtigungen eines Benutzers in seinem Popup ähnlich den Rollen an."},"contextMenus":{"name":"Kontextmenü-Schaltfläche","note":"Fügt eine Schaltfläche hinzu, um die Berechtigungen mithilfe von Kontextmenüs anzuzeigen."}}},"en":{"contextMenuLabel":"Permissions","popoutLabel":"Permissions","modal":{"header":"${name}'s Permissions","rolesLabel":"Roles","permissionsLabel":"Permissions","owner":"@owner"},"settings":{"popouts":{"name":"Show In Popouts","note":"Shows a user's total permissions in their popout similar to roles."},"contextMenus":{"name":"Context Menu Button","note":"Adds a button to view the permissions modal to select context menus."}}}},"main":"index.js"};
+    const config = {"info":{"name":"PermissionsViewer","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.5","description":"Allows you to view a user's permissions. Thanks to Noodlebox for the idea! Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/PermissionsViewer/PermissionsViewer.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Fixed errors for users with funky names for real this time.","Fixed the issue where the button wouldn't show in context menu."]}],"defaultConfig":[{"type":"switch","id":"contextMenus","name":"Context Menus","note":"Toggles colorizing of typing notifications.","value":true},{"type":"switch","id":"popouts","name":"Popouts","note":"Toggles colorizing of typing notifications.","value":true}],"strings":{"es":{"contextMenuLabel":"Permisos","popoutLabel":"Permisos","modal":{"header":"Permisos de ${name}","rolesLabel":"Roles","permissionsLabel":"Permisos","owner":"@propietario"},"settings":{"popouts":{"name":"Mostrar en Popouts","note":"Mostrar los permisos de usuario en popouts como los roles."},"contextMenus":{"name":"Botón de menú contextual","note":"Añadir un botón para ver permisos en los menús contextuales."}}},"pt":{"contextMenuLabel":"Permissões","popoutLabel":"Permissões","modal":{"header":"Permissões de ${name}","rolesLabel":"Cargos","permissionsLabel":"Permissões","owner":"@dono"},"settings":{"popouts":{"name":"Mostrar em Popouts","note":"Mostrar as permissões em popouts como os cargos."},"contextMenus":{"name":"Botão do menu de contexto","note":"Adicionar um botão parar ver permissões ao menu de contexto."}}},"de":{"contextMenuLabel":"Berechtigungen","popoutLabel":"Berechtigungen","modal":{"header":"${name}s Berechtigungen","rolesLabel":"Rollen","permissionsLabel":"Berechtigungen","owner":"@eigentümer"},"settings":{"popouts":{"name":"In Popouts anzeigen","note":"Zeigt die Gesamtberechtigungen eines Benutzers in seinem Popup ähnlich den Rollen an."},"contextMenus":{"name":"Kontextmenü-Schaltfläche","note":"Fügt eine Schaltfläche hinzu, um die Berechtigungen mithilfe von Kontextmenüs anzuzeigen."}}},"en":{"contextMenuLabel":"Permissions","popoutLabel":"Permissions","modal":{"header":"${name}'s Permissions","rolesLabel":"Roles","permissionsLabel":"Permissions","owner":"@owner"},"settings":{"popouts":{"name":"Show In Popouts","note":"Shows a user's total permissions in their popout similar to roles."},"contextMenus":{"name":"Context Menu Button","note":"Adds a button to view the permissions modal to select context menus."}}}},"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         getName() {return config.info.name;}
@@ -22,6 +22,14 @@ var PermissionsViewer = (() => {
     const DiscordPerms = Object.assign({}, DiscordModules.DiscordConstants.Permissions);
     const AvatarDefaults = WebpackModules.getByProps("DEFAULT_AVATARS");
     const MenuActions = DiscordModules.ContextMenuActions;
+    const MenuItem = WebpackModules.getByRegex(/(?=.*disabled)(?=.*brand)/);
+    const escapeHTML = DOMTools.escapeHTML ? DOMTools.escapeHTML : function(html) {
+		const textNode = document.createTextNode("");
+		const spanElement = document.createElement("span");
+		spanElement.append(textNode);
+		textNode.nodeValue = html;
+		return spanElement.innerHTML;
+	};
 
     if (DiscordPerms.SEND_TSS_MESSAGES) {
         DiscordPerms.SEND_TTS_MESSAGES = DiscordPerms.SEND_TSS_MESSAGES;
@@ -440,7 +448,6 @@ var PermissionsViewer = (() => {
         }
     
         async bindContextMenus() {
-            this.MenuItem = (await ReactComponents.getComponentByName("ContextMenuItem", DiscordSelectors.ContextMenu.item)).component;
             this.patchChannelContextMenu();
             this.patchGuildContextMenu();
             this.patchUserContextMenu();
@@ -455,7 +462,7 @@ var PermissionsViewer = (() => {
             this.contextMenuPatches.push(Patcher.after(ChannelContextMenu.component.prototype, "render", (component, args, retVal) => {
                 if (!component.props.type.startsWith("CHANNEL_LIST_")) return;
                 const original = retVal.props.children[0].props.children;
-                const newOne = new this.MenuItem({label: this.strings.contextMenuLabel, action: () => {
+                const newOne = new MenuItem({label: this.strings.contextMenuLabel, action: () => {
                     MenuActions.closeContextMenu();
                     const channel = component.props.channel;
                     if (!Object.keys(channel.permissionOverwrites).length) return Toasts.info(`#${channel.name} has no permission overrides`);
@@ -471,7 +478,7 @@ var PermissionsViewer = (() => {
             const GuildContextMenu = await ReactComponents.getComponentByName("GuildContextMenu", DiscordSelectors.ContextMenu.contextMenu);
             this.contextMenuPatches.push(Patcher.after(GuildContextMenu.component.prototype, "render", (component, args, retVal) => {
                 const original = retVal.props.children[0].props.children;
-                const newOne = new this.MenuItem({label: this.strings.contextMenuLabel, action: () => {
+                const newOne = new MenuItem({label: this.strings.contextMenuLabel, action: () => {
                     MenuActions.closeContextMenu();
                     this.showModal(this.createModalGuild(component.props.guild.name, component.props.guild));
                 }});
@@ -488,7 +495,7 @@ var PermissionsViewer = (() => {
                 const guild = GuildStore.getGuild(guildId);
                 if (!guild) return null;
                 const original = retVal.props.children.props.children.props.children[0].props.children;
-                const newOne = new this.MenuItem({label: this.strings.contextMenuLabel, action: () => {
+                const newOne = new MenuItem({label: this.strings.contextMenuLabel, action: () => {
                     MenuActions.closeContextMenu();
                     const user = MemberStore.getMember(guildId, component.props.user.id);
                     const name = user.nick ? user.nick : UserStore.getUser(user.userId).username;
@@ -501,9 +508,9 @@ var PermissionsViewer = (() => {
         }
     
         showModal(modal) {
-            const popout = document.querySelector("[class*=\"userPopout-\"]");
+            const popout = document.querySelector(DiscordSelectors.UserPopout.userPopout);
             if (popout) popout.style.display = "none";
-            const app = document.querySelector("[class*=\"app-\"]");
+            const app = document.querySelector(".app-19_DXt");
             if (app) app.append(modal);
             else document.querySelector("#app-mount").append(modal);
         }
@@ -531,7 +538,7 @@ var PermissionsViewer = (() => {
 
         createModal(title, displayRoles, referenceRoles, isOverride = false) {
             if (!referenceRoles) referenceRoles = displayRoles;
-            const modal = DOMTools.createElement(Utilities.formatTString(Utilities.formatTString(this.modalHTML, this.strings.modal), {name: title}));
+            const modal = DOMTools.createElement(Utilities.formatTString(Utilities.formatTString(this.modalHTML, this.strings.modal), {name: escapeHTML(title)}));
             modal.find(".callout-backdrop").on("click", () => {
                 modal.addClass("closing");
                 setTimeout(() => { modal.remove(); }, 300);
@@ -545,8 +552,8 @@ var PermissionsViewer = (() => {
                 let item = DOMTools.createElement(!isOverride || displayRoles[role].type == "role" ? this.modalButton : Utilities.formatTString(this.modalButtonUser, {avatarUrl: user.avatarURL}));
                 if (!isOverride || displayRoles[role].type == "role") item.css("color", referenceRoles[role].colorString);
                 else item.css("color", member.colorString);
-                if (isOverride) item.find(".role-name").textContent = displayRoles[role].type == "role" ? referenceRoles[role].name : user.username;
-                else item.find(".role-name").textContent = referenceRoles[role].name;
+                if (isOverride) item.find(".role-name").textContent = escapeHTML(displayRoles[role].type == "role" ? referenceRoles[role].name : user.username);
+                else item.find(".role-name").textContent = escapeHTML(referenceRoles[role].name);
                 modal.find(".role-scroller").append(item);
                 item.on("click", () => {
                     modal.findAll(".role-item.selected").forEach(e => e.removeClass("selected"));
