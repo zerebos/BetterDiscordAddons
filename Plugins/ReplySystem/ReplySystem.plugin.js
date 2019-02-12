@@ -1,7 +1,7 @@
 //META{"name":"ReplySystem","displayName":"ReplySystem","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","source":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ReplySystem/ReplySystem.plugin.js"}*//
 
 var ReplySystem = (() => {
-    const config = {"info":{"name":"ReplySystem","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.7","description":"Adds a native-esque reply button with preview. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ReplySystem/ReplySystem.plugin.js"},"changelog":[{"title":"Internal Changes","type":"improved","items":["Move to more stable local library."]}],"main":"index.js"};
+    const config = {"info":{"name":"ReplySystem","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.8","description":"Adds a native-esque reply button with preview. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ReplySystem/ReplySystem.plugin.js"},"changelog":[{"title":"Internal Changes","type":"improved","items":["Started using ReactComponents module to make it stable."]},{"title":"Bugfixes","type":"fixed","items":["Reply list should show up again."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         getName() {return config.info.name;}
@@ -13,7 +13,7 @@ var ReplySystem = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {WebpackModules, DiscordModules, Settings, Patcher, ReactTools, DiscordSelectors, PluginUtilities} = Api;
+    const {WebpackModules, DiscordModules, Settings, Patcher, DiscordSelectors, PluginUtilities, ReactComponents} = Api;
 
     const Dispatcher = WebpackModules.getByProps("ComponentDispatch").ComponentDispatch;
     const CloseButton = (({DiscordModules}) => {
@@ -335,8 +335,6 @@ var ReplySystem = (() => {
         onStop() {
             PluginUtilities.removeStyle(this.getName());
             Patcher.unpatchAll();
-            this.forceUpdateMessages();
-            this.forceUpdateTextarea();
             Dispatcher.unsubscribe("ADD_REPLY", this.addReply);
             Dispatcher.unsubscribe("REMOVE_REPLY", this.removeReply);
             Dispatcher.unsubscribe("CLEAR_REPLY", this.clearReply);
@@ -362,52 +360,18 @@ var ReplySystem = (() => {
         }
     
         async patchTextareaComponent() {
-            let Textarea = await new Promise(resolve => {
-                let form = document.querySelector(".chat-3bRxxu form");
-                if (form) {resolve(ReactTools.getOwnerInstance(form).constructor);}
-                else {
-                    let channel = WebpackModules.find(m => m.prototype && m.prototype.renderEmptyChannel);
-                    let unpatch = Patcher.before(channel.prototype, "componentDidUpdate", (t) => {
-                        let elem = DiscordModules.ReactDOM.findDOMNode(t);
-                        if (!elem) return;
-                        let form = elem.querySelector(".chat-3bRxxu form");
-                        if (!form) return;
-                        unpatch();
-                        resolve(ReactTools.getOwnerInstance(form).constructor);
-                    });
-                }
-            });
-    
-            let list = DiscordModules.React.createElement(ReplyList);
-            Patcher.after(Textarea.prototype, "render", (thisObject, args, returnValue) => {
+            const Textarea = await ReactComponents.getComponentByName("ChannelTextAreaForm", ".chat-3bRxxu form");
+            const list = DiscordModules.React.createElement(ReplyList);
+            Patcher.after(Textarea.component.prototype, "render", (thisObject, args, returnValue) => {
                 returnValue.props.children.push(list);
                 return returnValue;
             });
-            
-            this.forceUpdateTextarea();
+            Textarea.forceUpdateAll();
         }
     
-        forceUpdateTextarea() {
-            let form = document.querySelector(".chat-3bRxxu form");
-            form && ReactTools.getOwnerInstance(form).forceUpdate();
-        }
-    
-        async patchMessageComponent() {
-            let Message = await new Promise(resolve => {
-                let msg = document.querySelector(DiscordSelectors.Messages.message);
-                if (msg) return resolve(ReactTools.getOwnerInstance(msg).constructor);
-        
-                let MessageGroup = WebpackModules.getModule(m => m.defaultProps && m.defaultProps.disableManageMessages);
-                let unpatch = Patcher.after(MessageGroup.prototype, "componentDidMount", (t) => {
-                    let elem = DiscordModules.ReactDOM.findDOMNode(t);
-                    if (!elem) return;
-                    unpatch();
-                    let msg = elem.querySelector(DiscordSelectors.Messages.message);
-                    resolve(ReactTools.getOwnerInstance(msg).constructor);
-                });
-            });
-    
-            Patcher.after(Message.prototype, "render", (thisObject, args, returnValue) => {
+        async patchMessageComponent() {    
+            const Message = await ReactComponents.getComponentByName("Message", DiscordSelectors.Messages.message);
+            Patcher.after(Message.component.prototype, "render", (thisObject, args, returnValue) => {
                 if (!thisObject.props.isHeader || thisObject.props.message.type != 0) return returnValue;
                 let id = thisObject.props.message.author.id;
                 let name = thisObject.props.message.author.username;
@@ -428,13 +392,7 @@ var ReplySystem = (() => {
     
                 return returnValue;
             });
-            
-            this.forceUpdateMessages();
-        }
-    
-        forceUpdateMessages() {
-            let messages = document.querySelectorAll(DiscordSelectors.Messages.message);
-            for (let m = 0; m < messages.length; m++) ReactTools.getOwnerInstance(messages[m]).forceUpdate();
+            Message.forceUpdateAll();
         }
     
         getSettingsPanel() {
