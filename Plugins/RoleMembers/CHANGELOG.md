@@ -1,5 +1,9 @@
 # RoleMembers Changelog
 
+### 0.1.4
+
+ - Move to patches for mention and context menu
+
 ### 0.1.3
 
  - I'm a failure
