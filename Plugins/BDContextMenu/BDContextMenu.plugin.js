@@ -1,7 +1,7 @@
 //META{"name":"BDContextMenu","displayName":"BDContextMenu","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu","source":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"}*//
 
 var BDContextMenu = (() => {
-    const config = {"info":{"name":"BDContextMenu","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.15","description":"Adds BD shortcuts to the settings context menu. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Fixed not updating BD settings."]}],"main":"index.js"};
+    const config = {"info":{"name":"BDContextMenu","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.0","description":"Adds BD shortcuts to the settings context menu. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"},"changelog":[{"title":"Improvements","type":"improved","items":["Use internals to hook the menu.","Create the menus using Discord's internals."]},{"title":"Bugs Squashed","type":"fixed","items":["Fixed an issue where the plugin would sometimes fail to load.","Fixed the issues where the category shortcuts stopped working."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         getName() {return config.info.name;}
@@ -13,124 +13,105 @@ var BDContextMenu = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {DiscordSelectors, ContextMenu} = Api;
+    const {DiscordSelectors, Patcher, ReactComponents, DiscordModules, WebpackModules} = Api;
+
+    const React = DiscordModules.React;
+    const MenuItem = WebpackModules.getByRegex(/(?=.*disabled)(?=.*brand)/);
+    const DiscordToggleMenuItem = WebpackModules.getByRegex(/(?=.*itemToggle)(?=.*checkbox)/);
+    const SubMenuItem = WebpackModules.find(m => m.displayName && m.displayName.includes("SubMenuItem"));
+    const BBDSettings = Object.entries(window.settings).filter(s => !s[1].hidden && s[1].implemented);
+
+    const ToggleMenuItem = class OtherItem extends React.Component {
+        handleToggle() {
+            this.props.active = !this.props.active;
+            if (this.props.action) this.props.action(this.props.active);
+            this.forceUpdate();
+        }
+        render() {
+            return React.createElement(DiscordToggleMenuItem, Object.assign({}, this.props, {action: this.handleToggle.bind(this)}));
+        }
+    };
+
     return class BDContextMenu extends Plugin {
 
-        constructor() {
-            super();
-            this.initialized = false;
-            this.contextObserver = new MutationObserver((changes) => {
-                for (let change in changes) this.observeContextMenus(changes[change]);
-            });
-        }
-
         async onStart() {
-            if (!document.querySelector(DiscordSelectors.AccountDetails.container.child("div").child(DiscordSelectors.AccountDetails.button))) await new Promise(resolve => setTimeout(resolve, 1000));
-            this.contextListener = () => { this.bindContextMenus(); };
-            this.button = document.querySelector(DiscordSelectors.AccountDetails.container.child("div").child(DiscordSelectors.AccountDetails.button));
-            this.button.addEventListener("contextmenu", this.contextListener);
+            this.patchSettingsContextMenu();
         }
         
         onStop() {
-            if (this.button) this.button.removeEventListener("contextmenu", this.contextListener);
+            Patcher.unpatchAll();
         }
 
-        bindContextMenus() {
-            this.contextObserver.observe(document.querySelector("#app-mount"), {childList: true, subtree: true});
-        }
-    
-        unbindContextMenus() {
-            this.contextObserver.disconnect();
-        }
-    
-        observeContextMenus(e) {
-            if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element) || !e.addedNodes[0].classList) return;
-            const elem = e.addedNodes[0];
-            const isContext = elem.matches(DiscordSelectors.ContextMenu.contextMenu);
-            if (!isContext) return;
-            this.unbindContextMenus();
+        async patchSettingsContextMenu() {
+            const SettingsContextMenu = await ReactComponents.getComponentByName("UserSettingsCogContextMenu", DiscordSelectors.ContextMenu.contextMenu);
+            Patcher.after(SettingsContextMenu.component.prototype, "render", (component, args, retVal) => {
 
-            const coreMenu = new ContextMenu.Menu(true);
-            const forkMenu = new ContextMenu.Menu(true);
-            const emoteMenu = new ContextMenu.Menu(true);
-            const pluginMenu = new ContextMenu.Menu(true);
-            const themeMenu = new ContextMenu.Menu(true);
-    
-            for (let setting in window.settings) {
-                ((setting) => {
-                    if (window.settings[setting].implemented && !window.settings[setting].hidden && window.settings[setting].cat === "core")
-                        coreMenu.addItems(new ContextMenu.ToggleItem(setting, window.settingsCookie[window.settings[setting].id], {callback: () => { this.changeBDSetting(window.settings[setting].id); }}));
-                })(setting);
-            }
-            
-            if (window.bbdVersion) {
-                for (let setting in window.settings) {
-                    ((setting) => {
-                        if (window.settings[setting].implemented && !window.settings[setting].hidden && window.settings[setting].cat === "fork")
-                            forkMenu.addItems(new ContextMenu.ToggleItem(setting, window.settingsCookie[window.settings[setting].id], {callback: () => { this.changeBDSetting(window.settings[setting].id); }}));
-                    })(setting);
-                }
-            }
-    
-            for (let setting in window.settings) {
-                ((setting) => {
-                    if (window.settings[setting].implemented && !window.settings[setting].hidden && window.settings[setting].cat === "emote")
-                        emoteMenu.addItems(new ContextMenu.ToggleItem(setting, window.settingsCookie[window.settings[setting].id], {callback: () => { this.changeBDSetting(window.settings[setting].id); }}));
-                })(setting);
-            }
-    
-            const pluginList = Object.keys(window.bdplugins).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
-            for (let plugin of pluginList) {
-                ((plugin) => {
-                    pluginMenu.addItems(new ContextMenu.ToggleItem(plugin, window.pluginCookie[plugin], {callback: () => { this.togglePlugin(plugin); }}));
-                })(plugin);
-            }
-            
-            const themeList = Object.keys(window.bdthemes).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
-            for (let theme of themeList) {
-                ((theme) => {
-                    themeMenu.addItems(new ContextMenu.ToggleItem(theme, window.themeCookie[theme], {callback: () => { this.toggleTheme(theme); }}));
-                })(theme);
-            }
-            
-            const menu = new ContextMenu.SubMenuItem("BetterDiscord", new ContextMenu.Menu(false).addItems(
-                new ContextMenu.SubMenuItem("Core", coreMenu, {callback: () => { elem.style.display = "none"; this.openMenu(0); }}),
-                new ContextMenu.SubMenuItem("Zere's Fork", forkMenu, {callback: () => { elem.style.display = "none"; this.openMenu(1); }}),
-                new ContextMenu.SubMenuItem("Emotes", emoteMenu, {callback: () => { elem.style.display = "none"; this.openMenu(2); }}),
-                new ContextMenu.TextItem("Custom CSS", {callback: () => { elem.style.display = "none"; this.openMenu(3); }}),
-                new ContextMenu.SubMenuItem("Plugins", pluginMenu, {callback: () => { elem.style.display = "none"; this.openMenu(4); }}),
-                new ContextMenu.SubMenuItem("Themes", themeMenu, {callback: () => { elem.style.display = "none"; this.openMenu(5); }})
-            ));
-            elem.append(new ContextMenu.ItemGroup().addItems(menu).getElement());
-            ContextMenu.updateDiscordMenu(elem);
-        }
-    
-        changeBDSetting(setting) {
-            window.settingsPanel.updateSettings(setting, !window.settingsCookie[setting]);
-        }
-    
-        togglePlugin(plugin) {
-            window.pluginModule.togglePlugin(plugin);
-        }
-    
-        toggleTheme(theme) {
-            window.themeModule.toggleTheme(theme);
-        }
-    
-        openMenu(index) {
-            let observer = new MutationObserver((changes) => {
-                for (let change in changes) {
-                    let e = changes[change];
-                    if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element) || !e.addedNodes[0].classList) return;
-                    if (e.addedNodes[0].querySelector("#bd-settings-sidebar") || e.addedNodes[0].id === "bd-settings-sidebar") {
-                        document.querySelectorAll("#bd-settings-sidebar .ui-tab-bar-item")[index].click();
-                        document.querySelectorAll("#bd-settings-sidebar .ui-tab-bar-item")[index].classList.add("selected");
-                        observer.disconnect();
-                    }
-                }
+                const coreMenu = this.buildSubMenu("Core", "core");
+                const bandageMenu = this.buildSubMenu("Bandages", "fork");
+                const emoteMenu = this.buildSubMenu("Emotes", "emote");
+                const customCSSMenu = new MenuItem({label: "Custom CSS", action: () => {this.openCategory("customcss");}});
+                const pluginMenu = this.buildContentMenu(true);
+                const themeMenu = this.buildContentMenu(false);
+                
+                const mainMenu = React.createElement(SubMenuItem, {
+                    label: "BandagedBD",
+                    invertChildY: true,
+                    render: [coreMenu, bandageMenu, emoteMenu, customCSSMenu, pluginMenu, themeMenu]
+                });
+                retVal.props.children.push(mainMenu);
             });
-            observer.observe(document.querySelector(".app"), {childList: true, subtree: true});
-            this.button.click();
+            SettingsContextMenu.forceUpdateAll();
+        }
+
+        buildSubMenu(name, id) {
+            const menuItems = [];
+            const subMenu = React.createElement(SubMenuItem, {
+                label: name,
+                invertChildY: true,
+                render: menuItems,
+                action: () => {this.openCategory(id);}
+            });
+            for (const setting of BBDSettings.filter(s => s[1].cat == id)) {
+                const item = React.createElement(ToggleMenuItem, {
+                    label: setting[0],
+                    active: window.settingsCookie[window.settings[setting[0]].id],
+                    action: () => {
+                        const id = window.settings[setting[0]].id;
+                        window.settingsPanel.updateSettings(id, !window.settingsCookie[id]);
+                    }
+                });
+                menuItems.push(item);
+            }
+            return subMenu;
+        }
+
+        buildContentMenu(isPlugins) {
+            const menuItems = [];
+            const subMenu = React.createElement(SubMenuItem, {
+                label: isPlugins ? "Plugins" : "Themes",
+                invertChildY: true,
+                render: menuItems,
+                action: () => {this.openCategory(isPlugins ? "plugins" : "themes");}
+            });
+            for (const content of Object.keys(isPlugins ? window.bdplugins : window.bdthemes).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))) {
+                const item = React.createElement(ToggleMenuItem, {
+                    label: content,
+                    active: isPlugins ? window.pluginCookie[content] : window.themeCookie[content],
+                    action: () => {
+                        if (isPlugins) window.pluginModule.togglePlugin(content);
+                        else window.themeModule.toggleTheme(content);
+                    }
+                });
+                menuItems.push(item);
+            }
+            return subMenu;
+        }
+
+        async openCategory(id) {
+            DiscordModules.ContextMenuActions.closeContextMenu();
+            DiscordModules.UserSettingsWindow.open(DiscordModules.DiscordConstants.UserSettingsSections.ACCOUNT);
+            while (!window.settingsPanel.sidebar.root) await new Promise(r => setTimeout(r, 100));
+            window.settingsPanel.sideBarOnClick(id);
         }
 
     };

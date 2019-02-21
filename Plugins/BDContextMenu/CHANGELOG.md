@@ -1,5 +1,12 @@
 # BDContextMenu Changelog
 
+### 0.1.0
+
+ - Use internal patching to hook the menu
+ - Use Discord's react menus 
+ - Fix loading issues
+ - Fix category shortcut issues
+
 ### 0.0.15
 
  - Fix not updating bd settings
