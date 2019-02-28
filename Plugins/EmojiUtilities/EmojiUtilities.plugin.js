@@ -1,7 +1,7 @@
 //META{"name":"EmojiUtilities","displayName":"EmojiUtilities","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmojiUtilities","source":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/EmojiUtilities/EmojiUtilities.plugin.js"}*//
 
 var EmojiUtilities = (() => {
-    const config = {"info":{"name":"EmojiUtilities","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.3","description":"Allows you to blacklist and favorite emojis. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmojiUtilities","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/EmojiUtilities/EmojiUtilities.plugin.js"},"changelog":[{"title":"What's New?","items":["You can now right click on reaction to add/remove favorites."]},{"title":"Bugs Squashed","type":"fixed","items":["Fixed favorites not showing up.","Right clicking on emojis in the picker works again.","Right clicking emojis in the chat works again."]}],"main":"index.js"};
+    const config = {"info":{"name":"EmojiUtilities","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.4","description":"Allows you to blacklist and favorite emojis. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmojiUtilities","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/EmojiUtilities/EmojiUtilities.plugin.js"},"changelog":[{"title":"Why","type":"fixed","items":["Discord keeps messing stuff up."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         getName() {return config.info.name;}
@@ -42,72 +42,6 @@ var EmojiUtilities = (() => {
                 const emoji = methodArguments[0];
                 if (emoji.uniqueName && this.disabledEmojis.includes(emoji.uniqueName)) return true;
                 if (emoji.id && this.disabledEmojis.includes(emoji.id)) return true;
-                return returnValue;
-            });
-
-            const EmojiComponent = WebpackModules.find(m => {
-                if (!m || !m.prototype || !m.prototype.render) return false;
-                try {
-                    const i = new m();
-                    if (i.state && i.state.hasOwnProperty("autoplay")) return true;
-                }
-                catch (err) {return false;}
-                return false;
-            });
-            Patcher.after(EmojiComponent.prototype, "render", (thisObject, methodArguments, returnValue) => {
-
-                const emoji = this.resolveEmojiIdentifier(returnValue.props.emojiId || returnValue.props.emojiName);
-                const isFavorite = this.isFavorite(emoji);
-                const isBlacklisted = this.isBlacklisted(emoji);
-
-                if (isBlacklisted) {
-                    const menu = new ContextMenu.Menu().addGroup(new ContextMenu.ItemGroup().addItems(
-                        new ContextMenu.TextItem("Remove From Blacklist", {callback: () => {
-                            menu.removeMenu();
-                            this.removeBlacklisted(emoji);
-                            thisObject.forceUpdate();
-                        }})
-                    ));
-                    return DiscordModules.TextElement.default({
-                        className: "blocked-emoji",
-                        children: [returnValue.props.emojiName],
-                        id: returnValue.props.emojiId,
-                        name: returnValue.props.emojiName.replace(/:/g, ""),
-                        color: DiscordModules.TextElement.Colors.GREY,
-                        onContextMenu: (e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            menu.show(e.clientX, e.clientY);
-                        }
-                    });
-                }
-
-                const menuGroup = new ContextMenu.ItemGroup().addItems(
-                    new ContextMenu.TextItem("Blacklist Emoji", {callback: () => {
-                        ContextMenuActions.closeContextMenu();
-                        this.addBlacklisted(emoji);
-                        thisObject.forceUpdate();
-                    }})
-                );
-                const favItem = new ContextMenu.TextItem(isFavorite ? "Remove From Favorites" : "Favorite Emoji", {callback: () => {
-                    ContextMenuActions.closeContextMenu();
-                    if (isFavorite) this.removeFavorite(emoji);
-                    else this.addFavorite(emoji);
-                    thisObject.forceUpdate();
-                }});
-                if (this.isResolvable(emoji)) menuGroup.addItems(favItem);
-                returnValue.props.onContextMenu = async () => {
-                    const menu = await this.waitForContextMenu();
-                    //menu.append(menuGroup.element[0]);
-                    if (menu.querySelectorAll(DiscordSelectors.ContextMenu.itemGroup).length == 1) return;
-                    menu.querySelector(DiscordSelectors.ContextMenu.itemGroup).insertAdjacentElement("afterend", menuGroup.element);
-                    this.fixMenuLocation(menu);
-                };
-
-                // returnValue.props.onClick = () => {
-                //     Modals.showConfirmationModal(thisObject.props.emojiName, "You clicked it, what did you expect.");
-                // };
-                
                 return returnValue;
             });
 
@@ -166,6 +100,7 @@ var EmojiUtilities = (() => {
                 };
             });
 
+            this.patchEmojiComponent();
             this.patchEmojiPicker();
         }
 
@@ -197,6 +132,67 @@ var EmojiUtilities = (() => {
                 };
             });
             Reaction.forceUpdateAll();
+        }
+
+        async patchEmojiComponent() {
+            const Emoji = await ReactComponents.getComponentByName("Emoji", ".emoji");
+            Patcher.after(Emoji.component.prototype, "render", (thisObject, methodArguments, returnValue) => {
+
+                const emoji = this.resolveEmojiIdentifier(returnValue.props.emojiId || returnValue.props.emojiName);
+                const isFavorite = this.isFavorite(emoji);
+                const isBlacklisted = this.isBlacklisted(emoji);
+
+                if (isBlacklisted) {
+                    const menu = new ContextMenu.Menu().addGroup(new ContextMenu.ItemGroup().addItems(
+                        new ContextMenu.TextItem("Remove From Blacklist", {callback: () => {
+                            menu.removeMenu();
+                            this.removeBlacklisted(emoji);
+                            thisObject.forceUpdate();
+                        }})
+                    ));
+                    return DiscordModules.TextElement.default({
+                        className: "blocked-emoji",
+                        children: [returnValue.props.emojiName],
+                        id: returnValue.props.emojiId,
+                        name: returnValue.props.emojiName.replace(/:/g, ""),
+                        color: DiscordModules.TextElement.Colors.GREY,
+                        onContextMenu: (e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            menu.show(e.clientX, e.clientY);
+                        }
+                    });
+                }
+
+                const menuGroup = new ContextMenu.ItemGroup().addItems(
+                    new ContextMenu.TextItem("Blacklist Emoji", {callback: () => {
+                        ContextMenuActions.closeContextMenu();
+                        this.addBlacklisted(emoji);
+                        thisObject.forceUpdate();
+                    }})
+                );
+                const favItem = new ContextMenu.TextItem(isFavorite ? "Remove From Favorites" : "Favorite Emoji", {callback: () => {
+                    ContextMenuActions.closeContextMenu();
+                    if (isFavorite) this.removeFavorite(emoji);
+                    else this.addFavorite(emoji);
+                    thisObject.forceUpdate();
+                }});
+                if (this.isResolvable(emoji)) menuGroup.addItems(favItem);
+                returnValue.props.onContextMenu = async () => {
+                    const menu = await this.waitForContextMenu();
+                    //menu.append(menuGroup.element[0]);
+                    if (menu.querySelectorAll(DiscordSelectors.ContextMenu.itemGroup).length == 1) return;
+                    menu.querySelector(DiscordSelectors.ContextMenu.itemGroup).insertAdjacentElement("afterend", menuGroup.element);
+                    this.fixMenuLocation(menu);
+                };
+
+                // returnValue.props.onClick = () => {
+                //     Modals.showConfirmationModal(thisObject.props.emojiName, "You clicked it, what did you expect.");
+                // };
+                
+                return returnValue;
+            });
+            Emoji.forceUpdateAll();
         }
 
         // Add context menu to emojis in emoji picker

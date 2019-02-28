@@ -1,7 +1,7 @@
 //META{"name":"BDContextMenu","displayName":"BDContextMenu","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu","source":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"}*//
 
 var BDContextMenu = (() => {
-    const config = {"info":{"name":"BDContextMenu","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.0","description":"Adds BD shortcuts to the settings context menu. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"},"changelog":[{"title":"Improvements","type":"improved","items":["Use internals to hook the menu.","Create the menus using Discord's internals."]},{"title":"Bugs Squashed","type":"fixed","items":["Fixed an issue where the plugin would sometimes fail to load.","Fixed the issues where the category shortcuts stopped working."]}],"main":"index.js"};
+    const config = {"info":{"name":"BDContextMenu","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.1","description":"Adds BD shortcuts to the settings context menu. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Fixed issues with Discord's internal changes."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         getName() {return config.info.name;}
@@ -13,12 +13,11 @@ var BDContextMenu = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {DiscordSelectors, Patcher, ReactComponents, DiscordModules, WebpackModules} = Api;
+    const {DiscordSelectors, Patcher, ReactComponents, DiscordModules, WebpackModules, ReactTools} = Api;
 
     const React = DiscordModules.React;
     const MenuItem = WebpackModules.getByRegex(/(?=.*disabled)(?=.*brand)/);
     const DiscordToggleMenuItem = WebpackModules.getByRegex(/(?=.*itemToggle)(?=.*checkbox)/);
-    const SubMenuItem = WebpackModules.find(m => m.displayName && m.displayName.includes("SubMenuItem"));
     const BBDSettings = Object.entries(window.settings).filter(s => !s[1].hidden && s[1].implemented);
 
     const ToggleMenuItem = class OtherItem extends React.Component {
@@ -35,6 +34,14 @@ var BDContextMenu = (() => {
     return class BDContextMenu extends Plugin {
 
         async onStart() {
+            this.SubMenuItem = await ReactComponents.getComponent("FluxContainer", DiscordSelectors.ContextMenu.itemSubMenu, m => {
+				try {
+					const instance = new m({});
+					const rendered = instance.render();
+					return rendered.type.displayName == "SubMenuItem";
+                } 
+                catch (e) {return false;}
+			});
             this.patchSettingsContextMenu();
         }
         
@@ -53,7 +60,7 @@ var BDContextMenu = (() => {
                 const pluginMenu = this.buildContentMenu(true);
                 const themeMenu = this.buildContentMenu(false);
                 
-                const mainMenu = React.createElement(SubMenuItem, {
+                const mainMenu = React.createElement(this.SubMenuItem.component, {
                     label: "BandagedBD",
                     invertChildY: true,
                     render: [coreMenu, bandageMenu, emoteMenu, customCSSMenu, pluginMenu, themeMenu]
@@ -61,11 +68,15 @@ var BDContextMenu = (() => {
                 retVal.props.children.push(mainMenu);
             });
             SettingsContextMenu.forceUpdateAll();
+            for (const element of document.querySelectorAll(DiscordSelectors.ContextMenu.contextMenu)) {
+				const updater = ReactTools.getReactProperty(element, "return.stateNode.props.onHeightUpdate");
+				if (typeof(updater) == "function") updater();
+			}
         }
 
         buildSubMenu(name, id) {
             const menuItems = [];
-            const subMenu = React.createElement(SubMenuItem, {
+            const subMenu = React.createElement(this.SubMenuItem.component, {
                 label: name,
                 invertChildY: true,
                 render: menuItems,
@@ -87,7 +98,7 @@ var BDContextMenu = (() => {
 
         buildContentMenu(isPlugins) {
             const menuItems = [];
-            const subMenu = React.createElement(SubMenuItem, {
+            const subMenu = React.createElement(this.SubMenuItem.component, {
                 label: isPlugins ? "Plugins" : "Themes",
                 invertChildY: true,
                 render: menuItems,

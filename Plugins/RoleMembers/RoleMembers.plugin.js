@@ -1,7 +1,7 @@
 //META{"name":"RoleMembers","displayName":"RoleMembers","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers","source":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"}*//
 
 var RoleMembers = (() => {
-    const config = {"info":{"name":"RoleMembers","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.4","description":"Allows you to see the members of each role on a server. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"},"changelog":[{"title":"Improvements","type":"improved","items":["Context menu no longer uses an observer and uses a patch.","Same for role mentions."]},{"title":"Bugs Squashed","type":"fixed","items":["Popout won't show when a role and user have the same name."]}],"main":"index.js"};
+    const config = {"info":{"name":"RoleMembers","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.5","description":"Allows you to see the members of each role on a server. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Fixed issues with Discord's internal changes."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         getName() {return config.info.name;}
@@ -13,7 +13,7 @@ var RoleMembers = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {Popouts, DiscordModules, DiscordSelectors, DiscordClasses, Utilities, WebpackModules, ReactComponents, Patcher} = Api;
+    const {Popouts, DiscordModules, DiscordSelectors, DiscordClasses, Utilities, WebpackModules, ReactComponents, Patcher, ReactTools} = Api;
 
     const from = arr => arr && arr.length > 0 && Object.assign(...arr.map( ([k, v]) => ({[k]: v}) ));
     const filter = (obj, predicate) => from(Object.entries(obj).filter((o) => {return predicate(o[1]);}));
@@ -26,7 +26,6 @@ var RoleMembers = (() => {
     const ImageResolver = DiscordModules.ImageResolver;
     const WrapperClasses = WebpackModules.getByProps("wrapperHover");
     const MenuItem = WebpackModules.getByRegex(/(?=.*disabled)(?=.*brand)/);
-    const SubMenuItem = WebpackModules.find(m => m.displayName && m.displayName.includes("SubMenuItem"));
 
     const popoutHTML = `<div class="\${className} popout-role-members" style="margin-top: 0;">
     <div class="popoutList-T9CKZQ guildSettingsAuditLogsUserFilterPopout-3Jg5NE elevationBorderHigh-2WYJ09 role-members-popout">
@@ -89,7 +88,15 @@ var RoleMembers = (() => {
         }
 
         async patchGuildContextMenu() {
-            const GuildContextMenu = await ReactComponents.getComponentByName("GuildContextMenu", DiscordSelectors.ContextMenu.contextMenu);
+            const SubMenuItem = await ReactComponents.getComponentByName("FluxContainer", DiscordSelectors.ContextMenu.itemSubMenu, m => {
+				try {
+					const instance = new m({});
+					const rendered = instance.render();
+					return rendered.type.displayName == "SubMenuItem";
+                }
+                catch (e) {return false;}
+			});
+            const GuildContextMenu = await ReactComponents.getComponent("GuildContextMenu", DiscordSelectors.ContextMenu.contextMenu);
             Patcher.after(GuildContextMenu.component.prototype, "render", (component, args, retVal) => {
                 const guildId = component.props.guild.id;
                 const roles = component.props.guild.roles;
@@ -107,12 +114,16 @@ var RoleMembers = (() => {
                 }
 
                 const original = retVal.props.children[0].props.children;
-                const newOne = DiscordModules.React.createElement(SubMenuItem, {label: "Role Members", render: roleItems});
+                const newOne = DiscordModules.React.createElement(SubMenuItem.component, {label: "Role Members", render: roleItems});
                 // console.log(roleItems, newOne);
                 if (Array.isArray(original)) original.splice(1, 0, newOne);
                 else retVal.props.children[0].props.children = [original, newOne];
             });
             GuildContextMenu.forceUpdateAll();
+            for (const element of document.querySelectorAll(DiscordSelectors.ContextMenu.contextMenu)) {
+				const updater = ReactTools.getReactProperty(element, "return.stateNode.props.onHeightUpdate");
+				if (typeof(updater) == "function") updater();
+			}
         }
     
         showRolePopout(target, guildId, roleId) {
