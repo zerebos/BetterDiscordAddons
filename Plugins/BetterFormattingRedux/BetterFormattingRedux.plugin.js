@@ -1,14 +1,59 @@
 //META{"name":"BetterFormattingRedux","displayName":"BetterFormattingRedux","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux","source":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js"}*//
+/*@cc_on
+@if (@_jscript)
+	
+	// Offer to self-install for clueless users that try to run this directly.
+	var shell = WScript.CreateObject('WScript.Shell');
+	var fs = new ActiveXObject('Scripting.FileSystemObject');
+	var pathPlugins = shell.ExpandEnvironmentStrings('%APPDATA%\\BetterDiscord\\plugins');
+	var pathSelf = WScript.ScriptFullName;
+	// Put the user at ease by addressing them in the first person
+	shell.Popup('It looks like you\'ve mistakenly tried to run me directly. \n(Don\'t do that!)', 0, 'I\'m a plugin for BetterDiscord', 0x30);
+	if (fs.GetParentFolderName(pathSelf) === fs.GetAbsolutePathName(pathPlugins)) {
+		shell.Popup('I\'m in the correct folder already.\nJust reload Discord with Ctrl+R.', 0, 'I\'m already installed', 0x40);
+	} else if (!fs.FolderExists(pathPlugins)) {
+		shell.Popup('I can\'t find the BetterDiscord plugins folder.\nAre you sure it\'s even installed?', 0, 'Can\'t install myself', 0x10);
+	} else if (shell.Popup('Should I copy myself to BetterDiscord\'s plugins folder for you?', 0, 'Do you need some help?', 0x34) === 6) {
+		fs.CopyFile(pathSelf, fs.BuildPath(pathPlugins, fs.GetFileName(pathSelf)), true);
+		// Show the user where to put plugins in the future
+		shell.Exec('explorer ' + pathPlugins);
+		shell.Popup('I\'m installed!\nJust reload Discord with Ctrl+R.', 0, 'Successfully installed', 0x40);
+	}
+	WScript.Quit();
+
+@else@*/
 
 var BetterFormattingRedux = (() => {
     const config = {"info":{"name":"BetterFormattingRedux","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"2.3.2","description":"Enables different types of formatting in standard Discord chat. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js"},"defaultConfig":[{"type":"category","id":"toolbar","name":"Toolbar Buttons","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"bold","name":"Bold","value":true},{"type":"switch","id":"italic","name":"Italic","value":true},{"type":"switch","id":"underline","name":"Underline","value":true},{"type":"switch","id":"strikethrough","name":"Strikethrough","value":true},{"type":"switch","id":"spoiler","name":"Spoiler","value":true},{"type":"switch","id":"code","name":"Code","value":true},{"type":"switch","id":"codeblock","name":"Codeblock","value":true},{"type":"switch","id":"superscript","name":"Superscript","value":true},{"type":"switch","id":"smallcaps","name":"Smallcaps","value":true},{"type":"switch","id":"fullwidth","name":"Full Width","value":true},{"type":"switch","id":"upsidedown","name":"Upsidedown","value":true},{"type":"switch","id":"varied","name":"Varied Caps","value":true},{"type":"switch","id":"leet","name":"Leet (1337)","value":false},{"type":"switch","id":"thicc","name":"Extra Thicc","value":false}]},{"type":"category","id":"formats","name":"Active Formats","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"superscript","name":"Superscript","value":true},{"type":"switch","id":"smallcaps","name":"Smallcaps","value":true},{"type":"switch","id":"fullwidth","name":"Full Width","value":true},{"type":"switch","id":"upsidedown","name":"Upsidedown","value":true},{"type":"switch","id":"varied","name":"Varied Caps","value":true},{"type":"switch","id":"leet","name":"Leet (1337)","value":false},{"type":"switch","id":"thicc","name":"Extra Thicc","value":false}]},{"type":"category","id":"wrappers","name":"Wrapper Options","collapsible":true,"shown":false,"settings":[{"type":"textbox","id":"superscript","name":"Superscript","note":"The wrapper for superscripted text","value":"^^"},{"type":"textbox","id":"smallcaps","name":"Smallcaps","note":"The wrapper to make Smallcaps.","value":"%%"},{"type":"textbox","id":"fullwidth","name":"Full Width","note":"The wrapper for E X P A N D E D  T E X T.","value":"##"},{"type":"textbox","id":"upsidedown","name":"Upsidedown","note":"The wrapper to flip the text upsidedown.","value":"&&"},{"type":"textbox","id":"varied","name":"Varied Caps","note":"The wrapper to VaRy the capitalization.","value":"=="},{"type":"textbox","id":"leet","name":"Leet (1337)","note":"The wrapper to talk in 13375p34k.","value":"++"},{"type":"textbox","id":"thicc","name":"Extra Thicc","note":"The wrapper to get 乇乂下尺卂 下卄工匚匚.","value":"$$"}]},{"type":"category","id":"formatting","name":"Formatting Options","collapsible":true,"shown":false,"settings":[{"type":"dropdown","id":"fullWidthMap","name":"Fullwidth Style","note":"Which style of fullwidth formatting should be used.","value":true,"options":[{"label":"T H I S","value":false},{"label":"ｔｈｉｓ","value":true}]},{"type":"switch","id":"reorderUpsidedown","name":"Reorder Upsidedown Text","note":"Having this enabled reorders the upside down text to make it in-order.","value":true},{"type":"switch","id":"fullwidth","name":"Start VaRiEd Caps With Capital","note":"Enabling this starts a varied text string with a capital.","value":true}]},{"type":"category","id":"plugin","name":"Functional Options","collapsible":true,"shown":false,"settings":[{"type":"dropdown","id":"hoverOpen","name":"Opening Toolbar","note":"Determines when to show the toolbar.","value":true,"options":[{"label":"Click","value":false},{"label":"Hover","value":true}]},{"type":"dropdown","id":"chainFormats","name":"Format Chaining","note":"Swaps priority of wrappers between inner first and outer first. Check the GitHub for more info.","value":true,"options":[{"label":"Inner","value":false},{"label":"Outer","value":true}]},{"type":"switch","id":"closeOnSend","name":"Close On Send","note":"This option will close the toolbar when a message is sent.","value":true}]},{"type":"category","id":"style","name":"Style Options","collapsible":true,"shown":false,"settings":[{"type":"dropdown","id":"icons","name":"Toolbar Style","note":"Switches between icons and text as the toolbar buttons.","value":true,"options":[{"label":"Text","value":false},{"label":"Icons","value":true}]},{"type":"dropdown","id":"rightSide","name":"Toolbar Location","note":"This option enables swapping toolbar location.","value":true,"options":[{"label":"Left","value":false},{"label":"Right","value":true}]},{"type":"slider","id":"toolbarOpacity","name":"Opacity","note":"This allows the toolbar to be partially seethrough.","value":1,"min":0,"max":1},{"type":"slider","id":"fontSize","name":"Font Size","note":"Adjusts the font size between 0 and 100%.","value":85,"min":0,"max":100}]}],"changelog":[{"title":"What's New?","items":["Change default wrapper for varied text to == from || to prevent spoiler conflict."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
+        constructor() {this._config = config;}
         getName() {return config.info.name;}
         getAuthor() {return config.info.authors.map(a => a.name).join(", ");}
         getDescription() {return config.info.description;}
         getVersion() {return config.info.version;}
-        load() {window.BdApi.alert("Library Missing",`The library plugin needed for ${config.info.name} is missing.<br /><br /> <a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js" target="_blank">Click here to download the library!</a>`);}
+        load() {
+            const title = "Library Missing";
+            const ModalStack = BdApi.findModuleByProps("push", "update", "pop", "popWithKey");
+            const TextElement = BdApi.findModuleByProps("Sizes", "Weights");
+            const ConfirmationModal = BdApi.findModule(m => m.defaultProps && m.key && m.key() == "confirm-modal");
+            if (!ModalStack || !ConfirmationModal || !TextElement) return BdApi.alert(title, `The library plugin needed for ${config.info.name} is missing.<br /><br /> <a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js" target="_blank">Click here to download the library!</a>`);
+            ModalStack.push(function(props) {
+                return BdApi.React.createElement(ConfirmationModal, Object.assign({
+                    header: title,
+                    children: [TextElement({color: TextElement.Colors.PRIMARY, children: [`The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`]})],
+                    red: false,
+                    confirmText: "Download Now",
+                    cancelText: "Cancel",
+                    onConfirm: () => {
+                        require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, response, body) => {
+                            if (error) return require("electron").shell.openExternal("https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js");
+                            await new Promise(r => require("fs").writeFile(require("path").join(ContentManager.pluginsFolder, "0PluginLibrary.plugin.js"), body, r));
+                        });
+                    }
+                }, props));
+            });
+        }
         start() {}
         stop() {}
     } : (([Plugin, Api]) => {
@@ -610,3 +655,4 @@ var BetterFormattingRedux = (() => {
         return plugin(Plugin, Api);
     })(global.ZeresPluginLibrary.buildPlugin(config));
 })();
+/*@end@*/
