@@ -3,28 +3,28 @@
 @if (@_jscript)
 	
 	// Offer to self-install for clueless users that try to run this directly.
-	var shell = WScript.CreateObject('WScript.Shell');
-	var fs = new ActiveXObject('Scripting.FileSystemObject');
-	var pathPlugins = shell.ExpandEnvironmentStrings('%APPDATA%\\BetterDiscord\\plugins');
+	var shell = WScript.CreateObject("WScript.Shell");
+	var fs = new ActiveXObject("Scripting.FileSystemObject");
+	var pathPlugins = shell.ExpandEnvironmentStrings("%APPDATA%\BetterDiscord\plugins");
 	var pathSelf = WScript.ScriptFullName;
 	// Put the user at ease by addressing them in the first person
-	shell.Popup('It looks like you\'ve mistakenly tried to run me directly. \n(Don\'t do that!)', 0, 'I\'m a plugin for BetterDiscord', 0x30);
+	shell.Popup("It looks like you've mistakenly tried to run me directly. \n(Don't do that!)", 0, "I'm a plugin for BetterDiscord", 0x30);
 	if (fs.GetParentFolderName(pathSelf) === fs.GetAbsolutePathName(pathPlugins)) {
-		shell.Popup('I\'m in the correct folder already.\nJust reload Discord with Ctrl+R.', 0, 'I\'m already installed', 0x40);
+		shell.Popup("I'm in the correct folder already.", 0, "I'm already installed", 0x40);
 	} else if (!fs.FolderExists(pathPlugins)) {
-		shell.Popup('I can\'t find the BetterDiscord plugins folder.\nAre you sure it\'s even installed?', 0, 'Can\'t install myself', 0x10);
-	} else if (shell.Popup('Should I copy myself to BetterDiscord\'s plugins folder for you?', 0, 'Do you need some help?', 0x34) === 6) {
+		shell.Popup("I can't find the BetterDiscord plugins folder.\nAre you sure it's even installed?", 0, "Can't install myself", 0x10);
+	} else if (shell.Popup("Should I copy myself to BetterDiscord's plugins folder for you?", 0, "Do you need some help?", 0x34) === 6) {
 		fs.CopyFile(pathSelf, fs.BuildPath(pathPlugins, fs.GetFileName(pathSelf)), true);
 		// Show the user where to put plugins in the future
-		shell.Exec('explorer ' + pathPlugins);
-		shell.Popup('I\'m installed!\nJust reload Discord with Ctrl+R.', 0, 'Successfully installed', 0x40);
+		shell.Exec("explorer " + pathPlugins);
+		shell.Popup("I'm installed!", 0, "Successfully installed", 0x40);
 	}
 	WScript.Quit();
 
 @else@*/
 
 var BDContextMenu = (() => {
-    const config = {"info":{"name":"BDContextMenu","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.1","description":"Adds BD shortcuts to the settings context menu. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Fixed issues with Discord's internal changes."]}],"main":"index.js"};
+    const config = {"info":{"name":"BDContextMenu","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.2","description":"Adds BD shortcuts to the settings context menu. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Fixed issues delaying BBD's startup."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -61,9 +61,19 @@ var BDContextMenu = (() => {
     const {DiscordSelectors, Patcher, ReactComponents, DiscordModules, WebpackModules, ReactTools} = Api;
 
     const React = DiscordModules.React;
-    const MenuItem = WebpackModules.getByRegex(/(?=.*disabled)(?=.*brand)/);
-    const DiscordToggleMenuItem = WebpackModules.getByRegex(/(?=.*itemToggle)(?=.*checkbox)/);
+    const MenuItem = WebpackModules.getByString("disabled", "brand");
+    const DiscordToggleMenuItem = WebpackModules.getByString("itemToggle", "checkbox");
     const BBDSettings = Object.entries(window.settings).filter(s => !s[1].hidden && s[1].implemented);
+    const SubMenuItem = WebpackModules.find(m => {
+        if (!m.render) return false;
+        try {
+            const container = m.render({}).type;
+            const item = new container({});
+            const rendered = item.render();
+            return rendered.type.displayName == "SubMenuItem";
+        }
+        catch (e) {return false;}
+    });
 
     const ToggleMenuItem = class OtherItem extends React.Component {
         handleToggle() {
@@ -79,14 +89,6 @@ var BDContextMenu = (() => {
     return class BDContextMenu extends Plugin {
 
         async onStart() {
-            this.SubMenuItem = await ReactComponents.getComponent("FluxContainer", DiscordSelectors.ContextMenu.itemSubMenu, m => {
-				try {
-					const instance = new m({});
-					const rendered = instance.render();
-					return rendered.type.displayName == "SubMenuItem";
-                } 
-                catch (e) {return false;}
-			});
             this.patchSettingsContextMenu();
         }
         
@@ -105,7 +107,7 @@ var BDContextMenu = (() => {
                 const pluginMenu = this.buildContentMenu(true);
                 const themeMenu = this.buildContentMenu(false);
                 
-                const mainMenu = React.createElement(this.SubMenuItem.component, {
+                const mainMenu = React.createElement(SubMenuItem.render, {
                     label: "BandagedBD",
                     invertChildY: true,
                     render: [coreMenu, bandageMenu, emoteMenu, customCSSMenu, pluginMenu, themeMenu]
@@ -121,7 +123,7 @@ var BDContextMenu = (() => {
 
         buildSubMenu(name, id) {
             const menuItems = [];
-            const subMenu = React.createElement(this.SubMenuItem.component, {
+            const subMenu = React.createElement(SubMenuItem.render, {
                 label: name,
                 invertChildY: true,
                 render: menuItems,
@@ -143,7 +145,7 @@ var BDContextMenu = (() => {
 
         buildContentMenu(isPlugins) {
             const menuItems = [];
-            const subMenu = React.createElement(this.SubMenuItem.component, {
+            const subMenu = React.createElement(SubMenuItem.render, {
                 label: isPlugins ? "Plugins" : "Themes",
                 invertChildY: true,
                 render: menuItems,

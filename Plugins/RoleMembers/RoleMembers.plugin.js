@@ -3,28 +3,28 @@
 @if (@_jscript)
 	
 	// Offer to self-install for clueless users that try to run this directly.
-	var shell = WScript.CreateObject('WScript.Shell');
-	var fs = new ActiveXObject('Scripting.FileSystemObject');
-	var pathPlugins = shell.ExpandEnvironmentStrings('%APPDATA%\\BetterDiscord\\plugins');
+	var shell = WScript.CreateObject("WScript.Shell");
+	var fs = new ActiveXObject("Scripting.FileSystemObject");
+	var pathPlugins = shell.ExpandEnvironmentStrings("%APPDATA%\BetterDiscord\plugins");
 	var pathSelf = WScript.ScriptFullName;
 	// Put the user at ease by addressing them in the first person
-	shell.Popup('It looks like you\'ve mistakenly tried to run me directly. \n(Don\'t do that!)', 0, 'I\'m a plugin for BetterDiscord', 0x30);
+	shell.Popup("It looks like you've mistakenly tried to run me directly. \n(Don't do that!)", 0, "I'm a plugin for BetterDiscord", 0x30);
 	if (fs.GetParentFolderName(pathSelf) === fs.GetAbsolutePathName(pathPlugins)) {
-		shell.Popup('I\'m in the correct folder already.\nJust reload Discord with Ctrl+R.', 0, 'I\'m already installed', 0x40);
+		shell.Popup("I'm in the correct folder already.", 0, "I'm already installed", 0x40);
 	} else if (!fs.FolderExists(pathPlugins)) {
-		shell.Popup('I can\'t find the BetterDiscord plugins folder.\nAre you sure it\'s even installed?', 0, 'Can\'t install myself', 0x10);
-	} else if (shell.Popup('Should I copy myself to BetterDiscord\'s plugins folder for you?', 0, 'Do you need some help?', 0x34) === 6) {
+		shell.Popup("I can't find the BetterDiscord plugins folder.\nAre you sure it's even installed?", 0, "Can't install myself", 0x10);
+	} else if (shell.Popup("Should I copy myself to BetterDiscord's plugins folder for you?", 0, "Do you need some help?", 0x34) === 6) {
 		fs.CopyFile(pathSelf, fs.BuildPath(pathPlugins, fs.GetFileName(pathSelf)), true);
 		// Show the user where to put plugins in the future
-		shell.Exec('explorer ' + pathPlugins);
-		shell.Popup('I\'m installed!\nJust reload Discord with Ctrl+R.', 0, 'Successfully installed', 0x40);
+		shell.Exec("explorer " + pathPlugins);
+		shell.Popup("I'm installed!", 0, "Successfully installed", 0x40);
 	}
 	WScript.Quit();
 
 @else@*/
 
 var RoleMembers = (() => {
-    const config = {"info":{"name":"RoleMembers","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.5","description":"Allows you to see the members of each role on a server. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Fixed issues with Discord's internal changes."]}],"main":"index.js"};
+    const config = {"info":{"name":"RoleMembers","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.6","description":"Allows you to see the members of each role on a server. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Fixed issues with delaying BBD's startup."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -70,7 +70,17 @@ var RoleMembers = (() => {
     const UserStore = DiscordModules.UserStore;
     const ImageResolver = DiscordModules.ImageResolver;
     const WrapperClasses = WebpackModules.getByProps("wrapperHover");
-    const MenuItem = WebpackModules.getByRegex(/(?=.*disabled)(?=.*brand)/);
+    const MenuItem = WebpackModules.getByString("disabled", "brand");
+    const SubMenuItem = WebpackModules.find(m => {
+        if (!m.render) return false;
+        try {
+            const container = m.render({}).type;
+            const item = new container({});
+            const rendered = item.render();
+            return rendered.type.displayName == "SubMenuItem";
+        }
+        catch (e) {return false;}
+    });
 
     const popoutHTML = `<div class="\${className} popout-role-members" style="margin-top: 0;">
     <div class="popoutList-T9CKZQ guildSettingsAuditLogsUserFilterPopout-3Jg5NE elevationBorderHigh-2WYJ09 role-members-popout">
@@ -133,14 +143,6 @@ var RoleMembers = (() => {
         }
 
         async patchGuildContextMenu() {
-            const SubMenuItem = await ReactComponents.getComponentByName("FluxContainer", DiscordSelectors.ContextMenu.itemSubMenu, m => {
-				try {
-					const instance = new m({});
-					const rendered = instance.render();
-					return rendered.type.displayName == "SubMenuItem";
-                }
-                catch (e) {return false;}
-			});
             const GuildContextMenu = await ReactComponents.getComponent("GuildContextMenu", DiscordSelectors.ContextMenu.contextMenu);
             Patcher.after(GuildContextMenu.component.prototype, "render", (component, args, retVal) => {
                 const guildId = component.props.guild.id;
@@ -159,7 +161,7 @@ var RoleMembers = (() => {
                 }
 
                 const original = retVal.props.children[0].props.children;
-                const newOne = DiscordModules.React.createElement(SubMenuItem.component, {label: "Role Members", render: roleItems});
+                const newOne = DiscordModules.React.createElement(SubMenuItem.render, {label: "Role Members", render: roleItems});
                 // console.log(roleItems, newOne);
                 if (Array.isArray(original)) original.splice(1, 0, newOne);
                 else retVal.props.children[0].props.children = [original, newOne];
@@ -172,29 +174,29 @@ var RoleMembers = (() => {
         }
     
         showRolePopout(target, guildId, roleId) {
-            let roles = GuildStore.getGuild(guildId).roles;
-            let role = roles[roleId];
+            const roles = GuildStore.getGuild(guildId).roles;
+            const role = roles[roleId];
             let members = GuildMemberStore.getMembers(guildId);
             if (guildId != roleId) members = members.filter(m => m.roles.includes(role.id));
     
-            let popout = $(Utilities.formatTString(popoutHTML, {className: DiscordClasses.Popouts.popout.add(DiscordClasses.Popouts.noArrow), memberCount: members.length}));
-            let searchInput = popout.find("input");
+            const popout = $(Utilities.formatTString(popoutHTML, {className: DiscordClasses.Popouts.popout.add(DiscordClasses.Popouts.noArrow), memberCount: members.length}));
+            const searchInput = popout.find("input");
             searchInput.on("keyup", () => {
-                let items = popout[0].querySelectorAll(".role-member");
+                const items = popout[0].querySelectorAll(".role-member");
                 for (let i = 0, len = items.length; i < len; i++) {
-                    let search = searchInput.val().toLowerCase();
-                    let item = items[i];
-                    let username = item.querySelector(".username").textContent.toLowerCase();
+                    const search = searchInput.val().toLowerCase();
+                    const item = items[i];
+                    const username = item.querySelector(".username").textContent.toLowerCase();
                     if (!username.includes(search)) item.style.display = "none";
                     else item.style.display = "";
                 }
             });
-            let scroller = popout.find(".role-members");
+            const scroller = popout.find(".role-members");
     
             
-            for (let member of members) {
-                let user = UserStore.getUser(member.userId);
-                let elem = $(Utilities.formatTString(itemHTML, {username: user.username, discriminator: "#" + user.discriminator, avatar_url: ImageResolver.getUserAvatarURL(user)}));
+            for (const member of members) {
+                const user = UserStore.getUser(member.userId);
+                const elem = $(Utilities.formatTString(itemHTML, {username: user.username, discriminator: "#" + user.discriminator, avatar_url: ImageResolver.getUserAvatarURL(user)}));
                 elem.on("click", () => {
                     PopoutStack.close("role-members");
                     elem.addClass("popout-open");
@@ -212,7 +214,7 @@ var RoleMembers = (() => {
             const maxWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
             const maxHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
     
-            let offset = target.getBoundingClientRect();
+            const offset = target.getBoundingClientRect();
             if (offset.right + popout.outerHeight() >= maxWidth) {
                 popout[0].addClass(DiscordClasses.Popouts.popoutLeft);
                 popout.css("left", Math.round(offset.left - popout.outerWidth() - 20));
@@ -227,8 +229,8 @@ var RoleMembers = (() => {
             if (offset.top + popout.outerHeight() >= maxHeight) popout.css("top", Math.round(maxHeight - popout.outerHeight()));
             else popout.css("top", offset.top);
     
-            let listener = document.addEventListener("click", (e) => {
-                let target = $(e.target);
+            const listener = document.addEventListener("click", (e) => {
+                const target = $(e.target);
                 if (!target.hasClass("popout-role-members") && !target.parents(".popout-role-members").length) popout.remove(), document.removeEventListener("click", listener);
             });
         }
