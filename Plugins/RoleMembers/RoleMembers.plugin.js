@@ -24,7 +24,7 @@
 @else@*/
 
 var RoleMembers = (() => {
-    const config = {"info":{"name":"RoleMembers","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.6","description":"Allows you to see the members of each role on a server. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Fixed issues with delaying BBD's startup."]}],"main":"index.js"};
+    const config = {"info":{"name":"RoleMembers","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.6","description":"Allows you to see the members of each role on a server. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Plugin no longer crashes Discord when clicking on a user in the list.","Fixed issues with delaying BBD's startup."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
