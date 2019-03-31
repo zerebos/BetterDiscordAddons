@@ -1,0 +1,206 @@
+.bf-toolbar {
+	user-select: none;
+	white-space: nowrap;
+	font-size:85%;
+	display:block;
+	position: absolute;
+	color: rgba(255, 255, 255, .5);
+	width:auto!important;
+	right:0;
+	bottom:auto;
+	border-radius:3px;
+	height:27px!important;
+	top:0px;
+	transform:translate(0,-100%);
+	opacity:1;
+	overflow: hidden!important;
+	pointer-events: none;
+	padding:10px 30px 15px 5px;
+	margin: 0 5px 0 0;
+}
+
+.bf-toolbar.bf-visible,
+.bf-toolbar.bf-hover:hover{
+	pointer-events: initial;
+}
+
+.bf-toolbar:before {
+	content:"";
+	display: block;
+	width:100%;
+	height:calc(100% - 15px);
+	position: absolute;
+	z-index: -1;
+	background:#424549;
+	pointer-events: initial;
+	left:0px;
+	top:5px;
+	border-radius:3px;
+	transform:translate(0,55px);
+	transition:all 200ms ease;
+}
+
+.bf-toolbar.bf-visible:before,
+.bf-toolbar.bf-hover:hover:before {
+	transform:translate(0,0px);
+	transition:all 200ms cubic-bezier(0,0,0,1);
+}
+
+.bf-toolbar .format {
+	display: inline;
+	padding: 7px 5px;
+	cursor: pointer;
+	display : inline-flex;
+	align-items : center;
+	transform:translate(0,55px);
+	transition:all 50ms,transform 200ms ease;
+	position:relative;
+	pointer-events: initial;
+	border-radius:2px;
+	max-height: 27px;
+	box-sizing: border-box;
+	vertical-align: middle;
+}
+
+.bf-toolbar .format img {
+	opacity: 0.6;
+	vertical-align: middle;
+	max-height: inherit;
+}
+
+.bf-toolbar .format .format-border {
+	border: 1px solid rgba(255, 255, 255, .5);
+	border-radius: inherit;
+}
+
+.bf-toolbar .format:hover{
+	background:rgba(255,255,255,.1);
+	color:rgba(255,255,255,.9);
+}
+
+.bf-toolbar .format:active{
+	background:rgba(0,0,0,.1)!important;
+	transition:all 0ms,transform 200ms ease;
+}
+
+.bf-toolbar.bf-visible .format,
+.bf-toolbar.bf-hover:hover .format{
+	transform:translate(0,0);
+	transition:all 50ms,transform 200ms cubic-bezier(0,0,0,1);
+}
+
+.bf-toolbar .format.disabled {
+	display: none;
+}
+
+.bf-toolbar .format.ghost {
+	color: transparent;
+	background: rgba(0,0,0,.1);
+}
+
+.bf-toolbar .format.ghost img {
+	opacity: 0;
+}
+
+.bf-toolbar .bf-arrow {
+	content:"";
+	display:block;
+	background:url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTcuNDEgMTUuNDFMMTIgMTAuODNsNC41OSA0LjU4TDE4IDE0bC02LTYtNiA2eiIvPiAgICA8cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PC9zdmc+);
+	height:30px;
+	width:30px;
+	right:5px;
+	position: absolute;
+	pointer-events: initial;
+	bottom:0;
+	background-repeat: no-repeat;
+	background-position: 50%;
+	transition:all 200ms ease;
+	opacity: .3;
+	cursor:pointer;
+}
+.bf-toolbar.bf-visible .bf-arrow,
+.bf-toolbar.bf-hover:hover .bf-arrow {
+	transform:translate(0,-14px)rotate(-90deg);
+	transition:all 200ms cubic-bezier(0,0,0,1);
+	opacity: .9;
+}
+
+.message-group .bf-toolbar{
+	padding: 10px 5px 15px 5px;
+	animation:slide-up 300ms cubic-bezier(0,0,0,1), opacity 300ms ease
+}
+.upload-modal .bf-toolbar {
+	position: relative;
+	transform: none;
+	padding: 5px 0;
+	margin-right: 0;
+	border-radius: 2px;
+	text-align: center;
+	background: #424549;
+}
+.upload-modal .bf-toolbar::before {
+	display: none;
+}
+.upload-modal .bf-toolbar .format:hover{
+	background:rgba(255,255,255,.1);
+}
+.upload-modal .bf-toolbar .format:active{
+	background:rgba(0,0,0,.1);
+}
+.upload-modal .bf-toolbar .format,
+.upload-modal .bf-toolbar:before,
+.message-group .bf-toolbar .format,
+.message-group .bf-toolbar:before{
+	transform:translate(0,0);
+}
+.upload-modal .bf-toolbar .bf-arrow,
+.message-group .bf-toolbar .bf-arrow{
+	display: none;
+}
+
+.bf-toolbar.bf-left {
+	left: 0!important;
+	right: auto!important;
+	margin-right: 0!important;
+	margin-left: 5px!important;
+	padding: 10px 10px 15px 30px!important;
+}
+
+.bf-toolbar.bf-left .bf-arrow {
+	left: 5px!important;
+	right: auto!important;
+}
+
+.bf-toolbar.bf-left.bf-hover:hover .bf-arrow,.bf-toolbar.bf-left.bf-visible .bf-arrow {
+	-webkit-transform: translate(0,-14px) rotate(90deg)!important;
+	-ms-transform: translate(0,-14px) rotate(90deg)!important;
+	transform: translate(0,-14px) rotate(90deg)!important;
+}
+.bf-languages {
+	display: block;
+	position: fixed !important;
+	transform: scale(1,0);
+	transform-origin: 100% 100%!important;
+	background: #424549;
+	border-radius: 3px;
+	color: rgba(255,255,255,.5);
+	padding: 3px;
+}
+.bf-languages.bf-visible {
+	height: auto;
+	transition: 200ms cubic-bezier(.2,0,0,1);
+	transform: scale(1,1);
+	transform-origin: 100% 100%!important;
+}
+
+.bf-languages div {
+	display: block;
+	cursor: pointer;
+	padding: 5px 7px;
+	border-radius: 2px;
+}
+
+.bf-languages div:hover {
+	background: rgba(255,255,255,.1);
+	color: rgba(255,255,255,.9);
+}

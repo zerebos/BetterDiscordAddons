@@ -1,0 +1,21 @@
+.send-button {
+	width: 30px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: absolute;
+	right: 12px;
+	top: 8px;
+}
+
+.send-button img {
+	opacity: 0.2;
+	width: 100%;
+	transition: all 200ms ease;
+}
+
+.send-button img:hover {
+	cursor: pointer;
+	opacity: 1;
+	transform:scale(1.1);
+}

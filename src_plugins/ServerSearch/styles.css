@@ -1,0 +1,30 @@
+.avatar-search {
+	background-image: url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjQ4IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSI0OCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTE1LjUgMTRoLS43OWwtLjI4LS4yN0MxNS40MSAxMi41OSAxNiAxMS4xMSAxNiA5LjUgMTYgNS45MSAxMy4wOSAzIDkuNSAzUzMgNS45MSAzIDkuNSA1LjkxIDE2IDkuNSAxNmMxLjYxIDAgMy4wOS0uNTkgNC4yMy0xLjU3bC4yNy4yOHYuNzlsNSA0Ljk5TDIwLjQ5IDE5bC00Ljk5LTV6bS02IDBDNy4wMSAxNCA1IDExLjk5IDUgOS41UzcuMDEgNSA5LjUgNSAxNCA3LjAxIDE0IDkuNSAxMS45OSAxNCA5LjUgMTR6Ii8+ICAgIDxwYXRoIGQ9Ik0wIDBoMjR2MjRIMHoiIGZpbGw9Im5vbmUiLz48L3N2Zz4=);
+	background-size: 50%!important;
+	background-repeat: no-repeat;
+}
+
+#server-search {
+	margin-bottom: 10px;
+}
+
+.popout-3sVMXz.popout-server-search,
+.popout-3sVMXz.popout-server-search-small {
+	margin-top: 0;
+	z-index: 1005;
+}
+
+.popout-3sVMXz.popout-server-search-small {
+	padding: 10px;
+	background:#2f3136;
+	box-shadow: 0 0px 15px rgba(0,0,0,0.6);
+	border-radius: 4px;
+}
+
+.no-image {
+	background: rgb(47, 49, 54);
+	font-size: 12px;
+	justify-content: center;
+	align-items: center;
+	display: flex;
+}

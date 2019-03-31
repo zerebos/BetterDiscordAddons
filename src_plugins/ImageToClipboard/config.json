@@ -1,0 +1,66 @@
+{
+    "info": {
+        "name": "ImageToClipboard",
+        "authors": [{
+            "name": "Zerebos",
+            "discord_id": "249746236008169473",
+            "github_username": "rauenzi",
+            "twitter_username": "ZackRauen"
+        }],
+        "version": "0.3.2",
+        "description": "Copies images (png/jpg) directly to clipboard. Support Server: bit.ly/ZeresServer",
+        "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ImageToClipboard",
+        "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ImageToClipboard/ImageToClipboard.plugin.js"
+    },
+    "defaultConfig": [
+        {
+            "type": "switch",
+            "id": "typing",
+            "name": "Typing",
+            "note": "Toggles colorizing of typing notifications.",
+            "value": true
+        }
+    ],
+    "strings": {
+        "es": {
+            "contextMenuLabel": "Copiar Imagen",
+            "modalLabel": "Copiar Original",
+            "copySuccess": "Imagen copiada al portapapeles.",
+            "copyFailed": "Hubo un problema al copiar la imagen.",
+            "settings": {
+                "typing": {
+                    "name": "No estoy Typing",
+                    "note": "Doesn't colorize caca."
+                }
+            }
+        },
+        "pt": {
+            "contextMenuLabel": "Copiar imagem",
+            "modalLabel": "Copiar original",
+            "copySuccess": "Imagem copiada para a área de transferência",
+            "copyFailed": "Houve um problema ao copiar a imagem"
+        },
+        "de": {
+            "contextMenuLabel": "Kopiere das Bild",
+            "modalLabel": "Original Kopieren",
+            "copySuccess": "Bild in die Zwischenablage kopiert.",
+            "copyFailed": "Beim Kopieren des Bildes ist ein Problem aufgetreten."
+        },
+        "en": {
+            "contextMenuLabel": "Copy Image",
+            "modalLabel": "Copy Original",
+            "copySuccess": "Image copied to clipboard.",
+            "copyFailed": "There was an issue copying the image.",
+            "settings": {
+                "typing": {
+                    "name": "Not Typing",
+                    "note": "Doesn't colorize shit."
+                }
+            }
+        }
+    },
+	"changelog": [
+		{"title": "Internal Changes", "type": "improved", "items": ["Use the more stable local library."]}
+    ],
+    "main": "index.js"
+}
