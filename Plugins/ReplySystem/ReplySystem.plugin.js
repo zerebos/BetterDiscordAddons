@@ -3,28 +3,28 @@
 @if (@_jscript)
 	
 	// Offer to self-install for clueless users that try to run this directly.
-	var shell = WScript.CreateObject('WScript.Shell');
-	var fs = new ActiveXObject('Scripting.FileSystemObject');
-	var pathPlugins = shell.ExpandEnvironmentStrings('%APPDATA%\\BetterDiscord\\plugins');
+	var shell = WScript.CreateObject("WScript.Shell");
+	var fs = new ActiveXObject("Scripting.FileSystemObject");
+	var pathPlugins = shell.ExpandEnvironmentStrings("%APPDATA%\BetterDiscord\plugins");
 	var pathSelf = WScript.ScriptFullName;
 	// Put the user at ease by addressing them in the first person
-	shell.Popup('It looks like you\'ve mistakenly tried to run me directly. \n(Don\'t do that!)', 0, 'I\'m a plugin for BetterDiscord', 0x30);
+	shell.Popup("It looks like you've mistakenly tried to run me directly. \n(Don't do that!)", 0, "I'm a plugin for BetterDiscord", 0x30);
 	if (fs.GetParentFolderName(pathSelf) === fs.GetAbsolutePathName(pathPlugins)) {
-		shell.Popup('I\'m in the correct folder already.\nJust reload Discord with Ctrl+R.', 0, 'I\'m already installed', 0x40);
+		shell.Popup("I'm in the correct folder already.", 0, "I'm already installed", 0x40);
 	} else if (!fs.FolderExists(pathPlugins)) {
-		shell.Popup('I can\'t find the BetterDiscord plugins folder.\nAre you sure it\'s even installed?', 0, 'Can\'t install myself', 0x10);
-	} else if (shell.Popup('Should I copy myself to BetterDiscord\'s plugins folder for you?', 0, 'Do you need some help?', 0x34) === 6) {
+		shell.Popup("I can't find the BetterDiscord plugins folder.\nAre you sure it's even installed?", 0, "Can't install myself", 0x10);
+	} else if (shell.Popup("Should I copy myself to BetterDiscord's plugins folder for you?", 0, "Do you need some help?", 0x34) === 6) {
 		fs.CopyFile(pathSelf, fs.BuildPath(pathPlugins, fs.GetFileName(pathSelf)), true);
 		// Show the user where to put plugins in the future
-		shell.Exec('explorer ' + pathPlugins);
-		shell.Popup('I\'m installed!\nJust reload Discord with Ctrl+R.', 0, 'Successfully installed', 0x40);
+		shell.Exec("explorer " + pathPlugins);
+		shell.Popup("I'm installed!", 0, "Successfully installed", 0x40);
 	}
 	WScript.Quit();
 
 @else@*/
 
 var ReplySystem = (() => {
-    const config = {"info":{"name":"ReplySystem","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.8","description":"Adds a native-esque reply button with preview. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ReplySystem/ReplySystem.plugin.js"},"changelog":[{"title":"Internal Changes","type":"improved","items":["Started using ReactComponents module to make it stable."]},{"title":"Bugfixes","type":"fixed","items":["Reply list should show up again."]}],"main":"index.js"};
+    const config = {"info":{"name":"ReplySystem","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.9","description":"Adds a native-esque reply button with preview. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ReplySystem/ReplySystem.plugin.js"},"changelog":[{"title":"Bugfixes","type":"fixed","items":["Hopefully won't kill your Discord anymore."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -90,7 +90,7 @@ var ReplySystem = (() => {
 })(Api);
 	const ReplyButton = (({DiscordModules, WebpackModules}) => {
     const Dispatcher = WebpackModules.getByProps("ComponentDispatch").ComponentDispatch;
-    const TooltipWrapper = WebpackModules.getByPrototypes("showDelayed");
+    const TooltipWrapper = WebpackModules.getByPrototypes("showDelayed") || WebpackModules.getByPrototypes("renderTooltip");
     return class ReplyButton extends DiscordModules.React.Component {
         constructor(props) {
             super(props);
@@ -104,26 +104,25 @@ var ReplySystem = (() => {
 
         render() {
             return DiscordModules.React.createElement(TooltipWrapper,
-                    {color: "black", position: "top", text: "Reply!"},
-                    DiscordModules.React.createElement("span", {className: "reply-button"},
-                        !this.props.icon ? DiscordModules.React.createElement(
-                            "span", {
-                                className: "reply-label",
-                                onClick: this.onClick,
-                            },
-                            "REPLY"
-                        ) : DiscordModules.React.createElement(
-                            "svg", {
-                                className: "reply-icon",
-                                onClick: this.onClick,
-                                width: 15,
-                                height: 15,
-                                viewBox: "0 0 24 24"
-                            },
-                            DiscordModules.React.createElement("path", {d: "M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"}),
-                            DiscordModules.React.createElement("path", {d: "M0 0h24v24H0z", fill: "none"})
-                        )
+                    {color: "black", position: "top", text: "Reply!", children: () => DiscordModules.React.createElement("span", {className: "reply-button"},
+                    !this.props.icon ? DiscordModules.React.createElement(
+                        "span", {
+                            className: "reply-label",
+                            onClick: this.onClick,
+                        },
+                        "REPLY"
+                    ) : DiscordModules.React.createElement(
+                        "svg", {
+                            className: "reply-icon",
+                            onClick: this.onClick,
+                            width: 15,
+                            height: 15,
+                            viewBox: "0 0 24 24"
+                        },
+                        DiscordModules.React.createElement("path", {d: "M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"}),
+                        DiscordModules.React.createElement("path", {d: "M0 0h24v24H0z", fill: "none"})
                     )
+                )} 
             );
         }
     };
