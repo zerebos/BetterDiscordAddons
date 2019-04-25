@@ -24,7 +24,7 @@
 @else@*/
 
 var ReplySystem = (() => {
-    const config = {"info":{"name":"ReplySystem","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.9","description":"Adds a native-esque reply button with preview. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ReplySystem/ReplySystem.plugin.js"},"changelog":[{"title":"Bugfixes","type":"fixed","items":["Hopefully won't kill your Discord anymore."]}],"main":"index.js"};
+    const config = {"info":{"name":"ReplySystem","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.10","description":"Adds a native-esque reply button with preview. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ReplySystem/ReplySystem.plugin.js"},"changelog":[{"title":"Bugfixes","type":"fixed","items":["Tooltips are existent again!"]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -90,7 +90,7 @@ var ReplySystem = (() => {
 })(Api);
 	const ReplyButton = (({DiscordModules, WebpackModules}) => {
     const Dispatcher = WebpackModules.getByProps("ComponentDispatch").ComponentDispatch;
-    const TooltipWrapper = WebpackModules.getByPrototypes("showDelayed") || WebpackModules.getByPrototypes("renderTooltip");
+    const TooltipWrapper = WebpackModules.getByPrototypes("showDelayed") || WebpackModules.getByDisplayName("TooltipDeprecated");
     return class ReplyButton extends DiscordModules.React.Component {
         constructor(props) {
             super(props);
@@ -104,7 +104,8 @@ var ReplySystem = (() => {
 
         render() {
             return DiscordModules.React.createElement(TooltipWrapper,
-                    {color: "black", position: "top", text: "Reply!", children: () => DiscordModules.React.createElement("span", {className: "reply-button"},
+                    {color: "black", position: "top", text: "Reply!"},
+                    DiscordModules.React.createElement("span", {className: "reply-button"},
                     !this.props.icon ? DiscordModules.React.createElement(
                         "span", {
                             className: "reply-label",
@@ -122,7 +123,7 @@ var ReplySystem = (() => {
                         DiscordModules.React.createElement("path", {d: "M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"}),
                         DiscordModules.React.createElement("path", {d: "M0 0h24v24H0z", fill: "none"})
                     )
-                )} 
+                ) 
             );
         }
     };

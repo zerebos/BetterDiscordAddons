@@ -24,7 +24,7 @@
 @else@*/
 
 var AccountDetailsPlus = (() => {
-    const config = {"info":{"name":"AccountDetailsPlus","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.4","description":"Lets you view popout, nickname and more from your account panel at the bottom. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AccountDetailsPlus","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AccountDetailsPlus/AccountDetailsPlus.plugin.js"},"defaultConfig":[{"type":"category","id":"popout","name":"User Popout","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"avatar","name":"Avatar","note":"Opens your popout when clicking your avatar.","value":true},{"type":"switch","id":"username","name":"Username","note":"Opens your popout when clicking your username.","value":true}]},{"type":"category","id":"statusPicker","name":"Status Picker","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"avatar","name":"Avatar","note":"Opens your popout when right clicking your avatar.","value":true},{"type":"switch","id":"username","name":"Username","note":"Opens your popout when right clicking your username.","value":true}]},{"type":"category","id":"nickname","name":"Nickname","collapsible":true,"shown":false,"settings":[{"type":"dropdown","id":"showNickname","name":"Name Shown","value":true,"options":[{"label":"Username","value":false},{"label":"Nickname","value":true}]},{"type":"switch","id":"oppositeOnHover","name":"Opposite On Hover","note":"Shows the opposite on hover. e.g. if you are showing nickname, hovering will show your username.","value":true}]}],"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Fixed that one weird bug where nothing worked."]}],"main":"index.js"};
+    const config = {"info":{"name":"AccountDetailsPlus","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.5","description":"Lets you view popout, nickname and more from your account panel at the bottom. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AccountDetailsPlus","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AccountDetailsPlus/AccountDetailsPlus.plugin.js"},"defaultConfig":[{"type":"category","id":"popout","name":"User Popout","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"avatar","name":"Avatar","note":"Opens your popout when clicking your avatar.","value":true},{"type":"switch","id":"username","name":"Username","note":"Opens your popout when clicking your username.","value":true}]},{"type":"category","id":"statusPicker","name":"Status Picker","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"avatar","name":"Avatar","note":"Opens your popout when right clicking your avatar.","value":true},{"type":"switch","id":"username","name":"Username","note":"Opens your popout when right clicking your username.","value":true}]},{"type":"category","id":"nickname","name":"Nickname","collapsible":true,"shown":false,"settings":[{"type":"dropdown","id":"showNickname","name":"Name Shown","value":true,"options":[{"label":"Username","value":false},{"label":"Nickname","value":true}]},{"type":"switch","id":"oppositeOnHover","name":"Opposite On Hover","note":"Shows the opposite on hover. e.g. if you are showing nickname, hovering will show your username.","value":true}]}],"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Updated a selector."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -62,7 +62,7 @@ var AccountDetailsPlus = (() => {
     return class AccountDetailsPlus extends Plugin {
         constructor() {
             super();
-            this.usernameCSS = `.container-iksrDt .nameTag-26T3kW { cursor: pointer; }`;
+            // this.usernameCSS = `.container-iksrDt .accountDetails-26T3kW { cursor: pointer; }`;
             this.popoutOpen = false;
         }
 
@@ -84,9 +84,9 @@ var AccountDetailsPlus = (() => {
         }
 
         activateShit() {
-            document.querySelector(DiscordSelectors.AccountDetails.container + DiscordSelectors.AccountDetails.nameTag).off("." + this.getName());
+            document.querySelector(DiscordSelectors.AccountDetails.container + DiscordSelectors.AccountDetails.accountDetails).off("." + this.getName());
             document.querySelector(DiscordSelectors.AccountDetails.container + " .inner-1W0Bkn").off("." + this.getName());
-            this.usernameCSS = DiscordSelectors.AccountDetails.container + DiscordSelectors.AccountDetails.nameTag + "{ cursor: pointer; }";
+            this.usernameCSS = DiscordSelectors.AccountDetails.container + DiscordSelectors.AccountDetails.accountDetails + "{ cursor: pointer; }";
             PluginUtilities.removeStyle(this.getName() + "-css");
             DOMTools.off(document, "mousemove." + this.getName());
             document.querySelector(DiscordSelectors.AccountDetails.container.descend(".username")).textContent = this.currentUser.username;
@@ -96,16 +96,16 @@ var AccountDetailsPlus = (() => {
             }
             if (this.settings.popout.username) {
                 PluginUtilities.addStyle(this.getName() + "-css", this.usernameCSS);
-                document.querySelector(DiscordSelectors.AccountDetails.container + DiscordSelectors.AccountDetails.nameTag).on("mousedown." + this.getName(), () => { this.popoutOpen = this.popoutWrapper.state.isOpen; });
-                document.querySelector(DiscordSelectors.AccountDetails.container + DiscordSelectors.AccountDetails.nameTag).on("click." + this.getName(), (e) => { if (!this.popoutOpen) this.showUserPopout(e); });
+                document.querySelector(DiscordSelectors.AccountDetails.container + DiscordSelectors.AccountDetails.accountDetails).on("mousedown." + this.getName(), () => { this.popoutOpen = this.popoutWrapper.state.isOpen; });
+                document.querySelector(DiscordSelectors.AccountDetails.container + DiscordSelectors.AccountDetails.accountDetails).on("click." + this.getName(), (e) => { if (!this.popoutOpen) this.showUserPopout(e); });
             }
             if (this.settings.popout.avatar) {
-                document.querySelector(DiscordSelectors.AccountDetails.container + DiscordSelectors.AccountDetails.nameTag).on("mousedown." + this.getName(), () => { this.popoutOpen = this.popoutWrapper.state.isOpen; });
+                document.querySelector(DiscordSelectors.AccountDetails.container + DiscordSelectors.AccountDetails.accountDetails).on("mousedown." + this.getName(), () => { this.popoutOpen = this.popoutWrapper.state.isOpen; });
                 document.querySelector(DiscordSelectors.AccountDetails.container + " .inner-1W0Bkn").on("click." + this.getName(), (e) => { if (!this.popoutOpen) this.showUserPopout(e); });
             }
             if (this.settings.statusPicker.username) {
-                document.querySelector(DiscordSelectors.AccountDetails.container + DiscordSelectors.AccountDetails.nameTag).on("mousedown." + this.getName(), () => { this.popoutOpen = this.popoutWrapper.state.isOpen; });
-                document.querySelector(DiscordSelectors.AccountDetails.container + DiscordSelectors.AccountDetails.nameTag).on("contextmenu." + this.getName(), (e) => {
+                document.querySelector(DiscordSelectors.AccountDetails.container + DiscordSelectors.AccountDetails.accountDetails).on("mousedown." + this.getName(), () => { this.popoutOpen = this.popoutWrapper.state.isOpen; });
+                document.querySelector(DiscordSelectors.AccountDetails.container + DiscordSelectors.AccountDetails.accountDetails).on("contextmenu." + this.getName(), (e) => {
                     if (!this.popoutOpen) this.showStatusPicker(e);
                 });
             }
