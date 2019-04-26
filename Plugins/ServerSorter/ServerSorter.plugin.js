@@ -3,28 +3,28 @@
 @if (@_jscript)
 	
 	// Offer to self-install for clueless users that try to run this directly.
-	var shell = WScript.CreateObject('WScript.Shell');
-	var fs = new ActiveXObject('Scripting.FileSystemObject');
-	var pathPlugins = shell.ExpandEnvironmentStrings('%APPDATA%\\BetterDiscord\\plugins');
+	var shell = WScript.CreateObject("WScript.Shell");
+	var fs = new ActiveXObject("Scripting.FileSystemObject");
+	var pathPlugins = shell.ExpandEnvironmentStrings("%APPDATA%\BetterDiscord\plugins");
 	var pathSelf = WScript.ScriptFullName;
 	// Put the user at ease by addressing them in the first person
-	shell.Popup('It looks like you\'ve mistakenly tried to run me directly. \n(Don\'t do that!)', 0, 'I\'m a plugin for BetterDiscord', 0x30);
+	shell.Popup("It looks like you've mistakenly tried to run me directly. \n(Don't do that!)", 0, "I'm a plugin for BetterDiscord", 0x30);
 	if (fs.GetParentFolderName(pathSelf) === fs.GetAbsolutePathName(pathPlugins)) {
-		shell.Popup('I\'m in the correct folder already.\nJust reload Discord with Ctrl+R.', 0, 'I\'m already installed', 0x40);
+		shell.Popup("I'm in the correct folder already.", 0, "I'm already installed", 0x40);
 	} else if (!fs.FolderExists(pathPlugins)) {
-		shell.Popup('I can\'t find the BetterDiscord plugins folder.\nAre you sure it\'s even installed?', 0, 'Can\'t install myself', 0x10);
-	} else if (shell.Popup('Should I copy myself to BetterDiscord\'s plugins folder for you?', 0, 'Do you need some help?', 0x34) === 6) {
+		shell.Popup("I can't find the BetterDiscord plugins folder.\nAre you sure it's even installed?", 0, "Can't install myself", 0x10);
+	} else if (shell.Popup("Should I copy myself to BetterDiscord's plugins folder for you?", 0, "Do you need some help?", 0x34) === 6) {
 		fs.CopyFile(pathSelf, fs.BuildPath(pathPlugins, fs.GetFileName(pathSelf)), true);
 		// Show the user where to put plugins in the future
-		shell.Exec('explorer ' + pathPlugins);
-		shell.Popup('I\'m installed!\nJust reload Discord with Ctrl+R.', 0, 'Successfully installed', 0x40);
+		shell.Exec("explorer " + pathPlugins);
+		shell.Popup("I'm installed!", 0, "Successfully installed", 0x40);
 	}
 	WScript.Quit();
 
 @else@*/
 
 var ServerSorter = (() => {
-    const config = {"info":{"name":"ServerSorter","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.4.1","description":"Adds server sorting abilities to Discord. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSorter","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSorter/ServerSorter.plugin.js"},"changelog":[{"title":"New Stuff","items":["Local loader only."]}],"main":"index.js"};
+    const config = {"info":{"name":"ServerSorter","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.4.2","description":"Adds server sorting abilities to Discord. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSorter","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSorter/ServerSorter.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Button now appears.","Sorting works again."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -78,14 +78,26 @@ var ServerSorter = (() => {
 	transition: 300ms cubic-bezier(.2, 0, 0, 1);
 	transform-origin: 0 0;
 	transform: translateY(0px);
+}
+
+#sort-button {
+	height: 20px;
+	overflow: hidden;
+}
+
+#sort-button > div {
+	border-radius: 0px;
+	background-color: rgb(47, 49, 54);
+	color: white;
+	text-align: center;
+	font-size: 12px;
+	line-height: 20px;
 }`);
-            const sortButton = $(`<div class="guild-1EfMGQ guild-sorter" id="bd-pub-li" style="height: 20px; margin-bottom:10px;">
-        <div class="guildInner-3DSoA4" style="height: 20px; border-radius: 4px;">
-            <a>
-                <div id="bd-pub-button" class="sort-button" style="line-height: 20px; font-size: 12px;">Sort</div>
-            </a>
-        </div>
-    </div>`);
+            const sortButton = $(`<div class="listItem-2P_4kh" id="sort-button" style="height: 20px; margin-bottom:10px;">
+    <div tabindex="0" class="circleButtonMask-2VNJsN wrapper-25eVIn" role="button">
+        Sort
+    </div>
+</div>`);
             const contextMenu = new ContextMenu.Menu().addItems(
                 new ContextMenu.ItemGroup().addItems(
                     new ContextMenu.TextItem("Alphabetically", {hint: "A > Z", callback: () => {this.doSort("name", false);}}),
@@ -104,14 +116,14 @@ var ServerSorter = (() => {
                 )
             );
     
-            sortButton.find(".sort-button").on("click", (e) => {
+            sortButton.on("click", (e) => {
                 contextMenu.show(e.clientX, e.clientY);
             });
-            sortButton.insertBefore($(".dms-rcsEnV + .guildSeparator-1X4GQ1"));
+            sortButton.insertBefore($(".listItem-2P_4kh .guildSeparator-3s64Iy").first().parent());
         }
         
         onStop() {
-            $(".guild-sorter").remove();
+            $("#sort-button").remove();
             PluginUtilities.removeStyle(this.getName(), `#sort-options {
 	pointer-events: none;
 	opacity: 0;
@@ -126,11 +138,25 @@ var ServerSorter = (() => {
 	transition: 300ms cubic-bezier(.2, 0, 0, 1);
 	transform-origin: 0 0;
 	transform: translateY(0px);
+}
+
+#sort-button {
+	height: 20px;
+	overflow: hidden;
+}
+
+#sort-button > div {
+	border-radius: 0px;
+	background-color: rgb(47, 49, 54);
+	color: white;
+	text-align: center;
+	font-size: 12px;
+	line-height: 20px;
 }`);
         }
 
         getGuilds() {
-            return $("div.guild-1EfMGQ:has(div[draggable=\"true\"]):not(#server-search)");
+            return $(".listItem-2P_4kh:has(.blobContainer-239gwq)");
         }
         
         getGuildData(guild) {
@@ -138,7 +164,7 @@ var ServerSorter = (() => {
         }
         
         getGuildNames() {
-            var names = [];
+            const names = [];
             this.getGuilds().each((index, elem) => {
                 names.push(this.getGuildData(elem).name);
             });
@@ -146,10 +172,10 @@ var ServerSorter = (() => {
         }
         
         doSort(sortType, reverse, reset) {
-            var guilds = this.getGuilds();
+            const guilds = this.getGuilds();
             guilds.sort((a,b) => {
-                var first = this.getGuildData(a)[sortType];
-                var second = this.getGuildData(b)[sortType];
+                let first = this.getGuildData(a)[sortType];
+                let second = this.getGuildData(b)[sortType];
                 
                 if (sortType == "id" && !reset) {
                     first = parseInt(first);
@@ -174,7 +200,7 @@ var ServerSorter = (() => {
                 }
                 return 0;
             });
-            guilds.detach().insertBefore($("button.guild-1EfMGQ"));
+            guilds.detach().insertBefore($(".listItem-2P_4kh:has([name*=Add])"));
         }
 
     };
