@@ -1,4 +1,11 @@
-# BetterDiscordAddons
+# BetterDiscordAddons [![Patreon][patreon-badge]][patreon-link] [![Paypal][paypal-badge]][paypal-link]
+
+[patreon-badge]: https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.herokuapp.com%2FZerebos&style=flat-square
+[patreon-link]: https://patreon.com/Zerebos
+
+[paypal-badge]: https://img.shields.io/badge/Paypal-Donate!-%2300457C.svg?logo=paypal&style=flat-square
+[paypal-link]: https://paypal.me/ZackRauen
+
 A series of plugins and themes for BetterDiscord. For support or announcements on any of them visit [my (Zere's) server](http://discord.zackrauen.com/).
 
 ## Plugins
@@ -24,7 +31,7 @@ A series of plugins and themes for BetterDiscord. For support or announcements o
  - [ServerSearch](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch) - Adds a button to search your servers.
  - [ServerSorter](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSorter) - Adds the ability to sort the servers that you're in.
  - [StatusEverywhere](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/StatusEverywhere) - Adds user status everywhere Discord doesn't.
- - [ZeresPluginLibrary](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ZeresPluginLibrary) - Gives other plugins utility functions and the ability to emulate v2.
+ - [ZeresPluginLibrary](https://github.com/rauenzi/BDPluginLibrary) - Gives other plugins utility functions and the ability to emulate v2.
  
 ## Themes
  - [RadialStatus](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/RadialStatus) - An extension (and update/fix) of Zerthox's Status Circles.
