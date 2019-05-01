@@ -1,0 +1,24 @@
+#server-search {
+	margin-bottom: 10px;
+}
+
+.popout-3sVMXz.popout-server-search,
+.popout-3sVMXz.popout-server-search-small {
+	margin-top: 0;
+	z-index: 1005;
+}
+
+.popout-3sVMXz.popout-server-search-small {
+	padding: 10px;
+	background:#2f3136;
+	box-shadow: 0 0px 15px rgba(0,0,0,0.6);
+	border-radius: 4px;
+}
+
+.no-image {
+	background: rgb(47, 49, 54);
+	font-size: 12px;
+	justify-content: center;
+	align-items: center;
+	display: flex;
+}

@@ -1,0 +1,29 @@
+#sort-options {
+	pointer-events: none;
+	opacity: 0;
+	transition: 300ms cubic-bezier(.2, 0, 0, 1);
+	transform-origin: 0 0;
+	transform: translateY(-10px);
+}
+
+#sort-options.open {
+	pointer-events: initial;
+	opacity: 1;
+	transition: 300ms cubic-bezier(.2, 0, 0, 1);
+	transform-origin: 0 0;
+	transform: translateY(0px);
+}
+
+#sort-button {
+	height: 20px;
+	overflow: hidden;
+}
+
+#sort-button > div {
+	border-radius: 0px;
+	background-color: rgb(47, 49, 54);
+	color: white;
+	text-align: center;
+	font-size: 12px;
+	line-height: 20px;
+}
