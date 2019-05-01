@@ -3,28 +3,28 @@
 @if (@_jscript)
 	
 	// Offer to self-install for clueless users that try to run this directly.
-	var shell = WScript.CreateObject('WScript.Shell');
-	var fs = new ActiveXObject('Scripting.FileSystemObject');
-	var pathPlugins = shell.ExpandEnvironmentStrings('%APPDATA%\\BetterDiscord\\plugins');
+	var shell = WScript.CreateObject("WScript.Shell");
+	var fs = new ActiveXObject("Scripting.FileSystemObject");
+	var pathPlugins = shell.ExpandEnvironmentStrings("%APPDATA%\BetterDiscord\plugins");
 	var pathSelf = WScript.ScriptFullName;
 	// Put the user at ease by addressing them in the first person
-	shell.Popup('It looks like you\'ve mistakenly tried to run me directly. \n(Don\'t do that!)', 0, 'I\'m a plugin for BetterDiscord', 0x30);
+	shell.Popup("It looks like you've mistakenly tried to run me directly. \n(Don't do that!)", 0, "I'm a plugin for BetterDiscord", 0x30);
 	if (fs.GetParentFolderName(pathSelf) === fs.GetAbsolutePathName(pathPlugins)) {
-		shell.Popup('I\'m in the correct folder already.\nJust reload Discord with Ctrl+R.', 0, 'I\'m already installed', 0x40);
+		shell.Popup("I'm in the correct folder already.", 0, "I'm already installed", 0x40);
 	} else if (!fs.FolderExists(pathPlugins)) {
-		shell.Popup('I can\'t find the BetterDiscord plugins folder.\nAre you sure it\'s even installed?', 0, 'Can\'t install myself', 0x10);
-	} else if (shell.Popup('Should I copy myself to BetterDiscord\'s plugins folder for you?', 0, 'Do you need some help?', 0x34) === 6) {
+		shell.Popup("I can't find the BetterDiscord plugins folder.\nAre you sure it's even installed?", 0, "Can't install myself", 0x10);
+	} else if (shell.Popup("Should I copy myself to BetterDiscord's plugins folder for you?", 0, "Do you need some help?", 0x34) === 6) {
 		fs.CopyFile(pathSelf, fs.BuildPath(pathPlugins, fs.GetFileName(pathSelf)), true);
 		// Show the user where to put plugins in the future
-		shell.Exec('explorer ' + pathPlugins);
-		shell.Popup('I\'m installed!\nJust reload Discord with Ctrl+R.', 0, 'Successfully installed', 0x40);
+		shell.Exec("explorer " + pathPlugins);
+		shell.Popup("I'm installed!", 0, "Successfully installed", 0x40);
 	}
 	WScript.Quit();
 
 @else@*/
 
 var BetterRoleColors = (() => {
-    const config = {"info":{"name":"BetterRoleColors","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.7.8","description":"Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js"},"changelog":[{"title":"Small Fix","type":"fixed","items":["Fixed role headers not being colored."]}],"defaultConfig":[{"type":"category","id":"modules","name":"Module Settings","collapsible":true,"shown":true,"settings":[{"type":"switch","id":"typing","name":"Typing","note":"Toggles colorizing of typing notifications.","value":true},{"type":"switch","id":"voice","name":"Voice","note":"Toggles colorizing of voice users.","value":true},{"type":"switch","id":"mentions","name":"Mentions","note":"Toggles colorizing of user mentions in chat.","value":true},{"type":"switch","id":"botTags","name":"Bot Tags","note":"Toggles coloring the background of bot tags to match role.","value":true},{"type":"switch","id":"memberList","name":"Memberlist Headers","note":"Toggles coloring role names in the member list.","value":true}]},{"type":"category","id":"popouts","name":"Popout Options","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"username","name":"Username","note":"Toggles coloring on the username in popouts.","value":false},{"type":"switch","id":"discriminator","name":"Discriminator","note":"Toggles coloring on the discriminator in popouts.","value":false},{"type":"switch","id":"nickname","name":"Nickname","note":"Toggles coloring on the nickname in popouts.","value":true},{"type":"switch","id":"fallback","name":"Enable Fallback","note":"If nickname is on and username is off, enabling this will automatically color the username.","value":true}]},{"type":"category","id":"modals","name":"Modal Options","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"username","name":"Username","note":"Toggles coloring on the username in modals.","value":true},{"type":"switch","id":"discriminator","name":"Discriminator","note":"Toggles coloring on the discriminator in modals.","value":false}]},{"type":"category","id":"auditLog","name":"Audit Log Options","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"username","name":"Username","note":"Toggles coloring on the username in audit log.","value":true},{"type":"switch","id":"discriminator","name":"Discriminator","note":"Toggles coloring on the discriminator in audit log.","value":false}]},{"type":"category","id":"account","name":"Account Details Options","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"username","name":"Username","note":"Toggles coloring on the username in account details.","value":true},{"type":"switch","id":"discriminator","name":"Discriminator","note":"Toggles coloring on the discriminator in account details.","value":false}]},{"type":"category","id":"mentions","name":"Mention Options","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"changeOnHover","name":"Hover Color","note":"Turning this on adjusts the color on hover to match role color, having it off defers to your theme.","value":true}]}],"main":"index.js"};
+    const config = {"info":{"name":"BetterRoleColors","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.7.9","description":"Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js"},"changelog":[{"title":"Small Fix","type":"fixed","items":["Fixed first role header not being colored."]}],"defaultConfig":[{"type":"category","id":"modules","name":"Module Settings","collapsible":true,"shown":true,"settings":[{"type":"switch","id":"typing","name":"Typing","note":"Toggles colorizing of typing notifications.","value":true},{"type":"switch","id":"voice","name":"Voice","note":"Toggles colorizing of voice users.","value":true},{"type":"switch","id":"mentions","name":"Mentions","note":"Toggles colorizing of user mentions in chat.","value":true},{"type":"switch","id":"botTags","name":"Bot Tags","note":"Toggles coloring the background of bot tags to match role.","value":true},{"type":"switch","id":"memberList","name":"Memberlist Headers","note":"Toggles coloring role names in the member list.","value":true}]},{"type":"category","id":"popouts","name":"Popout Options","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"username","name":"Username","note":"Toggles coloring on the username in popouts.","value":false},{"type":"switch","id":"discriminator","name":"Discriminator","note":"Toggles coloring on the discriminator in popouts.","value":false},{"type":"switch","id":"nickname","name":"Nickname","note":"Toggles coloring on the nickname in popouts.","value":true},{"type":"switch","id":"fallback","name":"Enable Fallback","note":"If nickname is on and username is off, enabling this will automatically color the username.","value":true}]},{"type":"category","id":"modals","name":"Modal Options","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"username","name":"Username","note":"Toggles coloring on the username in modals.","value":true},{"type":"switch","id":"discriminator","name":"Discriminator","note":"Toggles coloring on the discriminator in modals.","value":false}]},{"type":"category","id":"auditLog","name":"Audit Log Options","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"username","name":"Username","note":"Toggles coloring on the username in audit log.","value":true},{"type":"switch","id":"discriminator","name":"Discriminator","note":"Toggles coloring on the discriminator in audit log.","value":false}]},{"type":"category","id":"account","name":"Account Details Options","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"username","name":"Username","note":"Toggles coloring on the username in account details.","value":true},{"type":"switch","id":"discriminator","name":"Discriminator","note":"Toggles coloring on the discriminator in account details.","value":false}]},{"type":"category","id":"mentions","name":"Mention Options","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"changeOnHover","name":"Hover Color","note":"Turning this on adjusts the color on hover to match role color, having it off defers to your theme.","value":true}]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -86,7 +86,7 @@ var BetterRoleColors = (() => {
             this.patchTypingUsers();
             this.patchMemberList();
         }
-        
+
         onStop() {
             Patcher.unpatchAll();
             for (const cancel of this.cancels) cancel();
@@ -95,7 +95,7 @@ var BetterRoleColors = (() => {
         getSettingsPanel() {
             return this.buildSettingsPanel().getElement();
         }
-    
+
         patchAccountDetails() {
             const colorize = () => {
                 if (!this.settings.account.username && !this.settings.account.discriminator) return;
@@ -119,7 +119,7 @@ var BetterRoleColors = (() => {
             });
             colorize();
         }
-    
+
         filterTypingUsers(typingUsers) {
             if (!typingUsers) return [];
             return Object.keys(typingUsers).filter((e) => {
@@ -132,7 +132,7 @@ var BetterRoleColors = (() => {
                     return e != null;
                 });
         }
-    
+
         async patchTypingUsers() {
             const TypingUsers = await ReactComponents.getComponentByName("TypingUsers", DiscordSelectors.Typing.typing);
             const brc = this;
@@ -150,7 +150,7 @@ var BetterRoleColors = (() => {
             });
             TypingUsers.forceUpdateAll();
         }
-    
+
         patchVoiceUsers() {
             const brc = this;
             const voiceUserMount = function() {
@@ -161,12 +161,12 @@ var BetterRoleColors = (() => {
                 const elem = ReactDOM.findDOMNode(this);
                 elem.querySelector("[class*=\"name\"]").style.setProperty("color", member.colorString);
             };
-    
+
             Patcher.after(VoiceUser.prototype, "componentDidMount", (thisObject) => {
                 const bound = voiceUserMount.bind(thisObject); bound();
             });
         }
-    
+
         patchMentions() {
             const brc = this;
             const mentionMount = function() {
@@ -179,7 +179,7 @@ var BetterRoleColors = (() => {
                 const elem = ReactDOM.findDOMNode(this);
                 elem.style.setProperty("color", member.colorString, "important");
                 elem.style.setProperty("background", ColorConverter.rgbToAlpha(member.colorString,0.1), "important");
-    
+
                 if (!brc.settings.mentions.changeOnHover) return;
                 elem.addEventListener("mouseenter", (e) =>{
                     e.target.style.setProperty("color", "#FFFFFF", "important");
@@ -190,12 +190,12 @@ var BetterRoleColors = (() => {
                     e.target.style.setProperty("background", ColorConverter.rgbToAlpha(member.colorString,0.1), "important");
                 });
             };
-    
+
             Patcher.after(PopoutWrapper.prototype, "componentDidMount", (thisObject) => {
                 const bound = mentionMount.bind(thisObject); bound();
             });
         }
-    
+
         async patchUserPopouts() {
             const UserPopout = await ReactComponents.getComponentByName("UserPopout", DiscordSelectors.UserPopout.userPopout);
             const brc = this;
@@ -210,13 +210,13 @@ var BetterRoleColors = (() => {
                 if (brc.settings.popouts.discriminator) elem.querySelector(".discriminator").style.setProperty("color", member.colorString, "important");
                 if (brc.settings.popouts.nickname && hasNickname) elem.querySelector(DiscordSelectors.UserPopout.headerName).style.setProperty("color", member.colorString, "important");
             };
-    
+
             Patcher.after(UserPopout.component.prototype, "componentDidMount", (thisObject) => {
                 const bound = popoutMount.bind(thisObject); bound();
             });
             UserPopout.forceUpdateAll();
         }
-    
+
         async patchUserModals() {
             const UserProfile = await ReactComponents.getComponentByName("UserProfile", DiscordSelectors.UserModal.root);
             const brc = this;
@@ -229,19 +229,19 @@ var BetterRoleColors = (() => {
                 if (brc.settings.modals.username) elem.querySelector(".username").style.setProperty("color", member.colorString, "important");
                 if (brc.settings.modals.discriminator) elem.querySelector(".discriminator").style.setProperty("color", member.colorString, "important");
             };
-    
+
             Patcher.after(UserProfile.component.prototype, "componentDidMount", (thisObject) => {
                 const bound = modalMount.bind(thisObject); bound();
             });
             UserProfile.forceUpdateAll();
         }
-    
+
         patchAuditLog() {
             const brc = this;
             const auditlogMount = function() {
                 if (!brc.settings.auditLog.username && !brc.settings.auditLog.discriminator) return;
                 if (!this || !this.props || !this.props.log || !this.props.log.user) return;
-            
+
                 const elem = ReactDOM.findDOMNode(this);
                 const hooks = elem.querySelectorAll(DiscordSelectors.AuditLog.userHook);
                 const member = GuildMemberStore.getMember(this._reactInternalFiber.return.memoizedProps.guildId, this.props.log.user.id);
@@ -249,14 +249,14 @@ var BetterRoleColors = (() => {
                     if (member.colorString && brc.settings.auditLog.username) hooks[0].children[0].style.color = member.colorString;
                     if (member.colorString && brc.settings.auditLog.discriminator) { hooks[0].querySelector(DiscordSelectors.AuditLog.discrim).style.color = member.colorString;hooks[0].querySelector(DiscordSelectors.AuditLog.discrim).style.opacity = 1;}
                 }
-            
+
                 if (hooks.length < 2 || this.props.log.targetType != "USER") return;
                 const member2 = GuildMemberStore.getMember(this._reactInternalFiber.return.memoizedProps.guildId, this.props.log.target.id);
                 if (!member2 || !member2.colorString) return;
                 if (brc.settings.auditLog.username) hooks[1].children[0].style.color = member2.colorString;
                 if (brc.settings.auditLog.discriminator) { hooks[1].querySelector(DiscordSelectors.AuditLog.discrim).style.color = member2.colorString;hooks[1].querySelector(DiscordSelectors.AuditLog.discrim).style.opacity = 1;}
             };
-    
+
             Patcher.after(AuditLogItem.prototype, "componentDidMount", (thisObject) => {
                 const bound = auditlogMount.bind(thisObject); bound();
             });
@@ -270,14 +270,17 @@ var BetterRoleColors = (() => {
                     if (!this.settings.modules.memberList) return;
                     const guild = DiscordModules.GuildStore.getGuild(memberList.props.channel.guild_id);
                     if (!guild) return;
-                    const roleColor = guild.roles[section.props.id] ? guild.roles[section.props.id].colorString : "";
+                    const roleId = section.props.children ? section.props.children.props.id : section.props.id;
+                    const roleColor = guild.roles[roleId] ? guild.roles[roleId].colorString : "";
                     if (!roleColor) return;
-                    const originalType = section.type;
-                    section.type = function() {
+                    const originalType = section.props.children ? section.props.children.type : section.type;
+                    const adjustment = function() {
                         const label = originalType(...arguments);
                         label.props.style = {color: roleColor};
                         return label;
                     };
+                    if (section.props.children) section.props.children.type = adjustment;
+                    else section.type = adjustment;
                     return section;
                 });
                 memberList.renderSection.__patched = true;
