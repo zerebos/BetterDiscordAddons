@@ -1,5 +1,5 @@
 module.exports = (Plugin, Api) => {
-    const {DiscordSelectors, PluginUtilities, ContextMenu, Tooltip} = Api;
+    const {DiscordSelectors, PluginUtilities, ContextMenu, EmulatedTooltip} = Api;
     return class BetterFormattingRedux extends Plugin {
         constructor() {
             super();
@@ -208,7 +208,7 @@ module.exports = (Plugin, Api) => {
                 var button = $("<div>");
                 button.addClass("format");
                 button.addClass(this.toolbarData[sorted[i]].type);
-                // new Tooltip(button, this.toolbarData[sorted[i]].name);
+                new EmulatedTooltip(button, this.toolbarData[sorted[i]].name);
                 if (!this.settings.toolbar[sorted[i]]) button.addClass("disabled");
                 if (sorted[i] === "codeblock") {
                     let contextMenu = this.getContextMenu(textarea);

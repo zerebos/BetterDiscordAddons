@@ -7,7 +7,7 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "2.3.4",
+        "version": "2.3.5",
         "description": "Enables different types of formatting in standard Discord chat. Support Server: bit.ly/ZeresServer",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js"
@@ -173,8 +173,7 @@
         }
     ],
     "changelog": [
-        {"title": "What's New?", "items": ["Temporarily disable tooltips until new options can be figured out."]},
-        {"title": "Bugs Squashed", "type": "fixed", "items": ["Fixed the icons (Thanks DevilBro)"]}
+        {"title": "What's New?", "items": ["Brought back tooltips on the buttons!"]}
     ],
     "main": "index.js"
 }
