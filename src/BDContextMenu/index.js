@@ -6,16 +6,7 @@ module.exports = (Plugin, Api) => {
     const MenuItem = WebpackModules.getByString("disabled", "brand");
     const DiscordToggleMenuItem = WebpackModules.getByString("itemToggle", "checkbox");
     const BBDSettings = Object.entries(window.settings).filter(s => !s[1].hidden && s[1].implemented);
-    const SubMenuItem = WebpackModules.find(m => {
-        if (!m.render) return false;
-        try {
-            const container = m.render({}).type;
-            const item = new container({});
-            const rendered = item.render();
-            return rendered.type.displayName == "SubMenuItem";
-        }
-        catch (e) {return false;}
-    });
+    const SubMenuItem = WebpackModules.find(m => m.default && m.default.displayName && m.default.displayName.includes("SubMenuItem"));
 
     const ToggleMenuItem = class OtherItem extends React.Component {
         handleToggle() {
@@ -31,25 +22,28 @@ module.exports = (Plugin, Api) => {
     return class BDContextMenu extends Plugin {
 
         async onStart() {
-            this.patchSettingsContextMenu();
-        }
-        
-        onStop() {
-            Patcher.unpatchAll();
+            this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
+            this.patchSettingsContextMenu(this.promises.state);
         }
 
-        async patchSettingsContextMenu() {
+        onStop() {
+            Patcher.unpatchAll();
+            this.promises.cancel();
+        }
+
+        async patchSettingsContextMenu(promiseState) {
             const SettingsContextMenu = await ReactComponents.getComponentByName("UserSettingsCogContextMenu", DiscordSelectors.ContextMenu.contextMenu);
+            if (promiseState.cancelled) return;
             Patcher.after(SettingsContextMenu.component.prototype, "render", (component, args, retVal) => {
 
                 const coreMenu = this.buildSubMenu("Core", "core");
                 const bandageMenu = this.buildSubMenu("Bandages", "fork");
                 const emoteMenu = this.buildSubMenu("Emotes", "emote");
-                const customCSSMenu = new MenuItem({label: "Custom CSS", action: () => {this.openCategory("customcss");}});
+                const customCSSMenu = DiscordModules.React.createElement(MenuItem, {label: "Custom CSS", action: () => {this.openCategory("customcss");}});
                 const pluginMenu = this.buildContentMenu(true);
                 const themeMenu = this.buildContentMenu(false);
-                
-                const mainMenu = React.createElement(SubMenuItem.render, {
+
+                const mainMenu = React.createElement(SubMenuItem.default, {
                     label: "BandagedBD",
                     invertChildY: true,
                     render: [coreMenu, bandageMenu, emoteMenu, customCSSMenu, pluginMenu, themeMenu]
@@ -65,13 +59,15 @@ module.exports = (Plugin, Api) => {
 
         buildSubMenu(name, id) {
             const menuItems = [];
-            const subMenu = React.createElement(SubMenuItem.render, {
+            const subMenu = React.createElement(SubMenuItem.default, {
                 label: name,
                 invertChildY: true,
                 render: menuItems,
                 action: () => {this.openCategory(id);}
             });
-            for (const setting of BBDSettings.filter(s => s[1].cat == id)) {
+            const categorySettings = BBDSettings.filter(s => s[1].cat == id);
+            if (!categorySettings.length) return null;
+            for (const setting of categorySettings) {
                 const item = React.createElement(ToggleMenuItem, {
                     label: setting[0],
                     active: window.settingsCookie[window.settings[setting[0]].id],
@@ -87,7 +83,7 @@ module.exports = (Plugin, Api) => {
 
         buildContentMenu(isPlugins) {
             const menuItems = [];
-            const subMenu = React.createElement(SubMenuItem.render, {
+            const subMenu = React.createElement(SubMenuItem.default, {
                 label: isPlugins ? "Plugins" : "Themes",
                 invertChildY: true,
                 render: menuItems,
@@ -125,7 +121,7 @@ module.exports = (Plugin, Api) => {
 //         if (!container.displayName || container.displayName != "FluxContainer") return false;
 //         new container();
 //         return false;
-//     } 
+//     }
 //     catch (e) {return e.toString().includes("user");}
 // });
 
@@ -210,7 +206,7 @@ module.exports = (Plugin, Api) => {
 //         resolve();
 //     });
 //     // const cp = new Promise();
-    
+
 //     pp.then(() => {console.log("resolved");}).catch(() => {});
 //     return funcs;
 // };

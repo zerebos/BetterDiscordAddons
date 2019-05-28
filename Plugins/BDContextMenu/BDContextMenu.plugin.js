@@ -24,7 +24,7 @@
 @else@*/
 
 var BDContextMenu = (() => {
-    const config = {"info":{"name":"BDContextMenu","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.2","description":"Adds BD shortcuts to the settings context menu. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Fixed issues delaying BBD's startup."]}],"main":"index.js"};
+    const config = {"info":{"name":"BDContextMenu","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.3","description":"Adds BD shortcuts to the settings context menu. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"},"changelog":[{"title":"Improved","type":"improved","items":["Promise state is tracked so you won't see any double menus.","Made it compatible with coming BBD changes..."]},{"title":"Bugs Squashed","type":"fixed","items":["Fixed that thing where it didn't work."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -64,16 +64,7 @@ var BDContextMenu = (() => {
     const MenuItem = WebpackModules.getByString("disabled", "brand");
     const DiscordToggleMenuItem = WebpackModules.getByString("itemToggle", "checkbox");
     const BBDSettings = Object.entries(window.settings).filter(s => !s[1].hidden && s[1].implemented);
-    const SubMenuItem = WebpackModules.find(m => {
-        if (!m.render) return false;
-        try {
-            const container = m.render({}).type;
-            const item = new container({});
-            const rendered = item.render();
-            return rendered.type.displayName == "SubMenuItem";
-        }
-        catch (e) {return false;}
-    });
+    const SubMenuItem = WebpackModules.find(m => m.default && m.default.displayName && m.default.displayName.includes("SubMenuItem"));
 
     const ToggleMenuItem = class OtherItem extends React.Component {
         handleToggle() {
@@ -89,25 +80,28 @@ var BDContextMenu = (() => {
     return class BDContextMenu extends Plugin {
 
         async onStart() {
-            this.patchSettingsContextMenu();
-        }
-        
-        onStop() {
-            Patcher.unpatchAll();
+            this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
+            this.patchSettingsContextMenu(this.promises.state);
         }
 
-        async patchSettingsContextMenu() {
+        onStop() {
+            Patcher.unpatchAll();
+            this.promises.cancel();
+        }
+
+        async patchSettingsContextMenu(promiseState) {
             const SettingsContextMenu = await ReactComponents.getComponentByName("UserSettingsCogContextMenu", DiscordSelectors.ContextMenu.contextMenu);
+            if (promiseState.cancelled) return;
             Patcher.after(SettingsContextMenu.component.prototype, "render", (component, args, retVal) => {
 
                 const coreMenu = this.buildSubMenu("Core", "core");
                 const bandageMenu = this.buildSubMenu("Bandages", "fork");
                 const emoteMenu = this.buildSubMenu("Emotes", "emote");
-                const customCSSMenu = new MenuItem({label: "Custom CSS", action: () => {this.openCategory("customcss");}});
+                const customCSSMenu = DiscordModules.React.createElement(MenuItem, {label: "Custom CSS", action: () => {this.openCategory("customcss");}});
                 const pluginMenu = this.buildContentMenu(true);
                 const themeMenu = this.buildContentMenu(false);
-                
-                const mainMenu = React.createElement(SubMenuItem.render, {
+
+                const mainMenu = React.createElement(SubMenuItem.default, {
                     label: "BandagedBD",
                     invertChildY: true,
                     render: [coreMenu, bandageMenu, emoteMenu, customCSSMenu, pluginMenu, themeMenu]
@@ -123,13 +117,15 @@ var BDContextMenu = (() => {
 
         buildSubMenu(name, id) {
             const menuItems = [];
-            const subMenu = React.createElement(SubMenuItem.render, {
+            const subMenu = React.createElement(SubMenuItem.default, {
                 label: name,
                 invertChildY: true,
                 render: menuItems,
                 action: () => {this.openCategory(id);}
             });
-            for (const setting of BBDSettings.filter(s => s[1].cat == id)) {
+            const categorySettings = BBDSettings.filter(s => s[1].cat == id);
+            if (!categorySettings.length) return null;
+            for (const setting of categorySettings) {
                 const item = React.createElement(ToggleMenuItem, {
                     label: setting[0],
                     active: window.settingsCookie[window.settings[setting[0]].id],
@@ -145,7 +141,7 @@ var BDContextMenu = (() => {
 
         buildContentMenu(isPlugins) {
             const menuItems = [];
-            const subMenu = React.createElement(SubMenuItem.render, {
+            const subMenu = React.createElement(SubMenuItem.default, {
                 label: isPlugins ? "Plugins" : "Themes",
                 invertChildY: true,
                 render: menuItems,
