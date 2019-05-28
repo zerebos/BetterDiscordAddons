@@ -24,7 +24,7 @@
 @else@*/
 
 var AccountDetailsPlus = (() => {
-    const config = {"info":{"name":"AccountDetailsPlus","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.5","description":"Lets you view popout, nickname and more from your account panel at the bottom. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AccountDetailsPlus","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AccountDetailsPlus/AccountDetailsPlus.plugin.js"},"defaultConfig":[{"type":"category","id":"popout","name":"User Popout","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"avatar","name":"Avatar","note":"Opens your popout when clicking your avatar.","value":true},{"type":"switch","id":"username","name":"Username","note":"Opens your popout when clicking your username.","value":true}]},{"type":"category","id":"statusPicker","name":"Status Picker","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"avatar","name":"Avatar","note":"Opens your popout when right clicking your avatar.","value":true},{"type":"switch","id":"username","name":"Username","note":"Opens your popout when right clicking your username.","value":true}]},{"type":"category","id":"nickname","name":"Nickname","collapsible":true,"shown":false,"settings":[{"type":"dropdown","id":"showNickname","name":"Name Shown","value":true,"options":[{"label":"Username","value":false},{"label":"Nickname","value":true}]},{"type":"switch","id":"oppositeOnHover","name":"Opposite On Hover","note":"Shows the opposite on hover. e.g. if you are showing nickname, hovering will show your username.","value":true}]}],"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Updated a selector."]}],"main":"index.js"};
+    const config = {"info":{"name":"AccountDetailsPlus","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.6","description":"Lets you view popout, nickname and more from your account panel at the bottom. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AccountDetailsPlus","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AccountDetailsPlus/AccountDetailsPlus.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["This is fixed again with lib version 1.2.6!"]}],"main":"index.js","defaultConfig":[{"type":"category","id":"popout","name":"User Popout","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"avatar","name":"Avatar","note":"Opens your popout when clicking your avatar.","value":true},{"type":"switch","id":"username","name":"Username","note":"Opens your popout when clicking your username.","value":true}]},{"type":"category","id":"statusPicker","name":"Status Picker","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"avatar","name":"Avatar","note":"Opens your popout when right clicking your avatar.","value":true},{"type":"switch","id":"username","name":"Username","note":"Opens your popout when right clicking your username.","value":true}]},{"type":"category","id":"nickname","name":"Nickname","collapsible":true,"shown":false,"settings":[{"type":"dropdown","id":"showNickname","name":"Name Shown","value":true,"options":[{"label":"Username","value":false},{"label":"Nickname","value":true}]},{"type":"switch","id":"oppositeOnHover","name":"Opposite On Hover","note":"Shows the opposite on hover. e.g. if you are showing nickname, hovering will show your username.","value":true}]}]};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -67,15 +67,15 @@ var AccountDetailsPlus = (() => {
         }
 
         async onStart() {
-            await new Promise(resolve => setTimeout(resolve, 1000));      
+            await new Promise(resolve => setTimeout(resolve, 1000));
             this.FluxContainer = DiscordModules.UserPopout;
             this.currentUser = DiscordModules.UserStore.getCurrentUser();
             this.popoutWrapper = Utilities.findInTree(ReactTools.getReactInstance(document.querySelector(DiscordSelectors.AccountDetails.container + " .inner-1W0Bkn")), n => n && n.handleClick && n.toggle, {walkable: ["return", "stateNode"]});
             this.originalRender = this.popoutWrapper.props.render;
-         
+
             this.activateShit();
         }
-        
+
         onStop() {
             this.popoutWrapper.props.render = this.originalRender;
             PluginUtilities.removeStyle(this.getName() + "-css");
@@ -90,7 +90,7 @@ var AccountDetailsPlus = (() => {
             PluginUtilities.removeStyle(this.getName() + "-css");
             DOMTools.off(document, "mousemove." + this.getName());
             document.querySelector(DiscordSelectors.AccountDetails.container.descend(".username")).textContent = this.currentUser.username;
-            
+
             if (this.settings.nickname.showNickname || this.settings.nickname.oppositeOnHover) {
                 DOMTools.on(document, "mousemove." + this.getName(), (e) => { this.adjustNickname(e); });
             }
@@ -116,18 +116,18 @@ var AccountDetailsPlus = (() => {
                 });
             }
         }
-    
+
         adjustNickname(e) {
             if (!e || !e.target || !(e.target instanceof Element)) return;
             const accountDetails = document.querySelector(DiscordSelectors.AccountDetails.container);
             if (!accountDetails) return;
-    
+
             const isHovering = accountDetails.contains(e.target);
             const nameElement = accountDetails.querySelector(".username");
-    
+
             let nick = DiscordModules.GuildMemberStore.getNick(DiscordModules.SelectedGuildStore.getGuildId(), this.currentUser.id);
             nick = nick ? nick : this.currentUser.username;
-    
+
             if (isHovering && this.settings.nickname.oppositeOnHover) {
                 if (this.settings.nickname.showNickname) nameElement.textContent = this.currentUser.username;
                 else if (!this.settings.nickname.showNickname) nameElement.textContent = nick;
@@ -137,19 +137,19 @@ var AccountDetailsPlus = (() => {
                 else nameElement.textContent = this.currentUser.username;
             }
         }
-    
+
         setRender(renderer, options = {}) {
             this.popoutWrapper.props.render = renderer;
             Object.assign(this.popoutWrapper.props, options);
         }
-    
+
         showStatusPicker(e) {
             e.preventDefault();
             e.stopPropagation();
             this.setRender(this.originalRender, {position: "top-left", animationType: "spring"});
             this.popoutWrapper.toggle(e);
         }
-    
+
         showUserPopout(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -159,18 +159,18 @@ var AccountDetailsPlus = (() => {
                 const guild = DiscordModules.SelectedGuildStore.getGuildId();
                 const channel = DiscordModules.SelectedChannelStore.getChannelId();
                 return DiscordModules.React.createElement(this.FluxContainer, Object.assign({}, props, {
-                    user: this.currentUser,
+                    userId: this.currentUser.id,
                     guildId: guild,
                     channelId: channel
                 }));
             }, {position: "top-left", animationType: "default"});
-    
+
             this.popoutWrapper.toggle(Object.assign({}, e, {
                 target: element,
                 toElement: element,
                 currentTarget: element,
                 delegateTarget: element
-            })); 
+            }));
             this.setRender(this.originalRender, {position: "top-left", animationType: "spring"});
         }
 

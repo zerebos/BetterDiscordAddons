@@ -7,11 +7,15 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.1.5",
+        "version": "0.1.6",
         "description": "Lets you view popout, nickname and more from your account panel at the bottom. Support Server: bit.ly/ZeresServer",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AccountDetailsPlus",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AccountDetailsPlus/AccountDetailsPlus.plugin.js"
     },
+    "changelog": [
+        {"title": "Bugs Squashed", "type": "fixed", "items": ["This is fixed again with lib version 1.2.6!"]}
+    ],
+    "main": "index.js",
     "defaultConfig": [
         {
             "type": "category",
@@ -55,9 +59,5 @@
                 {"type": "switch", "id": "oppositeOnHover", "name": "Opposite On Hover", "note": "Shows the opposite on hover. e.g. if you are showing nickname, hovering will show your username.", "value": true}
             ]
         }
-    ],
-    "changelog": [
-        {"title": "Bugs Squashed", "type": "fixed", "items": ["Updated a selector."]}
-    ],
-    "main": "index.js"
+    ]
 }

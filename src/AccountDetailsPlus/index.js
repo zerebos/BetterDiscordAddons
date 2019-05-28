@@ -9,15 +9,15 @@ module.exports = (Plugin, Api) => {
         }
 
         async onStart() {
-            await new Promise(resolve => setTimeout(resolve, 1000));      
+            await new Promise(resolve => setTimeout(resolve, 1000));
             this.FluxContainer = DiscordModules.UserPopout;
             this.currentUser = DiscordModules.UserStore.getCurrentUser();
             this.popoutWrapper = Utilities.findInTree(ReactTools.getReactInstance(document.querySelector(DiscordSelectors.AccountDetails.container + " .inner-1W0Bkn")), n => n && n.handleClick && n.toggle, {walkable: ["return", "stateNode"]});
             this.originalRender = this.popoutWrapper.props.render;
-         
+
             this.activateShit();
         }
-        
+
         onStop() {
             this.popoutWrapper.props.render = this.originalRender;
             PluginUtilities.removeStyle(this.getName() + "-css");
@@ -32,7 +32,7 @@ module.exports = (Plugin, Api) => {
             PluginUtilities.removeStyle(this.getName() + "-css");
             DOMTools.off(document, "mousemove." + this.getName());
             document.querySelector(DiscordSelectors.AccountDetails.container.descend(".username")).textContent = this.currentUser.username;
-            
+
             if (this.settings.nickname.showNickname || this.settings.nickname.oppositeOnHover) {
                 DOMTools.on(document, "mousemove." + this.getName(), (e) => { this.adjustNickname(e); });
             }
@@ -58,18 +58,18 @@ module.exports = (Plugin, Api) => {
                 });
             }
         }
-    
+
         adjustNickname(e) {
             if (!e || !e.target || !(e.target instanceof Element)) return;
             const accountDetails = document.querySelector(DiscordSelectors.AccountDetails.container);
             if (!accountDetails) return;
-    
+
             const isHovering = accountDetails.contains(e.target);
             const nameElement = accountDetails.querySelector(".username");
-    
+
             let nick = DiscordModules.GuildMemberStore.getNick(DiscordModules.SelectedGuildStore.getGuildId(), this.currentUser.id);
             nick = nick ? nick : this.currentUser.username;
-    
+
             if (isHovering && this.settings.nickname.oppositeOnHover) {
                 if (this.settings.nickname.showNickname) nameElement.textContent = this.currentUser.username;
                 else if (!this.settings.nickname.showNickname) nameElement.textContent = nick;
@@ -79,19 +79,19 @@ module.exports = (Plugin, Api) => {
                 else nameElement.textContent = this.currentUser.username;
             }
         }
-    
+
         setRender(renderer, options = {}) {
             this.popoutWrapper.props.render = renderer;
             Object.assign(this.popoutWrapper.props, options);
         }
-    
+
         showStatusPicker(e) {
             e.preventDefault();
             e.stopPropagation();
             this.setRender(this.originalRender, {position: "top-left", animationType: "spring"});
             this.popoutWrapper.toggle(e);
         }
-    
+
         showUserPopout(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -101,18 +101,18 @@ module.exports = (Plugin, Api) => {
                 const guild = DiscordModules.SelectedGuildStore.getGuildId();
                 const channel = DiscordModules.SelectedChannelStore.getChannelId();
                 return DiscordModules.React.createElement(this.FluxContainer, Object.assign({}, props, {
-                    user: this.currentUser,
+                    userId: this.currentUser.id,
                     guildId: guild,
                     channelId: channel
                 }));
             }, {position: "top-left", animationType: "default"});
-    
+
             this.popoutWrapper.toggle(Object.assign({}, e, {
                 target: element,
                 toElement: element,
                 currentTarget: element,
                 delegateTarget: element
-            })); 
+            }));
             this.setRender(this.originalRender, {position: "top-left", animationType: "spring"});
         }
 
