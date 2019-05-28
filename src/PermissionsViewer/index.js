@@ -1,6 +1,6 @@
 
 module.exports = (Plugin, Api) => {
-    const {Patcher, DiscordModules, WebpackModules, PluginUtilities, Toasts, DiscordClasses, DiscordSelectors, Utilities, DOMTools, ColorConverter, ReactComponents} = Api;
+    const {Patcher, DiscordModules, WebpackModules, PluginUtilities, Toasts, ReactTools, DiscordClasses, DiscordSelectors, Utilities, DOMTools, ColorConverter, ReactComponents} = Api;
 
     const GuildStore = DiscordModules.GuildStore;
     const SelectedGuildStore = DiscordModules.SelectedGuildStore;
@@ -39,47 +39,51 @@ module.exports = (Plugin, Api) => {
             this.modalButtonUser = require("modalbuttonuser.html");
             this.permAllowedIcon = require("permallowed.svg");
             this.permDeniedIcon = require("permdenied.svg");
-    
+
             this.cancelUserPopout = () => {};
             this.contextMenuPatches = [];
         }
 
         onStart() {
             PluginUtilities.addStyle(this.getName(), this.css);
-            
+
             this.listHTML = Utilities.formatTString(this.listHTML, DiscordClasses.UserPopout);
             this.listHTML = Utilities.formatTString(this.listHTML, DiscordClasses.PopoutRoles);
             this.itemHTML = Utilities.formatTString(this.itemHTML, DiscordClasses.PopoutRoles);
             this.modalHTML = Utilities.formatTString(this.modalHTML, DiscordClasses.Backdrop);
             this.modalHTML = Utilities.formatTString(this.modalHTML, DiscordClasses.Modals);
 
-            if (this.settings.popouts) this.bindPopouts();
-            if (this.settings.contextMenus) this.bindContextMenus();
+            this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
+            if (this.settings.popouts) this.bindPopouts(this.promises.state);
+            if (this.settings.contextMenus) this.bindContextMenus(this.promises.state);
         }
-        
+
         onStop() {
             PluginUtilities.removeStyle(this.getName());
+            this.promises.cancel();
             this.unbindPopouts();
             this.unbindContextMenus();
         }
 
-        async bindPopouts() {
+        async bindPopouts(promiseState) {
             const pViewer = this;
             const popoutMount = function() {
+                const popout = DiscordModules.ReactDOM.findDOMNode(this);
+                if (!popout || popout.querySelector("#permissions-popout")) return;
                 const user = this.props.guildMember;
                 const guild = this.props.guild;
                 const name = this.props.nickname ? this.props.nickname : this.props.user.username;
                 if (!user || !guild || !name) return;
-    
+
                 const userRoles = user.roles.slice(0);
                 userRoles.push(guild.id);
                 userRoles.reverse();
                 let perms = 0;
-        
+
                 const permBlock = DOMTools.createElement(Utilities.formatTString(pViewer.listHTML, {label: pViewer.strings.popoutLabel}));
 				const memberPerms = permBlock.find(".member-perms");
                 const strings = DiscordModules.Strings;
-    
+
                 for (let r = 0; r < userRoles.length; r++) {
                     const role = userRoles[r];
                     perms = perms | guild.roles[role].permissions;
@@ -98,37 +102,44 @@ module.exports = (Plugin, Api) => {
                         }
                     }
 				}
-				
-                const popout = DiscordModules.ReactDOM.findDOMNode(this);
+
                 permBlock.find(".perm-details").on("click", () => {
                     pViewer.showModal(pViewer.createModalUser(name, user, guild));
                 });
                 permBlock.insertAfter(popout.querySelector(DiscordSelectors.UserPopout.rolesList));
             };
-    
+
             const UserPopout = await ReactComponents.getComponentByName("UserPopout", DiscordSelectors.UserPopout.userPopout);
+            if (promiseState.cancelled) return;
             this.cancelUserPopout = Patcher.after(UserPopout.component.prototype, "componentDidMount", (thisObject) => {
                 const bound = popoutMount.bind(thisObject); bound();
             });
-            UserPopout.forceUpdateAll();
+            const instance = ReactTools.getOwnerInstance(document.querySelector(DiscordSelectors.UserPopout.userPopout), {include: ["UserPopout"]});
+            if (!instance) return;
+            popoutMount.bind(instance)();
+
+            const popoutInstance = ReactTools.getOwnerInstance(document.querySelector(DiscordSelectors.UserPopout.userPopout), {include: ["Popout"]});
+            if (!popoutInstance || !popoutInstance.updateOffsets) return;
+            popoutInstance.updateOffsets();
         }
-    
+
         unbindPopouts() {
             this.cancelUserPopout();
         }
-    
-        async bindContextMenus() {
-            this.patchChannelContextMenu();
-            this.patchGuildContextMenu();
-            this.patchUserContextMenu();
+
+        async bindContextMenus(promiseState) {
+            this.patchChannelContextMenu(promiseState);
+            this.patchGuildContextMenu(promiseState);
+            this.patchUserContextMenu(promiseState);
         }
-    
+
         unbindContextMenus() {
             for (const cancel in this.contextMenuPatches) cancel();
         }
 
-        async patchChannelContextMenu() {
+        async patchChannelContextMenu(promiseState) {
             const ChannelContextMenu = await ReactComponents.getComponentByName("ChannelContextMenu", DiscordSelectors.ContextMenu.contextMenu);
+            if (promiseState.cancelled) return;
             this.contextMenuPatches.push(Patcher.after(ChannelContextMenu.component.prototype, "render", (component, args, retVal) => {
                 if (!component.props.type.startsWith("CHANNEL_LIST_")) return;
                 const original = retVal.props.children[0].props.children;
@@ -144,8 +155,9 @@ module.exports = (Plugin, Api) => {
             ChannelContextMenu.forceUpdateAll();
         }
 
-        async patchGuildContextMenu() {
+        async patchGuildContextMenu(promiseState) {
             const GuildContextMenu = await ReactComponents.getComponentByName("GuildContextMenu", DiscordSelectors.ContextMenu.contextMenu);
+            if (promiseState.cancelled) return;
             this.contextMenuPatches.push(Patcher.after(GuildContextMenu.component.prototype, "render", (component, args, retVal) => {
                 const original = retVal.props.children[0].props.children;
                 const newOne = new MenuItem({label: this.strings.contextMenuLabel, action: () => {
@@ -158,8 +170,9 @@ module.exports = (Plugin, Api) => {
             GuildContextMenu.forceUpdateAll();
         }
 
-        async patchUserContextMenu() {//props.children.props.children.props.children[0].props.children
+        async patchUserContextMenu(promiseState) {//props.children.props.children.props.children[0].props.children
             const UserContextMenu = await ReactComponents.getComponentByName("UserContextMenu", DiscordSelectors.ContextMenu.contextMenu);
+            if (promiseState.cancelled) return;
             this.contextMenuPatches.push(Patcher.after(UserContextMenu.component.prototype, "render", (component, args, retVal) => {
                 const guildId = SelectedGuildStore.getGuildId();
                 const guild = GuildStore.getGuild(guildId);
@@ -176,7 +189,7 @@ module.exports = (Plugin, Api) => {
             }));
             UserContextMenu.forceUpdateAll();
         }
-    
+
         showModal(modal) {
             const popout = document.querySelector(DiscordSelectors.UserPopout.userPopout);
             if (popout) popout.style.display = "none";
@@ -188,13 +201,13 @@ module.exports = (Plugin, Api) => {
         createModalChannel(name, channel, guild) {
             return this.createModal(`#${name}`, channel.permissionOverwrites, guild.roles, true);
         }
-    
-        createModalUser(name, user, guild) {   
+
+        createModalUser(name, user, guild) {
             const userRoles = user.roles.slice(0);
             const guildRoles = JSON.parse(JSON.stringify(guild.roles));
             userRoles.push(guild.id);
             userRoles.sort((a, b) => {return guildRoles[b].position - guildRoles[a].position;});
-    
+
             if (user.userId == guild.ownerId) {
                 userRoles.push(user.userId);
                 guildRoles[user.userId] = {name: this.strings.modal.owner, permissions: DiscordModules.Permissions.ALL};
@@ -251,12 +264,12 @@ module.exports = (Plugin, Api) => {
                     }
                 });
             }
-    
+
             modal.find(".role-item").click();
-    
+
             return modal;
         }
-    
+
         getSettingsPanel() {
             const panel = this.buildSettingsPanel();
             panel.addListener((id, checked) => {
