@@ -3,28 +3,28 @@
 @if (@_jscript)
 	
 	// Offer to self-install for clueless users that try to run this directly.
-	var shell = WScript.CreateObject('WScript.Shell');
-	var fs = new ActiveXObject('Scripting.FileSystemObject');
-	var pathPlugins = shell.ExpandEnvironmentStrings('%APPDATA%\\BetterDiscord\\plugins');
+	var shell = WScript.CreateObject("WScript.Shell");
+	var fs = new ActiveXObject("Scripting.FileSystemObject");
+	var pathPlugins = shell.ExpandEnvironmentStrings("%APPDATA%\BetterDiscord\plugins");
 	var pathSelf = WScript.ScriptFullName;
 	// Put the user at ease by addressing them in the first person
-	shell.Popup('It looks like you\'ve mistakenly tried to run me directly. \n(Don\'t do that!)', 0, 'I\'m a plugin for BetterDiscord', 0x30);
+	shell.Popup("It looks like you've mistakenly tried to run me directly. \n(Don't do that!)", 0, "I'm a plugin for BetterDiscord", 0x30);
 	if (fs.GetParentFolderName(pathSelf) === fs.GetAbsolutePathName(pathPlugins)) {
-		shell.Popup('I\'m in the correct folder already.\nJust reload Discord with Ctrl+R.', 0, 'I\'m already installed', 0x40);
+		shell.Popup("I'm in the correct folder already.", 0, "I'm already installed", 0x40);
 	} else if (!fs.FolderExists(pathPlugins)) {
-		shell.Popup('I can\'t find the BetterDiscord plugins folder.\nAre you sure it\'s even installed?', 0, 'Can\'t install myself', 0x10);
-	} else if (shell.Popup('Should I copy myself to BetterDiscord\'s plugins folder for you?', 0, 'Do you need some help?', 0x34) === 6) {
+		shell.Popup("I can't find the BetterDiscord plugins folder.\nAre you sure it's even installed?", 0, "Can't install myself", 0x10);
+	} else if (shell.Popup("Should I copy myself to BetterDiscord's plugins folder for you?", 0, "Do you need some help?", 0x34) === 6) {
 		fs.CopyFile(pathSelf, fs.BuildPath(pathPlugins, fs.GetFileName(pathSelf)), true);
 		// Show the user where to put plugins in the future
-		shell.Exec('explorer ' + pathPlugins);
-		shell.Popup('I\'m installed!\nJust reload Discord with Ctrl+R.', 0, 'Successfully installed', 0x40);
+		shell.Exec("explorer " + pathPlugins);
+		shell.Popup("I'm installed!", 0, "Successfully installed", 0x40);
 	}
 	WScript.Quit();
 
 @else@*/
 
 var EmojiUtilities = (() => {
-    const config = {"info":{"name":"EmojiUtilities","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.4","description":"Allows you to blacklist and favorite emojis. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmojiUtilities","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/EmojiUtilities/EmojiUtilities.plugin.js"},"changelog":[{"title":"Why","type":"fixed","items":["Discord keeps messing stuff up."]}],"main":"index.js"};
+    const config = {"info":{"name":"EmojiUtilities","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.5","description":"Allows you to blacklist and favorite emojis. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmojiUtilities","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/EmojiUtilities/EmojiUtilities.plugin.js"},"changelog":[{"title":"Yay","items":["Favorites show up again.","Blacklist works again.","Context menu items work again.","Blocked emojis look fine in compact mode!"]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -75,7 +75,7 @@ var EmojiUtilities = (() => {
             this.disabledEmojis = this.disabledEmojis.filter(e => typeof(e) === "string");
             this.favoriteEmojis = this.favoriteEmojis.filter(e => typeof(e) === "string");
 
-            let EmojiInfo = WebpackModules.getByProps("isEmojiDisabled");
+            const EmojiInfo = WebpackModules.getByProps("isEmojiDisabled");
             Patcher.after(EmojiInfo, "isEmojiDisabled", (thisObject, methodArguments, returnValue) => {
                 const emoji = methodArguments[0];
                 if (emoji.uniqueName && this.disabledEmojis.includes(emoji.uniqueName)) return true;
@@ -182,8 +182,8 @@ var EmojiUtilities = (() => {
         async patchEmojiComponent() {
             const Emoji = await ReactComponents.getComponentByName("Emoji", ".emoji");
             Patcher.after(Emoji.component.prototype, "render", (thisObject, methodArguments, returnValue) => {
+                const emoji = this.resolveEmojiIdentifier(thisObject.props.emojiId || thisObject.props.emojiName);
 
-                const emoji = this.resolveEmojiIdentifier(returnValue.props.emojiId || returnValue.props.emojiName);
                 const isFavorite = this.isFavorite(emoji);
                 const isBlacklisted = this.isBlacklisted(emoji);
 
@@ -197,14 +197,17 @@ var EmojiUtilities = (() => {
                     ));
                     return DiscordModules.TextElement.default({
                         className: "blocked-emoji",
-                        children: [returnValue.props.emojiName],
-                        id: returnValue.props.emojiId,
-                        name: returnValue.props.emojiName.replace(/:/g, ""),
+                        children: [thisObject.props.emojiName],
+                        id: thisObject.props.emojiId,
+                        name: thisObject.props.emojiName.replace(/:/g, ""),
                         color: DiscordModules.TextElement.Colors.GREY,
                         onContextMenu: (e) => {
                             e.stopPropagation();
                             e.preventDefault();
                             menu.show(e.clientX, e.clientY);
+                        },
+                        style: {
+                            display: "inline"
                         }
                     });
                 }
@@ -234,7 +237,7 @@ var EmojiUtilities = (() => {
                 // returnValue.props.onClick = () => {
                 //     Modals.showConfirmationModal(thisObject.props.emojiName, "You clicked it, what did you expect.");
                 // };
-                
+
                 return returnValue;
             });
             Emoji.forceUpdateAll();
@@ -245,7 +248,7 @@ var EmojiUtilities = (() => {
             const EmojiPicker = await ReactComponents.getComponentByName("EmojiPicker", DiscordSelectors.EmojiPicker.emojiPicker);
             Patcher.after(EmojiPicker.component.prototype, "render", (thisObject, args, returnValue) => {
                 const rows = returnValue.props.children[2].props.children;
-                for (let row of rows) {
+                for (const row of rows) {
                     if (!Array.isArray(row.props.children)) continue;
                     const emojis = row.props.children;
                     for (let e = 0; e < emojis.length; e++) {
@@ -279,7 +282,7 @@ var EmojiUtilities = (() => {
             });
             EmojiPicker.forceUpdateAll();
         }
-        
+
         onStop() {
             Patcher.unpatchAll();
             //if (EmojiUtils.categories.includes("favorites")) EmojiUtils.categories.splice(EmojiUtils.categories.indexOf("favorites"), 1);
@@ -348,7 +351,7 @@ var EmojiUtilities = (() => {
 
             const matched = value.match(DiscordModules.EmojiStore.EMOJI_NAME_RE); // Grab name if it has colons or diversity
             if (matched && matched.length == 2) return EmojiStore.getByName(matched[1]);
-            
+
             const emoji = EmojiStore.getByName(value); // fallback to using value as the name
             if (emoji) return emoji;
             return null;
@@ -381,7 +384,7 @@ var EmojiUtilities = (() => {
         // }
 
         findEmoji(id) {
-            return Object.values(EmojiUtils.getGuilds()).map(m => m.emojis).flatten().find(e => e.id == id);
+            return Object.values(EmojiUtils.getGuilds()).map(m => m.emojis).flat().find(e => e.id == id);
         }
 
         fixMenuLocation(menu) {

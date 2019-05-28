@@ -17,7 +17,7 @@ module.exports = (Plugin, Api) => {
             this.disabledEmojis = this.disabledEmojis.filter(e => typeof(e) === "string");
             this.favoriteEmojis = this.favoriteEmojis.filter(e => typeof(e) === "string");
 
-            let EmojiInfo = WebpackModules.getByProps("isEmojiDisabled");
+            const EmojiInfo = WebpackModules.getByProps("isEmojiDisabled");
             Patcher.after(EmojiInfo, "isEmojiDisabled", (thisObject, methodArguments, returnValue) => {
                 const emoji = methodArguments[0];
                 if (emoji.uniqueName && this.disabledEmojis.includes(emoji.uniqueName)) return true;
@@ -124,8 +124,8 @@ module.exports = (Plugin, Api) => {
         async patchEmojiComponent() {
             const Emoji = await ReactComponents.getComponentByName("Emoji", ".emoji");
             Patcher.after(Emoji.component.prototype, "render", (thisObject, methodArguments, returnValue) => {
+                const emoji = this.resolveEmojiIdentifier(thisObject.props.emojiId || thisObject.props.emojiName);
 
-                const emoji = this.resolveEmojiIdentifier(returnValue.props.emojiId || returnValue.props.emojiName);
                 const isFavorite = this.isFavorite(emoji);
                 const isBlacklisted = this.isBlacklisted(emoji);
 
@@ -139,14 +139,17 @@ module.exports = (Plugin, Api) => {
                     ));
                     return DiscordModules.TextElement.default({
                         className: "blocked-emoji",
-                        children: [returnValue.props.emojiName],
-                        id: returnValue.props.emojiId,
-                        name: returnValue.props.emojiName.replace(/:/g, ""),
+                        children: [thisObject.props.emojiName],
+                        id: thisObject.props.emojiId,
+                        name: thisObject.props.emojiName.replace(/:/g, ""),
                         color: DiscordModules.TextElement.Colors.GREY,
                         onContextMenu: (e) => {
                             e.stopPropagation();
                             e.preventDefault();
                             menu.show(e.clientX, e.clientY);
+                        },
+                        style: {
+                            display: "inline"
                         }
                     });
                 }
@@ -176,7 +179,7 @@ module.exports = (Plugin, Api) => {
                 // returnValue.props.onClick = () => {
                 //     Modals.showConfirmationModal(thisObject.props.emojiName, "You clicked it, what did you expect.");
                 // };
-                
+
                 return returnValue;
             });
             Emoji.forceUpdateAll();
@@ -187,7 +190,7 @@ module.exports = (Plugin, Api) => {
             const EmojiPicker = await ReactComponents.getComponentByName("EmojiPicker", DiscordSelectors.EmojiPicker.emojiPicker);
             Patcher.after(EmojiPicker.component.prototype, "render", (thisObject, args, returnValue) => {
                 const rows = returnValue.props.children[2].props.children;
-                for (let row of rows) {
+                for (const row of rows) {
                     if (!Array.isArray(row.props.children)) continue;
                     const emojis = row.props.children;
                     for (let e = 0; e < emojis.length; e++) {
@@ -221,7 +224,7 @@ module.exports = (Plugin, Api) => {
             });
             EmojiPicker.forceUpdateAll();
         }
-        
+
         onStop() {
             Patcher.unpatchAll();
             //if (EmojiUtils.categories.includes("favorites")) EmojiUtils.categories.splice(EmojiUtils.categories.indexOf("favorites"), 1);
@@ -290,7 +293,7 @@ module.exports = (Plugin, Api) => {
 
             const matched = value.match(DiscordModules.EmojiStore.EMOJI_NAME_RE); // Grab name if it has colons or diversity
             if (matched && matched.length == 2) return EmojiStore.getByName(matched[1]);
-            
+
             const emoji = EmojiStore.getByName(value); // fallback to using value as the name
             if (emoji) return emoji;
             return null;
@@ -323,7 +326,7 @@ module.exports = (Plugin, Api) => {
         // }
 
         findEmoji(id) {
-            return Object.values(EmojiUtils.getGuilds()).map(m => m.emojis).flatten().find(e => e.id == id);
+            return Object.values(EmojiUtils.getGuilds()).map(m => m.emojis).flat().find(e => e.id == id);
         }
 
         fixMenuLocation(menu) {
