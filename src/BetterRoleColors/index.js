@@ -16,6 +16,8 @@ module.exports = (Plugin, Api) => {
             const returnValue = super.render();
             const username = returnValue.props.children[0];
             const discriminator = returnValue.props.children[1];
+            if (username) username.props.className = "username " + username.props.className;
+            if (discriminator) discriminator.props.className = "discriminator " + discriminator.props.className;
             const refFunc = (colorString) => (element) => {
                 if (!element) return;
                 element.style.setProperty("color", colorString, "important");
@@ -32,6 +34,15 @@ module.exports = (Plugin, Api) => {
                 discriminator.props.style = {color: discrimColor};
                 if (returnValue.props.important && discrimColor) username.ref = refFunc(discrimColor);
             }
+            return returnValue;
+        }
+    };
+
+    const FluxTag = WebpackModules.getByDisplayName("FluxContainer(DiscordTag)");
+    const ColoredFluxTag = class ColoredFluxTag extends FluxTag {
+        render() {
+            const returnValue = super.render();
+            returnValue.type = ColoredDiscordTag;
             return returnValue;
         }
     };
@@ -72,6 +83,7 @@ module.exports = (Plugin, Api) => {
             const AccountContainer = ReactTools.getOwnerInstance(document.querySelector(DiscordSelectors.AccountDetails.container));
             if (!AccountContainer) return;
             Patcher.after(AccountContainer.constructor.prototype, "render", (thisObject, _, returnValue) => {
+                if (!this.settings.account.username && !this.settings.account.discriminator) return;
                 const tag = returnValue.props.children[1];
                 if (!tag) return;
                 const fluxWrapper = Flux.connectStores([SelectedGuildStore], () => ({guildId: SelectedGuildStore.getGuildId()}));
@@ -83,7 +95,7 @@ module.exports = (Plugin, Api) => {
                     tag.props.usernameClass = "username";
                     tag.props.discriminatorClass = "discriminator";
                     if (this.settings.global.important) tag.props.important = true;
-                    return DiscordModules.React.createElement(ColoredDiscordTag, tag.props);
+                    return DiscordModules.React.createElement(ColoredFluxTag, tag.props);
                 });
                 returnValue.props.children[1] = DiscordModules.React.createElement(wrappedTag);
             });
@@ -92,6 +104,7 @@ module.exports = (Plugin, Api) => {
 
         patchVoiceUsers() {
             Patcher.after(VoiceUser.prototype, "render", (thisObject, _, returnValue) => {
+                if (!this.settings.modules.voice) return;
                 const member = this.getMember(thisObject.props.user.id);
                 if (!member || !member.colorString) return;
                 const username = Utilities.getNestedProp(returnValue, "props.children.props.children.2");
@@ -220,7 +233,7 @@ module.exports = (Plugin, Api) => {
                 if (shouldColorUsername) tag.props.colorUsername = member.colorString;
                 if (shouldColorDiscriminator) tag.props.colorDiscriminator = member.colorString;
                 if (this.settings.global.important) tag.props.important = true;
-                tag.type = ColoredDiscordTag;
+                tag.type = ColoredFluxTag;
             });
             UserPopout.forceUpdateAll();
         }
@@ -237,7 +250,7 @@ module.exports = (Plugin, Api) => {
                 if (this.settings.modals.username) tag.props.colorUsername = member.colorString;
                 if (this.settings.modals.discriminator) tag.props.colorDiscriminator = member.colorString;
                 if (this.settings.global.important) tag.props.important = true;
-                tag.type = ColoredDiscordTag;
+                tag.type = ColoredFluxTag;
             });
             UserProfileBody.forceUpdateAll();
         }
