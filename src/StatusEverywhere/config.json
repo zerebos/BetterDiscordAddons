@@ -7,13 +7,13 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.4.2",
+        "version": "0.4.4",
         "description": "Adds user status everywhere Discord doesn't. Support Server: bit.ly/ZeresServer",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/StatusEverywhere",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/StatusEverywhere/StatusEverywhere.plugin.js"
     },
     "changelog": [
-        {"title": "Internal Changes", "type": "improved", "items": ["Move to the more stable local library."]}
+        {"title":"Good News","items":["Statuses will now update and be accurate automagically!"]}
     ],
     "main": "index.js"
 }
