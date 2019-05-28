@@ -7,11 +7,15 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "2.3.5",
+        "version": "2.3.6",
         "description": "Enables different types of formatting in standard Discord chat. Support Server: bit.ly/ZeresServer",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js"
     },
+    "changelog": [
+        {"title": "What's New?", "items": ["Support for light theme!"]}
+    ],
+    "main": "index.js",
     "defaultConfig": [
         {
             "type": "category",
@@ -171,9 +175,5 @@
                 }
             ]
         }
-    ],
-    "changelog": [
-        {"title": "What's New?", "items": ["Brought back tooltips on the buttons!"]}
-    ],
-    "main": "index.js"
+    ]
 }
