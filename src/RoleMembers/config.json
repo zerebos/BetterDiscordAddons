@@ -7,14 +7,14 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.1.7",
+        "version": "0.1.8",
         "description": "Allows you to see the members of each role on a server. Support Server: bit.ly/ZeresServer",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"
     },
     "changelog": [
-        {"title": "Bugs Squashed", "type": "fixed", "items": ["Clicking on role mentions works again.", "Can click on users to open their user popout!", "Menus close properly now."]}
-        
+        {"title": "Bugs Squashed", "type": "fixed", "items": ["Clicking on role mentions works again (again).", "Can click on users to open their user popout (w/ lib version 1.2.6)!"]}
+
     ],
     "main": "index.js"
 }
