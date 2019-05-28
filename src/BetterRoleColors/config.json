@@ -7,15 +7,32 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.7.8",
+        "version": "0.8.0",
         "description": "Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js"
     },
     "changelog": [
-        {"title": "Small Fix", "type": "fixed", "items": ["Fixed role headers not being colored."]}
+        {"title":"What's New?","items":["All coloring happens via patching and not DOM manip. This should make things faster.", "There is now an !important override in settings for those with themes that override the plugin.", "Tracking promise state means no more random double patches."]},
+        {"title":"Fixes","type":"fixed","items":["Mentions are now colored properly again.", "Username in the account container will properly change to default when going to DMs.", "Same as above but for the typing notification."]}
     ],
     "defaultConfig": [
+        {
+            "type": "category",
+            "id": "global",
+            "name": "Global Settings",
+            "collapsible": true,
+            "shown": false,
+            "settings": [
+                {
+                    "type": "switch",
+                    "id": "important",
+                    "name": "Use Important",
+                    "note": "Add !important to role colors. (Only enable this if the plugin isn't working with your theme).",
+                    "value": false
+                }
+            ]
+        },
         {
             "type": "category",
             "id": "modules",
