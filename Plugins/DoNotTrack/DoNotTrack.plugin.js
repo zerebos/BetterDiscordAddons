@@ -72,7 +72,7 @@ var DoNotTrack = (() => {
             Patcher.instead(MethodWrapper, "wrapMethod", () => {});
 
             const Reporter = WebpackModules.getByProps("report");
-            Reporter.uninstall();
+            Reporter.report.uninstall();
     
             const Sentry = WebpackModules.getByProps("_originalConsoleMethods", "_wrappedBuiltIns");
             Patcher.instead(Sentry, "_breadcrumbEventHandler", () => () => {});
