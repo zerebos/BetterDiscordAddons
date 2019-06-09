@@ -3,28 +3,28 @@
 @if (@_jscript)
 	
 	// Offer to self-install for clueless users that try to run this directly.
-	var shell = WScript.CreateObject('WScript.Shell');
-	var fs = new ActiveXObject('Scripting.FileSystemObject');
-	var pathPlugins = shell.ExpandEnvironmentStrings('%APPDATA%\\BetterDiscord\\plugins');
+	var shell = WScript.CreateObject("WScript.Shell");
+	var fs = new ActiveXObject("Scripting.FileSystemObject");
+	var pathPlugins = shell.ExpandEnvironmentStrings("%APPDATA%\BetterDiscord\plugins");
 	var pathSelf = WScript.ScriptFullName;
 	// Put the user at ease by addressing them in the first person
-	shell.Popup('It looks like you\'ve mistakenly tried to run me directly. \n(Don\'t do that!)', 0, 'I\'m a plugin for BetterDiscord', 0x30);
+	shell.Popup("It looks like you've mistakenly tried to run me directly. \n(Don't do that!)", 0, "I'm a plugin for BetterDiscord", 0x30);
 	if (fs.GetParentFolderName(pathSelf) === fs.GetAbsolutePathName(pathPlugins)) {
-		shell.Popup('I\'m in the correct folder already.\nJust reload Discord with Ctrl+R.', 0, 'I\'m already installed', 0x40);
+		shell.Popup("I'm in the correct folder already.", 0, "I'm already installed", 0x40);
 	} else if (!fs.FolderExists(pathPlugins)) {
-		shell.Popup('I can\'t find the BetterDiscord plugins folder.\nAre you sure it\'s even installed?', 0, 'Can\'t install myself', 0x10);
-	} else if (shell.Popup('Should I copy myself to BetterDiscord\'s plugins folder for you?', 0, 'Do you need some help?', 0x34) === 6) {
+		shell.Popup("I can't find the BetterDiscord plugins folder.\nAre you sure it's even installed?", 0, "Can't install myself", 0x10);
+	} else if (shell.Popup("Should I copy myself to BetterDiscord's plugins folder for you?", 0, "Do you need some help?", 0x34) === 6) {
 		fs.CopyFile(pathSelf, fs.BuildPath(pathPlugins, fs.GetFileName(pathSelf)), true);
 		// Show the user where to put plugins in the future
-		shell.Exec('explorer ' + pathPlugins);
-		shell.Popup('I\'m installed!\nJust reload Discord with Ctrl+R.', 0, 'Successfully installed', 0x40);
+		shell.Exec("explorer " + pathPlugins);
+		shell.Popup("I'm installed!", 0, "Successfully installed", 0x40);
 	}
 	WScript.Quit();
 
 @else@*/
 
 var AutoPlayGifs = (() => {
-    const config = {"info":{"name":"AutoPlayGifs","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.1","description":"Automatically plays avatars. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AutoPlayGifs","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AutoPlayGifs/AutoPlayGifs.plugin.js"},"defaultConfig":[{"type":"switch","id":"chat","name":"Autoplay Chat","note":"Autoplays avatars in the chat area for Nitro users.","value":true},{"type":"switch","id":"memberList","name":"Autoplay Memberlist","note":"Autoplays avatars in the member list for Nitro users.","value":true}],"changelog":[{"title":"What's New?","items":["Move to local lib only."]}],"main":"index.js"};
+    const config = {"info":{"name":"AutoPlayGifs","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.2","description":"Automatically plays avatars. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AutoPlayGifs","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AutoPlayGifs/AutoPlayGifs.plugin.js"},"defaultConfig":[{"type":"switch","id":"chat","name":"Autoplay Chat","note":"Autoplays avatars in the chat area for Nitro users.","value":true},{"type":"switch","id":"memberList","name":"Autoplay Memberlist","note":"Autoplays avatars in the member list for Nitro users.","value":true},{"type":"switch","id":"guildList","name":"Autoplay Guids","note":"Autoplays guild icons in the guild list for servers that have been boosted.","value":true}],"changelog":[{"title":"What's New?","items":["Add ability to always animate the guild list!"]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -58,23 +58,27 @@ var AutoPlayGifs = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {WebpackModules, DiscordModules, Patcher} = Api;
+    const {WebpackModules, DiscordModules, Patcher, ReactComponents, Utilities} = Api;
 
     return class AutoPlayGifs extends Plugin {
         constructor() {
             super();
             this.cancelChatAvatars = () => {};
             this.cancelMemberListAvatars = () => {};
+            this.cancelGuildList = () => {};
         }
 
         onStart() {
+            this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
             if (this.settings.chat) this.patchChatAvatars();
             if (this.settings.memberList) this.patchMemberListAvatars();
+            if (this.settings.guildList) this.patchGuildList(this.promises.state);
         }
         
         onStop() {
             this.cancelChatAvatars();
             this.cancelMemberListAvatars();
+            this.cancelGuildList();
         }
 
         getSettingsPanel() {
@@ -88,23 +92,39 @@ var AutoPlayGifs = (() => {
                     if (value) this.patchMemberListAvatars();
                     else this.cancelMemberListAvatars();
                 }
+                if (id == "guildList") {
+                    if (value) this.patchGuildList();
+                    else this.cancelGuildList();
+                }
             });
             return panel.getElement();
         }
 
+        async patchGuildList(promiseState) {
+            const Guild = await ReactComponents.getComponentByName("Guild", ".listItem-2P_4kh");
+            if (promiseState.cancelled) return;
+            this.cancelGuildList = Patcher.after(Guild.component.prototype, "render", (thisObject, args, returnValue) => {
+                if (!thisObject.props.animatable) return;
+                const iconComponent = Utilities.findInReactTree(returnValue, p => p.icon);
+                if (!iconComponent) return;
+                iconComponent.icon = thisObject.props.guild.getIconURL("gif");
+            });
+            Guild.forceUpdateAll();
+        }
+
         patchChatAvatars() {
-            let MessageGroup = WebpackModules.find(m => m.defaultProps && m.defaultProps.disableManageMessages);
+            const MessageGroup = WebpackModules.find(m => m.defaultProps && m.defaultProps.disableManageMessages);
             this.cancelChatAvatars = Patcher.before(MessageGroup.prototype, "render", (thisObject) => {
                 thisObject.state.disableAvatarAnimation = false;
             });
         }
     
         patchMemberListAvatars() {
-            let MemberList = WebpackModules.findByDisplayName("MemberListItem");
+            const MemberList = WebpackModules.findByDisplayName("MemberListItem");
             this.cancelMemberListAvatars = Patcher.before(MemberList.prototype, "render", (thisObject) => {
                 if (!thisObject.props.user) return;
-                let id = thisObject.props.user.id;
-                let hasAnimatedAvatar = DiscordModules.ImageResolver.hasAnimatedAvatar(DiscordModules.UserStore.getUser(id));
+                const id = thisObject.props.user.id;
+                const hasAnimatedAvatar = DiscordModules.ImageResolver.hasAnimatedAvatar(DiscordModules.UserStore.getUser(id));
                 if (!hasAnimatedAvatar) return;
                 thisObject.props.user.getAvatarURL = () => {return DiscordModules.ImageResolver.getUserAvatarURL(DiscordModules.UserStore.getUser(id)).replace("webp", "gif");};
             });
