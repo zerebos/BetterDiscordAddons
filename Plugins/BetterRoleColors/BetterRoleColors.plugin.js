@@ -207,6 +207,8 @@ var BetterRoleColors = (() => {
 
                 returnValue.props.onMouseEnter = () => { thisObject.setState({isHovered: true}); };
                 returnValue.props.onMouseLeave = () => { thisObject.setState({isHovered: false}); };
+				
+				if (!Object.prototype.hasOwnProperty.call(thisObject, "isHovered")) thisObject.setState({isHovered: false});
 
                 const currentStyle = thisObject.state.isHovered ? hoverStyle : defaultStyle;
                 returnValue.props.style = currentStyle;
@@ -334,10 +336,11 @@ var BetterRoleColors = (() => {
                     if (!this.settings.modules.memberList) return;
                     const guild = DiscordModules.GuildStore.getGuild(memberList.props.channel.guild_id);
                     if (!guild) return;
-                    const roleId = section.props.children ? section.props.children.props.id : section.props.id;
+					const children = section.props.children ? section.props.children : section;
+                    const roleId = children.props.id;
                     const roleColor = guild.roles[roleId] ? guild.roles[roleId].colorString : "";
                     if (!roleColor) return;
-                    const originalType = section.props.children ? section.props.children.type : section.type;
+                    const originalType = children.type;
                     const myRef = DiscordModules.React.createRef();
                     const ColoredRoleHeader = function() {
                         const label = originalType(...arguments);
@@ -349,13 +352,12 @@ var BetterRoleColors = (() => {
                         };
                         return label;
                     };
-                    if (section.props.children) section.props.children.ref = myRef, section.props.children.type = ColoredRoleHeader;
-                    else section.ref = myRef, section.type = ColoredRoleHeader;
+                    children.ref = myRef, children.type = ColoredRoleHeader;
                     return section;
                 });
                 memberList.renderSection.__patched = true;
+				memberList.forceUpdate();
             });
-            MemberList.forceUpdateAll();
         }
 
     };
