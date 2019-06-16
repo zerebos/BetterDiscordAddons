@@ -24,7 +24,7 @@
 @else@*/
 
 var EmojiUtilities = (() => {
-    const config = {"info":{"name":"EmojiUtilities","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.5","description":"Allows you to blacklist and favorite emojis. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmojiUtilities","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/EmojiUtilities/EmojiUtilities.plugin.js"},"changelog":[{"title":"Yay","items":["Favorites show up again.","Blacklist works again.","Context menu items work again.","Blocked emojis look fine in compact mode!"]}],"main":"index.js"};
+    const config = {"info":{"name":"EmojiUtilities","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.6","description":"Allows you to blacklist and favorite emojis. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmojiUtilities","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/EmojiUtilities/EmojiUtilities.plugin.js"},"changelog":[{"title":"Yay","items":["Added a category icon.","Old emotes no longer get rendered in the favorite category.","Context menu items work again in hte emojipicker."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -69,7 +69,19 @@ var EmojiUtilities = (() => {
     const emojiKeyRegex = new RegExp(`(.+)-[0-9]+-[0-9]+$`);
 
     return class EmojiUtilities extends Plugin {
+		constructor() {
+            super();
+			this.mainCSS =  `${DiscordSelectors.EmojiPicker.emojiPicker.value + DiscordSelectors.EmojiPicker.categories.value + DiscordSelectors.EmojiPicker.item.value}[aria-label="favorites"] {
+    background-image: url('data:image/svg+xml; utf8, <svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" version="1.1" stroke-width="1" stroke="rgb(142, 149, 165)" fill="transparent"><path d="M11.500 16.250L17.084 19.186L16.018 12.968L20.535 8.564L14.292 7.657L11.500 2.000L8.708 7.657L2.465 8.564L6.982 12.968L5.916 19.186L11.500 16.250"/></svg>');
+}
+${DiscordSelectors.EmojiPicker.emojiPicker.value + DiscordSelectors.EmojiPicker.categories.value + DiscordSelectors.EmojiPicker.item.value + DiscordSelectors.EmojiPicker.selected.value.trim()}[aria-label="favorites"],
+${DiscordSelectors.EmojiPicker.emojiPicker.value + DiscordSelectors.EmojiPicker.categories.value + DiscordSelectors.EmojiPicker.item.value}[aria-label="favorites"]:hover {
+    background-image: url('data:image/svg+xml; utf8, <svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" version="1.1" stroke-width="1" stroke="rgb(40, 43, 46)" fill="rgb(255, 214, 85)"><path d="M11.500 16.250L17.084 19.186L16.018 12.968L20.535 8.564L14.292 7.657L11.500 2.000L8.708 7.657L2.465 8.564L6.982 12.968L5.916 19.186L11.500 16.250"/></svg>');
+}`;
+		}
         onStart() {
+            PluginUtilities.addStyle(this.getName()  + "-style", this.mainCSS);
+			
             this.disabledEmojis = PluginUtilities.loadData(this.getName(), "disabledEmojis", []);
             this.favoriteEmojis = PluginUtilities.loadData(this.getName(), "favoriteEmojis", []);
             this.disabledEmojis = this.disabledEmojis.filter(e => typeof(e) === "string");
@@ -256,7 +268,8 @@ var EmojiUtilities = (() => {
                         emoji.props.identifier = emoji.key.split("-")[0];
                         const matched = emoji.key.match(emojiKeyRegex); // Grab name if it has colons or diversity
                         if (matched && matched.length == 2) emoji.props.identifier = matched[1];
-                        if (emoji.props.style) emoji.props.identifier = emoji.props.style.backgroundImage.match(emojiUrlRegex)[1];
+                        const urlmatched = emoji.props.style ? emoji.props.style.backgroundImage.match(emojiUrlRegex) : null;
+                        if (urlmatched && urlmatched.length == 2) emoji.props.identifier = urlmatched[1];
                         emoji.props.onContextMenu = (e) => {
                             const isFavorite = this.isFavorite(emoji.props.identifier);
                             const menu = new ContextMenu.Menu().addGroup(new ContextMenu.ItemGroup().addItems(
@@ -284,6 +297,7 @@ var EmojiUtilities = (() => {
         }
 
         onStop() {
+            PluginUtilities.removeStyle(this.getName() + "-style");
             Patcher.unpatchAll();
             //if (EmojiUtils.categories.includes("favorites")) EmojiUtils.categories.splice(EmojiUtils.categories.indexOf("favorites"), 1);
             if (EmojiUtils.originalCategories) EmojiUtils.categories = EmojiUtils.originalCategories;
@@ -341,7 +355,7 @@ var EmojiUtilities = (() => {
 
         resolveEmoji(value) {
             if (!value) return value;
-            if (typeof(value) === "object") return value; // if given emote, return emote
+            if (typeof(value) === "object") return !value.url && !value.allNamesString ? null : value; // if given an old emote, return null || if given emote, return emote
 
             const idMatch = value.match(emojiIdRegex); // Check if it's an ID first
             if (idMatch && idMatch.length == 2) return this.findEmoji(idMatch[1]);
