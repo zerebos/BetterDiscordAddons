@@ -31,7 +31,6 @@ var BetterFormattingRedux = (() => {
         getName() {return config.info.name;}
         getAuthor() {return config.info.authors.map(a => a.name).join(", ");}
         getDescription() {return config.info.description;}
-        getVersion() {return config.info.version;}
         load() {
             const title = "Library Missing";
             const ModalStack = BdApi.findModuleByProps("push", "update", "pop", "popWithKey");
