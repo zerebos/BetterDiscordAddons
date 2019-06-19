@@ -208,7 +208,7 @@ var BetterRoleColors = (() => {
                 returnValue.props.onMouseEnter = () => { thisObject.setState({isHovered: true}); };
                 returnValue.props.onMouseLeave = () => { thisObject.setState({isHovered: false}); };
 				
-				if (!Object.prototype.hasOwnProperty.call(thisObject, "isHovered")) thisObject.setState({isHovered: false});
+				if (!thisObject.state.hasOwnProperty("isHovered")) thisObject.setState({isHovered: false});
 
                 const currentStyle = thisObject.state.isHovered ? hoverStyle : defaultStyle;
                 returnValue.props.style = currentStyle;
