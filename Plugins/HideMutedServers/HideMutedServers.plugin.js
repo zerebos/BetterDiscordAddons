@@ -24,7 +24,7 @@
 @else@*/
 
 var HideMutedServers = (() => {
-    const config = {"info":{"name":"HideMutedServers","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"1.0.2","description":"Hides muted servers with a context menu option to show/hide. Acts similar to Discord's Hide Muted Channels option. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideMutedServers","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/HideMutedServers/HideMutedServers.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Updated a selector."]}],"main":"index.js"};
+    const config = {"info":{"name":"HideMutedServers","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"1.0.3","description":"Hides muted servers with a context menu option to show/hide. Acts similar to Discord's Hide Muted Channels option. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideMutedServers","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/HideMutedServers/HideMutedServers.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Changed a thing.","Changed guild to server in UI."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -72,7 +72,7 @@ var HideMutedServers = (() => {
             this.bindContextMenus();
             if (this.settings.hide) this.hideGuilds();
         }
-        
+
         onStop() {
             this.unbindContextMenus();
             this.showGuilds();
@@ -82,18 +82,18 @@ var HideMutedServers = (() => {
             const isMuted = WebpackModules.getByProps("isMuted").isMuted;
             const Guilds = WebpackModules.getByDisplayName("Guilds");
             Patcher.after(Guilds.prototype, "render", (thisObject, args, ret) => {
-                const guilds = Utilities.findInReactTree(ret, a => a && a[0] && a[0].key && a[0].props && a[0].props.guild);
+                const guilds = Utilities.findInReactTree(ret, a => a && a[0] && a[0].key && a[0].props && a[0].props.guildId);
                 if (!guilds) return;
                 guilds.splice(0, guilds.length, ...guilds.filter(g => !isMuted(g.key)));
             });
             this.updateGuildList();
         }
-        
+
         showGuilds() {
             Patcher.unpatchAll();
             this.updateGuildList();
         }
-        
+
         updateGuildList() {
             const guildList = document.querySelector(".wrapper-1Rf91z");
             if (!guildList) return;
@@ -101,15 +101,15 @@ var HideMutedServers = (() => {
             if (!guildListInstance) return;
             guildListInstance.forceUpdate();
         }
-        
+
         bindContextMenus() {
             this.contextObserver.observe(document.querySelector("#app-mount"), {childList: true, subtree: true});
         }
-    
+
         unbindContextMenus() {
             this.contextObserver.disconnect();
         }
-    
+
         observeContextMenus(e) {
             if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element) || !e.addedNodes[0].classList) return;
             const elem = e.addedNodes[0];
@@ -118,7 +118,7 @@ var HideMutedServers = (() => {
             const contextMenu = elem;
             const isGuildContext = ReactTools.getReactProperty(contextMenu, "return.memoizedProps.type") == "GUILD_ICON_BAR";
             if (!isGuildContext) return;
-            const menuItem = new ContextMenu.ToggleItem("Hide Muted Guilds", this.settings.hide, {callback: () => {
+            const menuItem = new ContextMenu.ToggleItem("Hide Muted Servers", this.settings.hide, {callback: () => {
                 this.settings.hide = !this.settings.hide;
                 if (this.settings.hide) this.hideGuilds();
                 else this.showGuilds();
