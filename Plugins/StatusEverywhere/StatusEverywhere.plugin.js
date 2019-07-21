@@ -24,7 +24,7 @@
 @else@*/
 
 var StatusEverywhere = (() => {
-    const config = {"info":{"name":"StatusEverywhere","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.4.5","description":"Adds user status everywhere Discord doesn't. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/StatusEverywhere","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/StatusEverywhere/StatusEverywhere.plugin.js"},"changelog":[{"title":"Good News","items":["Plugin works again!"]}],"main":"index.js"};
+    const config = {"info":{"name":"StatusEverywhere","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.4.6","description":"Adds user status everywhere Discord doesn't. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/StatusEverywhere","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/StatusEverywhere/StatusEverywhere.plugin.js"},"changelog":[{"title":"Good News","items":["Fixes the crash when opening settings."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -70,7 +70,7 @@ var StatusEverywhere = (() => {
             const Avatar = WebpackModules.getByProps("AnimatedAvatar");
             const original = Avatar.default;
             Patcher.after(Avatar, "default", (_, [props]) => {
-                if (props.status) return;
+                if (props.status || props.size.includes("100")) return;
                 const id = props.src.split("/")[4];
                 const fluxWrapper = Flux.connectStores([StatusStore], () => ({status: StatusStore.getStatus(id)}));
                 return DiscordModules.React.createElement(fluxWrapper(({status}) => {
