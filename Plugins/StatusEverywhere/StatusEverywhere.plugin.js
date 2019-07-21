@@ -24,7 +24,7 @@
 @else@*/
 
 var StatusEverywhere = (() => {
-    const config = {"info":{"name":"StatusEverywhere","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.4.4","description":"Adds user status everywhere Discord doesn't. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/StatusEverywhere","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/StatusEverywhere/StatusEverywhere.plugin.js"},"changelog":[{"title":"Good News","items":["Statuses will now update and be accurate automagically!"]}],"main":"index.js"};
+    const config = {"info":{"name":"StatusEverywhere","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.4.5","description":"Adds user status everywhere Discord doesn't. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/StatusEverywhere","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/StatusEverywhere/StatusEverywhere.plugin.js"},"changelog":[{"title":"Good News","items":["Plugin works again!"]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -67,22 +67,15 @@ var StatusEverywhere = (() => {
 
         onStart() {
 			PluginUtilities.addStyle(this.getName(), `.channels-Ie2l6A .avatar-3bWpYy { position: relative; }`);
-            const Avatar = WebpackModules.getByProps("AvatarWrapper");
+            const Avatar = WebpackModules.getByProps("AnimatedAvatar");
             const original = Avatar.default;
-            Patcher.after(Avatar, "default", (_, args, returnValue) => {
-                if (args[0].status) return;
-                const props = args[0];
+            Patcher.after(Avatar, "default", (_, [props]) => {
+                if (props.status) return;
                 const id = props.src.split("/")[4];
                 const fluxWrapper = Flux.connectStores([StatusStore], () => ({status: StatusStore.getStatus(id)}));
-                const wrappedStatus = fluxWrapper(({status}) => {
-                    return DiscordModules.React.createElement(Avatar.AvatarStatusIcon, {
-                        isTyping: false,
-                        shouldAnimateTypingIndicator: false,
-                        size: props.size,
-                        status: status
-                    });
-                });
-                returnValue.props.children[1] = DiscordModules.React.createElement(wrappedStatus);
+                return DiscordModules.React.createElement(fluxWrapper(({status}) => {
+                    return DiscordModules.React.createElement(original, Object.assign({}, props, {status}));
+                }));
             });
             Object.assign(Avatar.default, original);
         }

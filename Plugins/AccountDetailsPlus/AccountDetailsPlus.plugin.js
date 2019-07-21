@@ -24,7 +24,7 @@
 @else@*/
 
 var AccountDetailsPlus = (() => {
-    const config = {"info":{"name":"AccountDetailsPlus","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.7","description":"Lets you view popout, nickname and more from your account panel at the bottom. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AccountDetailsPlus","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AccountDetailsPlus/AccountDetailsPlus.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Doesn't die on startup."]}],"main":"index.js","defaultConfig":[{"type":"category","id":"popout","name":"User Popout","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"avatar","name":"Avatar","note":"Opens your popout when clicking your avatar.","value":true},{"type":"switch","id":"username","name":"Username","note":"Opens your popout when clicking your username.","value":true}]},{"type":"category","id":"statusPicker","name":"Status Picker","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"avatar","name":"Avatar","note":"Opens your popout when right clicking your avatar.","value":true},{"type":"switch","id":"username","name":"Username","note":"Opens your popout when right clicking your username.","value":true}]},{"type":"category","id":"nickname","name":"Nickname","collapsible":true,"shown":false,"settings":[{"type":"dropdown","id":"showNickname","name":"Name Shown","value":true,"options":[{"label":"Username","value":false},{"label":"Nickname","value":true}]},{"type":"switch","id":"oppositeOnHover","name":"Opposite On Hover","note":"Shows the opposite on hover. e.g. if you are showing nickname, hovering will show your username.","value":true}]}]};
+    const config = {"info":{"name":"AccountDetailsPlus","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.8","description":"Lets you view popout, nickname and more from your account panel at the bottom. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AccountDetailsPlus","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AccountDetailsPlus/AccountDetailsPlus.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Doesn't die on startup part II: Electric Boogaloo."]}],"main":"index.js","defaultConfig":[{"type":"category","id":"popout","name":"User Popout","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"avatar","name":"Avatar","note":"Opens your popout when clicking your avatar.","value":true},{"type":"switch","id":"username","name":"Username","note":"Opens your popout when clicking your username.","value":true}]},{"type":"category","id":"statusPicker","name":"Status Picker","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"avatar","name":"Avatar","note":"Opens your popout when right clicking your avatar.","value":true},{"type":"switch","id":"username","name":"Username","note":"Opens your popout when right clicking your username.","value":true}]},{"type":"category","id":"nickname","name":"Nickname","collapsible":true,"shown":false,"settings":[{"type":"dropdown","id":"showNickname","name":"Name Shown","value":true,"options":[{"label":"Username","value":false},{"label":"Nickname","value":true}]},{"type":"switch","id":"oppositeOnHover","name":"Opposite On Hover","note":"Shows the opposite on hover. e.g. if you are showing nickname, hovering will show your username.","value":true}]}]};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -78,14 +78,14 @@ var AccountDetailsPlus = (() => {
             await new Promise(resolve => setTimeout(resolve, 1000));
             this.FluxContainer = DiscordModules.UserPopout;
             this.currentUser = DiscordModules.UserStore.getCurrentUser();
-            this.popoutWrapper = Utilities.findInTree(ReactTools.getReactInstance(document.querySelector(container + " .inner-1W0Bkn")), n => n && n.handleClick && n.toggle, {walkable: ["return", "stateNode"]});
-            this.originalRender = this.popoutWrapper.props.render;
+            this.popoutWrapper = Utilities.findInTree(ReactTools.getReactInstance(document.querySelector(container + " .avatar-SmRMf2")), n => n && n.handleClick && n.toggleShow, {walkable: ["return", "stateNode"]});
+            this.originalRender = this.popoutWrapper.props.renderPopout;
 
             this.activateShit();
         }
 
         onStop() {
-            this.popoutWrapper.props.render = this.originalRender;
+            this.popoutWrapper.props.renderPopout = this.originalRender;
             PluginUtilities.removeStyle(this.getName() + "-css");
             DOMTools.off(".AccountDetailsPlus");
             this.saveSettings();
@@ -93,7 +93,7 @@ var AccountDetailsPlus = (() => {
 
         activateShit() {
             document.querySelector(tagSelector).off("." + this.getName());
-            document.querySelector(container + " .inner-1W0Bkn").off("." + this.getName());
+            document.querySelector(container + " .avatar-SmRMf2").off("." + this.getName());
             this.usernameCSS = tagSelector + "{ cursor: pointer; }";
             PluginUtilities.removeStyle(this.getName() + "-css");
             DOMTools.off(document, "mousemove." + this.getName());
@@ -104,22 +104,22 @@ var AccountDetailsPlus = (() => {
             }
             if (this.settings.popout.username) {
                 PluginUtilities.addStyle(this.getName() + "-css", this.usernameCSS);
-                document.querySelector(tagSelector).on("mousedown." + this.getName(), () => { this.popoutOpen = this.popoutWrapper.state.isOpen; });
+                document.querySelector(tagSelector).on("mousedown." + this.getName(), () => { this.popoutOpen = this.popoutWrapper.state.shouldShowPopout; });
                 document.querySelector(tagSelector).on("click." + this.getName(), (e) => { if (!this.popoutOpen) this.showUserPopout(e); });
             }
             if (this.settings.popout.avatar) {
-                document.querySelector(tagSelector).on("mousedown." + this.getName(), () => { this.popoutOpen = this.popoutWrapper.state.isOpen; });
-                document.querySelector(container + " .inner-1W0Bkn").on("click." + this.getName(), (e) => { if (!this.popoutOpen) this.showUserPopout(e); });
+                document.querySelector(tagSelector).on("mousedown." + this.getName(), () => { this.popoutOpen = this.popoutWrapper.state.shouldShowPopout; });
+                document.querySelector(container + " .avatar-SmRMf2").on("click." + this.getName(), (e) => { if (!this.popoutOpen) this.showUserPopout(e); });
             }
             if (this.settings.statusPicker.username) {
-                document.querySelector(tagSelector).on("mousedown." + this.getName(), () => { this.popoutOpen = this.popoutWrapper.state.isOpen; });
+                document.querySelector(tagSelector).on("mousedown." + this.getName(), () => { this.popoutOpen = this.popoutWrapper.state.shouldShowPopout; });
                 document.querySelector(tagSelector).on("contextmenu." + this.getName(), (e) => {
                     if (!this.popoutOpen) this.showStatusPicker(e);
                 });
             }
             if (this.settings.statusPicker.avatar) {
-                document.querySelector(container + " .inner-1W0Bkn").on("mousedown." + this.getName(), () => { this.popoutOpen = this.popoutWrapper.state.isOpen; });
-                document.querySelector(container + " .inner-1W0Bkn").on("contextmenu." + this.getName(), (e) => {
+                document.querySelector(container + " .avatar-SmRMf2").on("mousedown." + this.getName(), () => { this.popoutOpen = this.popoutWrapper.state.shouldShowPopout; });
+                document.querySelector(container + " .avatar-SmRMf2").on("contextmenu." + this.getName(), (e) => {
                     if (!this.popoutOpen) this.showStatusPicker(e);
                 });
             }
@@ -147,15 +147,15 @@ var AccountDetailsPlus = (() => {
         }
 
         setRender(renderer, options = {}) {
-            this.popoutWrapper.props.render = renderer;
+            this.popoutWrapper.props.renderPopout = renderer;
             Object.assign(this.popoutWrapper.props, options);
         }
 
         showStatusPicker(e) {
             e.preventDefault();
             e.stopPropagation();
-            this.setRender(this.originalRender, {position: "top-left", animationType: "spring"});
-            this.popoutWrapper.toggle(e);
+            this.setRender(this.originalRender, {position: "top"});
+            this.popoutWrapper.toggleShow(e);
         }
 
         showUserPopout(e) {
@@ -171,15 +171,15 @@ var AccountDetailsPlus = (() => {
                     guildId: guild,
                     channelId: channel
                 }));
-            }, {position: "top-left", animationType: "default"});
+            }, {position: "top"});
 
-            this.popoutWrapper.toggle(Object.assign({}, e, {
+            this.popoutWrapper.toggleShow(Object.assign({}, e, {
                 target: element,
                 toElement: element,
                 currentTarget: element,
                 delegateTarget: element
             }));
-            this.setRender(this.originalRender, {position: "top-left", animationType: "spring"});
+            this.setRender(this.originalRender, {position: "top"});
         }
 
         getSettingsPanel() {
