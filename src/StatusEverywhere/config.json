@@ -7,13 +7,13 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.4.4",
+        "version": "0.4.6",
         "description": "Adds user status everywhere Discord doesn't. Support Server: bit.ly/ZeresServer",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/StatusEverywhere",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/StatusEverywhere/StatusEverywhere.plugin.js"
     },
     "changelog": [
-        {"title":"Good News","items":["Statuses will now update and be accurate automagically!"]}
+        {"title":"Good News","items":["Fixes the crash when opening settings."]}
     ],
     "main": "index.js"
 }

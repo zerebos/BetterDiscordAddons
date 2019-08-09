@@ -7,13 +7,13 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.8.1",
+        "version": "0.8.3",
         "description": "Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js"
     },
     "changelog": [
-        {"title":"Fixes","type":"fixed","items":["You can actually disable coloring voice users.", "Discrims are hidden with streamer mode on.", "Usernames and discrims have proper classes again."]}
+        {"title":"Fixes","type":"fixed","items":["Doesn't just die on startup!", "Mentions are colored once more.", "Account detail discriminator normal size again.", "Popouts and profiles have the appropriate role colors."]}
     ],
     "defaultConfig": [
         {

@@ -7,59 +7,54 @@ module.exports = (Plugin, Api) => {
     const SelectedGuildStore = DiscordModules.SelectedGuildStore;
     const UserStore = DiscordModules.UserStore;
     const RelationshipStore = DiscordModules.RelationshipStore;
-    const PopoutWrapper = WebpackModules.getByDisplayName("Popout");
+    const PopoutWrapper = WebpackModules.getByDisplayName("DeprecatedPopout");
     const VoiceUser = WebpackModules.find(m => typeof(m) === "function" && m.List);
 
-    const DiscordTag = WebpackModules.getByDisplayName("NameTag");
-    const ColoredDiscordTag = class ColoredDiscordTag extends DiscordTag {
-        render() {
-            const returnValue = super.render();
-            const username = returnValue.props.children[0];
-            const discriminator = returnValue.props.children[1];
-            if (username) username.props.className = "username " + username.props.className;
-            if (discriminator) discriminator.props.className = "discriminator " + discriminator.props.className;
-            const refFunc = (colorString) => (element) => {
-                if (!element) return;
-                element.style.setProperty("color", colorString, "important");
-            };
+    const ColoredDiscordTag = (DiscordTag) => function(props) {
+        const returnValue = DiscordTag(props);
+        const username = returnValue.props.children[0];
+        const discriminator = returnValue.props.children[1];
+        if (username) username.props.className = "username " + username.props.className;
+        if (discriminator) discriminator.props.className = "discriminator " + (discriminator.props.className || "");
+        const refFunc = (colorString) => (element) => {
+            if (!element) return;
+            element.style.setProperty("color", colorString, "important");
+        };
 
-            const userColor = returnValue.props.colorUsername;
-            const discrimColor = returnValue.props.colorDiscriminator;
+        const userColor = props.colorUsername;
+        const discrimColor = props.colorDiscriminator;
 
-            if (username && userColor !== undefined) {
-                username.props.style = {color: userColor};
-                if (returnValue.props.important && userColor) username.ref = refFunc(userColor);
-            }
-            if (discriminator && discrimColor !== undefined) {
-                discriminator.props.style = {color: discrimColor};
-                if (returnValue.props.important && discrimColor) username.ref = refFunc(discrimColor);
-            }
-            return returnValue;
+        if (username && userColor !== undefined) {
+            username.props.style = {color: userColor};
+            if (props.important && userColor) username.ref = refFunc(userColor);
         }
+        if (discriminator && discrimColor !== undefined) {
+            discriminator.props.style = {color: discrimColor};
+            if (props.important && discrimColor) username.ref = refFunc(discrimColor);
+        }
+        return returnValue;
     };
 
-    const FluxTag = WebpackModules.getByDisplayName("FluxContainer(DiscordTag)");
-    const ColoredFluxTag = class ColoredFluxTag extends FluxTag {
-        render() {
-            const returnValue = super.render();
-            returnValue.type = ColoredDiscordTag;
-            return returnValue;
-        }
+    const FluxTag = WebpackModules.getByDisplayName("DiscordTag");
+    const ColoredFluxTag = function(props) {
+        const returnValue = FluxTag(props);
+        returnValue.type = ColoredDiscordTag(returnValue.type);
+        return returnValue;
     };
 
     return class BetterRoleColors extends Plugin {
 
         onStart() {
-            this.patchAccountDetails();
-            this.patchVoiceUsers();
-            this.patchMentions();
+            Utilities.suppressErrors(this.patchAccountDetails.bind(this), "account details patch")();
+            Utilities.suppressErrors(this.patchVoiceUsers.bind(this), "voice users patch")();
+            Utilities.suppressErrors(this.patchMentions.bind(this), "mentions patch")();
 
             this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
-            this.patchAuditLog(this.promises.state);
-            this.patchTypingUsers(this.promises.state);
-            this.patchUserPopouts(this.promises.state);
-            this.patchUserModals(this.promises.state);
-            this.patchMemberList(this.promises.state);
+            Utilities.suppressErrors(this.patchAuditLog.bind(this), "audit log patch")(this.promises.state);
+            Utilities.suppressErrors(this.patchTypingUsers.bind(this), "typing users patch")(this.promises.state);
+            Utilities.suppressErrors(this.patchUserPopouts.bind(this), "user popout patch")(this.promises.state);
+            Utilities.suppressErrors(this.patchUserModals.bind(this), "user modal patch")(this.promises.state);
+            Utilities.suppressErrors(this.patchMemberList.bind(this), "member list patch")(this.promises.state);
         }
 
         onStop() {
@@ -80,26 +75,38 @@ module.exports = (Plugin, Api) => {
         }
 
         patchAccountDetails() {
-            const AccountContainer = ReactTools.getOwnerInstance(document.querySelector(DiscordSelectors.AccountDetails.container));
+            const rawClasses = WebpackModules.getByProps("container", "avatar", "hasBuildOverride");
+            const container = DiscordSelectors.AccountDetails.container || `.${rawClasses.container.split(" ").join(".")}`;
+            const AccountContainer = ReactTools.getOwnerInstance(document.querySelector(container));
             if (!AccountContainer) return;
             Patcher.after(AccountContainer.constructor.prototype, "render", (thisObject, _, returnValue) => {
                 if (!this.settings.account.username && !this.settings.account.discriminator) return;
-                const tag = returnValue.props.children[1];
-                if (!tag) return;
+                const Username = returnValue.props.children[1].props.children[0];
+                const Discriminator = returnValue.props.children[1].props.children[1];
+                if (!Username || !Discriminator) return;
+                const UComponent = Username.type;
+                const DComponent = Discriminator.type;
                 const fluxWrapper = Flux.connectStores([SelectedGuildStore], () => ({guildId: SelectedGuildStore.getGuildId()}));
-                const wrappedTag = fluxWrapper(({guildId}) => {
+                const wrappedText = (isUsername) => fluxWrapper(({guildId}) => {
                     let member = this.getMember(thisObject.props.currentUser.id, guildId);
                     if (!member || !member.colorString) member = {colorString: ""};
-                    tag.props.colorUsername = this.settings.account.username ? member.colorString : "";
-                    tag.props.colorDiscriminator = this.settings.account.discriminator ? member.colorString : "";
-                    tag.props.usernameClass = "username";
-                    tag.props.discriminatorClass = "discriminator";
-                    if (this.settings.global.important) tag.props.important = true;
-                    return DiscordModules.React.createElement(ColoredFluxTag, tag.props);
+                    const color = isUsername ? (this.settings.account.username ? member.colorString : "") : this.settings.account.discriminator ? member.colorString : "";
+                    const refFunc = (element) => {
+                        if (!element) return;
+                        element.style.setProperty("color", color, "important");
+                    };
+                    const Component = isUsername ? Username : Discriminator;
+                    const retVal = DiscordModules.React.createElement(isUsername ? UComponent : DComponent, Component.props);
+                    retVal.props.style = {color};
+                    if (isUsername) retVal.props.children[0].props.style = {color: "inherit"};
+                    if (this.settings.global.important) retVal.ref = refFunc;
+                    return retVal;
                 });
-                returnValue.props.children[1] = DiscordModules.React.createElement(wrappedTag);
+
+                Username.type = wrappedText(true);
+                Discriminator.type = wrappedText(false);
             });
-            ReactTools.getOwnerInstance(document.querySelector(DiscordSelectors.AccountDetails.container)).forceUpdate();
+            ReactTools.getOwnerInstance(document.querySelector(container)).forceUpdate();
         }
 
         patchVoiceUsers() {
@@ -139,6 +146,7 @@ module.exports = (Plugin, Api) => {
                 returnValue.props.onMouseEnter = () => { thisObject.setState({isHovered: true}); };
                 returnValue.props.onMouseLeave = () => { thisObject.setState({isHovered: false}); };
 
+                if (!thisObject.state.hasOwnProperty("isHovered")) thisObject.setState({isHovered: false});
                 const currentStyle = thisObject.state.isHovered ? hoverStyle : defaultStyle;
                 returnValue.props.style = currentStyle;
                 if (!this.settings.global.important) return;
@@ -224,7 +232,7 @@ module.exports = (Plugin, Api) => {
                 const member = thisObject.props.guildMember;
                 if (!member || !member.colorString) return;
                 const nickname = Utilities.getNestedProp(returnValue, "props.children.props.children.0.props.children.0.props.children.1.props.children.0.props.children.0");
-                const tag = Utilities.getNestedProp(returnValue, "props.children.props.children.0.props.children.0.props.children.1.props.children.1");
+                const tag = Utilities.getNestedProp(returnValue, "props.children.props.children.0.props.children.0.props.children.1.props.children.1.props.children");
                 const shouldColorUsername = this.settings.popouts.username || (!nickname && this.settings.popouts.fallback);
                 const shouldColorDiscriminator = this.settings.popouts.discriminator;
                 const shouldColorNickname = this.settings.popouts.nickname && nickname;
@@ -265,10 +273,11 @@ module.exports = (Plugin, Api) => {
                     if (!this.settings.modules.memberList) return;
                     const guild = DiscordModules.GuildStore.getGuild(memberList.props.channel.guild_id);
                     if (!guild) return;
-                    const roleId = section.props.children ? section.props.children.props.id : section.props.id;
+                    const children = section.props.children ? section.props.children : section;
+                    const roleId = children.props.id;
                     const roleColor = guild.roles[roleId] ? guild.roles[roleId].colorString : "";
                     if (!roleColor) return;
-                    const originalType = section.props.children ? section.props.children.type : section.type;
+                    const originalType = children.type;
                     const myRef = DiscordModules.React.createRef();
                     const ColoredRoleHeader = function() {
                         const label = originalType(...arguments);
@@ -280,13 +289,13 @@ module.exports = (Plugin, Api) => {
                         };
                         return label;
                     };
-                    if (section.props.children) section.props.children.ref = myRef, section.props.children.type = ColoredRoleHeader;
-                    else section.ref = myRef, section.type = ColoredRoleHeader;
+                    children.ref = myRef;
+                    children.type = ColoredRoleHeader;
                     return section;
                 });
                 memberList.renderSection.__patched = true;
+                memberList.forceUpdate();
             });
-            MemberList.forceUpdateAll();
         }
 
     };
