@@ -24,7 +24,7 @@
 @else@*/
 
 var DoNotTrack = (() => {
-    const config = {"info":{"name":"DoNotTrack","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.4","description":"Stops Discord from tracking everything you do like Sentry and Analytics. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/DoNotTrack","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/DoNotTrack/DoNotTrack.plugin.js"},"changelog":[{"title":"Changes","type":"fixed","items":["Should no longer prevent you from dragging guilds and users."]}],"main":"index.js"};
+    const config = {"info":{"name":"DoNotTrack","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.5","description":"Stops Discord from tracking everything you do like Sentry and Analytics. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/DoNotTrack","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/DoNotTrack/DoNotTrack.plugin.js"},"changelog":[{"title":"What's New?","items":["Added the ability to disable the process monitor. Thanks, @Qwerasd!"]}],"main":"index.js","defaultConfig":[{"type":"switch","id":"stopProcessMonitor","name":"Stop Process Monitor","note":"This setting stops Discord from monitoring the processes on your PC and prevents your currently played game from showing.","value":true}]};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -58,7 +58,7 @@ var DoNotTrack = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {Patcher, WebpackModules} = Api;
+    const {Patcher, WebpackModules, Modals} = Api;
 
     return class DoNotTrack extends Plugin {
         onStart() {
@@ -81,10 +81,39 @@ var DoNotTrack = (() => {
             Patcher.instead(Sentry, "_sendProcessedPayload", () => {});
             Patcher.instead(Sentry, "_send", () => {});
             Object.assign(window.console, Sentry._originalConsoleMethods);
+            if (this.settings.stopProcessMonitor) this.disableProcessMonitor();
         }
         
         onStop() {
             Patcher.unpatchAll();
+        }
+
+        disableProcessMonitor() {
+            const NativeModule = WebpackModules.getByProps("getDiscordUtils");
+            const DiscordUtils = NativeModule.getDiscordUtils();
+            DiscordUtils.setObservedGamesCallback([], () => {});
+        }
+
+        enableProcessMonitor() {
+            Modals.showConfirmationModal("Reload Discord?", "To reenable the process monitor Discord needs to be reloaded.", {
+                confirmText: "Reload",
+                cancelText: "Later",
+                onConfirm: () => {
+                    window.location.reload();
+                }
+            });
+        }
+
+        getSettingsPanel() {
+            const panel = this.buildSettingsPanel();
+            panel.addListener(this.updateSettings.bind(this));
+            return panel.getElement();
+        }
+
+        updateSettings(id, value) {
+            if (id !== "stopProcessMonitor") return;
+            if (value) return this.disableProcessMonitor();
+            return this.enableProcessMonitor();
         }
 
     };
