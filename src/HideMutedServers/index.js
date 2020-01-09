@@ -13,7 +13,7 @@ module.exports = (Plugin, Api) => {
             this.bindContextMenus();
             if (this.settings.hide) this.hideGuilds();
         }
-        
+
         onStop() {
             this.unbindContextMenus();
             this.showGuilds();
@@ -23,18 +23,18 @@ module.exports = (Plugin, Api) => {
             const isMuted = WebpackModules.getByProps("isMuted").isMuted;
             const Guilds = WebpackModules.getByDisplayName("Guilds");
             Patcher.after(Guilds.prototype, "render", (thisObject, args, ret) => {
-                const guilds = Utilities.findInReactTree(ret, a => a && a[0] && a[0].key && a[0].props && a[0].props.guild);
+                const guilds = Utilities.findInReactTree(ret, a => a && a[0] && a[0].key && a[0].props && a[0].props.guildId);
                 if (!guilds) return;
                 guilds.splice(0, guilds.length, ...guilds.filter(g => !isMuted(g.key)));
             });
             this.updateGuildList();
         }
-        
+
         showGuilds() {
             Patcher.unpatchAll();
             this.updateGuildList();
         }
-        
+
         updateGuildList() {
             const guildList = document.querySelector(".wrapper-1Rf91z");
             if (!guildList) return;
@@ -42,15 +42,15 @@ module.exports = (Plugin, Api) => {
             if (!guildListInstance) return;
             guildListInstance.forceUpdate();
         }
-        
+
         bindContextMenus() {
             this.contextObserver.observe(document.querySelector("#app-mount"), {childList: true, subtree: true});
         }
-    
+
         unbindContextMenus() {
             this.contextObserver.disconnect();
         }
-    
+
         observeContextMenus(e) {
             if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element) || !e.addedNodes[0].classList) return;
             const elem = e.addedNodes[0];
@@ -59,7 +59,7 @@ module.exports = (Plugin, Api) => {
             const contextMenu = elem;
             const isGuildContext = ReactTools.getReactProperty(contextMenu, "return.memoizedProps.type") == "GUILD_ICON_BAR";
             if (!isGuildContext) return;
-            const menuItem = new ContextMenu.ToggleItem("Hide Muted Guilds", this.settings.hide, {callback: () => {
+            const menuItem = new ContextMenu.ToggleItem("Hide Muted Servers", this.settings.hide, {callback: () => {
                 this.settings.hide = !this.settings.hide;
                 if (this.settings.hide) this.hideGuilds();
                 else this.showGuilds();

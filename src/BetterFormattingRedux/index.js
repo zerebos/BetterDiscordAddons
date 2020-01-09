@@ -1,5 +1,6 @@
 module.exports = (Plugin, Api) => {
-    const {DiscordSelectors, PluginUtilities, ContextMenu, EmulatedTooltip} = Api;
+    const {DiscordSelectors, PluginUtilities, ContextMenu, EmulatedTooltip, WebpackModules, DiscordModules} = Api;
+    const DraftActions = WebpackModules.getByProps("saveDraft");
     return class BetterFormattingRedux extends Plugin {
         constructor() {
             super();
@@ -49,7 +50,7 @@ module.exports = (Plugin, Api) => {
     
             var elem = e.addedNodes[0];
             var textarea = elem.querySelector(DiscordSelectors.Textarea.textArea);
-            if (textarea) this.addToolbar($(textarea));
+            if (textarea) this.addToolbar($(textarea.children[0]));
         }
     
         updateStyle() {
@@ -163,20 +164,39 @@ module.exports = (Plugin, Api) => {
             var txt = textarea[0];
             txt.focus();
             txt.selectionStart = 0;
-            txt.selectionEnd = txt.value.length;
+            txt.selectionEnd = txt.textContent.length;
             document.execCommand("insertText", false, text);
         }
         
-        wrapSelection(textarea, wrapper, language, rightWrapper) {
-            var text = textarea.value;
-            var start = textarea.selectionStart;
-            var len = text.substring(textarea.selectionStart, textarea.selectionEnd).length;
-            var lang = language ? language : "";
-            var newline = wrapper === "```" ? "\n" : "";
-            text = wrapper + lang + newline + text.substring(textarea.selectionStart, textarea.selectionEnd) + newline + (rightWrapper ? rightWrapper : wrapper);
+        async wrapSelection(textarea, wrapper, language, rightWrapper) {
             textarea.focus();
-            document.execCommand("insertText", false, text);
-            textarea.selectionEnd = (textarea.selectionStart = start + wrapper.length + lang.length + newline.length) + len;
+            await new Promise(r => setTimeout(r, 1));
+            const selection = window.getSelection();
+            const range = selection.getRangeAt(0);
+            const selectable = range.endContainer;
+            console.log(selection, range);
+            let text = textarea.textContent;
+            const start = range.startOffset;//Math.min(selection.anchorOffset, selection.focusOffset);
+            const end = range.endOffset;//Math.max(selection.anchorOffset, selection.focusOffset);
+            console.log(selection.anchorOffset, selection.focusOffset);
+            console.log(text, start, end);
+            const len = text.substring(start, end).length;
+            const lang = language ? language : "";
+            const newline = wrapper === "```" ? "\n" : "";
+            text = wrapper + lang + newline + text.substring(start, end) + newline + (rightWrapper ? rightWrapper : wrapper);
+            console.log(text);
+            textarea.focus();
+            // document.execCommand("insertText", false, text);
+            const newRange = document.createRange();
+            // newRange.selectNodeContents(el);
+            // newRange.setStart(selectable, start + wrapper.length + lang.length + newline.length);
+            // newRange.setEnd(selectable, start + wrapper.length + lang.length + newline.length + len);
+            // selection.addRange(newRange);
+            // end = (start = start + wrapper.length + lang.length + newline.length) + len;
+            // textarea.textContent = text;
+            DraftActions.saveDraft(DiscordModules.SelectedChannelStore.getChannelId(), text);
+            //editor.wrapText
+            //editor.el.textContent
         }
         
         getContextMenu(textarea) {
@@ -249,8 +269,8 @@ module.exports = (Plugin, Api) => {
         
         setupToolbar() {
             $(".bf-toolbar").remove();
-            $(`${DiscordSelectors.Textarea.channelTextArea} textarea`).each((index, elem) => {
-                this.addToolbar($(elem));
+            $(`${DiscordSelectors.Textarea.textArea}`).each((index, elem) => {
+                this.addToolbar($(elem.children[0]));
             });
         }
         
@@ -260,9 +280,11 @@ module.exports = (Plugin, Api) => {
             if (this.isOpen) toolbarElement.addClass("bf-visible");
             
             textarea.on("keypress." + this.getName(), (e) => {this.format(e);})
-                .parent().after(toolbarElement)
+                .parent().parent().after(toolbarElement)
                 .siblings(".bf-toolbar")
                 .on("click." + this.getName(), "div", e => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     var button = $(e.currentTarget);
                     if (button.hasClass("bf-arrow")) {
                         if (!this.settings.plugin.hoverOpen) this.openClose();

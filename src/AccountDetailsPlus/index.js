@@ -4,7 +4,7 @@ module.exports = (Plugin, Api) => {
 
     const rawClasses = WebpackModules.getByProps("container", "avatar", "hasBuildOverride");
     const container = DiscordSelectors.AccountDetails.container || `.${rawClasses.container.split(" ").join(".")}`;
-    const username = `.${rawClasses.username.split(" ").join(".")}`;
+    const username = `.${rawClasses.usernameContainer.split(" ").join(".")}`;
     const nameTag = `.${rawClasses.nameTag.split(" ").join(".")}`;
 
     const tagSelector = `${container} ${nameTag}`;

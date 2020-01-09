@@ -1,8 +1,7 @@
 
 module.exports = (Plugin, Api) => {
-    const {DiscordSelectors, WebpackModules, DiscordModules, Patcher, ColorConverter, ReactComponents, Utilities, ReactTools} = Api;
+    const {DiscordSelectors, WebpackModules, DiscordModules, Patcher, ColorConverter, ReactComponents, Utilities, ReactTools, PluginUtilities, Logger} = Api;
 
-    const Flux = WebpackModules.getByProps("connectStores");
     const GuildMemberStore = DiscordModules.GuildMemberStore;
     const SelectedGuildStore = DiscordModules.SelectedGuildStore;
     const UserStore = DiscordModules.UserStore;
@@ -76,37 +75,24 @@ module.exports = (Plugin, Api) => {
 
         patchAccountDetails() {
             const rawClasses = WebpackModules.getByProps("container", "avatar", "hasBuildOverride");
-            const container = DiscordSelectors.AccountDetails.container || `.${rawClasses.container.split(" ").join(".")}`;
-            const AccountContainer = ReactTools.getOwnerInstance(document.querySelector(container));
-            if (!AccountContainer) return;
-            Patcher.after(AccountContainer.constructor.prototype, "render", (thisObject, _, returnValue) => {
-                if (!this.settings.account.username && !this.settings.account.discriminator) return;
-                const Username = returnValue.props.children[1].props.children[0];
-                const Discriminator = returnValue.props.children[1].props.children[1];
-                if (!Username || !Discriminator) return;
-                const UComponent = Username.type;
-                const DComponent = Discriminator.type;
-                const fluxWrapper = Flux.connectStores([SelectedGuildStore], () => ({guildId: SelectedGuildStore.getGuildId()}));
-                const wrappedText = (isUsername) => fluxWrapper(({guildId}) => {
-                    let member = this.getMember(thisObject.props.currentUser.id, guildId);
-                    if (!member || !member.colorString) member = {colorString: ""};
-                    const color = isUsername ? (this.settings.account.username ? member.colorString : "") : this.settings.account.discriminator ? member.colorString : "";
-                    const refFunc = (element) => {
-                        if (!element) return;
-                        element.style.setProperty("color", color, "important");
-                    };
-                    const Component = isUsername ? Username : Discriminator;
-                    const retVal = DiscordModules.React.createElement(isUsername ? UComponent : DComponent, Component.props);
-                    retVal.props.style = {color};
-                    if (isUsername) retVal.props.children[0].props.style = {color: "inherit"};
-                    if (this.settings.global.important) retVal.ref = refFunc;
-                    return retVal;
-                });
 
-                Username.type = wrappedText(true);
-                Discriminator.type = wrappedText(false);
-            });
-            ReactTools.getOwnerInstance(document.querySelector(container)).forceUpdate();
+            const containerSelector = DiscordSelectors.AccountDetails.container || `.${rawClasses.container.split(" ").join(".")}`;
+            const usernameSelector = `${containerSelector} .${rawClasses.usernameContainer.split(" ").join(".")} > div`;
+            const discrimSelector = `${containerSelector} .${rawClasses.usernameContainer.split(" ").join(".")} + div`;
+            
+            const colorizeAccountDetails = () => {
+                const username = document.querySelector(usernameSelector);
+                const discrim = document.querySelector(discrimSelector);
+                if (!username || !discrim) return Logger.info("Could not get account details username and discrim");
+                let member = this.getMember(UserStore.getCurrentUser().id, SelectedGuildStore.getGuildId());
+                if (!member || !member.colorString) member = {colorString: ""};
+                const doImportant = this.settings.global.important ? "important" : undefined;
+                username.style.setProperty("color", this.settings.account.username ? member.colorString : "", doImportant);
+                discrim.style.setProperty("color", this.settings.account.discriminator ? member.colorString : "", doImportant);
+            };
+            PluginUtilities.addOnSwitchListener(colorizeAccountDetails);
+            colorizeAccountDetails();
+            return () => {PluginUtilities.removeOnSwitchListener(colorizeAccountDetails);};
         }
 
         patchVoiceUsers() {
@@ -143,6 +129,7 @@ module.exports = (Plugin, Api) => {
                     background: ColorConverter.rgbToAlpha(member.colorString, 0.7)
                 };
 
+                if (!this.settings.mentions.changeOnHover) return;
                 returnValue.props.onMouseEnter = () => { thisObject.setState({isHovered: true}); };
                 returnValue.props.onMouseLeave = () => { thisObject.setState({isHovered: false}); };
 
@@ -231,7 +218,7 @@ module.exports = (Plugin, Api) => {
             Patcher.after(UserPopout.component.prototype, "render", (thisObject, _, returnValue) => {
                 const member = thisObject.props.guildMember;
                 if (!member || !member.colorString) return;
-                const nickname = Utilities.getNestedProp(returnValue, "props.children.props.children.0.props.children.0.props.children.1.props.children.0.props.children.0");
+                const nickname = Utilities.getNestedProp(returnValue, "props.children.props.children.0.props.children.0.props.children.1.props.children.0.props.children");
                 const tag = Utilities.getNestedProp(returnValue, "props.children.props.children.0.props.children.0.props.children.1.props.children.1.props.children");
                 const shouldColorUsername = this.settings.popouts.username || (!nickname && this.settings.popouts.fallback);
                 const shouldColorDiscriminator = this.settings.popouts.discriminator;
@@ -281,12 +268,18 @@ module.exports = (Plugin, Api) => {
                     const myRef = DiscordModules.React.createRef();
                     const ColoredRoleHeader = function() {
                         const label = originalType(...arguments);
-                        label.props.style = {color: roleColor};
-                        if (!BRC.settings.global.important) return label;
-                        label.ref = (element) => {
-                            if (!element) return;
-                            element.style.setProperty("color", roleColor, "important");
+                        const originalLabel = label.type;
+                        const ColoredHeader = function() {
+                            const final = originalLabel(...arguments);
+                            final.props.style = {color: roleColor};
+                            if (!BRC.settings.global.important) return final;
+                            final.ref = (element) => {
+                                if (!element) return;
+                                element.style.setProperty("color", roleColor, "important");
+                            };
+                            return final;
                         };
+                        label.type = ColoredHeader;
                         return label;
                     };
                     children.ref = myRef;

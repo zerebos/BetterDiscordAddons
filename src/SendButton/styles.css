@@ -9,7 +9,7 @@
 }
 
 .send-button img {
-	opacity: 0.2;
+	opacity: 0.5;
 	width: 100%;
 	transition: all 200ms ease;
 }

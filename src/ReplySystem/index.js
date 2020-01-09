@@ -29,7 +29,7 @@ module.exports = (Plugin, Api) => {
     
             Patcher.before(DiscordModules.MessageActions, "sendMessage", (t,a) => {
                 if (!this.replies.length) return;
-                let replyString = this.replies.map(r => {
+                const replyString = this.replies.map(r => {
                     return `<@!${r.id}> `;
                 });
                 a[1].content = replyString.join("") + a[1].content;
@@ -82,16 +82,16 @@ module.exports = (Plugin, Api) => {
             const Message = await ReactComponents.getComponentByName("Message", DiscordSelectors.Messages.message);
             Patcher.after(Message.component.prototype, "render", (thisObject, args, returnValue) => {
                 if (!thisObject.props.isHeader || thisObject.props.message.type != 0) return returnValue;
-                let id = thisObject.props.message.author.id;
-                let name = thisObject.props.message.author.username;
+                const id = thisObject.props.message.author.id;
+                const name = thisObject.props.message.author.username;
                 if (id == DiscordModules.UserStore.getCurrentUser().id) return;
-                let button = DiscordModules.React.createElement(ReplyButton, {
+                const button = DiscordModules.React.createElement(ReplyButton, {
                     id: id,
                     name: name,
                     icon: this.settings.icon
                 });
     
-                let children = this.safelyGetNestedProp(returnValue,
+                const children = this.safelyGetNestedProp(returnValue,
                     !thisObject.props.isCompact ? "props.children.0.props.children.1.props.children" : "props.children"
                 );
                 if (!children || !Array.isArray(children)) return returnValue;
