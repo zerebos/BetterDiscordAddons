@@ -79,11 +79,12 @@ module.exports = (Plugin, Api) => {
             const containerSelector = DiscordSelectors.AccountDetails.container || `.${rawClasses.container.split(" ").join(".")}`;
             const usernameSelector = `${containerSelector} .${rawClasses.usernameContainer.split(" ").join(".")} > div`;
             const discrimSelector = `${containerSelector} .${rawClasses.usernameContainer.split(" ").join(".")} + div`;
-            
+
             const colorizeAccountDetails = () => {
-                const username = document.querySelector(usernameSelector);
+                let username = document.querySelector(usernameSelector);
+                if (!username) username = document.querySelector(usernameSelector.replace(" > div", ""));
                 const discrim = document.querySelector(discrimSelector);
-                if (!username || !discrim) return Logger.info("Could not get account details username and discrim");
+                if (!username || !discrim) return Logger.info("Could not get account details username and discrim elements");
                 let member = this.getMember(UserStore.getCurrentUser().id, SelectedGuildStore.getGuildId());
                 if (!member || !member.colorString) member = {colorString: ""};
                 const doImportant = this.settings.global.important ? "important" : undefined;
@@ -139,8 +140,8 @@ module.exports = (Plugin, Api) => {
                 if (!this.settings.global.important) return;
                 const element = DiscordModules.ReactDOM.findDOMNode(thisObject);
                 if (!element) return;
-                element.style.setProperty("color", currentStyle.color, "important");
-                element.style.setProperty("background", currentStyle.background, "important");
+                setImmediate(() => element.style.setProperty("color", currentStyle.color, "important"));
+                setImmediate(() => element.style.setProperty("background", currentStyle.background, "important"));
             });
             for (const e of document.querySelectorAll(".mention")) {
                 const instance = ReactTools.getOwnerInstance(e, {include: ["Popout"]});

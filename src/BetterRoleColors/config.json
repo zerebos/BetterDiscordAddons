@@ -7,13 +7,13 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.8.6",
+        "version": "0.8.8",
         "description": "Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js"
     },
     "changelog": [
-        {"title":"Fixes","type":"fixed","items":["Plugin respects its own settings again (mention hover).", "Fix coloration of username and discrim in account details."]}
+        {"title":"Fixes","type":"fixed","items":["Hovering mentions won't remove the !important designation anymore"]}
     ],
     "defaultConfig": [
         {
