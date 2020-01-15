@@ -140,7 +140,6 @@ var HideMutedServers = (() => {
         async patchGuildContextMenu(promiseState) {
             const GuildContextMenu = await PluginUtilities.getContextMenu("GUILD_ICON_");
             if (promiseState.cancelled) return;
-            console.log(GuildContextMenu)
 
             Patcher.after(GuildContextMenu, "default", (_, __, retVal) => {
                 if (!retVal || !retVal.props || !retVal.props.children || !retVal.props.children[3]) return;
