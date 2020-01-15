@@ -24,7 +24,7 @@
 @else@*/
 
 var RoleMembers = (() => {
-    const config = {"info":{"name":"RoleMembers","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.8","description":"Allows you to see the members of each role on a server. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Clicking on role mentions works again (again).","Can click on users to open their user popout (w/ lib version 1.2.6)!"]}],"main":"index.js"};
+    const config = {"info":{"name":"RoleMembers","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.9","description":"Allows you to see the members of each role on a server. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Context menu is back.","Users have their avatars again in the popout."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -58,7 +58,7 @@ var RoleMembers = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {Popouts, DiscordModules, DiscordSelectors, DiscordClasses, Utilities, WebpackModules, ReactComponents, Patcher, ContextMenu} = Api;
+    const {Popouts, DiscordModules, DiscordSelectors, DiscordClasses, Utilities, WebpackModules, PluginUtilities, Patcher} = Api;
 
     const from = arr => arr && arr.length > 0 && Object.assign(...arr.map( ([k, v]) => ({[k]: v}) ));
     const filter = (obj, predicate) => from(Object.entries(obj).filter((o) => {return predicate(o[1]);}));
@@ -95,9 +95,15 @@ var RoleMembers = (() => {
 </div>`;
     const itemHTML = `<div class="flex-1xMQg5 flex-1O1GKY horizontal-1ae9ci horizontal-2EEEnY flex-1O1GKY directionRow-3v3tfG justifyStart-2NDFzi alignCenter-1dQNNs noWrap-3jynv6 selectableItem-1MP3MQ role-member" style="flex: 1 1 auto; height: auto;">
     <div class="flex-1xMQg5 flex-1O1GKY horizontal-1ae9ci horizontal-2EEEnY flex-1O1GKY directionRow-3v3tfG justifyStart-2NDFzi alignCenter-1dQNNs noWrap-3jynv6 selectableItemLabel-1RKQjD" style="flex: 1 1 auto;">
-        <div class="wrapper-2F3Zv8 small-5Os1Bb flexChild-faoVW3" style="flex: 0 1 auto;">
-            <div class="image-33JSyf small-5Os1Bb" style="background-image: url(&quot;{{avatar_url}}&quot;);">
-            </div>
+        <div class="avatar-gPqiLm da-avatar flexChild-faoVW3 da-flexChild wrapper-3t9DeA da-wrapper" role="img"
+            aria-label="gibzx, Online" aria-hidden="false" style="width: 32px; height: 32px;"><svg width="40"
+                height="32" viewBox="0 0 40 32" class="mask-1l8v16 da-mask" aria-hidden="true">
+                <foreignObject x="0" y="0" width="32" height="32" mask="url(#svg-mask-avatar-status-round-32)"><img
+                        src="{{avatar_url}}"
+                        alt=" " class="avatar-VxgULZ da-avatar" aria-hidden="true"></foreignObject>
+                <rect width="10" height="10" x="22" y="22" fill="#43b581" mask="url(#svg-mask-status-online)"
+                    class="pointerEvents-2zdfdO da-pointerEvents"></rect>
+            </svg>
         </div>
         <div class="userText-1WdPps" style="flex: 1 1 auto;">
             <span class="username">{{username}}</span><span class="discriminator-3tYCOD">{{discriminator}}</span>
@@ -141,12 +147,15 @@ var RoleMembers = (() => {
             });
         }
 
+
         async patchGuildContextMenu(promiseState) {
-            const GuildContextMenu = await ReactComponents.getComponent("GuildContextMenu", DiscordSelectors.ContextMenu.contextMenu);
+            const GuildContextMenu = await PluginUtilities.getContextMenu("GUILD_ICON_");
             if (promiseState.cancelled) return;
-            Patcher.after(GuildContextMenu.component.prototype, "render", (component, args, retVal) => {
-                const guildId = component.props.guild.id;
-                const roles = component.props.guild.roles;
+
+            Patcher.after(GuildContextMenu, "default", (_, args, retVal) => {
+				const props = args[0];
+                const guildId = props.guild.id;
+                const roles = props.guild.roles;
                 const roleItems = [];
 
                 for (const roleId in roles) {
@@ -164,8 +173,7 @@ var RoleMembers = (() => {
                 if (Array.isArray(original)) original.splice(1, 0, newOne);
                 else retVal.props.children[0].props.children = [original, newOne];
             });
-            GuildContextMenu.forceUpdateAll();
-            ContextMenu.updateDiscordMenu(document.querySelector(DiscordSelectors.ContextMenu.contextMenu));
+            PluginUtilities.forceUpdateContextMenus();
         }
 
         showRolePopout(target, guildId, roleId) {
