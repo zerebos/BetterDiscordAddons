@@ -24,7 +24,7 @@
 @else@*/
 
 var RoleMembers = (() => {
-    const config = {"info":{"name":"RoleMembers","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.9","description":"Allows you to see the members of each role on a server. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Context menu is back.","Users have their avatars again in the popout."]}],"main":"index.js"};
+    const config = {"info":{"name":"RoleMembers","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.10","description":"Allows you to see the members of each role on a server. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Stop crashing cause it's bad."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -70,7 +70,7 @@ var RoleMembers = (() => {
     const UserStore = DiscordModules.UserStore;
     const ImageResolver = DiscordModules.ImageResolver;
     const WrapperClasses = WebpackModules.getByProps("wrapperHover");
-    const MenuItem = WebpackModules.getByString("disabled", "brand");
+    const MenuItem = ZLibrary.DiscordModules.ContextMenuItem;
     const SubMenuItem = WebpackModules.find(m => m.default && m.default.displayName && m.default.displayName.includes("SubMenuItem"));
 
     const popoutHTML = `<div class="{{className}} popout-role-members" style="margin-top: 0;">

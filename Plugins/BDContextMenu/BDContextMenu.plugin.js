@@ -24,7 +24,7 @@
 @else@*/
 
 var BDContextMenu = (() => {
-    const config = {"info":{"name":"BDContextMenu","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.3","description":"Adds BD shortcuts to the settings context menu. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"},"changelog":[{"title":"Improved","type":"improved","items":["Promise state is tracked so you won't see any double menus.","Made it compatible with coming BBD changes..."]},{"title":"Bugs Squashed","type":"fixed","items":["Fixed that thing where it didn't work."]}],"main":"index.js"};
+    const config = {"info":{"name":"BDContextMenu","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.4","description":"Adds BD shortcuts to the settings context menu. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Fixed that thing where it didn't work."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -61,7 +61,7 @@ var BDContextMenu = (() => {
     const {DiscordSelectors, Patcher, ReactComponents, DiscordModules, WebpackModules, ReactTools} = Api;
 
     const React = DiscordModules.React;
-    const MenuItem = WebpackModules.getByString("disabled", "brand");
+    const MenuItem = ZLibrary.DiscordModules.ContextMenuItem;
     const DiscordToggleMenuItem = WebpackModules.getByString("itemToggle", "checkbox");
     const BBDSettings = Object.entries(window.settings).filter(s => !s[1].hidden && s[1].implemented);
     const SubMenuItem = WebpackModules.find(m => m.default && m.default.displayName && m.default.displayName.includes("SubMenuItem"));
