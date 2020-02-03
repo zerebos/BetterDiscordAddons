@@ -41,7 +41,7 @@ var HideMutedServers = (() => {
             ModalStack.push(function(props) {
                 return BdApi.React.createElement(ConfirmationModal, Object.assign({
                     header: title,
-                    children: [TextElement({color: TextElement.Colors.PRIMARY, children: [`The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`]})],
+                    children: [BdApi.React.createElement(TextElement, {color: TextElement.Colors.PRIMARY, children: [`The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`]})],
                     red: false,
                     confirmText: "Download Now",
                     cancelText: "Cancel",
