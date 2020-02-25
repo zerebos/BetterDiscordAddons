@@ -208,11 +208,12 @@ var BetterRoleColors = (() => {
             }
             Patcher.after(RichTextareaComponents, 'UserMention', (_, [props], ret) => {
                 const old = Utilities.getNestedProp(ret, 'props.children');
-                if (typeof old !== 'function') return;
+                if (typeof old !== 'function' || !this.settings.modules.mentions) return;
+                let tooltipRef;
+                ret.ref = e => tooltipRef = e;
                 ret.props.children = e => {
                     try {
                         const ret2 = old(e);
-                        if (!this.settings.modules.mentions) return ret2;
                         const userId = props.id;
                         const member = GuildMemberStore.getMember(SelectedGuildStore.getGuildId(), userId);
                         if (!member || !member.colorString) return ret2;
@@ -220,12 +221,18 @@ var BetterRoleColors = (() => {
                             color: member.colorString,
                             background: ColorConverter.rgbToAlpha(member.colorString, 0.1)
                         };
-                        ret2.props.style = defaultStyle;
-                        if (!this.settings.global.important) return ret2;
-                        ret2.props.ref = e => {
-                            if (!e) return;
-                            e.style.setProperty("color", currentStyle.color, "important")
-                            e.style.setProperty("background", currentStyle.background, "important")
+                        const hoverStyle = {
+                            color: "#ffffff",
+                            background: ColorConverter.rgbToAlpha(member.colorString, 0.7)
+                        };
+                        const currentStyle = this.settings.mentions.changeOnHover && tooltipRef && tooltipRef.state.shouldShowTooltip ? hoverStyle : defaultStyle;
+                        ret2.props.style = currentStyle;
+                        if (this.settings.global.important) {
+                            ret2.props.ref = e => {
+                                if (!e || !e.ref) return;
+                                e.ref.style.setProperty("color", currentStyle.color, "important")
+                                e.ref.style.setProperty("background", currentStyle.background, "important")
+                            };
                         }
                         return ret2;
                     } catch(err) {
