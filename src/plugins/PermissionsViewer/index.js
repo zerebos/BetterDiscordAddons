@@ -9,7 +9,7 @@ module.exports = (Plugin, Api) => {
     const DiscordPerms = Object.assign({}, DiscordModules.DiscordConstants.Permissions);
     const AvatarDefaults = WebpackModules.getByProps("DEFAULT_AVATARS");
     const MenuActions = DiscordModules.ContextMenuActions;
-    const MenuItem = WebpackModules.getByString("disabled", "brand");
+    const MenuItem = ZLibrary.DiscordModules.ContextMenuItem;
     const escapeHTML = DOMTools.escapeHTML ? DOMTools.escapeHTML : function(html) {
 		const textNode = document.createTextNode("");
 		const spanElement = document.createElement("span");
@@ -134,60 +134,62 @@ module.exports = (Plugin, Api) => {
         }
 
         unbindContextMenus() {
-            for (const cancel in this.contextMenuPatches) cancel();
-        }
-
-        async patchChannelContextMenu(promiseState) {
-            const ChannelContextMenu = await ReactComponents.getComponentByName("ChannelContextMenu", DiscordSelectors.ContextMenu.contextMenu);
-            if (promiseState.cancelled) return;
-            this.contextMenuPatches.push(Patcher.after(ChannelContextMenu.component.prototype, "render", (component, args, retVal) => {
-                if (!component.props.type.startsWith("CHANNEL_LIST_")) return;
-                const original = retVal.props.children[0].props.children;
-                const newOne = new MenuItem({label: this.strings.contextMenuLabel, action: () => {
-                    MenuActions.closeContextMenu();
-                    const channel = component.props.channel;
-                    if (!Object.keys(channel.permissionOverwrites).length) return Toasts.info(`#${channel.name} has no permission overrides`);
-                    this.showModal(this.createModalChannel(channel.name, channel, component.props.guild));
-                }});
-                if (Array.isArray(original)) original.splice(1, 0, newOne);
-                else retVal.props.children[0].props.children = [original, newOne];
-            }));
-            ChannelContextMenu.forceUpdateAll();
+            for (const cancel of this.contextMenuPatches) cancel();
         }
 
         async patchGuildContextMenu(promiseState) {
-            const GuildContextMenu = await ReactComponents.getComponentByName("GuildContextMenu", DiscordSelectors.ContextMenu.contextMenu);
+            const GuildContextMenu = await PluginUtilities.getContextMenu("GUILD_ICON_");
             if (promiseState.cancelled) return;
-            this.contextMenuPatches.push(Patcher.after(GuildContextMenu.component.prototype, "render", (component, args, retVal) => {
+
+            this.contextMenuPatches.push(Patcher.after(GuildContextMenu, "default", (_, [props], retVal) => {
                 const original = retVal.props.children[0].props.children;
                 const newOne = new MenuItem({label: this.strings.contextMenuLabel, action: () => {
                     MenuActions.closeContextMenu();
-                    this.showModal(this.createModalGuild(component.props.guild.name, component.props.guild));
+                    this.showModal(this.createModalGuild(props.guild.name, props.guild));
                 }});
                 if (Array.isArray(original)) original.splice(1, 0, newOne);
                 else retVal.props.children[0].props.children = [original, newOne];
             }));
-            GuildContextMenu.forceUpdateAll();
+            PluginUtilities.forceUpdateContextMenus();
         }
 
-        async patchUserContextMenu(promiseState) {//props.children.props.children.props.children[0].props.children
-            const UserContextMenu = await ReactComponents.getComponentByName("UserContextMenu", DiscordSelectors.ContextMenu.contextMenu);
+        async patchChannelContextMenu(promiseState) {
+            const ChannelContextMenu = await PluginUtilities.getContextMenu("CHANNEL_LIST_");
             if (promiseState.cancelled) return;
-            this.contextMenuPatches.push(Patcher.after(UserContextMenu.component.prototype, "render", (component, args, retVal) => {
+
+            this.contextMenuPatches.push(Patcher.after(ChannelContextMenu, "default", (_, [props], retVal) => {
+                const original = retVal.props.children[0].props.children;
+                const newOne = new MenuItem({label: this.strings.contextMenuLabel, action: () => {
+                    MenuActions.closeContextMenu();
+                    const channel = props.channel;
+                    if (!Object.keys(channel.permissionOverwrites).length) return Toasts.info(`#${channel.name} has no permission overrides`);
+                    this.showModal(this.createModalChannel(channel.name, channel, props.guild));
+                }});
+                if (Array.isArray(original)) original.splice(1, 0, newOne);
+                else retVal.props.children[0].props.children = [original, newOne];
+            }));
+            PluginUtilities.forceUpdateContextMenus();
+        }
+
+        async patchUserContextMenu(promiseState) {
+            const UserContextMenu = await PluginUtilities.getContextMenu("USER_CHANNEL_");
+            if (promiseState.cancelled) return;
+
+            this.contextMenuPatches.push(Patcher.after(UserContextMenu, "default", (_, [props], retVal) => {
                 const guildId = SelectedGuildStore.getGuildId();
                 const guild = GuildStore.getGuild(guildId);
                 if (!guild) return;
                 const original = retVal.props.children.props.children.props.children[0].props.children;
                 const newOne = new MenuItem({label: this.strings.contextMenuLabel, action: () => {
                     MenuActions.closeContextMenu();
-                    const user = MemberStore.getMember(guildId, component.props.user.id);
+                    const user = MemberStore.getMember(guildId, props.user.id);
                     const name = user.nick ? user.nick : UserStore.getUser(user.userId).username;
                     this.showModal(this.createModalUser(name, user, guild));
                 }});
                 if (Array.isArray(original)) original.splice(1, 0, newOne);
                 else retVal.props.children.props.children.props.children[0].props.children = [original, newOne];
             }));
-            UserContextMenu.forceUpdateAll();
+            PluginUtilities.forceUpdateContextMenus();
         }
 
         showModal(modal) {

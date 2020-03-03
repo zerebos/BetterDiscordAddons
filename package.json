@@ -1,0 +1,25 @@
+{
+  "name": "betterdiscordaddons",
+  "version": "1.0.0",
+  "description": "Addons for BetterDiscord.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rauenzi/BetterDiscordAddons"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "build_plugin": "node ./scripts/build.js local",
+    "build_plugin_remote": "node ./scripts/build.js remote"
+  },
+  "author": "Zerebos",
+  "license": "MIT",
+  "eslintIgnore": [
+    "scripts/template*"
+  ],
+  "buildConfig": {
+    "pluginsFolder": "./src/plugins",
+    "releaseFolder": "./Plugins/{{PLUGIN_NAME}}",
+    "copyToBD": true,
+    "addInstallScript": true
+  }
+}
