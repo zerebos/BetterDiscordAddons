@@ -3,7 +3,7 @@ module.exports = (Plugin, Api) => {
     const {DiscordSelectors, Patcher, ReactComponents, DiscordModules, WebpackModules, ReactTools} = Api;
 
     const React = DiscordModules.React;
-    const MenuItem = WebpackModules.getByString("disabled", "brand");
+    const MenuItem = ZLibrary.DiscordModules.ContextMenuItem;
     const DiscordToggleMenuItem = WebpackModules.getByString("itemToggle", "checkbox");
     const BBDSettings = Object.entries(window.settings).filter(s => !s[1].hidden && s[1].implemented);
     const SubMenuItem = WebpackModules.find(m => m.default && m.default.displayName && m.default.displayName.includes("SubMenuItem"));

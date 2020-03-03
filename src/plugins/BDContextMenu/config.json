@@ -7,13 +7,12 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.1.3",
+        "version": "0.1.4",
         "description": "Adds BD shortcuts to the settings context menu. Support Server: bit.ly/ZeresServer",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"
     },
     "changelog": [
-        {"title": "Improved", "type": "improved", "items": ["Promise state is tracked so you won't see any double menus.", "Made it compatible with coming BBD changes..."]},
         {"title": "Bugs Squashed", "type": "fixed", "items": ["Fixed that thing where it didn't work."]}
     ],
     "main": "index.js"

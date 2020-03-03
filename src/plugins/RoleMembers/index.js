@@ -1,6 +1,6 @@
 
 module.exports = (Plugin, Api) => {
-    const {Popouts, DiscordModules, DiscordSelectors, DiscordClasses, Utilities, WebpackModules, ReactComponents, Patcher, ContextMenu} = Api;
+    const {Popouts, DiscordModules, DiscordSelectors, DiscordClasses, Utilities, WebpackModules, PluginUtilities, Patcher} = Api;
 
     const from = arr => arr && arr.length > 0 && Object.assign(...arr.map( ([k, v]) => ({[k]: v}) ));
     const filter = (obj, predicate) => from(Object.entries(obj).filter((o) => {return predicate(o[1]);}));
@@ -12,7 +12,7 @@ module.exports = (Plugin, Api) => {
     const UserStore = DiscordModules.UserStore;
     const ImageResolver = DiscordModules.ImageResolver;
     const WrapperClasses = WebpackModules.getByProps("wrapperHover");
-    const MenuItem = WebpackModules.getByString("disabled", "brand");
+    const MenuItem = ZLibrary.DiscordModules.ContextMenuItem;
     const SubMenuItem = WebpackModules.find(m => m.default && m.default.displayName && m.default.displayName.includes("SubMenuItem"));
 
     const popoutHTML = require("popout.html");
@@ -54,12 +54,15 @@ module.exports = (Plugin, Api) => {
             });
         }
 
+
         async patchGuildContextMenu(promiseState) {
-            const GuildContextMenu = await ReactComponents.getComponent("GuildContextMenu", DiscordSelectors.ContextMenu.contextMenu);
+            const GuildContextMenu = await PluginUtilities.getContextMenu("GUILD_ICON_");
             if (promiseState.cancelled) return;
-            Patcher.after(GuildContextMenu.component.prototype, "render", (component, args, retVal) => {
-                const guildId = component.props.guild.id;
-                const roles = component.props.guild.roles;
+
+            Patcher.after(GuildContextMenu, "default", (_, args, retVal) => {
+				const props = args[0];
+                const guildId = props.guild.id;
+                const roles = props.guild.roles;
                 const roleItems = [];
 
                 for (const roleId in roles) {
@@ -77,8 +80,7 @@ module.exports = (Plugin, Api) => {
                 if (Array.isArray(original)) original.splice(1, 0, newOne);
                 else retVal.props.children[0].props.children = [original, newOne];
             });
-            GuildContextMenu.forceUpdateAll();
-            ContextMenu.updateDiscordMenu(document.querySelector(DiscordSelectors.ContextMenu.contextMenu));
+            PluginUtilities.forceUpdateContextMenus();
         }
 
         showRolePopout(target, guildId, roleId) {
