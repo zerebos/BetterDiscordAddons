@@ -7,13 +7,13 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.0.5",
+        "version": "0.0.6-patch1",
         "description": "Allows you to blacklist and favorite emojis. Support Server: bit.ly/ZeresServer",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmojiUtilities",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/EmojiUtilities/EmojiUtilities.plugin.js"
     },
 	"changelog": [
-        {"title": "Yay", "items": ["Favorites show up again.", "Blacklist works again.", "Context menu items work again.", "Blocked emojis look fine in compact mode!"]}
+        {"title": "Plugin Status", "items": ["EmojiUtilities is broken.", "I am working on fixing it.", "Please be patient while I work on it."]}
     ],
     "main": "index.js"
 }
