@@ -27,6 +27,7 @@ module.exports = (Plugin, Api) => {
             Patcher.after(groupModule, "default", (_, [props], returnValue) => {
                 if (!returnValue) return returnValue;
                 const image = props.href || props.src;
+                if (!this.isImage(image)) return;
                 const isValid = this.isValid(image);
                 returnValue.props.children.push(DiscordModules.React.createElement(ContextMenuItem, {
                     label: this.strings.contextMenuLabel,
@@ -41,9 +42,9 @@ module.exports = (Plugin, Api) => {
             Patcher.after(ImageModal.prototype, "render", (thisObject, args, returnValue) => {
                 if (!returnValue) return returnValue;
                 const image = thisObject.props.original;
+                if (!this.isImage(image)) return;
 
                 const components = returnValue.props.children;
-
                 const openOriginal = components[components.length - 1];
 
                 const separator = DiscordModules.React.createElement("span", {
@@ -94,6 +95,11 @@ module.exports = (Plugin, Api) => {
                 }
                 Toasts.success(this.strings.copySuccess);
             });
+        }
+
+        isImage(url) {
+            const file = DiscordModules.URLParser.parse(url).pathname.toLowerCase();
+            return file.endsWith(".jpg") || file.endsWith(".jpeg") || file.endsWith(".png") || file.endsWith(".gif") || file.endsWith(".apng") || file.endsWith(".webp");
         }
 
         isValid(url) {
