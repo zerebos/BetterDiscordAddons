@@ -3,32 +3,35 @@
 	"env": {
         "browser": true,
         "node": true,
-		"jquery": true,
+		"jquery": true
     },
     "parserOptions": {
-        "ecmaVersion": 6
+        "ecmaVersion": 8
     },
     "rules": {
         "semi": 2,
-		"space-infix-ops": ["error", {"int32Hint": false}]
+        "space-infix-ops": ["error", {"int32Hint": false}],
+        "no-console": 2,
+        "brace-style": ["error", "stroustrup", {"allowSingleLine": true}],
+        "keyword-spacing": 2,
+        "no-else-return": 2,
+        "curly": ["error", "multi-line", "consistent"],
+        "dot-notation": 2,
+        "yoda": 2,
+        "quote-props": ["error", "consistent-as-needed", {"keywords": true}],
+        "object-curly-spacing": ["error", "never", { "objectsInObjects": false }],
+        "no-var": "error",
+        "prefer-const": "error"
     },
     "globals": {
-        "ZeresLibrary": false,
-        "ColorUtilities": false,
-        "DOMUtilities": false,
-        "ReactUtilities": false,
-        "PluginUtilities": false,
-        "PluginUpdateUtilities": false,
-        "PluginSettings": false,
-        "PluginContextMenu": false,
-        "PluginTooltip": false,
-        "DiscordPermissions": false,
-        "InternalUtilities": false,
-        "DiscordModules": false,
-        "DiscordClassModules": false,
-        "DiscordClasses": false,
-        "DiscordSelectors": false,
-        "GeneralUtilities": false,
-        "BdApi": false
+        "webpackJsonp": false,
+        "Proxy": false,
+        "Set": false,
+        "WeakMap": false,
+        "Promise": false,
+        "BdApi": false,
+        "V2C_ContentColumn": false,
+        "bdPluginStorage": false,
+        "Map": false
     }
 }

@@ -1,28 +1,26 @@
-
 module.exports = (Plugin, Api) => {
-    const {Patcher, WebpackModules, Modals} = Api;
-
+    const {Patcher, WebpackModules, Modals, DiscordModules} = Api;
+    const electron = require("electron");
     return class DoNotTrack extends Plugin {
         onStart() {
             const Analytics = WebpackModules.getByProps("AnalyticEventConfigs");
             Patcher.instead(Analytics.default, "track", () => {});
     
-            const Warning = WebpackModules.getByProps("consoleWarning");
-            Patcher.instead(Warning, "consoleWarning", () => {});
-    
-            const MethodWrapper = WebpackModules.getByProps("wrapMethod");
-            Patcher.instead(MethodWrapper, "wrapMethod", () => {});
+            electron.remote.getCurrentWebContents().removeAllListeners("devtools-opened"); // Remove dumb console warning
 
-            const Reporter = WebpackModules.getByProps("report");
-            Reporter.report.uninstall();
-    
-            const Sentry = WebpackModules.getByProps("_originalConsoleMethods", "_wrappedBuiltIns");
-            Patcher.instead(Sentry, "_breadcrumbEventHandler", () => () => {});
-            Patcher.instead(Sentry, "captureBreadcrumb", () => {});
-            Patcher.instead(Sentry, "_makeRequest", () => {});
-            Patcher.instead(Sentry, "_sendProcessedPayload", () => {});
-            Patcher.instead(Sentry, "_send", () => {});
-            Object.assign(window.console, Sentry._originalConsoleMethods);
+            const Logger = window.__SENTRY__.logger;
+            Logger.disable(); // Kill sentry logs
+
+            const SentryHub =  window.DiscordSentry.getCurrentHub();
+            SentryHub.getClient().close(0); // Kill reporting
+            SentryHub.getStackTop().scope.clear(); // Delete PII
+
+            /* eslint-disable no-console */
+            for (const method in console) {
+                if (!console[method].__sentry_original__) continue;
+                console[method] =  console[method].__sentry_original__;
+            }            
+
             if (this.settings.stopProcessMonitor) this.disableProcessMonitor();
         }
         
@@ -31,12 +29,14 @@ module.exports = (Plugin, Api) => {
         }
 
         disableProcessMonitor() {
+            DiscordModules.UserSettingsUpdater.updateLocalSettings({showCurrentGame: false});
             const NativeModule = WebpackModules.getByProps("getDiscordUtils");
             const DiscordUtils = NativeModule.getDiscordUtils();
             DiscordUtils.setObservedGamesCallback([], () => {});
         }
 
         enableProcessMonitor() {
+            DiscordModules.UserSettingsUpdater.updateLocalSettings({showCurrentGame: true});
             Modals.showConfirmationModal("Reload Discord?", "To reenable the process monitor Discord needs to be reloaded.", {
                 confirmText: "Reload",
                 cancelText: "Later",

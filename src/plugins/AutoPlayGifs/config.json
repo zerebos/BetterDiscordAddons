@@ -7,7 +7,7 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.1.1",
+        "version": "0.1.2",
         "description": "Automatically plays avatars. Support Server: bit.ly/ZeresServer",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AutoPlayGifs",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AutoPlayGifs/AutoPlayGifs.plugin.js"
@@ -26,10 +26,17 @@
             "name": "Autoplay Memberlist",
             "note": "Autoplays avatars in the member list for Nitro users.",
             "value": true
+        },
+        {
+            "type": "switch",
+            "id": "guildList",
+            "name": "Autoplay Guids",
+            "note": "Autoplays guild icons in the guild list for servers that have been boosted.",
+            "value": true
         }
     ],
     "changelog": [
-        {"title": "What's New?", "items": ["Move to local lib only."]}
+        {"title": "What's New?", "items": ["Add ability to always animate the guild list!"]}
     ],
     "main": "index.js"
 }
