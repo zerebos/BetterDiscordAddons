@@ -1,4 +1,12 @@
-//META{"name":"ServerSearch","displayName":"ServerSearch","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch","source":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSearch/ServerSearch.plugin.js"}*//
+/**
+ * @name ServerSearch
+ * @invite TyFxKer
+ * @authorLink https://twitter.com/ZackRauen
+ * @donate https://paypal.me/ZackRauen
+ * @patreon https://patreon.com/Zerebos
+ * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch
+ * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSearch/ServerSearch.plugin.js
+ */
 /*@cc_on
 @if (@_jscript)
 	

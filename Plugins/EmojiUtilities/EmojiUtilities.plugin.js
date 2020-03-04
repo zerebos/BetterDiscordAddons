@@ -1,4 +1,12 @@
-//META{"name":"EmojiUtilities","displayName":"EmojiUtilities","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmojiUtilities","source":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/EmojiUtilities/EmojiUtilities.plugin.js"}*//
+/**
+ * @name EmojiUtilities
+ * @invite TyFxKer
+ * @authorLink https://twitter.com/ZackRauen
+ * @donate https://paypal.me/ZackRauen
+ * @patreon https://patreon.com/Zerebos
+ * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmojiUtilities
+ * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/EmojiUtilities/EmojiUtilities.plugin.js
+ */
 /*@cc_on
 @if (@_jscript)
 	

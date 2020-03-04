@@ -48,9 +48,13 @@ for (let f = 0; f < list.length; f++) {
         PLUGIN_NAME: pluginName,
         CONFIG: JSON.stringify(config),
         INNER: content,
-        WEBSITE: config.info.github,
-        SOURCE: config.info.github_raw,
-        DISPLAY_NAME: config.info.name,
+        WEBSITE: config.info.github || formatString(buildConfig.github, {PLUGIN_NAME: pluginName}),
+        SOURCE: config.info.github_raw || formatString(buildConfig.githubRaw, {PLUGIN_NAME: pluginName}),
+        DISPLAY_NAME: config.info.name || pluginName,
+        PATREON: buildConfig.patreonLink,
+        PAYPAL: buildConfig.paypalLink,
+        AUTHOR_LINK: buildConfig.authorLink,
+        INVITE_CODE: buildConfig.inviteCode,
         INSTALL_SCRIPT: buildConfig.addInstallScript ? require(path.join(__dirname, "installscript.js")) : ""
     });
     if (buildConfig.addInstallScript) result = result + "\n/*@end@*/";

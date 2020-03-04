@@ -1,4 +1,12 @@
-//META{"name":"ServerSorter","displayName":"ServerSorter","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSorter","source":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSorter/ServerSorter.plugin.js"}*//
+/**
+ * @name ServerSorter
+ * @invite TyFxKer
+ * @authorLink https://twitter.com/ZackRauen
+ * @donate https://paypal.me/ZackRauen
+ * @patreon https://patreon.com/Zerebos
+ * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSorter
+ * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSorter/ServerSorter.plugin.js
+ */
 /*@cc_on
 @if (@_jscript)
 	

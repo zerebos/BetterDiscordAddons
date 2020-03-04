@@ -1,4 +1,12 @@
-//META{"name":"HideMutedServers","displayName":"HideMutedServers","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideMutedServers","source":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/HideMutedServers/HideMutedServers.plugin.js"}*//
+/**
+ * @name HideMutedServers
+ * @invite TyFxKer
+ * @authorLink https://twitter.com/ZackRauen
+ * @donate https://paypal.me/ZackRauen
+ * @patreon https://patreon.com/Zerebos
+ * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideMutedServers
+ * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/HideMutedServers/HideMutedServers.plugin.js
+ */
 /*@cc_on
 @if (@_jscript)
 	

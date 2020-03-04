@@ -1,4 +1,12 @@
-//META{"name":"DoNotTrack","displayName":"DoNotTrack","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/DoNotTrack","source":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/DoNotTrack/DoNotTrack.plugin.js"}*//
+/**
+ * @name DoNotTrack
+ * @invite TyFxKer
+ * @authorLink https://twitter.com/ZackRauen
+ * @donate https://paypal.me/ZackRauen
+ * @patreon https://patreon.com/Zerebos
+ * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/DoNotTrack
+ * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/DoNotTrack/DoNotTrack.plugin.js
+ */
 /*@cc_on
 @if (@_jscript)
 	
