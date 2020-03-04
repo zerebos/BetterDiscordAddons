@@ -1,4 +1,12 @@
-//META{"name":"ServerSearch","displayName":"ServerSearch","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch","source":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSearch/ServerSearch.plugin.js"}*//
+/**
+ * @name ServerSearch
+ * @invite TyFxKer
+ * @authorLink https://twitter.com/ZackRauen
+ * @donate https://paypal.me/ZackRauen
+ * @patreon https://patreon.com/Zerebos
+ * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch
+ * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSearch/ServerSearch.plugin.js
+ */
 /*@cc_on
 @if (@_jscript)
 	
@@ -24,7 +32,7 @@
 @else@*/
 
 var ServerSearch = (() => {
-    const config = {"info":{"name":"ServerSearch","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.2","description":"Adds a button to search your servers. Search in place or in popout. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSearch/ServerSearch.plugin.js"},"defaultConfig":[{"type":"radio","id":"inPlace","name":"Search Style","value":false,"options":[{"name":"Popout","value":false,"desc":"Shows a popout with a list of guilds to search."},{"name":"In Place","value":true,"desc":"Hides guilds in the list that don't match the search."}]}],"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Button now appears.","Menu closes when you leave it.","Searching actually works.","Wow."]}],"main":"index.js"};
+    const config = {"info":{"name":"ServerSearch","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.2","description":"Adds a button to search your servers. Search in place or in popout.","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSearch/ServerSearch.plugin.js"},"defaultConfig":[{"type":"radio","id":"inPlace","name":"Search Style","value":false,"options":[{"name":"Popout","value":false,"desc":"Shows a popout with a list of guilds to search."},{"name":"In Place","value":true,"desc":"Hides guilds in the list that don't match the search."}]}],"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Button now appears.","Menu closes when you leave it.","Searching actually works.","Wow."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}

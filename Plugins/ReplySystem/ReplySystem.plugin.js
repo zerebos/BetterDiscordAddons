@@ -1,4 +1,12 @@
-//META{"name":"ReplySystem","displayName":"ReplySystem","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","source":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ReplySystem/ReplySystem.plugin.js"}*//
+/**
+ * @name ReplySystem
+ * @invite TyFxKer
+ * @authorLink https://twitter.com/ZackRauen
+ * @donate https://paypal.me/ZackRauen
+ * @patreon https://patreon.com/Zerebos
+ * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem
+ * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ReplySystem/ReplySystem.plugin.js
+ */
 /*@cc_on
 @if (@_jscript)
 	
@@ -24,7 +32,7 @@
 @else@*/
 
 var ReplySystem = (() => {
-    const config = {"info":{"name":"ReplySystem","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.10","description":"Adds a native-esque reply button with preview. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ReplySystem/ReplySystem.plugin.js"},"changelog":[{"title":"Bugfixes","type":"fixed","items":["Tooltips are existent again!"]}],"main":"index.js"};
+    const config = {"info":{"name":"ReplySystem","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.10","description":"Adds a native-esque reply button with preview.","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ReplySystem/ReplySystem.plugin.js"},"changelog":[{"title":"Bugfixes","type":"fixed","items":["Tooltips are existent again!"]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -365,7 +373,7 @@ var ReplySystem = (() => {
     
             Patcher.before(DiscordModules.MessageActions, "sendMessage", (t,a) => {
                 if (!this.replies.length) return;
-                let replyString = this.replies.map(r => {
+                const replyString = this.replies.map(r => {
                     return `<@!${r.id}> `;
                 });
                 a[1].content = replyString.join("") + a[1].content;
@@ -418,16 +426,16 @@ var ReplySystem = (() => {
             const Message = await ReactComponents.getComponentByName("Message", DiscordSelectors.Messages.message);
             Patcher.after(Message.component.prototype, "render", (thisObject, args, returnValue) => {
                 if (!thisObject.props.isHeader || thisObject.props.message.type != 0) return returnValue;
-                let id = thisObject.props.message.author.id;
-                let name = thisObject.props.message.author.username;
+                const id = thisObject.props.message.author.id;
+                const name = thisObject.props.message.author.username;
                 if (id == DiscordModules.UserStore.getCurrentUser().id) return;
-                let button = DiscordModules.React.createElement(ReplyButton, {
+                const button = DiscordModules.React.createElement(ReplyButton, {
                     id: id,
                     name: name,
                     icon: this.settings.icon
                 });
     
-                let children = this.safelyGetNestedProp(returnValue,
+                const children = this.safelyGetNestedProp(returnValue,
                     !thisObject.props.isCompact ? "props.children.0.props.children.1.props.children" : "props.children"
                 );
                 if (!children || !Array.isArray(children)) return returnValue;

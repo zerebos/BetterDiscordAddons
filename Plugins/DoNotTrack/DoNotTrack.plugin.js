@@ -1,4 +1,12 @@
-//META{"name":"DoNotTrack","displayName":"DoNotTrack","website":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/DoNotTrack","source":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/DoNotTrack/DoNotTrack.plugin.js"}*//
+/**
+ * @name DoNotTrack
+ * @invite TyFxKer
+ * @authorLink https://twitter.com/ZackRauen
+ * @donate https://paypal.me/ZackRauen
+ * @patreon https://patreon.com/Zerebos
+ * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/DoNotTrack
+ * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/DoNotTrack/DoNotTrack.plugin.js
+ */
 /*@cc_on
 @if (@_jscript)
 	
@@ -24,7 +32,7 @@
 @else@*/
 
 var DoNotTrack = (() => {
-    const config = {"info":{"name":"DoNotTrack","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.6","description":"Stops Discord from tracking everything you do like Sentry and Analytics. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/DoNotTrack","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/DoNotTrack/DoNotTrack.plugin.js"},"changelog":[{"title":"What's New?","items":["Clear identifying information from Sentry cache to prevent manually sending by Discord.","Kill devtools warning and manip.","Updated to match Sentry changes."]},{"title":"Fixes","type:":"fixed","items":["Fixed the plugin not loading.","Should clear game status."]}],"main":"index.js","defaultConfig":[{"type":"switch","id":"stopProcessMonitor","name":"Stop Process Monitor","note":"This setting stops Discord from monitoring the processes on your PC and prevents your currently played game from showing.","value":true}]};
+    const config = {"info":{"name":"DoNotTrack","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.6","description":"Stops Discord from tracking everything you do like Sentry and Analytics.","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/DoNotTrack","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/DoNotTrack/DoNotTrack.plugin.js"},"changelog":[{"title":"What's New?","items":["Clear identifying information from Sentry cache to prevent manually sending by Discord.","Kill devtools warning and manip.","Updated to match Sentry changes."]},{"title":"Fixes","type:":"fixed","items":["Fixed the plugin not loading.","Should clear game status."]}],"main":"index.js","defaultConfig":[{"type":"switch","id":"stopProcessMonitor","name":"Stop Process Monitor","note":"This setting stops Discord from monitoring the processes on your PC and prevents your currently played game from showing.","value":true}]};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -74,6 +82,7 @@ var DoNotTrack = (() => {
             SentryHub.getClient().close(0); // Kill reporting
             SentryHub.getStackTop().scope.clear(); // Delete PII
 
+            /* eslint-disable no-console */
             for (const method in console) {
                 if (!console[method].__sentry_original__) continue;
                 console[method] =  console[method].__sentry_original__;
