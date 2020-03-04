@@ -8,7 +8,7 @@
             "twitter_username": "ZackRauen"
         }],
         "version": "0.8.8",
-        "description": "Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer",
+        "description": "Adds server-based role colors to typing, voice, popouts, modals and more!",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js"
     },

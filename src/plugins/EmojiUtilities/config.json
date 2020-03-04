@@ -8,7 +8,7 @@
             "twitter_username": "ZackRauen"
         }],
         "version": "0.0.6-patch1",
-        "description": "Allows you to blacklist and favorite emojis. Support Server: bit.ly/ZeresServer",
+        "description": "Allows you to blacklist and favorite emojis.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmojiUtilities",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/EmojiUtilities/EmojiUtilities.plugin.js"
     },

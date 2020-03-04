@@ -8,7 +8,7 @@
             "twitter_username": "ZackRauen"
         }],
         "version": "0.4.6",
-        "description": "Adds user status everywhere Discord doesn't. Support Server: bit.ly/ZeresServer",
+        "description": "Adds user status everywhere Discord doesn't.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/StatusEverywhere",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/StatusEverywhere/StatusEverywhere.plugin.js"
     },

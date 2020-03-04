@@ -8,7 +8,7 @@
             "twitter_username": "ZackRauen"
         }],
         "version": "0.0.6",
-        "description": "Stops Discord from tracking everything you do like Sentry and Analytics. Support Server: bit.ly/ZeresServer",
+        "description": "Stops Discord from tracking everything you do like Sentry and Analytics.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/DoNotTrack",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/DoNotTrack/DoNotTrack.plugin.js"
     },

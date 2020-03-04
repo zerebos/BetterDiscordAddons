@@ -32,7 +32,7 @@
 @else@*/
 
 var SendButton = (() => {
-    const config = {"info":{"name":"SendButton","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.2","description":"Adds a clickable send button. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/SendButton","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/SendButton/SendButton.plugin.js"},"changelog":[{"title":"Fixed","type":"fixed","items":["Clicking the button should do something now."]}],"main":"index.js"};
+    const config = {"info":{"name":"SendButton","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.2","description":"Adds a clickable send button.","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/SendButton","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/SendButton/SendButton.plugin.js"},"changelog":[{"title":"Fixed","type":"fixed","items":["Clicking the button should do something now."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -111,7 +111,6 @@ var SendButton = (() => {
             if (elem.querySelector(".send-button")) return;
             const button = DOMTools.createElement(buttonHTML);
             const form = elem.querySelector(DiscordSelectors.Textarea.inner);
-            if (!form) return;
             form.append(button);
             if (form.querySelector("[class*=\"emojiButton-\"]")) form.querySelector("[class*=\"emojiButton-\"]").css("margin-right", (button.outerWidth() + 10) + "px");
             button.on("click", () => {

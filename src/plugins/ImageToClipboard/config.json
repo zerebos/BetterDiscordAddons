@@ -8,7 +8,7 @@
             "twitter_username": "ZackRauen"
         }],
         "version": "0.3.4",
-        "description": "Copies images (png/jpg) directly to clipboard. Support Server: bit.ly/ZeresServer",
+        "description": "Copies images (png/jpg) directly to clipboard.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ImageToClipboard",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ImageToClipboard/ImageToClipboard.plugin.js"
     },

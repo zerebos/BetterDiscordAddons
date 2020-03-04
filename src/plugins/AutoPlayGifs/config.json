@@ -8,7 +8,7 @@
             "twitter_username": "ZackRauen"
         }],
         "version": "0.1.2",
-        "description": "Automatically plays avatars. Support Server: bit.ly/ZeresServer",
+        "description": "Automatically plays avatars.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AutoPlayGifs",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AutoPlayGifs/AutoPlayGifs.plugin.js"
     },

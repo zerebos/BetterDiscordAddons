@@ -8,7 +8,7 @@
             "twitter_username": "ZackRauen"
         }],
         "version": "0.2.3",
-        "description": "Blurs images in NSFW channels until you hover over it. Support Server: bit.ly/ZeresServer",
+        "description": "Blurs images in NSFW channels until you hover over it.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BlurNSFW",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BlurNSFW/BlurNSFW.plugin.js"
     },

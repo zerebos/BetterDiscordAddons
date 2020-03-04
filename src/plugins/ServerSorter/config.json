@@ -8,7 +8,7 @@
             "twitter_username": "ZackRauen"
         }],
         "version": "0.4.2",
-        "description": "Adds server sorting abilities to Discord. Support Server: bit.ly/ZeresServer",
+        "description": "Adds server sorting abilities to Discord.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSorter",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSorter/ServerSorter.plugin.js"
     },

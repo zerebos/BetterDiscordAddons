@@ -32,7 +32,7 @@
 @else@*/
 
 var EmojiUtilities = (() => {
-    const config = {"info":{"name":"EmojiUtilities","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.6-patch1","description":"Allows you to blacklist and favorite emojis. Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmojiUtilities","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/EmojiUtilities/EmojiUtilities.plugin.js"},"changelog":[{"title":"Plugin Status","items":["EmojiUtilities is broken.","I am working on fixing it.","Please be patient while I work on it."]}],"main":"index.js"};
+    const config = {"info":{"name":"EmojiUtilities","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.0.6-patch1","description":"Allows you to blacklist and favorite emojis.","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmojiUtilities","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/EmojiUtilities/EmojiUtilities.plugin.js"},"changelog":[{"title":"Plugin Status","items":["EmojiUtilities is broken.","I am working on fixing it.","Please be patient while I work on it."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}

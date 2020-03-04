@@ -8,7 +8,7 @@
             "twitter_username": "ZackRauen"
         }],
         "version": "2.3.7",
-        "description": "Enables different types of formatting in standard Discord chat. Support Server: bit.ly/ZeresServer",
+        "description": "Enables different types of formatting in standard Discord chat.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js"
     },
