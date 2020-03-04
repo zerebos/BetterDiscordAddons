@@ -103,6 +103,7 @@ var SendButton = (() => {
             if (elem.querySelector(".send-button")) return;
             const button = DOMTools.createElement(buttonHTML);
             const form = elem.querySelector(DiscordSelectors.Textarea.inner);
+            if (!form) return;
             form.append(button);
             if (form.querySelector("[class*=\"emojiButton-\"]")) form.querySelector("[class*=\"emojiButton-\"]").css("margin-right", (button.outerWidth() + 10) + "px");
             button.on("click", () => {
