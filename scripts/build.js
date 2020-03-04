@@ -42,11 +42,11 @@ for (let f = 0; f < list.length; f++) {
         continue;
     }
     const config = require(configPath);
-    const files = fs.readdirSync(path.join(pluginsPath, pluginName)).filter(f => f != "config.json" && f != config.main);
+    const files = fs.readdirSync(path.join(pluginsPath, pluginName)).filter(file => file != "config.json" && file != config.main);
     const content = embedFiles(require(path.join(pluginsPath, pluginName, config.main)).toString(), pluginName, files);
     let result = formatString(template, {
         PLUGIN_NAME: pluginName,
-        CONFIG: JSON.stringify(config),
+        CONFIG: JSON.stringify(config).replace(/"((?:[A-Za-z]|[0-9]|_)+)"\s?:/g, "$1:"),
         INNER: content,
         WEBSITE: config.info.github || formatString(buildConfig.github, {PLUGIN_NAME: pluginName}),
         SOURCE: config.info.github_raw || formatString(buildConfig.githubRaw, {PLUGIN_NAME: pluginName}),

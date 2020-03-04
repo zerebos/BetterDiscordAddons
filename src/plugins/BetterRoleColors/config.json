@@ -7,13 +7,17 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.8.8",
+        "version": "0.8.9",
         "description": "Adds server-based role colors to typing, voice, popouts, modals and more!",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js"
     },
     "changelog": [
-        {"title":"Fixes","type":"fixed","items":["Hovering mentions won't remove the !important designation anymore"]}
+        {
+            "title": "Additions",
+            "type": "added",
+            "items": ["User mentions in the rich textarea are now colored as well. (Thanks @Lighty)"]
+        }
     ],
     "defaultConfig": [
         {

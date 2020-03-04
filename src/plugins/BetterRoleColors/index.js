@@ -8,6 +8,7 @@ module.exports = (Plugin, Api) => {
     const RelationshipStore = DiscordModules.RelationshipStore;
     const PopoutWrapper = WebpackModules.getByDisplayName("DeprecatedPopout");
     const VoiceUser = WebpackModules.find(m => typeof(m) === "function" && m.List);
+    const RichTextareaComponents = WebpackModules.getByProps("UserMention");
 
     const ColoredDiscordTag = (DiscordTag) => function(props) {
         const returnValue = DiscordTag(props);
@@ -147,6 +148,50 @@ module.exports = (Plugin, Api) => {
                 const instance = ReactTools.getOwnerInstance(e, {include: ["Popout"]});
                 if (instance) instance.forceUpdate();
             }
+            Patcher.after(RichTextareaComponents, "UserMention", (_, [props], ret) => {
+                const old = Utilities.getNestedProp(ret, "props.children");
+                if (typeof old !== "function" || !this.settings.modules.mentions) return;
+                let tooltipRef;
+                ret.ref = e => tooltipRef = e;
+                ret.props.children = childProps => {
+                    try {
+                        const ret2 = old(childProps);
+                        const userId = props.id;
+                        const member = GuildMemberStore.getMember(SelectedGuildStore.getGuildId(), userId);
+                        if (!member || !member.colorString) return ret2;
+                        const defaultStyle = {
+                            color: member.colorString,
+                            background: ColorConverter.rgbToAlpha(member.colorString, 0.1)
+                        };
+                        const hoverStyle = {
+                            color: "#ffffff",
+                            background: ColorConverter.rgbToAlpha(member.colorString, 0.7)
+                        };
+                        const currentStyle = this.settings.mentions.changeOnHover && tooltipRef && tooltipRef.state.shouldShowTooltip ? hoverStyle : defaultStyle;
+                        ret2.props.style = currentStyle;
+                        if (this.settings.global.important) {
+                            ret2.props.ref = e => {
+                                if (!e || !e.ref) return;
+                                e.ref.style.setProperty("color", currentStyle.color, "important");
+                                e.ref.style.setProperty("background", currentStyle.background, "important");
+                            };
+                        }
+                        return ret2;
+                    }
+                    catch (err) {
+                        try {
+                            return old(childProps);
+                        }
+                        catch (error) {
+                            Logger.stacktrace("Error in UserMention patch", error);
+                            return null;
+                            /*  null will make it simply draw nothing, at that point it's obvious
+                                that something went horribly wrong somewhere deeper
+                            */
+                        }
+                    }
+                };
+            });
         }
 
 

@@ -32,7 +32,7 @@
 @else@*/
 
 var BetterRoleColors = (() => {
-    const config = {"info":{"name":"BetterRoleColors","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.8.9","description":"Adds server-based role colors to typing, voice, popouts, modals and more! Support Server: bit.ly/ZeresServer","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js"},"changelog":[{"title":"Additions","type":"added","items":["User mentions in the rich textarea are now colored as well."]}],"defaultConfig":[{"type":"category","id":"global","name":"Global Settings","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"important","name":"Use Important","note":"Add !important to role colors. (Only enable this if the plugin isn't working with your theme).","value":false}]},{"type":"category","id":"modules","name":"Module Settings","collapsible":true,"shown":true,"settings":[{"type":"switch","id":"typing","name":"Typing","note":"Toggles colorizing of typing notifications.","value":true},{"type":"switch","id":"voice","name":"Voice","note":"Toggles colorizing of voice users.","value":true},{"type":"switch","id":"mentions","name":"Mentions","note":"Toggles colorizing of user mentions in chat.","value":true},{"type":"switch","id":"botTags","name":"Bot Tags","note":"Toggles coloring the background of bot tags to match role.","value":true},{"type":"switch","id":"memberList","name":"Memberlist Headers","note":"Toggles coloring role names in the member list.","value":true}]},{"type":"category","id":"popouts","name":"Popout Options","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"username","name":"Username","note":"Toggles coloring on the username in popouts.","value":false},{"type":"switch","id":"discriminator","name":"Discriminator","note":"Toggles coloring on the discriminator in popouts.","value":false},{"type":"switch","id":"nickname","name":"Nickname","note":"Toggles coloring on the nickname in popouts.","value":true},{"type":"switch","id":"fallback","name":"Enable Fallback","note":"If nickname is on and username is off, enabling this will automatically color the username.","value":true}]},{"type":"category","id":"modals","name":"Modal Options","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"username","name":"Username","note":"Toggles coloring on the username in modals.","value":true},{"type":"switch","id":"discriminator","name":"Discriminator","note":"Toggles coloring on the discriminator in modals.","value":false}]},{"type":"category","id":"auditLog","name":"Audit Log Options","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"username","name":"Username","note":"Toggles coloring on the username in audit log.","value":true},{"type":"switch","id":"discriminator","name":"Discriminator","note":"Toggles coloring on the discriminator in audit log.","value":false}]},{"type":"category","id":"account","name":"Account Details Options","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"username","name":"Username","note":"Toggles coloring on the username in account details.","value":true},{"type":"switch","id":"discriminator","name":"Discriminator","note":"Toggles coloring on the discriminator in account details.","value":false}]},{"type":"category","id":"mentions","name":"Mention Options","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"changeOnHover","name":"Hover Color","note":"Turning this on adjusts the color on hover to match role color, having it off defers to your theme.","value":true}]}],"main":"index.js"};
+    const config = {info:{name:"BetterRoleColors",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.8.9",description:"Adds server-based role colors to typing, voice, popouts, modals and more!",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js"},changelog:[{title:"Additions",type:"added",items:["User mentions in the rich textarea are now colored as well. (Thanks @Lighty)"]}],defaultConfig:[{type:"category",id:"global",name:"Global Settings",collapsible:true,shown:false,settings:[{type:"switch",id:"important",name:"Use Important",note:"Add !important to role colors. (Only enable this if the plugin isn't working with your theme).",value:false}]},{type:"category",id:"modules",name:"Module Settings",collapsible:true,shown:true,settings:[{type:"switch",id:"typing",name:"Typing",note:"Toggles colorizing of typing notifications.",value:true},{type:"switch",id:"voice",name:"Voice",note:"Toggles colorizing of voice users.",value:true},{type:"switch",id:"mentions",name:"Mentions",note:"Toggles colorizing of user mentions in chat.",value:true},{type:"switch",id:"botTags",name:"Bot Tags",note:"Toggles coloring the background of bot tags to match role.",value:true},{type:"switch",id:"memberList",name:"Memberlist Headers",note:"Toggles coloring role names in the member list.",value:true}]},{type:"category",id:"popouts",name:"Popout Options",collapsible:true,shown:false,settings:[{type:"switch",id:"username",name:"Username",note:"Toggles coloring on the username in popouts.",value:false},{type:"switch",id:"discriminator",name:"Discriminator",note:"Toggles coloring on the discriminator in popouts.",value:false},{type:"switch",id:"nickname",name:"Nickname",note:"Toggles coloring on the nickname in popouts.",value:true},{type:"switch",id:"fallback",name:"Enable Fallback",note:"If nickname is on and username is off, enabling this will automatically color the username.",value:true}]},{type:"category",id:"modals",name:"Modal Options",collapsible:true,shown:false,settings:[{type:"switch",id:"username",name:"Username",note:"Toggles coloring on the username in modals.",value:true},{type:"switch",id:"discriminator",name:"Discriminator",note:"Toggles coloring on the discriminator in modals.",value:false}]},{type:"category",id:"auditLog",name:"Audit Log Options",collapsible:true,shown:false,settings:[{type:"switch",id:"username",name:"Username",note:"Toggles coloring on the username in audit log.",value:true},{type:"switch",id:"discriminator",name:"Discriminator",note:"Toggles coloring on the discriminator in audit log.",value:false}]},{type:"category",id:"account",name:"Account Details Options",collapsible:true,shown:false,settings:[{type:"switch",id:"username",name:"Username",note:"Toggles coloring on the username in account details.",value:true},{type:"switch",id:"discriminator",name:"Discriminator",note:"Toggles coloring on the discriminator in account details.",value:false}]},{type:"category",id:"mentions",name:"Mention Options",collapsible:true,shown:false,settings:[{type:"switch",id:"changeOnHover",name:"Hover Color",note:"Turning this on adjusts the color on hover to match role color, having it off defers to your theme.",value:true}]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -74,7 +74,7 @@ var BetterRoleColors = (() => {
     const RelationshipStore = DiscordModules.RelationshipStore;
     const PopoutWrapper = WebpackModules.getByDisplayName("DeprecatedPopout");
     const VoiceUser = WebpackModules.find(m => typeof(m) === "function" && m.List);
-    const RichTextareaComponents = WebpackModules.getByProps('UserMention');
+    const RichTextareaComponents = WebpackModules.getByProps("UserMention");
 
     const ColoredDiscordTag = (DiscordTag) => function(props) {
         const returnValue = DiscordTag(props);
@@ -214,14 +214,14 @@ var BetterRoleColors = (() => {
                 const instance = ReactTools.getOwnerInstance(e, {include: ["Popout"]});
                 if (instance) instance.forceUpdate();
             }
-            Patcher.after(RichTextareaComponents, 'UserMention', (_, [props], ret) => {
-                const old = Utilities.getNestedProp(ret, 'props.children');
-                if (typeof old !== 'function' || !this.settings.modules.mentions) return;
+            Patcher.after(RichTextareaComponents, "UserMention", (_, [props], ret) => {
+                const old = Utilities.getNestedProp(ret, "props.children");
+                if (typeof old !== "function" || !this.settings.modules.mentions) return;
                 let tooltipRef;
                 ret.ref = e => tooltipRef = e;
-                ret.props.children = e => {
+                ret.props.children = childProps => {
                     try {
-                        const ret2 = old(e);
+                        const ret2 = old(childProps);
                         const userId = props.id;
                         const member = GuildMemberStore.getMember(SelectedGuildStore.getGuildId(), userId);
                         if (!member || !member.colorString) return ret2;
@@ -238,23 +238,25 @@ var BetterRoleColors = (() => {
                         if (this.settings.global.important) {
                             ret2.props.ref = e => {
                                 if (!e || !e.ref) return;
-                                e.ref.style.setProperty("color", currentStyle.color, "important")
-                                e.ref.style.setProperty("background", currentStyle.background, "important")
+                                e.ref.style.setProperty("color", currentStyle.color, "important");
+                                e.ref.style.setProperty("background", currentStyle.background, "important");
                             };
                         }
                         return ret2;
-                    } catch(err) {
+                    }
+                    catch (err) {
                         try {
-                            return old(e);
-                        } catch (err) {
-                            Logger.stacktrace('Error in UserMention patch', err);
+                            return old(childProps);
+                        }
+                        catch (error) {
+                            Logger.stacktrace("Error in UserMention patch", error);
                             return null;
                             /*  null will make it simply draw nothing, at that point it's obvious
                                 that something went horribly wrong somewhere deeper
                             */
                         }
                     }
-                }
+                };
             });
         }
 
