@@ -8,6 +8,7 @@ module.exports = (Plugin, Api) => {
             this.cancelChatAvatars = () => {};
             this.cancelMemberListAvatars = () => {};
             this.cancelGuildList = () => {};
+            this.cancelActivityStatus = () => {};
         }
 
         onStart() {
@@ -15,12 +16,14 @@ module.exports = (Plugin, Api) => {
             if (this.settings.chat) this.patchChatAvatars();
             if (this.settings.memberList) this.patchMemberListAvatars();
             if (this.settings.guildList) this.patchGuildList(this.promises.state);
+            if (this.settings.activityStatus) this.patchActivityStatus();
         }
-        
+
         onStop() {
             this.cancelChatAvatars();
             this.cancelMemberListAvatars();
             this.cancelGuildList();
+            this.cancelActivityStatus();
         }
 
         getSettingsPanel() {
@@ -37,6 +40,10 @@ module.exports = (Plugin, Api) => {
                 if (id == "guildList") {
                     if (value) this.patchGuildList();
                     else this.cancelGuildList();
+                }
+                if (id == "activityStatus") {
+                    if (value) this.patchActivityStatus();
+                    else this.cancelActivityStatus();
                 }
             });
             return panel.getElement();
@@ -55,12 +62,24 @@ module.exports = (Plugin, Api) => {
         }
 
         patchChatAvatars() {
-            const MessageGroup = WebpackModules.find(m => m.defaultProps && m.defaultProps.disableManageMessages);
-            this.cancelChatAvatars = Patcher.before(MessageGroup.prototype, "render", (thisObject) => {
-                thisObject.state.disableAvatarAnimation = false;
+            const MessageHeader = WebpackModules.getByProps("MessageTimestamp");
+            this.cancelChatAvatars = Patcher.after(MessageHeader, "default", (_, __, returnValue) => {
+                const AvatarComponent = Utilities.getNestedProp(returnValue, "props.children.0");
+                if (!AvatarComponent || !AvatarComponent.props || !AvatarComponent.props.renderPopout) return;
+                const renderer = Utilities.getNestedProp(AvatarComponent, "props.children");
+                if (!renderer || typeof(renderer) !== "function" || renderer.__patchedAPG) return;
+                AvatarComponent.props.children = function() {
+                    const rv = renderer(...arguments);
+                    const id = rv.props.src.split("/")[4];
+                    const hasAnimatedAvatar = DiscordModules.ImageResolver.hasAnimatedAvatar(DiscordModules.UserStore.getUser(id));
+                    if (!hasAnimatedAvatar) return rv;
+                    rv.props.src = DiscordModules.ImageResolver.getUserAvatarURL(DiscordModules.UserStore.getUser(id)).replace("webp", "gif");
+                    return rv;
+                };
+                AvatarComponent.props.children.__patchedAPG = true;
             });
         }
-    
+
         patchMemberListAvatars() {
             const MemberList = WebpackModules.findByDisplayName("MemberListItem");
             this.cancelMemberListAvatars = Patcher.before(MemberList.prototype, "render", (thisObject) => {
@@ -69,6 +88,14 @@ module.exports = (Plugin, Api) => {
                 const hasAnimatedAvatar = DiscordModules.ImageResolver.hasAnimatedAvatar(DiscordModules.UserStore.getUser(id));
                 if (!hasAnimatedAvatar) return;
                 thisObject.props.user.getAvatarURL = () => {return DiscordModules.ImageResolver.getUserAvatarURL(DiscordModules.UserStore.getUser(id)).replace("webp", "gif");};
+            });
+        }
+
+        patchActivityStatus() {
+            const ActivityStatus = WebpackModules.getByProps("ActivityEmoji");
+            this.cancelActivityStatus = Patcher.before(ActivityStatus, "default", (_, [props]) => {
+                if (!props) return;
+                props.animate = true;
             });
         }
 

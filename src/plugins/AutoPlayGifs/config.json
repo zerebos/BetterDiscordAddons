@@ -7,11 +7,15 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.1.2",
-        "description": "Automatically plays avatars.",
+        "version": "0.1.3",
+        "description": "Automatically plays avatars and stuff.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AutoPlayGifs",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AutoPlayGifs/AutoPlayGifs.plugin.js"
     },
+    "changelog": [
+        {"title": "What's New?", "items": ["Add ability to always animate activity statuses!"]},
+        {"title": "Fixed", "type": "fixed", "items": ["Should animate avatars in chat again!"]}
+    ],
     "defaultConfig": [
         {
             "type": "switch",
@@ -33,10 +37,14 @@
             "name": "Autoplay Guids",
             "note": "Autoplays guild icons in the guild list for servers that have been boosted.",
             "value": true
+        },
+        {
+            "type": "switch",
+            "id": "activityStatus",
+            "name": "Activity Status",
+            "note": "Autoplays emojis and icons in the activity status like in the member list.",
+            "value": true
         }
-    ],
-    "changelog": [
-        {"title": "What's New?", "items": ["Add ability to always animate the guild list!"]}
     ],
     "main": "index.js"
 }

@@ -32,7 +32,7 @@
 @else@*/
 
 var AutoPlayGifs = (() => {
-    const config = {"info":{"name":"AutoPlayGifs","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.2","description":"Automatically plays avatars.","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AutoPlayGifs","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AutoPlayGifs/AutoPlayGifs.plugin.js"},"defaultConfig":[{"type":"switch","id":"chat","name":"Autoplay Chat","note":"Autoplays avatars in the chat area for Nitro users.","value":true},{"type":"switch","id":"memberList","name":"Autoplay Memberlist","note":"Autoplays avatars in the member list for Nitro users.","value":true},{"type":"switch","id":"guildList","name":"Autoplay Guids","note":"Autoplays guild icons in the guild list for servers that have been boosted.","value":true}],"changelog":[{"title":"What's New?","items":["Add ability to always animate the guild list!"]}],"main":"index.js"};
+    const config = {info:{name:"AutoPlayGifs",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.3",description:"Automatically plays avatars and stuff.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AutoPlayGifs",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AutoPlayGifs/AutoPlayGifs.plugin.js"},changelog:[{title:"What's New?",items:["Add ability to always animate activity statuses!"]},{title:"Fixed",type:"fixed",items:["Should animate avatars in chat again!"]}],defaultConfig:[{type:"switch",id:"chat",name:"Autoplay Chat",note:"Autoplays avatars in the chat area for Nitro users.",value:true},{type:"switch",id:"memberList",name:"Autoplay Memberlist",note:"Autoplays avatars in the member list for Nitro users.",value:true},{type:"switch",id:"guildList",name:"Autoplay Guids",note:"Autoplays guild icons in the guild list for servers that have been boosted.",value:true},{type:"switch",id:"activityStatus",name:"Activity Status",note:"Autoplays emojis and icons in the activity status like in the member list.",value:true}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -74,6 +74,7 @@ var AutoPlayGifs = (() => {
             this.cancelChatAvatars = () => {};
             this.cancelMemberListAvatars = () => {};
             this.cancelGuildList = () => {};
+            this.cancelActivityStatus = () => {};
         }
 
         onStart() {
@@ -81,12 +82,14 @@ var AutoPlayGifs = (() => {
             if (this.settings.chat) this.patchChatAvatars();
             if (this.settings.memberList) this.patchMemberListAvatars();
             if (this.settings.guildList) this.patchGuildList(this.promises.state);
+            if (this.settings.activityStatus) this.patchActivityStatus();
         }
-        
+
         onStop() {
             this.cancelChatAvatars();
             this.cancelMemberListAvatars();
             this.cancelGuildList();
+            this.cancelActivityStatus();
         }
 
         getSettingsPanel() {
@@ -103,6 +106,10 @@ var AutoPlayGifs = (() => {
                 if (id == "guildList") {
                     if (value) this.patchGuildList();
                     else this.cancelGuildList();
+                }
+                if (id == "activityStatus") {
+                    if (value) this.patchActivityStatus();
+                    else this.cancelActivityStatus();
                 }
             });
             return panel.getElement();
@@ -121,12 +128,24 @@ var AutoPlayGifs = (() => {
         }
 
         patchChatAvatars() {
-            const MessageGroup = WebpackModules.find(m => m.defaultProps && m.defaultProps.disableManageMessages);
-            this.cancelChatAvatars = Patcher.before(MessageGroup.prototype, "render", (thisObject) => {
-                thisObject.state.disableAvatarAnimation = false;
+            const MessageHeader = WebpackModules.getByProps("MessageTimestamp");
+            this.cancelChatAvatars = Patcher.after(MessageHeader, "default", (_, __, returnValue) => {
+                const AvatarComponent = Utilities.getNestedProp(returnValue, "props.children.0");
+                if (!AvatarComponent || !AvatarComponent.props || !AvatarComponent.props.renderPopout) return;
+                const renderer = Utilities.getNestedProp(AvatarComponent, "props.children");
+                if (!renderer || typeof(renderer) !== "function" || renderer.__patchedAPG) return;
+                AvatarComponent.props.children = function() {
+                    const rv = renderer(...arguments);
+                    const id = rv.props.src.split("/")[4];
+                    const hasAnimatedAvatar = DiscordModules.ImageResolver.hasAnimatedAvatar(DiscordModules.UserStore.getUser(id));
+                    if (!hasAnimatedAvatar) return rv;
+                    rv.props.src = DiscordModules.ImageResolver.getUserAvatarURL(DiscordModules.UserStore.getUser(id)).replace("webp", "gif");
+                    return rv;
+                };
+                AvatarComponent.props.children.__patchedAPG = true;
             });
         }
-    
+
         patchMemberListAvatars() {
             const MemberList = WebpackModules.findByDisplayName("MemberListItem");
             this.cancelMemberListAvatars = Patcher.before(MemberList.prototype, "render", (thisObject) => {
@@ -135,6 +154,14 @@ var AutoPlayGifs = (() => {
                 const hasAnimatedAvatar = DiscordModules.ImageResolver.hasAnimatedAvatar(DiscordModules.UserStore.getUser(id));
                 if (!hasAnimatedAvatar) return;
                 thisObject.props.user.getAvatarURL = () => {return DiscordModules.ImageResolver.getUserAvatarURL(DiscordModules.UserStore.getUser(id)).replace("webp", "gif");};
+            });
+        }
+
+        patchActivityStatus() {
+            const ActivityStatus = WebpackModules.getByProps("ActivityEmoji");
+            this.cancelActivityStatus = Patcher.before(ActivityStatus, "default", (_, [props]) => {
+                if (!props) return;
+                props.animate = true;
             });
         }
 
