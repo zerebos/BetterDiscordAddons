@@ -7,13 +7,13 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.4.6",
+        "version": "0.4.7",
         "description": "Adds user status everywhere Discord doesn't.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/StatusEverywhere",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/StatusEverywhere/StatusEverywhere.plugin.js"
     },
     "changelog": [
-        {"title":"Good News","items":["Fixes the crash when opening settings."]}
+        {"title":"Good News","items":["The plugins works once more.", "Should no longer crash your screensharing sessions."]}
     ],
     "main": "index.js"
 }
