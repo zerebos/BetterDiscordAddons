@@ -66,7 +66,8 @@
 	vertical-align: middle;
 }
 
-.bf-toolbar .format img {
+.bf-toolbar .format > img,
+.bf-toolbar .format > svg {
 	opacity: 0.6;
 	vertical-align: middle;
 	max-height: inherit;
@@ -102,7 +103,8 @@
 	background: rgba(0,0,0,.1);
 }
 
-.bf-toolbar .format.ghost img {
+.bf-toolbar .format.ghost > img,
+.bf-toolbar .format.ghost > svg {
 	opacity: 0;
 }
 
@@ -110,7 +112,7 @@
 .bf-toolbar .bf-arrow {
 	content:"";
 	display:block;
-	background: url('data:image/svg+xml;utf8,<svg fill="#FFFFFF" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+	background: url('data:image/svg+xml;utf8,<svg fill="white" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
 	height:30px;
 	width:30px;
 	right:5px;
@@ -124,7 +126,7 @@
 	cursor:pointer;
 }
 .theme-light .bf-toolbar .bf-arrow {
-	background: url('data:image/svg+xml;utf8,<svg fill="#7F8186" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+	background: url('data:image/svg+xml;utf8,<svg fill="rgb(127,129,134)" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
 }
 .bf-toolbar.bf-visible .bf-arrow,
 .bf-toolbar.bf-hover:hover .bf-arrow {

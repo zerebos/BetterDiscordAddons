@@ -34,7 +34,7 @@
         {
             "type": "switch",
             "id": "guildList",
-            "name": "Autoplay Guids",
+            "name": "Autoplay Guilds",
             "note": "Autoplays guild icons in the guild list for servers that have been boosted.",
             "value": true
         },
