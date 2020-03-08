@@ -32,7 +32,7 @@
 @else@*/
 
 var BetterFormattingRedux = (() => {
-    const config = {"info":{"name":"BetterFormattingRedux","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"2.3.7","description":"Enables different types of formatting in standard Discord chat.","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js"},"changelog":[{"title":"What's New?","items":["Support for light theme!"]}],"main":"index.js","defaultConfig":[{"type":"category","id":"toolbar","name":"Toolbar Buttons","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"bold","name":"Bold","value":true},{"type":"switch","id":"italic","name":"Italic","value":true},{"type":"switch","id":"underline","name":"Underline","value":true},{"type":"switch","id":"strikethrough","name":"Strikethrough","value":true},{"type":"switch","id":"spoiler","name":"Spoiler","value":true},{"type":"switch","id":"code","name":"Code","value":true},{"type":"switch","id":"codeblock","name":"Codeblock","value":true},{"type":"switch","id":"superscript","name":"Superscript","value":true},{"type":"switch","id":"smallcaps","name":"Smallcaps","value":true},{"type":"switch","id":"fullwidth","name":"Full Width","value":true},{"type":"switch","id":"upsidedown","name":"Upsidedown","value":true},{"type":"switch","id":"varied","name":"Varied Caps","value":true},{"type":"switch","id":"leet","name":"Leet (1337)","value":false},{"type":"switch","id":"thicc","name":"Extra Thicc","value":false}]},{"type":"category","id":"formats","name":"Active Formats","collapsible":true,"shown":false,"settings":[{"type":"switch","id":"superscript","name":"Superscript","value":true},{"type":"switch","id":"smallcaps","name":"Smallcaps","value":true},{"type":"switch","id":"fullwidth","name":"Full Width","value":true},{"type":"switch","id":"upsidedown","name":"Upsidedown","value":true},{"type":"switch","id":"varied","name":"Varied Caps","value":true},{"type":"switch","id":"leet","name":"Leet (1337)","value":false},{"type":"switch","id":"thicc","name":"Extra Thicc","value":false}]},{"type":"category","id":"wrappers","name":"Wrapper Options","collapsible":true,"shown":false,"settings":[{"type":"textbox","id":"superscript","name":"Superscript","note":"The wrapper for superscripted text","value":"^^"},{"type":"textbox","id":"smallcaps","name":"Smallcaps","note":"The wrapper to make Smallcaps.","value":"%%"},{"type":"textbox","id":"fullwidth","name":"Full Width","note":"The wrapper for E X P A N D E D  T E X T.","value":"##"},{"type":"textbox","id":"upsidedown","name":"Upsidedown","note":"The wrapper to flip the text upsidedown.","value":"&&"},{"type":"textbox","id":"varied","name":"Varied Caps","note":"The wrapper to VaRy the capitalization.","value":"=="},{"type":"textbox","id":"leet","name":"Leet (1337)","note":"The wrapper to talk in 13375p34k.","value":"++"},{"type":"textbox","id":"thicc","name":"Extra Thicc","note":"The wrapper to get 乇乂下尺卂 下卄工匚匚.","value":"$$"}]},{"type":"category","id":"formatting","name":"Formatting Options","collapsible":true,"shown":false,"settings":[{"type":"dropdown","id":"fullWidthMap","name":"Fullwidth Style","note":"Which style of fullwidth formatting should be used.","value":true,"options":[{"label":"T H I S","value":false},{"label":"ｔｈｉｓ","value":true}]},{"type":"switch","id":"reorderUpsidedown","name":"Reorder Upsidedown Text","note":"Having this enabled reorders the upside down text to make it in-order.","value":true},{"type":"switch","id":"fullwidth","name":"Start VaRiEd Caps With Capital","note":"Enabling this starts a varied text string with a capital.","value":true}]},{"type":"category","id":"plugin","name":"Functional Options","collapsible":true,"shown":false,"settings":[{"type":"dropdown","id":"hoverOpen","name":"Opening Toolbar","note":"Determines when to show the toolbar.","value":true,"options":[{"label":"Click","value":false},{"label":"Hover","value":true}]},{"type":"dropdown","id":"chainFormats","name":"Format Chaining","note":"Swaps priority of wrappers between inner first and outer first. Check the GitHub for more info.","value":true,"options":[{"label":"Inner","value":false},{"label":"Outer","value":true}]},{"type":"switch","id":"closeOnSend","name":"Close On Send","note":"This option will close the toolbar when a message is sent.","value":true}]},{"type":"category","id":"style","name":"Style Options","collapsible":true,"shown":false,"settings":[{"type":"dropdown","id":"icons","name":"Toolbar Style","note":"Switches between icons and text as the toolbar buttons.","value":true,"options":[{"label":"Text","value":false},{"label":"Icons","value":true}]},{"type":"dropdown","id":"rightSide","name":"Toolbar Location","note":"This option enables swapping toolbar location.","value":true,"options":[{"label":"Left","value":false},{"label":"Right","value":true}]},{"type":"slider","id":"toolbarOpacity","name":"Opacity","note":"This allows the toolbar to be partially seethrough.","value":1,"min":0,"max":1},{"type":"slider","id":"fontSize","name":"Font Size","note":"Adjusts the font size between 0 and 100%.","value":85,"min":0,"max":100}]}]};
+    const config = {info:{name:"BetterFormattingRedux",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"2.3.8",description:"Enables different types of formatting in standard Discord chat.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js"},changelog:[{title:"It's Fixed!",type:"fixed",items:["Toolbar shows up again.","The icons aren't all broken.","Formatting works!","Clicking the buttons works.","Works with the new editor and the old editor.","Rewrite of this plugin is in progress!"]}],main:"index.js",defaultConfig:[{type:"category",id:"toolbar",name:"Toolbar Buttons",collapsible:true,shown:false,settings:[{type:"switch",id:"bold",name:"Bold",value:true},{type:"switch",id:"italic",name:"Italic",value:true},{type:"switch",id:"underline",name:"Underline",value:true},{type:"switch",id:"strikethrough",name:"Strikethrough",value:true},{type:"switch",id:"spoiler",name:"Spoiler",value:true},{type:"switch",id:"code",name:"Code",value:true},{type:"switch",id:"codeblock",name:"Codeblock",value:true},{type:"switch",id:"superscript",name:"Superscript",value:true},{type:"switch",id:"smallcaps",name:"Smallcaps",value:true},{type:"switch",id:"fullwidth",name:"Full Width",value:true},{type:"switch",id:"upsidedown",name:"Upsidedown",value:true},{type:"switch",id:"varied",name:"Varied Caps",value:true},{type:"switch",id:"leet",name:"Leet (1337)",value:false},{type:"switch",id:"thicc",name:"Extra Thicc",value:false}]},{type:"category",id:"formats",name:"Active Formats",collapsible:true,shown:false,settings:[{type:"switch",id:"superscript",name:"Superscript",value:true},{type:"switch",id:"smallcaps",name:"Smallcaps",value:true},{type:"switch",id:"fullwidth",name:"Full Width",value:true},{type:"switch",id:"upsidedown",name:"Upsidedown",value:true},{type:"switch",id:"varied",name:"Varied Caps",value:true},{type:"switch",id:"leet",name:"Leet (1337)",value:false},{type:"switch",id:"thicc",name:"Extra Thicc",value:false}]},{type:"category",id:"wrappers",name:"Wrapper Options",collapsible:true,shown:false,settings:[{type:"textbox",id:"superscript",name:"Superscript",note:"The wrapper for superscripted text",value:"^^"},{type:"textbox",id:"smallcaps",name:"Smallcaps",note:"The wrapper to make Smallcaps.",value:"%%"},{type:"textbox",id:"fullwidth",name:"Full Width",note:"The wrapper for E X P A N D E D  T E X T.",value:"##"},{type:"textbox",id:"upsidedown",name:"Upsidedown",note:"The wrapper to flip the text upsidedown.",value:"&&"},{type:"textbox",id:"varied",name:"Varied Caps",note:"The wrapper to VaRy the capitalization.",value:"=="},{type:"textbox",id:"leet",name:"Leet (1337)",note:"The wrapper to talk in 13375p34k.",value:"++"},{type:"textbox",id:"thicc",name:"Extra Thicc",note:"The wrapper to get 乇乂下尺卂 下卄工匚匚.",value:"$$"}]},{type:"category",id:"formatting",name:"Formatting Options",collapsible:true,shown:false,settings:[{type:"dropdown",id:"fullWidthMap",name:"Fullwidth Style",note:"Which style of fullwidth formatting should be used.",value:true,options:[{label:"T H I S",value:false},{label:"ｔｈｉｓ",value:true}]},{type:"switch",id:"reorderUpsidedown",name:"Reorder Upsidedown Text",note:"Having this enabled reorders the upside down text to make it in-order.",value:true},{type:"switch",id:"fullwidth",name:"Start VaRiEd Caps With Capital",note:"Enabling this starts a varied text string with a capital.",value:true}]},{type:"category",id:"plugin",name:"Functional Options",collapsible:true,shown:false,settings:[{type:"dropdown",id:"hoverOpen",name:"Opening Toolbar",note:"Determines when to show the toolbar.",value:true,options:[{label:"Click",value:false},{label:"Hover",value:true}]},{type:"dropdown",id:"chainFormats",name:"Format Chaining",note:"Swaps priority of wrappers between inner first and outer first. Check the GitHub for more info.",value:true,options:[{label:"Inner",value:false},{label:"Outer",value:true}]},{type:"switch",id:"closeOnSend",name:"Close On Send",note:"This option will close the toolbar when a message is sent.",value:true}]},{type:"category",id:"style",name:"Style Options",collapsible:true,shown:false,settings:[{type:"dropdown",id:"icons",name:"Toolbar Style",note:"Switches between icons and text as the toolbar buttons.",value:true,options:[{label:"Text",value:false},{label:"Icons",value:true}]},{type:"dropdown",id:"rightSide",name:"Toolbar Location",note:"This option enables swapping toolbar location.",value:true,options:[{label:"Left",value:false},{label:"Right",value:true}]},{type:"slider",id:"toolbarOpacity",name:"Opacity",note:"This allows the toolbar to be partially seethrough.",value:1,min:0,max:1},{type:"slider",id:"fontSize",name:"Font Size",note:"Adjusts the font size between 0 and 100%.",value:85,min:0,max:100}]}]};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -66,8 +66,8 @@ var BetterFormattingRedux = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {DiscordSelectors, PluginUtilities, ContextMenu, EmulatedTooltip, WebpackModules, DiscordModules} = Api;
-    const DraftActions = WebpackModules.getByProps("saveDraft");
+    const {DiscordSelectors, PluginUtilities, ContextMenu, EmulatedTooltip, DiscordModules, Patcher, Utilities} = Api;
+
     return class BetterFormattingRedux extends Plugin {
         constructor() {
             super();
@@ -79,15 +79,15 @@ var BetterFormattingRedux = (() => {
             this.fullwidthList = "　！＂＃＄％＆＇（）＊＋，－．／０１２３４５６７８９：；＜＝＞？＠ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ［＼］＾＿｀ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ｛｜｝";
             this.leetList = " !\"#$%&'()*+,-./0123456789:;<=>?@48CD3FG#IJK1MN0PQЯ57UVWXY2[\\]^_`48cd3fg#ijk1mn0pqЯ57uvwxy2{|}";
             this.thiccList = "　!\"#$%&'()*+,-./0123456789:;<=>?@卂乃匚刀乇下厶卄工丁长乚从ん口尸㔿尺丂丅凵リ山乂丫乙[\\]^_`卂乃匚刀乇下厶卄工丁长乚从ん口尸㔿尺丂丅凵リ山乂丫乙{|}";
-    
+
             this.toolbarString = `<div id="bfredux" class='bf-toolbar'><div class='bf-arrow'></div></div>`;
-            
+
             this.discordWrappers = {bold: "**", italic: "*", underline: "__", strikethrough: "~~", code: "`", codeblock: "```", spoiler: "||"};
-                            
+
             this.customWrappers = Object.keys(this.defaultSettings.wrappers);
             this.buttonOrder = Object.keys(this.defaultSettings.toolbar);
-            
-            
+
+
             this.toolbarData = (() => {return {
     bold: {type: "native-format",
             name: "Bold",
@@ -124,7 +124,7 @@ var BetterFormattingRedux = (() => {
     smallcaps: {type: "bfr-format",
                 name: "Smallcaps",
                 displayName: "SᴍᴀʟʟCᴀᴘs",
-                icon: `<img src='data:image/svg+xml;utf8,<svg fill="white" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs><path d="M24 24H0V0h24v24z" id="a"/></defs><clipPath id="b"><use overflow="visible" xlink:href="#a"/></clipPath><path clip-path="url(#b)" d="M2.5 4v3h5v12h3V7h5V4h-13zm19 5h-9v3h3v7h3v-7h3V9z"/></svg>'>`},
+                icon: `<svg fill="white" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><defs><path d="M24 24H0V0h24v24z" id="a"/></defs><clipPath id="b"><use overflow="visible" href="#a"/></clipPath><path clip-path="url(#b)" d="M2.5 4v3h5v12h3V7h5V4h-13zm19 5h-9v3h3v7h3v-7h3V9z"/></svg>`},
     fullwidth: {type: "bfr-format",
                 name: "Fullwidth",
                 displayName: "Ｆｕｌｌｗｉｄｔｈ",
@@ -230,7 +230,8 @@ var BetterFormattingRedux = (() => {
 	vertical-align: middle;
 }
 
-.bf-toolbar .format img {
+.bf-toolbar .format > img,
+.bf-toolbar .format > svg {
 	opacity: 0.6;
 	vertical-align: middle;
 	max-height: inherit;
@@ -266,7 +267,8 @@ var BetterFormattingRedux = (() => {
 	background: rgba(0,0,0,.1);
 }
 
-.bf-toolbar .format.ghost img {
+.bf-toolbar .format.ghost > img,
+.bf-toolbar .format.ghost > svg {
 	opacity: 0;
 }
 
@@ -274,7 +276,7 @@ var BetterFormattingRedux = (() => {
 .bf-toolbar .bf-arrow {
 	content:"";
 	display:block;
-	background: url('data:image/svg+xml;utf8,<svg fill="#FFFFFF" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+	background: url('data:image/svg+xml;utf8,<svg fill="white" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
 	height:30px;
 	width:30px;
 	right:5px;
@@ -288,7 +290,7 @@ var BetterFormattingRedux = (() => {
 	cursor:pointer;
 }
 .theme-light .bf-toolbar .bf-arrow {
-	background: url('data:image/svg+xml;utf8,<svg fill="#7F8186" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+	background: url('data:image/svg+xml;utf8,<svg fill="rgb(127,129,134)" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
 }
 .bf-toolbar.bf-visible .bf-arrow,
 .bf-toolbar.bf-hover:hover .bf-arrow {
@@ -376,21 +378,21 @@ var BetterFormattingRedux = (() => {
 	background: rgba(255,255,255,.1);
 	color: rgba(255,255,255,.9);
 }`;
-    
+
         }
 
         async onStart() {
-            if (this.settings.wrappers.varied == "||") {
-                this.settings.wrappers.varied = "==";
-                this.saveSettings();
-            }
             await PluginUtilities.addScript("sortableScript", "//rauenzi.github.io/BetterDiscordAddons/Plugins/Sortable.js");
             PluginUtilities.addStyle(this.getName()  + "-style", this.mainCSS);
             this.buttonOrder = PluginUtilities.loadData(this.getName(), "buttonOrder", this.buttonOrder);
             this.setupToolbar();
+            Patcher.before(DiscordModules.MessageActions, "sendMessage", (_, [, msg]) => {
+                msg.content = this.format(msg.content);
+            });
         }
-        
+
         onStop() {
+            Patcher.unpatchAll();
             $("*").off("." + this.getName());
             $(".bf-toolbar").remove();
             PluginUtilities.removeScript("sortableScript");
@@ -399,31 +401,31 @@ var BetterFormattingRedux = (() => {
 
         observer(e) {
             if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element)) return;
-    
-            var elem = e.addedNodes[0];
-            var textarea = elem.querySelector(DiscordSelectors.Textarea.textArea);
-            if (textarea) this.addToolbar($(textarea.children[0]));
+
+            const elem = e.addedNodes[0];
+            const textarea = elem.matches(DiscordSelectors.Textarea.textArea) ? elem : elem.querySelector(DiscordSelectors.Textarea.textArea);
+            if (textarea) this.addToolbar($(textarea));
         }
-    
+
         updateStyle() {
             this.updateSide();
             this.updateOpacity();
             this.updateFontSize();
         }
-        
+
         updateSide() {
             if (this.settings.style.rightSide) { $(".bf-toolbar").removeClass("bf-left"); }
             else { $(".bf-toolbar").addClass("bf-left"); }
         }
-        
+
         updateOpacity() {
             $(".bf-toolbar").css("opacity", this.settings.style.toolbarOpacity);
         }
-    
+
         updateFontSize() {
             $(".bf-toolbar").css("font-size", this.settings.style.fontSize + "%");
         }
-        
+
         openClose() {
             this.isOpen = !this.isOpen;
             $(".bf-toolbar").toggleClass("bf-visible");
@@ -432,36 +434,37 @@ var BetterFormattingRedux = (() => {
         escape(s) {
             return s.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
         }
-        
+
         doFormat(text, wrapper, offset) {
-    
+
             // If this is not a wrapper, return original
             if (text.substring(offset, offset + wrapper.length) != wrapper) return text;
-            
-            var returnText = text, len = text.length;
-            var begin = text.indexOf(wrapper, offset);
-            
+
+            let returnText = text;
+            const len = text.length;
+            const begin = text.indexOf(wrapper, offset);
+
             if (text[begin - 1] == "\\") return text; // If the wrapper is escaped, remove the backslash and return the text
-            
-            var end = text.indexOf(wrapper, begin + wrapper.length);
+
+            let end = text.indexOf(wrapper, begin + wrapper.length);
             if (end != -1) end += wrapper.length - 1;
-            
+
             // Making it to this point means that we have found a full wrapper
             // This block performs inner chaining
             if (this.settings.plugin.chainFormats) {
-                for (var w = 0; w < this.customWrappers.length; w++) {
-                    var newText = this.doFormat(returnText, this.settings.wrappers[this.customWrappers[w]], begin + wrapper.length);
+                for (let w = 0; w < this.customWrappers.length; w++) {
+                    const newText = this.doFormat(returnText, this.settings.wrappers[this.customWrappers[w]], begin + wrapper.length);
                     if (returnText != newText) {
                         returnText = newText;
                         end = end - this.settings.wrappers[this.customWrappers[w]].length * 2;
                     }
                 }
             }
-            
+
             returnText = returnText.replace(new RegExp(`([^]{${begin}})${this.escape(wrapper)}([^]*)${this.escape(wrapper)}([^]{${len - end - 1}})`), (match, before, middle, after) => {
-                var letterNum = 0;
+                let letterNum = 0;
                 middle = middle.replace(/./g, letter => {
-                    var index = this.replaceList.indexOf(letter);
+                    const index = this.replaceList.indexOf(letter);
                     letterNum += 1;
                     if (wrapper == this.settings.wrappers.fullwidth) {
                         if (this.settings.formatting.fullWidthMap) return index != -1 ? this.fullwidthList[index] : letter;
@@ -473,7 +476,7 @@ var BetterFormattingRedux = (() => {
                     else if (wrapper == this.settings.wrappers.leet) {return index != -1 ? this.leetList[index] : letter;}
                     else if (wrapper == this.settings.wrappers.thicc) {return index != -1 ? this.thiccList[index] : letter;}
                     else if (wrapper == this.settings.wrappers.varied) {
-                        var compare = this.settings.formatting.startCaps ? 1 : 0;
+                        const compare = this.settings.formatting.startCaps ? 1 : 0;
                         if (letter.toLowerCase() == letter.toUpperCase()) letterNum = letterNum - 1;
                         return index != -1 ? letterNum % 2 == compare ? letter.toUpperCase() : letter.toLowerCase() : letter;
                     }
@@ -482,28 +485,25 @@ var BetterFormattingRedux = (() => {
                 if (wrapper == this.settings.wrappers.upsidedown && this.settings.formatting.reorderUpsidedown) return before + middle.split("").reverse().join("") + after;
                 return before + middle + after;
             });
-            
+
             return returnText;
         }
-        
-        format(e) {
-            if (e.shiftKey || e.which != 13) return;
-            var textarea = $(e.currentTarget);
-            var text = textarea.val();
-            const textOriginal = textarea.val();
-            for (var i = 0; i < text.length; i++) {
+
+        format(string) {
+            let text = string;
+            for (let i = 0; i < text.length; i++) {
                 if (text[i] == "`") {
-                    var next = text.indexOf("`", i + 1);
+                    const next = text.indexOf("`", i + 1);
                     if (next != -1) i = next;
                 }
                 else if (text[i] == "@") {
-                    var match = /@.*#[0-9]*/.exec(text.substring(i));
+                    const match = /@.*#[0-9]*/.exec(text.substring(i));
                     if (match && match.index == 0) i += match[0].length - 1;
                 }
                 else {
-                    for (var w = 0; w < this.customWrappers.length; w++) {
+                    for (let w = 0; w < this.customWrappers.length; w++) {
                         if (!this.settings.formats[this.customWrappers[w]]) continue;
-                        var newText = this.doFormat(text, this.settings.wrappers[this.customWrappers[w]], i);
+                        const newText = this.doFormat(text, this.settings.wrappers[this.customWrappers[w]], i);
                         if (text != newText) {
                             text = newText;
                             i = i - this.settings.wrappers[this.customWrappers[w]].length * 2;
@@ -512,61 +512,48 @@ var BetterFormattingRedux = (() => {
                 }
             }
             if (this.settings.plugin.closeOnSend) $(".bf-toolbar").removeClass("bf-visible");
-            if (text == textOriginal) return;
-            var txt = textarea[0];
-            txt.focus();
-            txt.selectionStart = 0;
-            txt.selectionEnd = txt.textContent.length;
+            return text;
+        }
+
+        async wrapSelection(leftWrapper, rightWrapper) {
+            if (!rightWrapper) rightWrapper = leftWrapper;
+            if (leftWrapper.startsWith("```")) leftWrapper = leftWrapper + "\n";
+            if (rightWrapper.startsWith("```")) rightWrapper = "\n" + rightWrapper;
+            const textarea = document.querySelector(DiscordSelectors.Textarea.textArea);
+            if (!textarea) return;
+            if (textarea.tagName === "TEXTAREA") return this.oldWrapSelection(textarea, leftWrapper, rightWrapper);
+            const slateEditor = Utilities.findInTree(textarea.__reactInternalInstance$, e => e && e.wrapText, {walkable: ["return", "stateNode", "editorRef"]});
+            if (!slateEditor) return;
+            return slateEditor.wrapText(leftWrapper, rightWrapper);
+        }
+
+        oldWrapSelection(textarea, leftWrapper, rightWrapper) {
+            let text = textarea.value;
+            const start = textarea.selectionStart;
+            const len = text.substring(textarea.selectionStart, textarea.selectionEnd).length;
+            text = leftWrapper + text.substring(textarea.selectionStart, textarea.selectionEnd) + rightWrapper;
+            textarea.focus();
             document.execCommand("insertText", false, text);
+            textarea.selectionStart = start + leftWrapper.length;
+            textarea.selectionEnd = textarea.selectionStart + len;
         }
-        
-        async wrapSelection(textarea, wrapper, language, rightWrapper) {
-            textarea.focus();
-            await new Promise(r => setTimeout(r, 1));
-            const selection = window.getSelection();
-            const range = selection.getRangeAt(0);
-            const selectable = range.endContainer;
-            console.log(selection, range);
-            let text = textarea.textContent;
-            const start = range.startOffset;//Math.min(selection.anchorOffset, selection.focusOffset);
-            const end = range.endOffset;//Math.max(selection.anchorOffset, selection.focusOffset);
-            console.log(selection.anchorOffset, selection.focusOffset);
-            console.log(text, start, end);
-            const len = text.substring(start, end).length;
-            const lang = language ? language : "";
-            const newline = wrapper === "```" ? "\n" : "";
-            text = wrapper + lang + newline + text.substring(start, end) + newline + (rightWrapper ? rightWrapper : wrapper);
-            console.log(text);
-            textarea.focus();
-            // document.execCommand("insertText", false, text);
-            const newRange = document.createRange();
-            // newRange.selectNodeContents(el);
-            // newRange.setStart(selectable, start + wrapper.length + lang.length + newline.length);
-            // newRange.setEnd(selectable, start + wrapper.length + lang.length + newline.length + len);
-            // selection.addRange(newRange);
-            // end = (start = start + wrapper.length + lang.length + newline.length) + len;
-            // textarea.textContent = text;
-            DraftActions.saveDraft(DiscordModules.SelectedChannelStore.getChannelId(), text);
-            //editor.wrapText
-            //editor.el.textContent
-        }
-        
-        getContextMenu(textarea) {
-            var items = [];
-            for (var letter in this.allLanguages) {
-                var subItems = [];
-                for (var language in this.allLanguages[letter]) {
-                    ((language) => {
-                        subItems.push(new ContextMenu.TextItem(this.allLanguages[letter][language], {callback: () => {this.wrapSelection(textarea[0], "```", language);}}));
+
+        getContextMenu() {
+            const items = [];
+            for (const letter in this.allLanguages) {
+                const subItems = [];
+                for (const language in this.allLanguages[letter]) {
+                    ((lang) => {
+                        subItems.push(new ContextMenu.TextItem(this.allLanguages[letter][lang], {callback: () => {this.wrapSelection("```" + lang + "\n", "```");}}));
                     })(language);
                 }
                 items.push(new ContextMenu.SubMenuItem(letter, new ContextMenu.Menu(true).addItems(...subItems)));
             }
             return new ContextMenu.Menu().addItems(...items);
         }
-    
-        buildToolbar(textarea) {
-            var toolbar = $(this.toolbarString);
+
+        buildToolbar() {
+            const toolbar = $(this.toolbarString);
             if (typeof this.settings.toolbar.bold === "boolean") {
                 this.settings.toolbar = this.defaultSettings.toolbar;
                 this.saveSettings();
@@ -575,19 +562,20 @@ var BetterFormattingRedux = (() => {
                 this.settings.toolbar.zalgo = true;
                 if (!this.buttonOrder.includes("zalgo")) this.buttonOrder.push("zalgo");
             }
-            var sorted = Object.keys(this.settings.toolbar).sort((a,b) => {return this.buttonOrder.indexOf(a) - this.buttonOrder.indexOf(b);});
-            for (var i = 0; i < sorted.length; i++) {
-                var button = $("<div>");
+            const sorted = Object.keys(this.settings.toolbar).sort((a,b) => {return this.buttonOrder.indexOf(a) - this.buttonOrder.indexOf(b);});
+            for (let i = 0; i < sorted.length; i++) {
+                const button = $("<div>");
                 button.addClass("format");
+                if (!this.toolbarData[sorted[i]]) continue;
                 button.addClass(this.toolbarData[sorted[i]].type);
                 new EmulatedTooltip(button, this.toolbarData[sorted[i]].name);
                 if (!this.settings.toolbar[sorted[i]]) button.addClass("disabled");
-                if (sorted[i] === "codeblock") {
-                    let contextMenu = this.getContextMenu(textarea);
-                    button.on("contextmenu", (e) => {
-                        contextMenu.show(e.clientX, e.clientY);
-                    });
-                }
+                // if (sorted[i] === "codeblock") {
+                //     const contextMenu = this.getContextMenu();
+                //     button.on("contextmenu", (e) => {
+                //         contextMenu.show(e.clientX, e.clientY);
+                //     });
+                // }
                 button.attr("data-name", sorted[i]);
                 if (this.settings.style.icons) button.html(this.toolbarData[sorted[i]].icon);
                 else button.html(this.toolbarData[sorted[i]].displayName);
@@ -597,8 +585,8 @@ var BetterFormattingRedux = (() => {
                 draggable: ".format", // css-selector of elements, which can be sorted
                 ghostClass: "ghost",
                 onUpdate: () => {
-                    var buttons = toolbar.children(".format");
-                    for (var i = 0; i < buttons.length; i++) {
+                    const buttons = toolbar.children(".format");
+                    for (let i = 0; i < buttons.length; i++) {
                         this.buttonOrder[i] = $(buttons[i]).data("name");
                     }
                     PluginUtilities.saveData(this.getName(), "buttonOrder", this.buttonOrder);
@@ -606,47 +594,46 @@ var BetterFormattingRedux = (() => {
             });
             if (!this.settings.style.icons) {
                 toolbar.on("mousemove." + this.getName(), (e) => {
-                    var $this = $(e.currentTarget);
-                    var pos = e.pageX - $this.parent().offset().left;
-                    var diff = -$this.width();
+                    const $this = $(e.currentTarget);
+                    const pos = e.pageX - $this.parent().offset().left;
+                    let diff = -$this.width();
                     $this.children().each((index, elem) => {
                         diff += $(elem).outerWidth();
                     });
                     $this.scrollLeft(pos / $this.width() * diff);
                 });
             }
-    
+
             return toolbar;
         }
-        
+
         setupToolbar() {
             $(".bf-toolbar").remove();
             $(`${DiscordSelectors.Textarea.textArea}`).each((index, elem) => {
                 this.addToolbar($(elem.children[0]));
             });
         }
-        
+
         addToolbar(textarea) {
-            var toolbarElement = this.buildToolbar(textarea);
+            const toolbarElement = this.buildToolbar();
             if (this.settings.plugin.hoverOpen == true) toolbarElement.addClass("bf-hover");
             if (this.isOpen) toolbarElement.addClass("bf-visible");
-            
-            textarea.on("keypress." + this.getName(), (e) => {this.format(e);})
-                .parent().parent().after(toolbarElement)
+
+            textarea.parent().parent().after(toolbarElement)
                 .siblings(".bf-toolbar")
                 .on("click." + this.getName(), "div", e => {
                     e.preventDefault();
                     e.stopPropagation();
-                    var button = $(e.currentTarget);
+                    const button = $(e.currentTarget);
                     if (button.hasClass("bf-arrow")) {
                         if (!this.settings.plugin.hoverOpen) this.openClose();
                     }
                     else {
-                        var wrapper = "";
+                        let wrapper = "";
                         if (button.hasClass("native-format")) wrapper = this.discordWrappers[button.data("name")];
-                        else if (button.data("name") == "zalgo") return this.wrapSelection(textarea[0], "{{", null, "}}");
+                        else if (button.data("name") == "zalgo") return this.wrapSelection("{{", "}}");
                         else wrapper = this.settings.wrappers[button.data("name")];
-                        this.wrapSelection(textarea[0], wrapper);	
+                        this.wrapSelection(wrapper);
                     }
                 });
             this.updateStyle();
@@ -657,7 +644,7 @@ var BetterFormattingRedux = (() => {
             panel.addListener(this.updateSettings.bind(this));
             return panel.getElement();
         }
-        
+
         updateSettings(group, id, value) {
 
             if (group == "toolbar") this.setupToolbar();
@@ -672,8 +659,8 @@ var BetterFormattingRedux = (() => {
                 if (id == "toolbarOpacity") this.updateOpacity();
                 if (id == "fontSize") this.updateFontSize();
             }
-                
-            // var resetButton = $("<button>");
+
+            // let resetButton = $("<button>");
             // resetButton.on("click", () => {
             //     this.settings = this.defaultSettings;
             //     this.saveSettings();
@@ -684,7 +671,7 @@ var BetterFormattingRedux = (() => {
             // resetButton.text("Reset To Defaults");
             // resetButton.css("float", "right");
             // resetButton.attr("type","button");
-    
+
             // panel.append(resetButton);
         }
 

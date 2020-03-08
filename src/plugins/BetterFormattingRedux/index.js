@@ -1,5 +1,5 @@
 module.exports = (Plugin, Api) => {
-    const {DiscordSelectors, PluginUtilities, ContextMenu, EmulatedTooltip, DiscordModules, Patcher} = Api;
+    const {DiscordSelectors, PluginUtilities, ContextMenu, EmulatedTooltip, DiscordModules, Patcher, Utilities} = Api;
 
     return class BetterFormattingRedux extends Plugin {
         constructor() {
@@ -49,8 +49,8 @@ module.exports = (Plugin, Api) => {
             if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element)) return;
 
             const elem = e.addedNodes[0];
-            const textarea = elem.querySelector(DiscordSelectors.Textarea.textArea);
-            if (textarea) this.addToolbar($(textarea.children[0]));
+            const textarea = elem.matches(DiscordSelectors.Textarea.textArea) ? elem : elem.querySelector(DiscordSelectors.Textarea.textArea);
+            if (textarea) this.addToolbar($(textarea));
         }
 
         updateStyle() {
@@ -163,8 +163,25 @@ module.exports = (Plugin, Api) => {
 
         async wrapSelection(leftWrapper, rightWrapper) {
             if (!rightWrapper) rightWrapper = leftWrapper;
-            // TODO: Do better
-            return $(".da-textArea")[0].__reactInternalInstance$.return.stateNode.editorRef.wrapText(leftWrapper, rightWrapper);
+            if (leftWrapper.startsWith("```")) leftWrapper = leftWrapper + "\n";
+            if (rightWrapper.startsWith("```")) rightWrapper = "\n" + rightWrapper;
+            const textarea = document.querySelector(DiscordSelectors.Textarea.textArea);
+            if (!textarea) return;
+            if (textarea.tagName === "TEXTAREA") return this.oldWrapSelection(textarea, leftWrapper, rightWrapper);
+            const slateEditor = Utilities.findInTree(textarea.__reactInternalInstance$, e => e && e.wrapText, {walkable: ["return", "stateNode", "editorRef"]});
+            if (!slateEditor) return;
+            return slateEditor.wrapText(leftWrapper, rightWrapper);
+        }
+
+        oldWrapSelection(textarea, leftWrapper, rightWrapper) {
+            let text = textarea.value;
+            const start = textarea.selectionStart;
+            const len = text.substring(textarea.selectionStart, textarea.selectionEnd).length;
+            text = leftWrapper + text.substring(textarea.selectionStart, textarea.selectionEnd) + rightWrapper;
+            textarea.focus();
+            document.execCommand("insertText", false, text);
+            textarea.selectionStart = start + leftWrapper.length;
+            textarea.selectionEnd = textarea.selectionStart + len;
         }
 
         getContextMenu() {
@@ -199,12 +216,12 @@ module.exports = (Plugin, Api) => {
                 button.addClass(this.toolbarData[sorted[i]].type);
                 new EmulatedTooltip(button, this.toolbarData[sorted[i]].name);
                 if (!this.settings.toolbar[sorted[i]]) button.addClass("disabled");
-                if (sorted[i] === "codeblock") {
-                    const contextMenu = this.getContextMenu();
-                    button.on("contextmenu", (e) => {
-                        //contextMenu.show(e.clientX, e.clientY);
-                    });
-                }
+                // if (sorted[i] === "codeblock") {
+                //     const contextMenu = this.getContextMenu();
+                //     button.on("contextmenu", (e) => {
+                //         contextMenu.show(e.clientX, e.clientY);
+                //     });
+                // }
                 button.attr("data-name", sorted[i]);
                 if (this.settings.style.icons) button.html(this.toolbarData[sorted[i]].icon);
                 else button.html(this.toolbarData[sorted[i]].displayName);

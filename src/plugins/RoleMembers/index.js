@@ -67,7 +67,7 @@ module.exports = (Plugin, Api) => {
 
                 for (const roleId in roles) {
                     const role = roles[roleId];
-                    const item = DiscordModules.React.createElement(MenuItem, {label: role.name, styles: {color: role.colorString ? role.colorString : ""},
+                    const item = DiscordModules.React.createElement(MenuItem, {label: role.name, style: {color: role.colorString ? role.colorString : ""},
                         action: (e) => {
                             this.showRolePopout(e.target.closest(DiscordSelectors.ContextMenu.item), guildId, role.id);
                         }
