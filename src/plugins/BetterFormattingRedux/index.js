@@ -1,5 +1,5 @@
 module.exports = (Plugin, Api) => {
-    const {DiscordSelectors, PluginUtilities, ContextMenu, EmulatedTooltip, DiscordModules, Patcher, Utilities} = Api;
+    const {DiscordSelectors, PluginUtilities, ContextMenu, EmulatedTooltip, DiscordModules, Patcher, Utilities, DCM} = Api;
 
     return class BetterFormattingRedux extends Plugin {
         constructor() {
@@ -216,12 +216,63 @@ module.exports = (Plugin, Api) => {
                 button.addClass(this.toolbarData[sorted[i]].type);
                 new EmulatedTooltip(button, this.toolbarData[sorted[i]].name);
                 if (!this.settings.toolbar[sorted[i]]) button.addClass("disabled");
-                // if (sorted[i] === "codeblock") {
-                //     const contextMenu = this.getContextMenu();
-                //     button.on("contextmenu", (e) => {
-                //         contextMenu.show(e.clientX, e.clientY);
-                //     });
-                // }
+                if (sorted[i] === "codeblock") {
+                    const contextMenu = this.getContextMenu();
+                    button.on("contextmenu", (event) => {
+                        //contextMenu.show(e.clientX, e.clientY);
+                        // console.log(e);
+                        // function menu(props) {
+                        //     console.log(props);
+                        //     const subItems = [DiscordModules.React.createElement(DCM.ToggleMenuItem, {label: "Item Toggle", active: false, action: () => {console.log("MENU ITEM");}}), DiscordModules.React.createElement(DCM.ToggleMenuItem, {label: "Item Toggle", active: false, action: () => {console.log("MENU ITEM");}}), DiscordModules.React.createElement(DCM.ToggleMenuItem, {label: "Item Toggle", active: false, action: () => {console.log("MENU ITEM");}})];
+                        //     const itemGroup = DiscordModules.React.createElement(DCM.ItemGroup, null,
+                        //         DiscordModules.React.createElement(DCM.ToggleMenuItem, {label: "Item Toggle", active: false, action: () => {console.log("MENU ITEM");}}),
+                        //         DiscordModules.React.createElement(DCM.MenuItem, {label: "Menu Item", action: () => {console.log("MENU ITEM");}}),
+                        //         DiscordModules.React.createElement(DCM.MenuItem, {label: "Menu Item", action: () => {console.log("MENU ITEM");}}),
+                        //         DiscordModules.React.createElement(DCM.ItemGroup,null,
+                        //             DiscordModules.React.createElement(DCM.MenuItem, {label: "Menu Item", action: () => {console.log("MENU ITEM");}}),
+                        //             DiscordModules.React.createElement(DCM.MenuItem, {label: "Menu Item", action: () => {console.log("MENU ITEM");}}),
+                        //             DiscordModules.React.createElement(DCM.ImageMenuItem, {label: "Image Item", image: "https://cdn.discordapp.com/attachments/292141134614888448/686025522303860760/zere_cube_rotate.gif", action: () => {console.log("MENU ITEM");}}),
+                        //             DiscordModules.React.createElement(DCM.MenuItem, {label: "Menu Item", action: () => {console.log("MENU ITEM");}}),
+                        //             DiscordModules.React.createElement(DCM.MenuItem, {label: "Menu Item", action: () => {console.log("MENU ITEM");}}),
+                        //             DiscordModules.React.createElement(DCM.SubMenuItem, {label: "SubMenu Item", items: subItems, action: () => {console.log("SUBMENU ITEM");}})
+                        //         )
+                        //     );
+                        //     return DiscordModules.React.createElement(DCM.ContextMenu, props, itemGroup);
+                        // }
+                        const menu = DCM.buildMenu([
+                            {
+                                type: "group",
+                                items: [
+                                    {type: "toggle", label: "Item Toggle", active: false, action: () => {console.log("TOGGLE ITEM");}},
+                                    {label: "Menu Item", action: () => {console.log("MENU ITEM");}},
+                                    {label: "Menu Item", action: () => {console.log("MENU ITEM");}},
+                                    {
+                                        type: "group",
+                                        items: [
+                                            {label: "Menu Item", action: () => {console.log("MENU ITEM");}, hint:"hint",tooltip: "WHAT", children: ["where", "are", "we"]},
+                                            {label: "Menu Item", action: () => {console.log("MENU ITEM");}},
+                                            {type: "image", label: "Image Item", image: "https://cdn.discordapp.com/attachments/292141134614888448/686025522303860760/zere_cube_rotate.gif", action: () => {console.log("MENU ITEM");}},
+                                            {label: "Menu Item", action: () => {console.log("MENU ITEM");}},
+                                            {label: "Menu Item", action: () => {console.log("MENU ITEM");}},
+                                            {
+                                                type: "submenu", label: "Menu Item", action: () => {console.log("MENU ITEM");},
+                                                items: [
+                                                    {type: "toggle", label: "Item Toggle", active: false, action: () => {console.log("MENU ITEM");}},
+                                                    {type: "toggle", label: "Item Toggle", active: false, action: () => {console.log("MENU ITEM");}, loading: true},
+                                                    {type: "toggle", label: "Item Toggle", active: false, action: () => {console.log("MENU ITEM");}},
+                                                    {type: "slider", label: "Slide Value", onChange: function(){console.log(...arguments);},
+                                                        renderValue: (value) => {return `$${Math.round(value)}`;}
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]);
+                        DCM.openContextMenu(event, menu, {align: "bottom"});
+                    });
+                }
                 button.attr("data-name", sorted[i]);
                 if (this.settings.style.icons) button.html(this.toolbarData[sorted[i]].icon);
                 else button.html(this.toolbarData[sorted[i]].displayName);
