@@ -50,7 +50,6 @@ for (let f = 0; f < list.length; f++) {
         INNER: content,
         WEBSITE: config.info.github || formatString(buildConfig.github, {PLUGIN_NAME: pluginName}),
         SOURCE: config.info.github_raw || formatString(buildConfig.githubRaw, {PLUGIN_NAME: pluginName}),
-        DISPLAY_NAME: config.info.name || pluginName,
         PATREON: buildConfig.patreonLink,
         PAYPAL: buildConfig.paypalLink,
         AUTHOR_LINK: buildConfig.authorLink,

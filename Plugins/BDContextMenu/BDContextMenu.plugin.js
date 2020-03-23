@@ -32,7 +32,7 @@
 @else@*/
 
 var BDContextMenu = (() => {
-    const config = {"info":{"name":"BDContextMenu","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.4","description":"Adds BD shortcuts to the settings context menu.","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Fixed that thing where it didn't work."]}],"main":"index.js"};
+    const config = {info:{name:"BDContextMenu",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.5",description:"Adds BD shortcuts to the settings context menu.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"},changelog:[{title:"Slight Changes",type:"improved",items:["**Swapped Order** of items in the menu to match BBD's order.","**Core** was renamed to `settings` to be consistent with BBD.","`BdApi` is now being used instead of some BD globals."]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -69,9 +69,9 @@ var BDContextMenu = (() => {
     const {DiscordSelectors, Patcher, ReactComponents, DiscordModules, WebpackModules, ReactTools} = Api;
 
     const React = DiscordModules.React;
-    const MenuItem = ZLibrary.DiscordModules.ContextMenuItem;
+    const MenuItem = DiscordModules.ContextMenuItem;
     const DiscordToggleMenuItem = WebpackModules.getByString("itemToggle", "checkbox");
-    const BBDSettings = Object.entries(window.settings).filter(s => !s[1].hidden && s[1].implemented);
+    const BBDSettings = Object.entries(BdApi.settings).filter(s => !s[1].hidden && s[1].implemented);
     const SubMenuItem = WebpackModules.find(m => m.default && m.default.displayName && m.default.displayName.includes("SubMenuItem"));
 
     const ToggleMenuItem = class OtherItem extends React.Component {
@@ -102,17 +102,16 @@ var BDContextMenu = (() => {
             if (promiseState.cancelled) return;
             Patcher.after(SettingsContextMenu.component.prototype, "render", (component, args, retVal) => {
 
-                const coreMenu = this.buildSubMenu("Core", "core");
-                const bandageMenu = this.buildSubMenu("Bandages", "fork");
+                const coreMenu = this.buildSubMenu("Settings", "core");
                 const emoteMenu = this.buildSubMenu("Emotes", "emote");
-                const customCSSMenu = DiscordModules.React.createElement(MenuItem, {label: "Custom CSS", action: () => {this.openCategory("customcss");}});
+                const customCSSMenu = DiscordModules.React.createElement(MenuItem, {label: "Custom CSS", action: () => {this.openCategory("custom css");}});
                 const pluginMenu = this.buildContentMenu(true);
                 const themeMenu = this.buildContentMenu(false);
 
                 const mainMenu = React.createElement(SubMenuItem.default, {
                     label: "BandagedBD",
                     invertChildY: true,
-                    render: [coreMenu, bandageMenu, emoteMenu, customCSSMenu, pluginMenu, themeMenu]
+                    render: [coreMenu, emoteMenu, pluginMenu, themeMenu, customCSSMenu]
                 });
                 retVal.props.children.push(mainMenu);
             });
@@ -129,17 +128,18 @@ var BDContextMenu = (() => {
                 label: name,
                 invertChildY: true,
                 render: menuItems,
-                action: () => {this.openCategory(id);}
+                action: () => {this.openCategory(name.toLowerCase());}
             });
             const categorySettings = BBDSettings.filter(s => s[1].cat == id);
             if (!categorySettings.length) return null;
             for (const setting of categorySettings) {
                 const item = React.createElement(ToggleMenuItem, {
                     label: setting[0],
-                    active: window.settingsCookie[window.settings[setting[0]].id],
+                    active: BdApi.isSettingEnabled(BdApi.settings[setting[0]].id),
                     action: () => {
-                        const id = window.settings[setting[0]].id;
-                        window.settingsPanel.updateSettings(id, !window.settingsCookie[id]);
+                        const id = BdApi.settings[setting[0]].id;
+                        BdApi.toggleSetting(id);
+                        // window.settingsPanel.updateSettings(id, !window.settingsCookie[id]);
                     }
                 });
                 menuItems.push(item);
@@ -155,13 +155,15 @@ var BDContextMenu = (() => {
                 render: menuItems,
                 action: () => {this.openCategory(isPlugins ? "plugins" : "themes");}
             });
-            for (const content of Object.keys(isPlugins ? window.bdplugins : window.bdthemes).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))) {
+            const pluginNames = BdApi.Plugins.getAll().map(p => p.getName());
+            const themeNames = BdApi.Themes.getAll().map(t => t.name);
+            for (const content of (isPlugins ? pluginNames : themeNames).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))) {
                 const item = React.createElement(ToggleMenuItem, {
                     label: content,
-                    active: isPlugins ? window.pluginCookie[content] : window.themeCookie[content],
+                    active: isPlugins ? BdApi.Plugins.isEnabled(content) : BdApi.Themes.isEnabled(content),
                     action: () => {
-                        if (isPlugins) window.pluginModule.togglePlugin(content);
-                        else window.themeModule.toggleTheme(content);
+                        if (isPlugins) BdApi.Plugins.toggle(content);
+                        else BdApi.Themes.toggle(content);
                     }
                 });
                 menuItems.push(item);
@@ -172,8 +174,11 @@ var BDContextMenu = (() => {
         async openCategory(id) {
             DiscordModules.ContextMenuActions.closeContextMenu();
             DiscordModules.UserSettingsWindow.open(DiscordModules.DiscordConstants.UserSettingsSections.ACCOUNT);
-            while (!window.settingsPanel.sidebar.root) await new Promise(r => setTimeout(r, 100));
-            window.settingsPanel.sideBarOnClick(id);
+            while (!document.getElementById("bd-settings-sidebar")) await new Promise(r => setTimeout(r, 100));
+            // window.settingsPanel.sideBarOnClick(id);
+            const tabs = document.getElementsByClassName("ui-tab-bar-item");
+            const index = Array.from(tabs).findIndex(e => e.textContent.toLowerCase() === id);
+            if (tabs[index] && tabs[index].click) tabs[index].click();
         }
 
     };
