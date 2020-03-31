@@ -32,7 +32,7 @@
 @else@*/
 
 var ServerSorter = (() => {
-    const config = {"info":{"name":"ServerSorter","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.4.2","description":"Adds server sorting abilities to Discord.","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSorter","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSorter/ServerSorter.plugin.js"},"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Button now appears.","Sorting works again."]}],"main":"index.js"};
+    const config = {info:{name:"ServerSorter",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.4.2",description:"Adds server sorting abilities to Discord.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSorter",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSorter/ServerSorter.plugin.js"},changelog:[{title:"Bugs Squashed",type:"fixed",items:["Button now appears.","Sorting works again."]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -56,7 +56,7 @@ var ServerSorter = (() => {
                     onConfirm: () => {
                         require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, response, body) => {
                             if (error) return require("electron").shell.openExternal("https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js");
-                            await new Promise(r => require("fs").writeFile(require("path").join(ContentManager.pluginsFolder, "0PluginLibrary.plugin.js"), body, r));
+                            await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
                         });
                     }
                 }, props));

@@ -32,7 +32,7 @@
 @else@*/
 
 var HideMutedServers = (() => {
-    const config = {"info":{"name":"HideMutedServers","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"1.1.0","description":"Hides muted servers with a context menu option to show/hide. Acts similar to Discord's Hide Muted Channels option.","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideMutedServers","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/HideMutedServers/HideMutedServers.plugin.js"},"changelog":[{"title":"What's New?","items":["Full server folder (native not the plugin) compatibility.","Muted servers inside folders will be hidden.","Folders that had all servers muted will be completely hidden."]},{"title":"Bugs Squashed","type":"fixed","items":["Context menu shows again.","Muting a new server will hide instantly."]}],"main":"index.js"};
+    const config = {info:{name:"HideMutedServers",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"1.1.0",description:"Hides muted servers with a context menu option to show/hide. Acts similar to Discord's Hide Muted Channels option.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideMutedServers",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/HideMutedServers/HideMutedServers.plugin.js"},changelog:[{title:"What's New?",items:["Full server folder (native not the plugin) compatibility.","Muted servers inside folders will be hidden.","Folders that had all servers muted will be completely hidden."]},{title:"Bugs Squashed",type:"fixed",items:["Context menu shows again.","Muting a new server will hide instantly."]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -56,7 +56,7 @@ var HideMutedServers = (() => {
                     onConfirm: () => {
                         require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, response, body) => {
                             if (error) return require("electron").shell.openExternal("https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js");
-                            await new Promise(r => require("fs").writeFile(require("path").join(ContentManager.pluginsFolder, "0PluginLibrary.plugin.js"), body, r));
+                            await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
                         });
                     }
                 }, props));

@@ -37,6 +37,7 @@
         "BdApi": false,
         "V2C_ContentColumn": false,
         "bdPluginStorage": false,
-        "Map": false
+        "Map": false,
+        "Reflect": false
     }
 }

@@ -32,7 +32,7 @@
 @else@*/
 
 var AutoPlayGifs = (() => {
-    const config = {info:{name:"AutoPlayGifs",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.3",description:"Automatically plays avatars and stuff.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AutoPlayGifs",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AutoPlayGifs/AutoPlayGifs.plugin.js"},changelog:[{title:"What's New?",items:["Add ability to always animate activity statuses!"]},{title:"Fixed",type:"fixed",items:["Should animate avatars in chat again!"]}],defaultConfig:[{type:"switch",id:"chat",name:"Autoplay Chat",note:"Autoplays avatars in the chat area for Nitro users.",value:true},{type:"switch",id:"memberList",name:"Autoplay Memberlist",note:"Autoplays avatars in the member list for Nitro users.",value:true},{type:"switch",id:"guildList",name:"Autoplay Guids",note:"Autoplays guild icons in the guild list for servers that have been boosted.",value:true},{type:"switch",id:"activityStatus",name:"Activity Status",note:"Autoplays emojis and icons in the activity status like in the member list.",value:true}],main:"index.js"};
+    const config = {info:{name:"AutoPlayGifs",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.3",description:"Automatically plays avatars and stuff.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AutoPlayGifs",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AutoPlayGifs/AutoPlayGifs.plugin.js"},changelog:[{title:"What's New?",items:["Add ability to always animate activity statuses!"]},{title:"Fixed",type:"fixed",items:["Should animate avatars in chat again!"]}],defaultConfig:[{type:"switch",id:"chat",name:"Autoplay Chat",note:"Autoplays avatars in the chat area for Nitro users.",value:true},{type:"switch",id:"memberList",name:"Autoplay Memberlist",note:"Autoplays avatars in the member list for Nitro users.",value:true},{type:"switch",id:"guildList",name:"Autoplay Guilds",note:"Autoplays guild icons in the guild list for servers that have been boosted.",value:true},{type:"switch",id:"activityStatus",name:"Activity Status",note:"Autoplays emojis and icons in the activity status like in the member list.",value:true}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -56,7 +56,7 @@ var AutoPlayGifs = (() => {
                     onConfirm: () => {
                         require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, response, body) => {
                             if (error) return require("electron").shell.openExternal("https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js");
-                            await new Promise(r => require("fs").writeFile(require("path").join(ContentManager.pluginsFolder, "0PluginLibrary.plugin.js"), body, r));
+                            await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
                         });
                     }
                 }, props));

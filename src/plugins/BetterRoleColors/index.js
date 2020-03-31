@@ -301,9 +301,11 @@ module.exports = (Plugin, Api) => {
             const MemberList = await ReactComponents.getComponentByName("ChannelMembers", DiscordSelectors.MemberList.membersWrap);
             if (promiseState.cancelled) return;
             Patcher.after(MemberList.component.prototype, "render", (memberList) => {
+                if (!this.settings.modules.memberList) return;
                 if (memberList.renderSection.__patched) return;
-                Patcher.after(memberList, "renderSection", (_, __, section) => {
-                    if (!this.settings.modules.memberList) return;
+                const original = memberList.renderSection;
+                memberList.renderSection = function() {
+                    const section = Reflect.apply(original, this, arguments);
                     const guild = DiscordModules.GuildStore.getGuild(memberList.props.channel.guild_id);
                     if (!guild) return;
                     const children = section.props.children ? section.props.children : section;
@@ -331,7 +333,7 @@ module.exports = (Plugin, Api) => {
                     children.ref = myRef;
                     children.type = ColoredRoleHeader;
                     return section;
-                });
+                };
                 memberList.renderSection.__patched = true;
                 memberList.forceUpdate();
             });

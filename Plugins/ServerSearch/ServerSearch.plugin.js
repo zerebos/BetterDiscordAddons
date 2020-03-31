@@ -32,7 +32,7 @@
 @else@*/
 
 var ServerSearch = (() => {
-    const config = {"info":{"name":"ServerSearch","authors":[{"name":"Zerebos","discord_id":"249746236008169473","github_username":"rauenzi","twitter_username":"ZackRauen"}],"version":"0.1.2","description":"Adds a button to search your servers. Search in place or in popout.","github":"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch","github_raw":"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSearch/ServerSearch.plugin.js"},"defaultConfig":[{"type":"radio","id":"inPlace","name":"Search Style","value":false,"options":[{"name":"Popout","value":false,"desc":"Shows a popout with a list of guilds to search."},{"name":"In Place","value":true,"desc":"Hides guilds in the list that don't match the search."}]}],"changelog":[{"title":"Bugs Squashed","type":"fixed","items":["Button now appears.","Menu closes when you leave it.","Searching actually works.","Wow."]}],"main":"index.js"};
+    const config = {info:{name:"ServerSearch",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.2",description:"Adds a button to search your servers. Search in place or in popout.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSearch/ServerSearch.plugin.js"},defaultConfig:[{type:"radio",id:"inPlace",name:"Search Style",value:false,options:[{name:"Popout",value:false,desc:"Shows a popout with a list of guilds to search."},{name:"In Place",value:true,desc:"Hides guilds in the list that don't match the search."}]}],changelog:[{title:"Bugs Squashed",type:"fixed",items:["Button now appears.","Menu closes when you leave it.","Searching actually works.","Wow."]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -56,7 +56,7 @@ var ServerSearch = (() => {
                     onConfirm: () => {
                         require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, response, body) => {
                             if (error) return require("electron").shell.openExternal("https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js");
-                            await new Promise(r => require("fs").writeFile(require("path").join(ContentManager.pluginsFolder, "0PluginLibrary.plugin.js"), body, r));
+                            await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
                         });
                     }
                 }, props));
