@@ -71,9 +71,7 @@ module.exports = (Plugin, Api) => {
                     label: setting[0],
                     active: BdApi.isSettingEnabled(BdApi.settings[setting[0]].id),
                     action: () => {
-                        const id = BdApi.settings[setting[0]].id;
-                        BdApi.toggleSetting(id);
-                        // window.settingsPanel.updateSettings(id, !window.settingsCookie[id]);
+                        BdApi.toggleSetting(BdApi.settings[setting[0]].id);
                     }
                 });
                 menuItems.push(item);
@@ -109,7 +107,6 @@ module.exports = (Plugin, Api) => {
             DiscordModules.ContextMenuActions.closeContextMenu();
             DiscordModules.UserSettingsWindow.open(DiscordModules.DiscordConstants.UserSettingsSections.ACCOUNT);
             while (!document.getElementById("bd-settings-sidebar")) await new Promise(r => setTimeout(r, 100));
-            // window.settingsPanel.sideBarOnClick(id);
             const tabs = document.getElementsByClassName("ui-tab-bar-item");
             const index = Array.from(tabs).findIndex(e => e.textContent.toLowerCase() === id);
             if (tabs[index] && tabs[index].click) tabs[index].click();
@@ -117,111 +114,3 @@ module.exports = (Plugin, Api) => {
 
     };
 };
-
-// WebpackModules.find(m => {
-//     if (typeof m.render != "function") return false;
-//     try {
-//         const originalRender = m.render();
-//         const container = originalRender.type;
-//         if (!container.displayName || container.displayName != "FluxContainer") return false;
-//         new container();
-//         return false;
-//     }
-//     catch (e) {return e.toString().includes("user");}
-// });
-
-
-// PromiseExtended = class PromiseExtended extends Promise {
-// 	constructor(callback) {
-//         const promiseFunctions = {cancelCallbacks: []};
-//         const state = {};
-// 		super((resolve, reject) => {
-//             const newReject = (value, cancelValue) => {
-//                 console.log("newReject", value, cancelValue);
-//                 if (value == "cancelled") state.hasCancelled = true;
-//                 console.log(state.hasCancelled);
-//                 reject();
-//                 console.log(state.hasCancelled);
-//                 if (!state.hasCancelled) return;
-//                 console.log("Running cancels");
-//                 for (const cancel of promiseFunctions.cancelCallbacks) {
-//                     console.log(cancel);
-//                     cancel(cancelValue);
-//                 }
-//             };
-// 			promiseFunctions.reject = newReject;
-//             promiseFunctions.resolve = resolve;
-// 			callback(resolve, newReject);
-//         });
-//         this.state = state;
-//         this.promiseFunctions = promiseFunctions;
-//     }
-
-//     cancel(cancelValue) {
-//         this.promiseFunctions.reject("cancelled", cancelValue);
-//     }
-
-//     resolve() {
-//         this.promiseFunctions.resolve(...arguments);
-//     }
-
-//     reject() {
-//         this.promiseFunctions.reject(...arguments);
-//     }
-
-//     catch(callback) {
-//         const newCallback = () => {
-//             if (!this.state.hasCancelled) callback();
-//         };
-//         super.catch(newCallback);
-//         return this;
-//     }
-
-//     then(resolved, rejected) {
-//         const newReject = () => {
-//             if (!this.state.hasCancelled) rejected();
-//         };
-//         if (rejected) super.then(resolved, newReject);
-//         else super.then(resolved);
-//         return this;
-//     }
-
-//     cancelled(callback) {
-//         this.promiseFunctions.cancelCallbacks.push(callback);
-//         return this;
-//     }
-// };
-
-
-// const test = async function() {
-//     const blah = [];
-//     for (var i = 0; i < 100000; i++) {
-//         blah.push(i*2);
-//     }
-//     await new Promise(r=>{setTimeout(r,5000);});
-//     console.log("finished")
-// };
-
-// const makeCancellable = function(asyncFunction) {
-//     const funcs = {};
-//     const pp = new Promise(async (resolve, reject) => {
-//         funcs.cancel = reject;
-//         funcs.finish = resolve;
-//         await asyncFunction();
-//         resolve();
-//     });
-//     // const cp = new Promise();
-
-//     pp.then(() => {console.log("resolved");}).catch(() => {});
-//     return funcs;
-// };
-
-// makeCancellable = function(asyncFunction) {
-//     const pp = new PromiseExtended((resolve, reject) => {
-//         asyncFunction().then(resolve);
-//     });
-//     // const cp = new Promise();
-//     pp.cancelled(() => {console.log("cancelled");}).then(() => {console.log("resolved");}).catch(() => {console.log("rejected");});
-//     // pp.then(() => {console.log("resolved");}).catch(() => {console.log("rejected");});
-//     return pp;
-// };

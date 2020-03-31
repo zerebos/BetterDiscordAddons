@@ -32,7 +32,7 @@
 @else@*/
 
 var BlurNSFW = (() => {
-    const config = {info:{name:"BlurNSFW",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.2.3",description:"Blurs images in NSFW channels until you hover over it.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BlurNSFW",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BlurNSFW/BlurNSFW.plugin.js"},changelog:[{title:"Bugs Squashed",type:"fixed",items:["No longer spams errors when you go to the store page."]}],main:"index.js"};
+    const config = {info:{name:"BlurNSFW",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.2.4",description:"Blurs images in NSFW channels until you hover over it.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BlurNSFW",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BlurNSFW/BlurNSFW.plugin.js"},changelog:[{title:"Huge Massive Changes",items:["Plugin no longer uses jQuery.","The css vars have been converted to sliders in plugin settings."]}],defaultConfig:[{type:"slider",id:"blurSize",name:"Blur Size",note:"The size (in px) of the blurred pixels.",value:10,min:0,max:50,units:"px"},{type:"slider",id:"blurTime",name:"Blur Time",note:"The time (in ms) it takes for the blur to disappear and reappear.",value:200,min:0,max:5000,units:"ms"}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -66,7 +66,7 @@ var BlurNSFW = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {Patcher, WebpackModules, DiscordModules, PluginUtilities} = Api;
+    const {Patcher, WebpackModules, DiscordModules, PluginUtilities, Utilities} = Api;
 
     const SelectedChannelStore = DiscordModules.SelectedChannelStore;
     const ChannelStore = DiscordModules.ChannelStore;
@@ -76,22 +76,21 @@ var BlurNSFW = (() => {
     return class BlurNSFW extends Plugin {
         constructor() {
             super();
-            this.style = `:root {--blur-nsfw: 10px; --blur-nsfw-time: 200ms;}
+            this.styleTemplate = `
             img.blur:hover,
             video.blur:hover {
-                transition: var(--blur-nsfw-time) cubic-bezier(.2, .11, 0, 1) !important;
+                transition: {{time}}ms cubic-bezier(.2, .11, 0, 1) !important;
                 filter: blur(0px) !important;
             }
             
             img.blur,
             video.blur {
-                filter: blur(var(--blur-nsfw)) !important;
-                transition: var(--blur-nsfw-time) cubic-bezier(.2, .11, 0, 1) !important;
+                filter: blur({{size}}px) !important;
+                transition: {{time}}ms cubic-bezier(.2, .11, 0, 1) !important;
             }`;
         }
 
         onStart() {
-            PluginUtilities.addStyle(this.getName(), this.style);  
             const blurAccessory = (thisObject) => {
                 const channel = ChannelStore.getChannel(SelectedChannelStore.getChannelId());
                 if (!channel || !channel.isNSFW || !channel.isNSFW()) return;
@@ -114,22 +113,31 @@ var BlurNSFW = (() => {
             
             Patcher.after(InlineMediaWrapper.prototype, "componentDidMount", blurAccessory);
             Patcher.after(InlineMediaWrapper.prototype, "componentDidUpdate", blurAccessory);
+
+            this.addStyle();
         }
         
         onStop() {
             Patcher.unpatchAll();
+            this.removeStyle();
+        }
+
+        addStyle() {
+            const styleString = Utilities.formatString(this.styleTemplate, {size: Math.round(this.settings.blurSize), time: Math.round(this.settings.blurTime)});
+            PluginUtilities.addStyle(this.getName(), styleString);
+        }
+
+        removeStyle() {
             PluginUtilities.removeStyle(this.getName());
         }
 
         getSettingsPanel() {
-            var panel = $("<form>").addClass("form").css("width", "100%");
-            var header = $("<div class=\"formNotice-2tZsrh margin-bottom-20 padded card-3DrRmC\">");
-            var headerText = $("<div class=\"default-3bB32Y formText-1L-zZB formNoticeBody-1C0wup whiteText-32USMe modeDefault-389VjU primary-2giqSn\">");
-            headerText.html("To update the blur amount change the css variable <span style='font-family: monospace;'>--blur-nsfw</span> to something like <span style='font-family: monospace;'>20px</span>. <br> You can also change the tranistion time by changing <span style='font-family: monospace;'>--blur-nsfw-time</span> to something like <span style='font-family: monospace;'>500ms</span>");
-            headerText.css("line-height", "150%");
-            headerText.appendTo(header);
-            header.appendTo(panel);
-            return panel[0];
+            const panel = this.buildSettingsPanel();
+            panel.addListener(() => {
+                this.removeStyle();
+                this.addStyle();
+            });
+            return panel.getElement();
         }
 
     };
