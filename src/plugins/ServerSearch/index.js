@@ -1,21 +1,42 @@
 module.exports = (Plugin, Api) => {
-    const {DiscordSelectors, PluginUtilities, ColorConverter, WebpackModules, DiscordModules, ReactTools, Utilities, Structs: {Screen}} = Api;
+    const {DiscordSelectors, PluginUtilities, ColorConverter, WebpackModules, DiscordModules, DOMTools, EmulatedTooltip, Utilities, DiscordClasses} = Api;
 
     const SortedGuildStore = DiscordModules.SortedGuildStore;
     const ImageResolver = DiscordModules.ImageResolver;
-    const GuildActions = DiscordModules.GuildActions;
+    const SelectedChannelStore = DiscordModules.SelectedChannelStore;
+    const NavUtils = DiscordModules.NavigationUtils;
     const GuildInfo = DiscordModules.GuildInfo;
+    const PrivateChannelActions = DiscordModules.PrivateChannelActions;
     const Animations = WebpackModules.getByProps("spring");
+
+    const animateDOM = DOMTools.animate ? DOMTools.animate.bind(DOMTools) :  ({timing = _ => _, update, duration}) => {
+        // https://javascript.info/js-animation
+        const start = performance.now();
+
+        requestAnimationFrame(function renderFrame(time) {
+            // timeFraction goes from 0 to 1
+            let timeFraction = (time - start) / duration;
+            if (timeFraction > 1) timeFraction = 1;
+
+            // calculate the current animation state
+            const progress = timing(timeFraction);
+
+            update(progress); // draw it
+
+            if (timeFraction < 1) {
+            requestAnimationFrame(renderFrame);
+            }
+
+        });
+    };
 
     return class ServerSearch extends Plugin {
         constructor() {
             super();
-            this.cancels = [];
     
             this.css = require("styles.css");
             this.guildHtml = require("guild.html");
             this.separatorHtml = require("separator.html");
-            this.smallPopoutHtml = require("popout_small.html");
             this.largePopoutHtml = require("popout_large.html");
             this.popoutItemHtml = require("popout_item.html");
         }
@@ -26,20 +47,19 @@ module.exports = (Plugin, Api) => {
         }
         
         onStop() {
-            $(".server-search-separator").remove();
-            $("#server-search").remove();
-            for (const c of this.cancels) c();
+            const button = document.querySelector("#server-search");
+            if (button) button.remove();
+            const separator = document.querySelector(".server-search-separator");
+            if (separator) separator.parentElement.remove();
             PluginUtilities.removeStyle(this.getName());
         }
 
-        getSettingsPanel() {
-            return this.buildSettingsPanel().getElement();
-        }
-
         addSearchButton() {
-            const guildElement = $(this.guildHtml);
-            const guildElementInner = guildElement.find(".wrapper-25eVIn");
-            $(".listItem-2P_4kh .guildSeparator-3s64Iy").parent().before($(this.separatorHtml), guildElement);
+            const guildElement = DOMTools.createElement(this.guildHtml);
+            const guildElementInner = guildElement.querySelector(".wrapper-25eVIn");
+            const separator = document.querySelector(".listItem-2P_4kh .guildSeparator-3s64Iy");
+            separator.parentElement.parentElement.insertBefore(DOMTools.createElement(this.separatorHtml), separator.parentElement);
+            separator.parentElement.parentElement.insertBefore(guildElement, separator.parentElement);
     
             
             const gray = "#2F3136";
@@ -56,7 +76,7 @@ module.exports = (Plugin, Api) => {
                 const getVal = (i) => {
                     return Math.round((purpleRGB[i] - grayRGB[i]) * value.value + grayRGB[i]);
                 };
-                guildElementInner.css("background-color", `rgb(${getVal(0)}, ${getVal(1)}, ${getVal(2)})`);
+                guildElementInner.style.backgroundColor = `rgb(${getVal(0)}, ${getVal(1)}, ${getVal(2)})`;
             });
     
             const borderRadius = new Animations.Value(0);
@@ -67,7 +87,7 @@ module.exports = (Plugin, Api) => {
     
             borderRadius.addListener((value) => {
                 // (end - start) * value + start
-                guildElementInner.css("border-radius", (15 - 25) * value.value + 25);
+                guildElementInner.style.borderRadius =  ((15 - 25) * value.value + 25) + "px";
             });
     
             const animate = (v) => {
@@ -77,58 +97,70 @@ module.exports = (Plugin, Api) => {
                 ]).start();
             };
     
-            guildElement.on("mouseenter", () => {animate(1);});
+            guildElement.addEventListener("mouseenter", () => {animate(1);});
     
-            guildElement.on("mouseleave", () => {
-                if (!guildElement.hasClass("selected")) animate(0);
+            guildElement.addEventListener("mouseleave", () => {
+                if (!guildElement.classList.contains("selected")) animate(0);
             });
     
-            // new Tooltip(guildElement, "Server Search", {side: "right"});
+            new EmulatedTooltip(guildElement, "Server Search", {side: "right"});
     
-            guildElement.on("click", (e) => {
-                if (guildElement.hasClass("selected")) return;
+            guildElement.addEventListener("click", (e) => {
+                if (guildElement.classList.contains("selected")) return;
                 e.stopPropagation();
-                guildElement.addClass("selected");
+                guildElement.classList.add("selected");
     
-                if (this.settings.inPlace) {
-                    return this.showSmallPopout(guildElement[0], {onClose: () => {
-                        guildElement.removeClass("selected");
-                        this.updateSearch("");
-                        animate(0);
-                    }});
-                }
-    
-                this.showLargePopout(guildElement[0], {onClose: () => {
-                    guildElement.removeClass("selected");
+                this.showLargePopout(guildElement, {onClose: () => {
+                    guildElement.classList.remove("selected");
                     animate(0);
                 }});
             });
         }
-    
-        showPopout(popout, target, id, options = {}) {
+
+        showPopout(popout, relativeTarget, id, options = {}) {
             const {onClose} = options;
-            popout.appendTo(document.querySelector(DiscordSelectors.Popouts.popouts));
-            const maxWidth = Screen.width;
-            const maxHeight = Screen.height;
-    
-            const offset = target.getBoundingClientRect();
-            if (offset.right + popout.outerHeight() >= maxWidth) {
-                popout.addClass("popout-left");
-                popout.css("left", Math.round(offset.left - popout.outerWidth() - 20));
-                popout.animate({left: Math.round(offset.left - popout.outerWidth() - 10)}, 100);
+            document.querySelector(DiscordSelectors.Popouts.popouts).append(popout);
+            const maxWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+            const maxHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
+            const offset = relativeTarget.getBoundingClientRect();
+            if (offset.right + popout.offsetHeight >= maxWidth) {
+                popout.classList.add(...DiscordClasses.Popouts.popoutLeft.value.split(" "));
+                popout.style.left = Math.round(offset.left - popout.offsetWidth - 20) + "px";
+                const original = Math.round(offset.left - popout.offsetWidth - 20);
+                const endPoint = Math.round(offset.left - popout.offsetWidth - 10);
+                animateDOM({
+                    duration: 100,
+                    update: function(progress) {
+                        let value = 0;
+                        if (endPoint > original) value = original + (progress * (endPoint - original));
+                        else value = original - (progress * (original - endPoint));
+                        popout.style.left = value + "px";
+                    }
+                });
             }
             else {
-                popout.addClass("popout-right");
-                popout.css("left", offset.right + 10);
-                popout.animate({left: offset.right}, 100);
+                popout.classList.add(...DiscordClasses.Popouts.popoutRight.value.split(" "));
+                popout.style.left = (offset.right + 10) + "px";
+                const original = offset.right + 10;
+                const endPoint = offset.right;
+                animateDOM({
+                    duration: 100,
+                    update: function(progress) {
+                        let value = 0;
+                        if (endPoint > original) value = original + (progress * (endPoint - original));
+                        else value = original - (progress * (original - endPoint));
+                        popout.style.left = value + "px";
+                    }
+                });
             }
-    
-            if (offset.top + popout.outerHeight() >= maxHeight) popout.css("top", Math.round(maxHeight - popout.outerHeight()));
-            else popout.css("top", offset.top);
-    
+
+            if (offset.top + popout.offsetHeight >= maxHeight) popout.style.top = Math.round(maxHeight - popout.offsetHeight) + "px";
+            else popout.style.top = offset.top + "px";
+
             const listener = document.addEventListener("click", (e) => {
-                const target = $(e.target);
-                if (!target.hasClass(id) && !target.parents(`.${id}`).length) {
+                const target = e.target;
+                if (!target.classList.contains(id) && !target.closest(`.${id}`)) {
                     popout.remove();
                     document.removeEventListener("click", listener);
                     if (onClose) onClose();
@@ -136,31 +168,17 @@ module.exports = (Plugin, Api) => {
             });
         }
     
-        showSmallPopout(target, options = {}) {
-            const {onClose} = options;
-            const popout = $(this.smallPopoutHtml);
-            const searchInput = popout.find("input");
-            searchInput.on("keyup", () => {
-                this.updateSearch(searchInput.val());
-            });
-    
-            this.showPopout(popout, target, "popout-server-search-small", {onClose: onClose});
-            searchInput.focus();
-        }
-    
         showLargePopout(target, options = {}) {
             const {onClose} = options;
     
-            const guilds = SortedGuildStore.getSortedGuilds().slice(0);
-            for (let i = 0; i < guilds.length; i++) guilds[i] = guilds[i].guild;
+            const guilds = SortedGuildStore.getFlattenedGuilds().slice(0);
+            const popout = DOMTools.createElement(Utilities.formatString(this.largePopoutHtml, {className: DiscordClasses.Popouts.popout.add(DiscordClasses.Popouts.noArrow), count: guilds.length}));
     
-            const popout = $(Utilities.formatString(this.largePopoutHtml, {count: guilds.length}));
-    
-            const searchInput = popout.find("input");
-            searchInput.on("keyup", () => {
-                const items = popout[0].querySelectorAll(".search-result");
+            const searchInput = popout.querySelector("input");
+            searchInput.addEventListener("keyup", () => {
+                const search = searchInput.value.toLowerCase();
+                const items = popout.querySelectorAll(".search-result");
                 for (let i = 0, len = items.length; i < len; i++) {
-                    const search = searchInput.val().toLowerCase();
                     const item = items[i];
                     const username = item.querySelector(".username").textContent.toLowerCase();
                     if (!username.includes(search)) item.style.display = "none";
@@ -168,38 +186,28 @@ module.exports = (Plugin, Api) => {
                 }
             });
     
-            const scroller = popout.find(".search-results");
+            const scroller = popout.querySelector(".search-results");
             for (const guild of guilds) {
                 const image = ImageResolver.getGuildIconURL(guild);
-                const elem = $(Utilities.formatString(this.popoutItemHtml, {name: guild.name, image_url: image}));
+                const elem = DOMTools.createElement(Utilities.formatString(this.popoutItemHtml, {name: guild.name, image_url: image}));
                 if (!image) {
-                    const imageElement = elem.find(".image-33JSyf");
-                    imageElement.text(GuildInfo.getAcronym(guild.name));
-                    imageElement.addClass("no-image");
+                    const imageElement = elem.querySelector(".image-33JSyf");
+                    imageElement.textContent = GuildInfo.getAcronym(guild.name);
+                    imageElement.classList.add("no-image");
                 }
-                elem.on("click", () => {
-                    GuildActions.selectGuild(guild.id);
+                elem.addEventListener("mousedown", () => {
+                    const lastSelectedChannel = SelectedChannelStore.getChannelId(guild.id);
+                    PrivateChannelActions.preload(guild.id, lastSelectedChannel);
+                });
+                elem.addEventListener("click", () => {
+                    const lastSelectedChannel = SelectedChannelStore.getChannelId(guild.id);
+                    NavUtils.transitionToGuild(guild.id, lastSelectedChannel);
                 });
                 scroller.append(elem);
             }
     
             this.showPopout(popout, target, "popout-server-search", {onClose: onClose});
             searchInput.focus();
-        }
-    
-        updateSearch(query) {
-            if (!query) return this.resetGuilds();
-            $(".listItem-2P_4kh:has(.blobContainer-239gwq)").each((_, guild) => {
-                const name = ReactTools.getReactProperty(guild, "return.memoizedProps.guild.name");
-                if (name.toLowerCase().includes(query.toLowerCase())) guild.style.display = "";
-                else guild.style.display = "none";
-            });
-        }
-    
-        resetGuilds() {
-            $(".listItem-2P_4kh:has(.blobContainer-239gwq)").each((_, guild) => {
-                guild.style.display = "";
-            });
         }
 
     };

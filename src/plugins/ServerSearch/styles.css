@@ -2,13 +2,13 @@
 	margin-bottom: 10px;
 }
 
-.popout-3sVMXz.popout-server-search,
-.popout-3sVMXz.popout-server-search-small {
+.popout-server-search,
+.popout-server-search-small {
 	margin-top: 0;
 	z-index: 1005;
 }
 
-.popout-3sVMXz.popout-server-search-small {
+.popout-server-search-small {
 	padding: 10px;
 	background:#2f3136;
 	box-shadow: 0 0px 15px rgba(0,0,0,0.6);
@@ -21,4 +21,11 @@
 	justify-content: center;
 	align-items: center;
 	display: flex;
+}
+
+.popout-server-search .image-33JSyf {
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	background-size: contain;
 }

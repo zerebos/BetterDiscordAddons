@@ -32,7 +32,7 @@
 @else@*/
 
 var ServerSorter = (() => {
-    const config = {info:{name:"ServerSorter",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.4.2",description:"Adds server sorting abilities to Discord.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSorter",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSorter/ServerSorter.plugin.js"},changelog:[{title:"Bugs Squashed",type:"fixed",items:["Button now appears.","Sorting works again."]}],main:"index.js"};
+    const config = {info:{name:"ServerSorter",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.4.3-final",description:"Adds server sorting abilities to Discord.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSorter",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSorter/ServerSorter.plugin.js"},changelog:[{title:"What's Going On",items:["ServerSorter is going away.","The functionality will be absorbed into ServerSearch at some point."]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -66,151 +66,32 @@ var ServerSorter = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {PluginUtilities, ContextMenu, DiscordModules, ReactTools} = Api;
+    const {Modals} = Api;
 
-    const SortedGuildStore = DiscordModules.SortedGuildStore;
-
-    return class ServerSearch extends Plugin {
-        onStart() {
-            PluginUtilities.addStyle(this.getName(), `#sort-options {
-	pointer-events: none;
-	opacity: 0;
-	transition: 300ms cubic-bezier(.2, 0, 0, 1);
-	transform-origin: 0 0;
-	transform: translateY(-10px);
-}
-
-#sort-options.open {
-	pointer-events: initial;
-	opacity: 1;
-	transition: 300ms cubic-bezier(.2, 0, 0, 1);
-	transform-origin: 0 0;
-	transform: translateY(0px);
-}
-
-#sort-button {
-	height: 20px;
-	overflow: hidden;
-}
-
-#sort-button > div {
-	border-radius: 0px;
-	background-color: rgb(47, 49, 54);
-	color: white;
-	text-align: center;
-	font-size: 12px;
-	line-height: 20px;
-}`);
-            const sortButton = $(`<div class="listItem-2P_4kh" id="sort-button" style="height: 20px; margin-bottom:10px;">
-    <div tabindex="0" class="circleButtonMask-2VNJsN wrapper-25eVIn" role="button">
-        Sort
-    </div>
-</div>`);
-            const contextMenu = new ContextMenu.Menu().addItems(
-                new ContextMenu.ItemGroup().addItems(
-                    new ContextMenu.TextItem("Alphabetically", {hint: "A > Z", callback: () => {this.doSort("name", false);}}),
-                    new ContextMenu.TextItem("Reverse Alphabetical", {hint: "Z > A", callback: () => {this.doSort("name", true);}})
-                ),
-                new ContextMenu.ItemGroup().addItems(
-                    new ContextMenu.TextItem("Newest Joined", {hint: "New", callback: () => {this.doSort("joinedAt", true);}}),
-                    new ContextMenu.TextItem("Oldest Joined", {hint: "Old", callback: () => {this.doSort("joinedAt", false);}})
-                ),
-                new ContextMenu.ItemGroup().addItems(
-                    new ContextMenu.TextItem("Newest Created", {callback: () => {this.doSort("id", true);}}),
-                    new ContextMenu.TextItem("Oldest Created", {callback: () => {this.doSort("id", false);}})
-                ),
-                new ContextMenu.ItemGroup().addItems(
-                    new ContextMenu.TextItem("Reset", {danger: true, callback: () => {this.doSort("id", false, true);}})
-                )
+    return class ServerSorter extends Plugin {
+        load() {
+            Modals.showConfirmationModal(
+                "ServerSorter Is Dead",
+                "ServerSorter is going away.\n\nIt's become unrealistic to sort servers/guilds in the list with the new server folders.\n\nIf you do would miss the functionality of ServerSorter, do not worry, the functionality will be absorbed into [ServerSearch](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch) at some point, so keep your eyes peeled for that.",
+                {
+                    danger: true,
+                    confirmText: "Delete Now",
+                    cancelText: "Delte Later",
+                    onConfirm: function() {
+                        const fs = require("fs");
+                        const path = require("path");
+                        const file = path.resolve(BdApi.Plugins.folder, "ServerSorter.plugin.js");
+                        if (fs.existsSync(file)) {
+                            fs.unlinkSync(file);
+                            BdApi.showToast("Plugin deleted successfully", {type: "success"});
+                        }
+                        else {
+                            Modals.showAlertModal("File Not Found", "Couldn't find the plugin file, please delete it manually!");
+                        }
+                    }
+                }
             );
-    
-            sortButton.on("click", (e) => {
-                contextMenu.show(e.clientX, e.clientY);
-            });
-            sortButton.insertBefore($(".listItem-2P_4kh .guildSeparator-3s64Iy").first().parent());
         }
-        
-        onStop() {
-            $("#sort-button").remove();
-            PluginUtilities.removeStyle(this.getName(), `#sort-options {
-	pointer-events: none;
-	opacity: 0;
-	transition: 300ms cubic-bezier(.2, 0, 0, 1);
-	transform-origin: 0 0;
-	transform: translateY(-10px);
-}
-
-#sort-options.open {
-	pointer-events: initial;
-	opacity: 1;
-	transition: 300ms cubic-bezier(.2, 0, 0, 1);
-	transform-origin: 0 0;
-	transform: translateY(0px);
-}
-
-#sort-button {
-	height: 20px;
-	overflow: hidden;
-}
-
-#sort-button > div {
-	border-radius: 0px;
-	background-color: rgb(47, 49, 54);
-	color: white;
-	text-align: center;
-	font-size: 12px;
-	line-height: 20px;
-}`);
-        }
-
-        getGuilds() {
-            return $(".listItem-2P_4kh:has(.blobContainer-239gwq)");
-        }
-        
-        getGuildData(guild) {
-            return ReactTools.getReactProperty(guild, "return.memoizedProps.guild");
-        }
-        
-        getGuildNames() {
-            const names = [];
-            this.getGuilds().each((index, elem) => {
-                names.push(this.getGuildData(elem).name);
-            });
-            return names;
-        }
-        
-        doSort(sortType, reverse, reset) {
-            const guilds = this.getGuilds();
-            guilds.sort((a,b) => {
-                let first = this.getGuildData(a)[sortType];
-                let second = this.getGuildData(b)[sortType];
-                
-                if (sortType == "id" && !reset) {
-                    first = parseInt(first);
-                    second = parseInt(second);
-                }
-    
-                if (sortType == "name") {
-                    first = first.toLowerCase();
-                    second = second.toLowerCase();
-                }
-                
-                if (reset) {
-                    first = SortedGuildStore.guildPositions.indexOf(first.toString());
-                    second = SortedGuildStore.guildPositions.indexOf(second.toString());
-                }
-                
-                if (first > second) {
-                    return reverse ? -1 : 1;
-                }
-                if (second > first) {
-                    return reverse ? 1 : -1;
-                }
-                return 0;
-            });
-            guilds.detach().insertBefore($(".listItem-2P_4kh:has([name*=Add])"));
-        }
-
     };
 };
         return plugin(Plugin, Api);

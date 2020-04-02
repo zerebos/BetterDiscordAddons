@@ -32,7 +32,7 @@
 @else@*/
 
 var ServerSearch = (() => {
-    const config = {info:{name:"ServerSearch",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.2",description:"Adds a button to search your servers. Search in place or in popout.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSearch/ServerSearch.plugin.js"},defaultConfig:[{type:"radio",id:"inPlace",name:"Search Style",value:false,options:[{name:"Popout",value:false,desc:"Shows a popout with a list of guilds to search."},{name:"In Place",value:true,desc:"Hides guilds in the list that don't match the search."}]}],changelog:[{title:"Bugs Squashed",type:"fixed",items:["Button now appears.","Menu closes when you leave it.","Searching actually works.","Wow."]}],main:"index.js"};
+    const config = {info:{name:"ServerSearch",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.3",description:"Adds a button to search your servers. Search in place or in popout.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSearch/ServerSearch.plugin.js"},changelog:[{title:"What's Changed?",items:["\"Small style\" popout has been removed. It became really hard to make work with server folders.","Completely removed all jQuery usage."]},{title:"Bugs Squashed",type:"fixed",items:["Properly transitions to guilds at the previous known channel."]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -66,30 +66,52 @@ var ServerSearch = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {DiscordSelectors, PluginUtilities, ColorConverter, WebpackModules, DiscordModules, ReactTools, Utilities, Structs: {Screen}} = Api;
+    const {DiscordSelectors, PluginUtilities, ColorConverter, WebpackModules, DiscordModules, DOMTools, EmulatedTooltip, Utilities, DiscordClasses} = Api;
 
     const SortedGuildStore = DiscordModules.SortedGuildStore;
     const ImageResolver = DiscordModules.ImageResolver;
-    const GuildActions = DiscordModules.GuildActions;
+    const SelectedChannelStore = DiscordModules.SelectedChannelStore;
+    const NavUtils = DiscordModules.NavigationUtils;
     const GuildInfo = DiscordModules.GuildInfo;
+    const PrivateChannelActions = DiscordModules.PrivateChannelActions;
     const Animations = WebpackModules.getByProps("spring");
+
+    const animateDOM = DOMTools.animate ? DOMTools.animate.bind(DOMTools) :  ({timing = _ => _, update, duration}) => {
+        // https://javascript.info/js-animation
+        const start = performance.now();
+
+        requestAnimationFrame(function renderFrame(time) {
+            // timeFraction goes from 0 to 1
+            let timeFraction = (time - start) / duration;
+            if (timeFraction > 1) timeFraction = 1;
+
+            // calculate the current animation state
+            const progress = timing(timeFraction);
+
+            update(progress); // draw it
+
+            if (timeFraction < 1) {
+            requestAnimationFrame(renderFrame);
+            }
+
+        });
+    };
 
     return class ServerSearch extends Plugin {
         constructor() {
             super();
-            this.cancels = [];
     
             this.css = `#server-search {
 	margin-bottom: 10px;
 }
 
-.popout-3sVMXz.popout-server-search,
-.popout-3sVMXz.popout-server-search-small {
+.popout-server-search,
+.popout-server-search-small {
 	margin-top: 0;
 	z-index: 1005;
 }
 
-.popout-3sVMXz.popout-server-search-small {
+.popout-server-search-small {
 	padding: 10px;
 	background:#2f3136;
 	box-shadow: 0 0px 15px rgba(0,0,0,0.6);
@@ -102,6 +124,13 @@ var ServerSearch = (() => {
 	justify-content: center;
 	align-items: center;
 	display: flex;
+}
+
+.popout-server-search .image-33JSyf {
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	background-size: contain;
 }`;
             this.guildHtml = `<div class="listItem-2P_4kh" id="server-search">
         <div class="pill-3YxEhL wrapper-sa6paO">
@@ -122,20 +151,7 @@ var ServerSearch = (() => {
         </div>
     </div>`;
             this.separatorHtml = `<div class="listItem-2P_4kh"><div class="guildSeparator-3s64Iy server-search-separator"></div></div>`;
-            this.smallPopoutHtml = `<div class="popout-3sVMXz noArrow-3BYQ0Z popoutRight-2ZVwL- popout-server-search-small">
-    <div
-        class="searchBar-2pWH0_ container-2XeR5Z medium-2-DE5M">
-        <div class="inner-3ErfOT">
-            <input class="input-1Rv96N" type="text" spellcheck="false" placeholder="Search..." value="">
-            <div tabindex="0" class="iconLayout-1WxHy4 medium-2-DE5M" role="button">
-                <div class="iconContainer-O4O2CN">
-                    <svg name="Search" class="icon-3cZ1F_ visible-3V0mGj" width="18" height="18" viewBox="0 0 18 18"> <g fill="none" fill-rule="evenodd"> <path fill="currentColor" d="M3.60091481,7.20297313 C3.60091481,5.20983419 5.20983419,3.60091481 7.20297313,3.60091481 C9.19611206,3.60091481 10.8050314,5.20983419 10.8050314,7.20297313 C10.8050314,9.19611206 9.19611206,10.8050314 7.20297313,10.8050314 C5.20983419,10.8050314 3.60091481,9.19611206 3.60091481,7.20297313 Z M12.0057176,10.8050314 L11.3733562,10.8050314 L11.1492281,10.5889079 C11.9336764,9.67638651 12.4059463,8.49170955 12.4059463,7.20297313 C12.4059463,4.32933105 10.0766152,2 7.20297313,2 C4.32933105,2 2,4.32933105 2,7.20297313 C2,10.0766152 4.32933105,12.4059463 7.20297313,12.4059463 C8.49170955,12.4059463 9.67638651,11.9336764 10.5889079,11.1492281 L10.8050314,11.3733562 L10.8050314,12.0057176 L14.8073185,16 L16,14.8073185 L12.2102538,11.0099776 L12.0057176,10.8050314 Z"></path></g></svg>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>`;
-            this.largePopoutHtml = `<div class="popout-3sVMXz noArrow-3BYQ0Z popoutRight-2ZVwL- popout-server-search" style="margin-top: 0;">
+            this.largePopoutHtml = `<div class="{{className}} popout-server-search" style="margin-top: 0;">
     <div class="popoutList-T9CKZQ guildSettingsAuditLogsUserFilterPopout-3Jg5NE elevationBorderHigh-2WYJ09 role-members-popout">
         <div class="popoutListInput-1l9TUI size14-3iUx6q container-cMG81i small-2oHLgT">
             <div class="inner-2P4tQO"><input class="input-3Xdcic" placeholder="Search Servers - {{count}}" value="">
@@ -173,20 +189,19 @@ var ServerSearch = (() => {
         }
         
         onStop() {
-            $(".server-search-separator").remove();
-            $("#server-search").remove();
-            for (const c of this.cancels) c();
+            const button = document.querySelector("#server-search");
+            if (button) button.remove();
+            const separator = document.querySelector(".server-search-separator");
+            if (separator) separator.parentElement.remove();
             PluginUtilities.removeStyle(this.getName());
         }
 
-        getSettingsPanel() {
-            return this.buildSettingsPanel().getElement();
-        }
-
         addSearchButton() {
-            const guildElement = $(this.guildHtml);
-            const guildElementInner = guildElement.find(".wrapper-25eVIn");
-            $(".listItem-2P_4kh .guildSeparator-3s64Iy").parent().before($(this.separatorHtml), guildElement);
+            const guildElement = DOMTools.createElement(this.guildHtml);
+            const guildElementInner = guildElement.querySelector(".wrapper-25eVIn");
+            const separator = document.querySelector(".listItem-2P_4kh .guildSeparator-3s64Iy");
+            separator.parentElement.parentElement.insertBefore(DOMTools.createElement(this.separatorHtml), separator.parentElement);
+            separator.parentElement.parentElement.insertBefore(guildElement, separator.parentElement);
     
             
             const gray = "#2F3136";
@@ -203,7 +218,7 @@ var ServerSearch = (() => {
                 const getVal = (i) => {
                     return Math.round((purpleRGB[i] - grayRGB[i]) * value.value + grayRGB[i]);
                 };
-                guildElementInner.css("background-color", `rgb(${getVal(0)}, ${getVal(1)}, ${getVal(2)})`);
+                guildElementInner.style.backgroundColor = `rgb(${getVal(0)}, ${getVal(1)}, ${getVal(2)})`;
             });
     
             const borderRadius = new Animations.Value(0);
@@ -214,7 +229,7 @@ var ServerSearch = (() => {
     
             borderRadius.addListener((value) => {
                 // (end - start) * value + start
-                guildElementInner.css("border-radius", (15 - 25) * value.value + 25);
+                guildElementInner.style.borderRadius =  ((15 - 25) * value.value + 25) + "px";
             });
     
             const animate = (v) => {
@@ -224,58 +239,70 @@ var ServerSearch = (() => {
                 ]).start();
             };
     
-            guildElement.on("mouseenter", () => {animate(1);});
+            guildElement.addEventListener("mouseenter", () => {animate(1);});
     
-            guildElement.on("mouseleave", () => {
-                if (!guildElement.hasClass("selected")) animate(0);
+            guildElement.addEventListener("mouseleave", () => {
+                if (!guildElement.classList.contains("selected")) animate(0);
             });
     
-            // new Tooltip(guildElement, "Server Search", {side: "right"});
+            new EmulatedTooltip(guildElement, "Server Search", {side: "right"});
     
-            guildElement.on("click", (e) => {
-                if (guildElement.hasClass("selected")) return;
+            guildElement.addEventListener("click", (e) => {
+                if (guildElement.classList.contains("selected")) return;
                 e.stopPropagation();
-                guildElement.addClass("selected");
+                guildElement.classList.add("selected");
     
-                if (this.settings.inPlace) {
-                    return this.showSmallPopout(guildElement[0], {onClose: () => {
-                        guildElement.removeClass("selected");
-                        this.updateSearch("");
-                        animate(0);
-                    }});
-                }
-    
-                this.showLargePopout(guildElement[0], {onClose: () => {
-                    guildElement.removeClass("selected");
+                this.showLargePopout(guildElement, {onClose: () => {
+                    guildElement.classList.remove("selected");
                     animate(0);
                 }});
             });
         }
-    
-        showPopout(popout, target, id, options = {}) {
+
+        showPopout(popout, relativeTarget, id, options = {}) {
             const {onClose} = options;
-            popout.appendTo(document.querySelector(DiscordSelectors.Popouts.popouts));
-            const maxWidth = Screen.width;
-            const maxHeight = Screen.height;
-    
-            const offset = target.getBoundingClientRect();
-            if (offset.right + popout.outerHeight() >= maxWidth) {
-                popout.addClass("popout-left");
-                popout.css("left", Math.round(offset.left - popout.outerWidth() - 20));
-                popout.animate({left: Math.round(offset.left - popout.outerWidth() - 10)}, 100);
+            document.querySelector(DiscordSelectors.Popouts.popouts).append(popout);
+            const maxWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+            const maxHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
+            const offset = relativeTarget.getBoundingClientRect();
+            if (offset.right + popout.offsetHeight >= maxWidth) {
+                popout.classList.add(...DiscordClasses.Popouts.popoutLeft.value.split(" "));
+                popout.style.left = Math.round(offset.left - popout.offsetWidth - 20) + "px";
+                const original = Math.round(offset.left - popout.offsetWidth - 20);
+                const endPoint = Math.round(offset.left - popout.offsetWidth - 10);
+                animateDOM({
+                    duration: 100,
+                    update: function(progress) {
+                        let value = 0;
+                        if (endPoint > original) value = original + (progress * (endPoint - original));
+                        else value = original - (progress * (original - endPoint));
+                        popout.style.left = value + "px";
+                    }
+                });
             }
             else {
-                popout.addClass("popout-right");
-                popout.css("left", offset.right + 10);
-                popout.animate({left: offset.right}, 100);
+                popout.classList.add(...DiscordClasses.Popouts.popoutRight.value.split(" "));
+                popout.style.left = (offset.right + 10) + "px";
+                const original = offset.right + 10;
+                const endPoint = offset.right;
+                animateDOM({
+                    duration: 100,
+                    update: function(progress) {
+                        let value = 0;
+                        if (endPoint > original) value = original + (progress * (endPoint - original));
+                        else value = original - (progress * (original - endPoint));
+                        popout.style.left = value + "px";
+                    }
+                });
             }
-    
-            if (offset.top + popout.outerHeight() >= maxHeight) popout.css("top", Math.round(maxHeight - popout.outerHeight()));
-            else popout.css("top", offset.top);
-    
+
+            if (offset.top + popout.offsetHeight >= maxHeight) popout.style.top = Math.round(maxHeight - popout.offsetHeight) + "px";
+            else popout.style.top = offset.top + "px";
+
             const listener = document.addEventListener("click", (e) => {
-                const target = $(e.target);
-                if (!target.hasClass(id) && !target.parents(`.${id}`).length) {
+                const target = e.target;
+                if (!target.classList.contains(id) && !target.closest(`.${id}`)) {
                     popout.remove();
                     document.removeEventListener("click", listener);
                     if (onClose) onClose();
@@ -283,31 +310,17 @@ var ServerSearch = (() => {
             });
         }
     
-        showSmallPopout(target, options = {}) {
-            const {onClose} = options;
-            const popout = $(this.smallPopoutHtml);
-            const searchInput = popout.find("input");
-            searchInput.on("keyup", () => {
-                this.updateSearch(searchInput.val());
-            });
-    
-            this.showPopout(popout, target, "popout-server-search-small", {onClose: onClose});
-            searchInput.focus();
-        }
-    
         showLargePopout(target, options = {}) {
             const {onClose} = options;
     
-            const guilds = SortedGuildStore.getSortedGuilds().slice(0);
-            for (let i = 0; i < guilds.length; i++) guilds[i] = guilds[i].guild;
+            const guilds = SortedGuildStore.getFlattenedGuilds().slice(0);
+            const popout = DOMTools.createElement(Utilities.formatString(this.largePopoutHtml, {className: DiscordClasses.Popouts.popout.add(DiscordClasses.Popouts.noArrow), count: guilds.length}));
     
-            const popout = $(Utilities.formatString(this.largePopoutHtml, {count: guilds.length}));
-    
-            const searchInput = popout.find("input");
-            searchInput.on("keyup", () => {
-                const items = popout[0].querySelectorAll(".search-result");
+            const searchInput = popout.querySelector("input");
+            searchInput.addEventListener("keyup", () => {
+                const search = searchInput.value.toLowerCase();
+                const items = popout.querySelectorAll(".search-result");
                 for (let i = 0, len = items.length; i < len; i++) {
-                    const search = searchInput.val().toLowerCase();
                     const item = items[i];
                     const username = item.querySelector(".username").textContent.toLowerCase();
                     if (!username.includes(search)) item.style.display = "none";
@@ -315,38 +328,28 @@ var ServerSearch = (() => {
                 }
             });
     
-            const scroller = popout.find(".search-results");
+            const scroller = popout.querySelector(".search-results");
             for (const guild of guilds) {
                 const image = ImageResolver.getGuildIconURL(guild);
-                const elem = $(Utilities.formatString(this.popoutItemHtml, {name: guild.name, image_url: image}));
+                const elem = DOMTools.createElement(Utilities.formatString(this.popoutItemHtml, {name: guild.name, image_url: image}));
                 if (!image) {
-                    const imageElement = elem.find(".image-33JSyf");
-                    imageElement.text(GuildInfo.getAcronym(guild.name));
-                    imageElement.addClass("no-image");
+                    const imageElement = elem.querySelector(".image-33JSyf");
+                    imageElement.textContent = GuildInfo.getAcronym(guild.name);
+                    imageElement.classList.add("no-image");
                 }
-                elem.on("click", () => {
-                    GuildActions.selectGuild(guild.id);
+                elem.addEventListener("mousedown", () => {
+                    const lastSelectedChannel = SelectedChannelStore.getChannelId(guild.id);
+                    PrivateChannelActions.preload(guild.id, lastSelectedChannel);
+                });
+                elem.addEventListener("click", () => {
+                    const lastSelectedChannel = SelectedChannelStore.getChannelId(guild.id);
+                    NavUtils.transitionToGuild(guild.id, lastSelectedChannel);
                 });
                 scroller.append(elem);
             }
     
             this.showPopout(popout, target, "popout-server-search", {onClose: onClose});
             searchInput.focus();
-        }
-    
-        updateSearch(query) {
-            if (!query) return this.resetGuilds();
-            $(".listItem-2P_4kh:has(.blobContainer-239gwq)").each((_, guild) => {
-                const name = ReactTools.getReactProperty(guild, "return.memoizedProps.guild.name");
-                if (name.toLowerCase().includes(query.toLowerCase())) guild.style.display = "";
-                else guild.style.display = "none";
-            });
-        }
-    
-        resetGuilds() {
-            $(".listItem-2P_4kh:has(.blobContainer-239gwq)").each((_, guild) => {
-                guild.style.display = "";
-            });
         }
 
     };
