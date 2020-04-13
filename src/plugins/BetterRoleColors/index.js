@@ -307,11 +307,11 @@ module.exports = (Plugin, Api) => {
                 memberList.renderSection = function() {
                     const section = Reflect.apply(original, this, arguments);
                     const guild = DiscordModules.GuildStore.getGuild(memberList.props.channel.guild_id);
-                    if (!guild) return;
+                    if (!guild) return section;
                     const children = section.props.children ? section.props.children : section;
                     const roleId = children.props.id;
                     const roleColor = guild.roles[roleId] ? guild.roles[roleId].colorString : "";
-                    if (!roleColor) return;
+                    if (!roleColor) return section;
                     const originalType = children.type;
                     const myRef = DiscordModules.React.createRef();
                     const ColoredRoleHeader = function() {
