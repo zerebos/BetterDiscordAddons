@@ -64,7 +64,7 @@ var StatusEverywhere = (() => {
     return class StatusEverywhere extends Plugin {
 
         onStart() {
-			PluginUtilities.addStyle(this.getName(), `.message-2qnXI6 .avatar-1BDn8e { overflow: visible }`);
+            PluginUtilities.addStyle(this.getName(), `.message-2qnXI6 .avatar-1BDn8e { overflow: visible; position: absolute }`);
             const Avatar = WebpackModules.getByProps("AnimatedAvatar");
             const original = Avatar.default;
             Patcher.after(Avatar, "default", (_, [props]) => {
