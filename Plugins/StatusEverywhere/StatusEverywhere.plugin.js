@@ -32,7 +32,7 @@
 @else@*/
 
 var StatusEverywhere = (() => {
-    const config = {info:{name:"StatusEverywhere",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.4.7",description:"Adds user status everywhere Discord doesn't.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/StatusEverywhere",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/StatusEverywhere/StatusEverywhere.plugin.js"},changelog:[{title:"Good News",items:["The plugins works once more.","Should no longer crash your screensharing sessions."]}],main:"index.js"};
+    const config = {info:{name:"StatusEverywhere",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.4.8",description:"Adds user status everywhere Discord doesn't.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/StatusEverywhere",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/StatusEverywhere/StatusEverywhere.plugin.js"},changelog:[{title:"Good News",items:["Should once again update statuses more frequently.","Shouldn't randomly cause the popout to be at the top-left of the screen."]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -56,27 +56,25 @@ var StatusEverywhere = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {Patcher, WebpackModules, DiscordModules, PluginUtilities, Utilities} = Api;
+    const {Patcher, WebpackModules, DiscordModules, PluginUtilities, Utilities, Popouts} = Api;
 
-    // const Flux = WebpackModules.getByProps("connectStores");
+    const Flux = WebpackModules.getByProps("connectStores");
     const StatusStore = DiscordModules.UserStatusStore;
 
     return class StatusEverywhere extends Plugin {
 
         onStart() {
-			PluginUtilities.addStyle(this.getName(), `.message-2qnXI6 .avatar-1BDn8e { overflow: visible }`);
+			PluginUtilities.addStyle(this.getName(), `.message-2qnXI6 .avatar-1BDn8e { overflow: visible; position: absolute; }`);
             const Avatar = WebpackModules.getByProps("AnimatedAvatar");
             const original = Avatar.default;
             Patcher.after(Avatar, "default", (_, [props]) => {
                 if (props.status || props.size.includes("100")) return;
                 const id = props.src.split("/")[4];
-                const status = StatusStore.getStatus(id);
                 const size = props.size.includes("128") ? Avatar.Sizes.SIZE_120 : props.size;
-                return DiscordModules.React.createElement(original, Object.assign({}, props, {status, size}));
-                // const fluxWrapper = Flux.connectStores([StatusStore], () => ({status: StatusStore.getStatus(id)}));
-                // return DiscordModules.React.createElement(fluxWrapper(({status}) => {
-                //     return DiscordModules.React.createElement(original, Object.assign({}, props, {status}));
-                // }));
+                const fluxWrapper = Flux.connectStores([StatusStore], () => ({status: StatusStore.getStatus(id)}));
+                return DiscordModules.React.createElement(fluxWrapper(({status}) => {
+                    return DiscordModules.React.createElement(original, Object.assign({}, props, {status, size}));
+                }));
             });
             Object.assign(Avatar.default, original);
 
@@ -89,7 +87,10 @@ var StatusEverywhere = (() => {
                 AvatarComponent.props.children = function() {
                     const rv = renderer(...arguments);
                     if (rv.type !== "img") return rv;
-                    return DiscordModules.React.createElement(Avatar.default, Object.assign({}, rv.props, {size: Avatar.Sizes.SIZE_40}));
+                    const id = rv.props.src.split("/")[4];
+                    return DiscordModules.React.createElement(Avatar.default, Object.assign({}, rv.props, {size: Avatar.Sizes.SIZE_40, onClick: (event) => {
+                        Popouts.showUserPopout(event.target, DiscordModules.UserStore.getUser(id));
+                    }}));
                 };
                 AvatarComponent.props.children.__patched = true;
             });
