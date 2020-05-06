@@ -7,13 +7,14 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.1.5",
+        "version": "0.1.6",
         "description": "Adds BD shortcuts to the settings context menu.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"
     },
     "changelog": [
-        {"title": "Slight Changes", "type": "improved", "items": ["**Swapped Order** of items in the menu to match BBD's order.", "**Core** was renamed to `settings` to be consistent with BBD.", "`BdApi` is now being used instead of some BD globals."]}
+        {"title": "Fixed", "type": "fixed", "items": ["Menu shows up again."]},
+        {"title": "Slight Changes", "type": "improved", "items": ["Now internally uses the context menu builder from the library."]}
     ],
     "main": "index.js"
 }

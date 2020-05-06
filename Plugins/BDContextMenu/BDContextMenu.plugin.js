@@ -32,7 +32,7 @@
 @else@*/
 
 var BDContextMenu = (() => {
-    const config = {info:{name:"BDContextMenu",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.5",description:"Adds BD shortcuts to the settings context menu.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"},changelog:[{title:"Slight Changes",type:"improved",items:["**Swapped Order** of items in the menu to match BBD's order.","**Core** was renamed to `settings` to be consistent with BBD.","`BdApi` is now being used instead of some BD globals."]}],main:"index.js"};
+    const config = {info:{name:"BDContextMenu",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.6",description:"Adds BD shortcuts to the settings context menu.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"},changelog:[{title:"Fixed",type:"fixed",items:["Menu shows up again."]},{title:"Slight Changes",type:"improved",items:["Now internally uses the context menu builder from the library."]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -56,107 +56,45 @@ var BDContextMenu = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {DiscordSelectors, Patcher, ReactComponents, DiscordModules, WebpackModules, ReactTools} = Api;
+    const {Patcher, DiscordModules, WebpackModules, DCM} = Api;
 
-    const React = DiscordModules.React;
-    const MenuItem = DiscordModules.ContextMenuItem;
-    const DiscordToggleMenuItem = WebpackModules.getByString("itemToggle", "checkbox");
     const BBDSettings = Object.entries(BdApi.settings).filter(s => !s[1].hidden && s[1].implemented);
-    const SubMenuItem = WebpackModules.find(m => m.default && m.default.displayName && m.default.displayName.includes("SubMenuItem"));
-
-    const ToggleMenuItem = class OtherItem extends React.Component {
-        handleToggle() {
-            this.props.active = !this.props.active;
-            if (this.props.action) this.props.action(this.props.active);
-            this.forceUpdate();
-        }
-        render() {
-            return React.createElement(DiscordToggleMenuItem, Object.assign({}, this.props, {action: this.handleToggle.bind(this)}));
-        }
-    };
 
     return class BDContextMenu extends Plugin {
 
         async onStart() {
-            this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
-            this.patchSettingsContextMenu(this.promises.state);
+            this.patchSettingsContextMenu();
         }
 
         onStop() {
             Patcher.unpatchAll();
-            this.promises.cancel();
         }
 
-        async patchSettingsContextMenu(promiseState) {
-            const SettingsContextMenu = await ReactComponents.getComponentByName("UserSettingsCogContextMenu", DiscordSelectors.ContextMenu.contextMenu);
-            if (promiseState.cancelled) return;
-            Patcher.after(SettingsContextMenu.component.prototype, "render", (component, args, retVal) => {
-
+        async patchSettingsContextMenu() {
+            const SettingsContextMenu = WebpackModules.getByDisplayName("UserSettingsCogContextMenu");
+            Patcher.after(SettingsContextMenu.prototype, "render", (component, args, retVal) => {
                 const coreMenu = this.buildSubMenu("Settings", "core");
                 const emoteMenu = this.buildSubMenu("Emotes", "emote");
-                const customCSSMenu = DiscordModules.React.createElement(MenuItem, {label: "Custom CSS", action: () => {this.openCategory("custom css");}});
+                const customCSSMenu = {label: "Custom CSS", action: () => {this.openCategory("custom css");}};
                 const pluginMenu = this.buildContentMenu(true);
                 const themeMenu = this.buildContentMenu(false);
-
-                const mainMenu = React.createElement(SubMenuItem.default, {
-                    label: "BandagedBD",
-                    invertChildY: true,
-                    render: [coreMenu, emoteMenu, pluginMenu, themeMenu, customCSSMenu]
-                });
-                retVal.props.children.push(mainMenu);
+                retVal.props.children.push(DCM.buildMenuItem({type: "submenu", label: "BandagedBD", items: [coreMenu, emoteMenu, pluginMenu, themeMenu, customCSSMenu]}));
             });
-            SettingsContextMenu.forceUpdateAll();
-            for (const element of document.querySelectorAll(DiscordSelectors.ContextMenu.contextMenu)) {
-				const updater = ReactTools.getReactProperty(element, "return.stateNode.props.onHeightUpdate");
-				if (typeof(updater) == "function") updater();
-			}
         }
 
         buildSubMenu(name, id) {
-            const menuItems = [];
-            const subMenu = React.createElement(SubMenuItem.default, {
-                label: name,
-                invertChildY: true,
-                render: menuItems,
-                action: () => {this.openCategory(name.toLowerCase());}
-            });
-            const categorySettings = BBDSettings.filter(s => s[1].cat == id);
-            if (!categorySettings.length) return null;
-            for (const setting of categorySettings) {
-                const item = React.createElement(ToggleMenuItem, {
-                    label: setting[0],
-                    active: BdApi.isSettingEnabled(BdApi.settings[setting[0]].id),
-                    action: () => {
-                        BdApi.toggleSetting(BdApi.settings[setting[0]].id);
-                    }
-                });
-                menuItems.push(item);
-            }
-            return subMenu;
+            return {type: "submenu", label: name, action: () => {this.openCategory(name.toLowerCase());}, items: BBDSettings.filter(s => s[1].cat == id).map(setting => {
+                return {type: "toggle", label: setting[0], active: BdApi.isSettingEnabled(BdApi.settings[setting[0]].id), action: () => {BdApi.toggleSetting(BdApi.settings[setting[0]].id);}};
+            })};
         }
 
         buildContentMenu(isPlugins) {
-            const menuItems = [];
-            const subMenu = React.createElement(SubMenuItem.default, {
-                label: isPlugins ? "Plugins" : "Themes",
-                invertChildY: true,
-                render: menuItems,
-                action: () => {this.openCategory(isPlugins ? "plugins" : "themes");}
-            });
-            const pluginNames = BdApi.Plugins.getAll().map(p => p.getName());
-            const themeNames = BdApi.Themes.getAll().map(t => t.name);
-            for (const content of (isPlugins ? pluginNames : themeNames).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))) {
-                const item = React.createElement(ToggleMenuItem, {
-                    label: content,
-                    active: isPlugins ? BdApi.Plugins.isEnabled(content) : BdApi.Themes.isEnabled(content),
-                    action: () => {
-                        if (isPlugins) BdApi.Plugins.toggle(content);
-                        else BdApi.Themes.toggle(content);
-                    }
-                });
-                menuItems.push(item);
-            }
-            return subMenu;
+            const names = (isPlugins ? BdApi.Plugins.getAll().map(p => p.getName()) : BdApi.Themes.getAll().map(t => t.name)).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+            const AddonAPI = isPlugins ? BdApi.Plugins : BdApi.Themes;
+
+            return {type: "submenu", label: isPlugins ? "Plugins" : "Themes", action: () => {this.openCategory(isPlugins ? "plugins" : "themes");}, items: names.map(content => {
+                return {type: "toggle", label: content, active: AddonAPI.isEnabled(content), action: () => {AddonAPI.toggle(content);}};
+            })};
         }
 
         async openCategory(id) {

@@ -24,19 +24,13 @@ A series of plugins and themes for BetterDiscord. For support or announcements o
  - [ImageToClipboard](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ImageToClipboard) - Allows you to copy images (png/jpg) directly to your system clipboard.
  - [PermissionsViewer](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer) - Allows you to view a user's permissions. Thanks to Noodlebox for the idea!
  - [RemoveMinimumSize](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RemoveMinimumSize) - Removes the minimum window size forced by Discord.
- - [ReplySystem](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ReplySystem) - Adds a native-esque reply button with preview.
  - [ResizableCSS](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ResizableCSS) - Allows you to resize the detached CustomCSS window.
  - [RoleMembers](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers) - Allows you to see the members of each role on a server.
  - [SendButton](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/SendButton) - Adds a send button to discord.
  - [ServerSearch](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch) - Adds a button to search your servers.
- - [ServerSorter](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSorter) - Adds the ability to sort the servers that you're in.
  - [StatusEverywhere](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/StatusEverywhere) - Adds user status everywhere Discord doesn't.
  - [ZeresPluginLibrary](https://github.com/rauenzi/BDPluginLibrary) - Gives other plugins utility functions and the ability to emulate v2.
  
 ## Themes
- - [RadialStatus](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/RadialStatus) - An extension (and update/fix) of Zerthox's Status Circles.
  - [TransientMaterial](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/TransientMaterial) - Transparency patch theme for Nox. Also works fairly well on it's own.
  - [Nox](https://github.com/rauenzi/Nox) - A beautiful dark material theme for Discord. This is the rebrand and continuation of Beard's Material Design Theme which has been discontinued.
- 
-## Snippets
- - [Snippet Collection](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Themes/Snippets) - A collection of useful CSS snippets, could be considered mini-themes.
