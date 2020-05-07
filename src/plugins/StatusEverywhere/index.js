@@ -13,7 +13,7 @@ module.exports = (Plugin, Api) => {
             const original = Avatar.default;
             Patcher.after(Avatar, "default", (_, [props]) => {
                 if (props.status || props.size.includes("100")) return;
-                const id = props.src.split("/")[4];
+                const id = props.userId || props.src.split("/")[4];
                 const size = props.size.includes("128") ? Avatar.Sizes.SIZE_120 : props.size;
                 const fluxWrapper = Flux.connectStores([StatusStore], () => ({status: StatusStore.getStatus(id)}));
                 return DiscordModules.React.createElement(fluxWrapper(({status}) => {
@@ -23,7 +23,7 @@ module.exports = (Plugin, Api) => {
             Object.assign(Avatar.default, original);
 
             const MessageHeader = WebpackModules.getByProps("MessageTimestamp");
-            Patcher.after(MessageHeader, "default", (_, __, returnValue) => {
+            Patcher.after(MessageHeader, "default", (_, [props], returnValue) => {
                 const AvatarComponent = Utilities.getNestedProp(returnValue, "props.children.0");
                 if (!AvatarComponent || !AvatarComponent.props || !AvatarComponent.props.renderPopout) return;
                 const renderer = Utilities.getNestedProp(AvatarComponent, "props.children");
@@ -31,9 +31,8 @@ module.exports = (Plugin, Api) => {
                 AvatarComponent.props.children = function() {
                     const rv = renderer(...arguments);
                     if (rv.type !== "img") return rv;
-                    const id = rv.props.src.split("/")[4];
-                    return DiscordModules.React.createElement(Avatar.default, Object.assign({}, rv.props, {size: Avatar.Sizes.SIZE_40, onClick: (event) => {
-                        Popouts.showUserPopout(event.target, DiscordModules.UserStore.getUser(id));
+                    return DiscordModules.React.createElement(Avatar.default, Object.assign({}, rv.props, {userId: props.message.author.id, size: Avatar.Sizes.SIZE_40, onClick: (event) => {
+                        Popouts.showUserPopout(event.target, props.message.author);
                     }}));
                 };
                 AvatarComponent.props.children.__patched = true;

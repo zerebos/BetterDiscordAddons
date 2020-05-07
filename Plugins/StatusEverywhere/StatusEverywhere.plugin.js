@@ -32,7 +32,7 @@
 @else@*/
 
 var StatusEverywhere = (() => {
-    const config = {info:{name:"StatusEverywhere",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.4.8",description:"Adds user status everywhere Discord doesn't.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/StatusEverywhere",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/StatusEverywhere/StatusEverywhere.plugin.js"},changelog:[{title:"Good News",items:["Should once again update statuses more frequently.","Shouldn't randomly cause the popout to be at the top-left of the screen."]}],main:"index.js"};
+    const config = {info:{name:"StatusEverywhere",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.4.9",description:"Adds user status everywhere Discord doesn't.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/StatusEverywhere",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/StatusEverywhere/StatusEverywhere.plugin.js"},changelog:[{title:"Hot Fixes",type:"fixed",items:["Fix a crashing issue when clicking on a user with default avatar.","Fix an issue where users with default avatars showed the wrong status."]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -69,7 +69,7 @@ var StatusEverywhere = (() => {
             const original = Avatar.default;
             Patcher.after(Avatar, "default", (_, [props]) => {
                 if (props.status || props.size.includes("100")) return;
-                const id = props.src.split("/")[4];
+                const id = props.userId || props.src.split("/")[4];
                 const size = props.size.includes("128") ? Avatar.Sizes.SIZE_120 : props.size;
                 const fluxWrapper = Flux.connectStores([StatusStore], () => ({status: StatusStore.getStatus(id)}));
                 return DiscordModules.React.createElement(fluxWrapper(({status}) => {
@@ -79,7 +79,7 @@ var StatusEverywhere = (() => {
             Object.assign(Avatar.default, original);
 
             const MessageHeader = WebpackModules.getByProps("MessageTimestamp");
-            Patcher.after(MessageHeader, "default", (_, __, returnValue) => {
+            Patcher.after(MessageHeader, "default", (_, [props], returnValue) => {
                 const AvatarComponent = Utilities.getNestedProp(returnValue, "props.children.0");
                 if (!AvatarComponent || !AvatarComponent.props || !AvatarComponent.props.renderPopout) return;
                 const renderer = Utilities.getNestedProp(AvatarComponent, "props.children");
@@ -87,9 +87,8 @@ var StatusEverywhere = (() => {
                 AvatarComponent.props.children = function() {
                     const rv = renderer(...arguments);
                     if (rv.type !== "img") return rv;
-                    const id = rv.props.src.split("/")[4];
-                    return DiscordModules.React.createElement(Avatar.default, Object.assign({}, rv.props, {size: Avatar.Sizes.SIZE_40, onClick: (event) => {
-                        Popouts.showUserPopout(event.target, DiscordModules.UserStore.getUser(id));
+                    return DiscordModules.React.createElement(Avatar.default, Object.assign({}, rv.props, {userId: props.message.author.id, size: Avatar.Sizes.SIZE_40, onClick: (event) => {
+                        Popouts.showUserPopout(event.target, props.message.author);
                     }}));
                 };
                 AvatarComponent.props.children.__patched = true;
