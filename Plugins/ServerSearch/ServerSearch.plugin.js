@@ -31,7 +31,7 @@
 
 @else@*/
 
-var ServerSearch = (() => {
+module.exports = (() => {
     const config = {info:{name:"ServerSearch",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.3",description:"Adds a button to search your servers. Search in place or in popout.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSearch/ServerSearch.plugin.js"},changelog:[{title:"What's Changed?",items:["\"Small style\" popout has been removed. It became really hard to make work with server folders.","Completely removed all jQuery usage."]},{title:"Bugs Squashed",type:"fixed",items:["Properly transitions to guilds at the previous known channel."]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {

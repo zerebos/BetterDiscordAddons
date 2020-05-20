@@ -31,7 +31,7 @@
 
 @else@*/
 
-var EmojiUtilities = (() => {
+module.exports = (() => {
     const config = {info:{name:"EmojiUtilities",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.0.7",description:"Allows you to blacklist and favorite emojis.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmojiUtilities",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/EmojiUtilities/EmojiUtilities.plugin.js"},changelog:[{title:"Plugin Status",type:"fixed",items:["EmojiUtilities is no longer broken.","I make no guarantees it won't break in 5 minutes."]},{title:"What's New?",items:["There is a `blacklist` category at the bottom of the Emoji Picker to easily remove blacklisted emojis."]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
@@ -166,7 +166,7 @@ var EmojiUtilities = (() => {
 
         patchReactions() {
             const ReactionsComponent = WebpackModules.getByDisplayName("Reactions");
-			Patcher.after(ReactionsComponent.prototype, "render", (thisObject, methodArguments, returnValue) => {
+            Patcher.after(ReactionsComponent.prototype, "render", (thisObject, methodArguments, returnValue) => {
                 if (!returnValue || !returnValue.props || !returnValue.props.children) return;
                 let hiddenReactionCount = 0;
                 const reactions = returnValue.props.children[0];
@@ -177,7 +177,7 @@ var EmojiUtilities = (() => {
                     if (isBlacklisted) {
                         hiddenReactionCount = hiddenReactionCount + reactions[r].props.count;
                         reactions.splice(r, 1);
-						r = r - 1;
+                        r = r - 1;
                     }
                 }
                 if (!hiddenReactionCount) return;

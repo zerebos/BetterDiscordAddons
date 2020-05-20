@@ -8,7 +8,7 @@
  * @source {{SOURCE}}
  */
 {{INSTALL_SCRIPT}}
-var {{PLUGIN_NAME}} = (() => {
+module.exports = (() => {
     const config = {{CONFIG}};
 
     return !global.ZeresPluginLibrary ? class {

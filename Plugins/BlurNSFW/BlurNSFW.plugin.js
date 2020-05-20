@@ -31,7 +31,7 @@
 
 @else@*/
 
-var BlurNSFW = (() => {
+module.exports = (() => {
     const config = {info:{name:"BlurNSFW",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.2.4",description:"Blurs images in NSFW channels until you hover over it.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BlurNSFW",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BlurNSFW/BlurNSFW.plugin.js"},changelog:[{title:"Huge Massive Changes",items:["Plugin no longer uses jQuery.","The css vars have been converted to sliders in plugin settings."]}],defaultConfig:[{type:"slider",id:"blurSize",name:"Blur Size",note:"The size (in px) of the blurred pixels.",value:10,min:0,max:50,units:"px"},{type:"slider",id:"blurTime",name:"Blur Time",note:"The time (in ms) it takes for the blur to disappear and reappear.",value:200,min:0,max:5000,units:"ms"}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {

@@ -31,7 +31,7 @@
 
 @else@*/
 
-var ServerSorter = (() => {
+module.exports = (() => {
     const config = {info:{name:"ServerSorter",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.4.3-final",description:"Adds server sorting abilities to Discord.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSorter",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSorter/ServerSorter.plugin.js"},changelog:[{title:"What's Going On",items:["ServerSorter is going away.","The functionality will be absorbed into ServerSearch at some point."]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {

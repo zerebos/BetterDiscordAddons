@@ -31,7 +31,7 @@
 
 @else@*/
 
-var StatusEverywhere = (() => {
+module.exports = (() => {
     const config = {info:{name:"StatusEverywhere",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.4.9",description:"Adds user status everywhere Discord doesn't.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/StatusEverywhere",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/StatusEverywhere/StatusEverywhere.plugin.js"},changelog:[{title:"Hot Fixes",type:"fixed",items:["Fix a crashing issue when clicking on a user with default avatar.","Fix an issue where users with default avatars showed the wrong status."]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
