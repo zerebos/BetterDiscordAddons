@@ -31,8 +31,8 @@
 
 @else@*/
 
-var BDContextMenu = (() => {
-    const config = {info:{name:"BDContextMenu",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.6",description:"Adds BD shortcuts to the settings context menu.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"},changelog:[{title:"Fixed",type:"fixed",items:["Menu shows up again."]},{title:"Slight Changes",type:"improved",items:["Now internally uses the context menu builder from the library."]}],main:"index.js"};
+module.exports = (() => {
+    const config = {info:{name:"BDContextMenu",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.7",description:"Adds BD shortcuts to the settings context menu.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"},changelog:[{title:"Fixed",type:"fixed",items:["Menu shows up again."]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -56,28 +56,47 @@ var BDContextMenu = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {Patcher, DiscordModules, WebpackModules, DCM} = Api;
+    const {Patcher, DiscordModules, WebpackModules, DCM, PluginUtilities} = Api;
 
     const BBDSettings = Object.entries(BdApi.settings).filter(s => !s[1].hidden && s[1].implemented);
+
+    const css = `#user-settings-cog-BandagedBD--Settings + .layer-v9HyYc .submenu-2-ysNh .scroller-2FKFPG {
+    max-height: 320px;
+}
+
+#user-settings-cog-BandagedBD--Emotes + .layer-v9HyYc .submenu-2-ysNh .scroller-2FKFPG {
+    max-height: 320px;
+}
+
+#user-settings-cog-BandagedBD--Plugins + .layer-v9HyYc .submenu-2-ysNh .scroller-2FKFPG {
+    max-height: 320px;
+}
+
+#user-settings-cog-BandagedBD--Themes + .layer-v9HyYc .submenu-2-ysNh .scroller-2FKFPG {
+    max-height: 320px;
+}`;
 
     return class BDContextMenu extends Plugin {
 
         async onStart() {
             this.patchSettingsContextMenu();
+            PluginUtilities.addStyle("BDCM", css);
         }
 
         onStop() {
+            PluginUtilities.removeStyle("BDCM");
             Patcher.unpatchAll();
         }
 
         async patchSettingsContextMenu() {
-            const SettingsContextMenu = WebpackModules.getByDisplayName("UserSettingsCogContextMenu");
-            Patcher.after(SettingsContextMenu.prototype, "render", (component, args, retVal) => {
+            const SettingsContextMenu = WebpackModules.getModule(m => m.default && m.default.displayName == "UserSettingsCogContextMenu");
+            Patcher.after(SettingsContextMenu, "default", (component, args, retVal) => {
                 const coreMenu = this.buildSubMenu("Settings", "core");
                 const emoteMenu = this.buildSubMenu("Emotes", "emote");
                 const customCSSMenu = {label: "Custom CSS", action: () => {this.openCategory("custom css");}};
                 const pluginMenu = this.buildContentMenu(true);
                 const themeMenu = this.buildContentMenu(false);
+                retVal.props.children.push(DCM.buildMenuItem({type: "separator"}));
                 retVal.props.children.push(DCM.buildMenuItem({type: "submenu", label: "BandagedBD", items: [coreMenu, emoteMenu, pluginMenu, themeMenu, customCSSMenu]}));
             });
         }

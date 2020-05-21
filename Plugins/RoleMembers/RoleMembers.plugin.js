@@ -32,7 +32,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {info:{name:"RoleMembers",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.11",description:"Allows you to see the members of each role on a server.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"},changelog:[{title:"What's Changed?",items:["Completely removed all jQuery usage."]}],main:"index.js"};
+    const config = {info:{name:"RoleMembers",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.12",description:"Allows you to see the members of each role on a server.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"},changelog:[{title:"Updated",type:"fixed",items:["Context menus have been update to match Discord's changes."]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -56,7 +56,7 @@ module.exports = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {Popouts, DiscordModules, DiscordSelectors, DiscordClasses, Utilities, WebpackModules, PluginUtilities, Patcher, DCM, DOMTools} = Api;
+    const {Popouts, DiscordModules, DiscordSelectors, DiscordClasses, Utilities, WebpackModules, Patcher, DCM, DOMTools} = Api;
 
     const from = arr => arr && arr.length > 0 && Object.assign(...arr.map( ([k, v]) => ({[k]: v}) ));
     const filter = (obj, predicate) => from(Object.entries(obj).filter((o) => {return predicate(o[1]);}));
@@ -68,8 +68,6 @@ module.exports = (() => {
     const UserStore = DiscordModules.UserStore;
     const ImageResolver = DiscordModules.ImageResolver;
     const WrapperClasses = WebpackModules.getByProps("wrapperHover");
-    // const MenuItem = DiscordModules.ContextMenuItem;
-    // const SubMenuItem = WebpackModules.find(m => m.default && m.default.displayName && m.default.displayName.includes("SubMenuItem"));
     const animate = DOMTools.animate ? DOMTools.animate.bind(DOMTools) :  ({timing = _ => _, update, duration}) => {
         // https://javascript.info/js-animation
         const start = performance.now();
@@ -133,16 +131,13 @@ module.exports = (() => {
 
         onStart() {
             this.patchRoleMention(); // <@&367344340231782410>
-
-            this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
-            this.patchGuildContextMenu(this.promises.state);
+            this.patchGuildContextMenu();
         }
 
         onStop() {
             const elements = document.querySelectorAll(".popout-role-members");
             for (const el of elements) el && el.remove();
             Patcher.unpatchAll();
-            this.promises.cancel();
         }
 
         patchRoleMention() {
@@ -165,11 +160,8 @@ module.exports = (() => {
             });
         }
 
-
-        async patchGuildContextMenu(promiseState) {
-            const GuildContextMenu = await PluginUtilities.getContextMenu("GUILD_ICON_");
-            if (promiseState.cancelled) return;
-
+        patchGuildContextMenu() {
+            const GuildContextMenu = WebpackModules.getModule(m => m.default && m.default.displayName == "GuildContextMenu");
             Patcher.after(GuildContextMenu, "default", (_, args, retVal) => {
 				const props = args[0];
                 const guildId = props.guild.id;
@@ -178,20 +170,19 @@ module.exports = (() => {
 
                 for (const roleId in roles) {
                     const role = roles[roleId];
-                    const item = DCM.buildMenuItem({label: role.name, style: {color: role.colorString ? role.colorString : ""},
+                    const item = DCM.buildMenuItem({label: role.name, style: {color: role.colorString ? role.colorString : ""}, closeOnClick: false,
                         action: (e) => {
                             this.showRolePopout(e.target.closest(DiscordSelectors.ContextMenu.item), guildId, role.id);
                         }
                     });
                     roleItems.push(item);
                 }
-
+                // props.children[""0""].props.children
                 const original = retVal.props.children[0].props.children;
-                const newOne = DCM.buildMenuItem({type: "submenu", label: "Role Members", render: roleItems});
+                const newOne = DCM.buildMenuItem({type: "submenu", label: "Role Members", children: roleItems});
                 if (Array.isArray(original)) original.splice(1, 0, newOne);
                 else retVal.props.children[0].props.children = [original, newOne];
             });
-            PluginUtilities.forceUpdateContextMenus();
         }
 
         showRolePopout(target, guildId, roleId) {

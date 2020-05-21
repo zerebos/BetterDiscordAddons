@@ -1,27 +1,32 @@
 
 module.exports = (Plugin, Api) => {
-    const {Patcher, DiscordModules, WebpackModules, DCM} = Api;
+    const {Patcher, DiscordModules, WebpackModules, DCM, PluginUtilities} = Api;
 
     const BBDSettings = Object.entries(BdApi.settings).filter(s => !s[1].hidden && s[1].implemented);
+
+    const css = require("styles.css");
 
     return class BDContextMenu extends Plugin {
 
         async onStart() {
             this.patchSettingsContextMenu();
+            PluginUtilities.addStyle("BDCM", css);
         }
 
         onStop() {
+            PluginUtilities.removeStyle("BDCM");
             Patcher.unpatchAll();
         }
 
         async patchSettingsContextMenu() {
-            const SettingsContextMenu = WebpackModules.getByDisplayName("UserSettingsCogContextMenu");
-            Patcher.after(SettingsContextMenu.prototype, "render", (component, args, retVal) => {
+            const SettingsContextMenu = WebpackModules.getModule(m => m.default && m.default.displayName == "UserSettingsCogContextMenu");
+            Patcher.after(SettingsContextMenu, "default", (component, args, retVal) => {
                 const coreMenu = this.buildSubMenu("Settings", "core");
                 const emoteMenu = this.buildSubMenu("Emotes", "emote");
                 const customCSSMenu = {label: "Custom CSS", action: () => {this.openCategory("custom css");}};
                 const pluginMenu = this.buildContentMenu(true);
                 const themeMenu = this.buildContentMenu(false);
+                retVal.props.children.push(DCM.buildMenuItem({type: "separator"}));
                 retVal.props.children.push(DCM.buildMenuItem({type: "submenu", label: "BandagedBD", items: [coreMenu, emoteMenu, pluginMenu, themeMenu, customCSSMenu]}));
             });
         }

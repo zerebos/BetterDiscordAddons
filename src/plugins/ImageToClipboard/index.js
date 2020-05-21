@@ -1,16 +1,12 @@
 
 module.exports = (Plugin, Api) => {
-    const {Patcher, WebpackModules, DiscordModules, Toasts, PluginUtilities, Utilities} = Api;
+    const {Patcher, WebpackModules, DiscordModules, Toasts, PluginUtilities, Utilities, DCM} = Api;
 
     const request = window.require("request");
     const fs = require("fs");
     const {clipboard, nativeImage} = require("electron");
     const path = require("path");
     const process = require("process");
-
-    const MediaContextGroup = WebpackModules.getByDisplayName("NativeLinkGroup");
-    const ContextMenuItem = WebpackModules.getByRegex(/.label\b.*\.hint\b.*\.action\b/);
-    const ContextMenuActions = WebpackModules.getByProps("closeContextMenu");
 
     const ImageModal = WebpackModules.getModule(m => m.prototype && m.prototype.render && m.prototype.render.toString().includes("downloadLink"));
     const DownloadLink = WebpackModules.getModule(m => typeof m == "function" && m.toString && m.toString().includes("isSafeRedirect"));
@@ -20,59 +16,8 @@ module.exports = (Plugin, Api) => {
 
         onStart() {
             PluginUtilities.addStyle(this.getName(), Utilities.formatString(require("styles.css"), {downloadLink: DLClasses.downloadLink.split(" ").join(".")}));
-
-            const index = WebpackModules.getIndexByModule(MediaContextGroup);
-            const groupModule = WebpackModules.getByIndex(index);
-
-            Patcher.after(groupModule, "default", (_, [props], returnValue) => {
-                if (!returnValue) return returnValue;
-                const image = props.href || props.src;
-                if (!this.isImage(image)) return;
-                const isValid = this.isValid(image);
-                returnValue.props.children.push(DiscordModules.React.createElement(ContextMenuItem, {
-                    label: this.strings.contextMenuLabel,
-                    action: () => {
-                        ContextMenuActions.closeContextMenu();
-                        this.copyToClipboard(props.href || props.src);
-                    },
-                    disabled: !isValid
-                }));
-            });
-
-            Patcher.after(ImageModal.prototype, "render", (thisObject, args, returnValue) => {
-                if (!returnValue) return returnValue;
-                const image = thisObject.props.original;
-                if (!this.isImage(image)) return;
-
-                const components = returnValue.props.children;
-                const openOriginal = components[components.length - 1];
-
-                const separator = DiscordModules.React.createElement("span", {
-                    className: DLClasses.downloadLink,
-                    style: {margin: "0 5px"}
-                }, " | ");
-
-                const isValid = this.isValid(image);
-                const copyOriginal = DiscordModules.React.createElement(DownloadLink, {
-                    className: DLClasses.downloadLink + (isValid ? "" : " link-disabled"),
-                    title: this.strings.modalLabel,
-                    target: "_blank",
-                    rel: "noreferrer noopener",
-                    href: image,
-                    onClick: (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        if (isValid) return this.copyToClipboard(image);
-                        Toasts.warning(this.strings.invalidType);
-                    }
-                }, this.strings.modalLabel);
-
-                const wrapper = DiscordModules.React.createElement("div", {
-                    className: ""
-                }, openOriginal, separator, copyOriginal);
-
-                components[components.length - 1] = wrapper;
-            });
+            this.patchImageModal();
+            this.patchContextMenu();
         }
 
         onStop() {
@@ -109,6 +54,42 @@ module.exports = (Plugin, Api) => {
 
         getSettingsPanel() {
             return this.buildSettingsPanel().getElement();
+        }
+
+        patchContextMenu() {
+            const MediaContextGroup = WebpackModules.getModule(m => m.default && m.default.toString && m.default.toString().includes("copy-native-link"));
+            Patcher.after(MediaContextGroup, "default", (_, [url], retVal) => {
+                if (!this.isImage(url)) return;
+                const isValid = this.isValid(url);
+                retVal.push(DCM.buildMenuItem({label: this.strings.contextMenuLabel, disabled: !isValid, action: () => {
+                    this.copyToClipboard(url);
+                }}));
+            });
+        }
+
+        patchImageModal() {
+            Patcher.after(ImageModal.prototype, "render", (thisObject, args, returnValue) => {
+                if (!returnValue) return returnValue;
+                const image = thisObject.props.original;
+                if (!this.isImage(image)) return;
+
+                const isValid = this.isValid(image);
+                const copyOriginal = DiscordModules.React.createElement(DownloadLink, {
+                    className: DLClasses.downloadLink + (isValid ? "" : " link-disabled"),
+                    title: this.strings.modalLabel,
+                    target: "_blank",
+                    rel: "noreferrer noopener",
+                    href: image,
+                    style: {right: "0"},
+                    onClick: (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (isValid) return this.copyToClipboard(image);
+                        Toasts.warning(this.strings.invalidType);
+                    }
+                }, this.strings.modalLabel);
+                returnValue.props.children.push(copyOriginal);
+            });
         }
     };
 };

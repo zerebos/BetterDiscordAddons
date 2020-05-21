@@ -32,7 +32,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {info:{name:"EmojiUtilities",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.0.7",description:"Allows you to blacklist and favorite emojis.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmojiUtilities",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/EmojiUtilities/EmojiUtilities.plugin.js"},changelog:[{title:"Plugin Status",type:"fixed",items:["EmojiUtilities is no longer broken.","I make no guarantees it won't break in 5 minutes."]},{title:"What's New?",items:["There is a `blacklist` category at the bottom of the Emoji Picker to easily remove blacklisted emojis."]}],main:"index.js"};
+    const config = {info:{name:"EmojiUtilities",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.0.8",description:"Allows you to blacklist and favorite emojis.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmojiUtilities",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/EmojiUtilities/EmojiUtilities.plugin.js"},changelog:[{title:"Plugin Status",type:"fixed",items:["Fixed context menus"]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -101,7 +101,7 @@ module.exports = (() => {
 
             this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
             Utilities.suppressErrors(this.patchEmojiComponent.bind(this), "Emoji Patch")(this.promises);
-            Utilities.suppressErrors(this.patchMessageContextMenu.bind(this), "Message Context Menu Patch")(this.promises);
+            Utilities.suppressErrors(this.patchMessageContextMenu.bind(this), "Message Context Menu Patch")();
             Utilities.suppressErrors(this.patchEmojiPicker.bind(this), "Emoji Picker Patch")(this.promises);
             Utilities.suppressErrors(this.patchReactions.bind(this), "Reactions Patch")();
         }
@@ -243,9 +243,8 @@ module.exports = (() => {
             Emoji.forceUpdateAll();
         }
 
-        async patchMessageContextMenu(promiseState) {
-            const MessageContextMenu = await PluginUtilities.getContextMenu("MESSAGE_MAIN");
-            if (promiseState.cancelled) return;
+        patchMessageContextMenu() {
+            const MessageContextMenu = WebpackModules.getModule(m => m.default && m.default.displayName == "MessageContextMenu");
 
             Patcher.after(MessageContextMenu, "default", (_, [props], retVal) => {
                 if (!props.target || !props.target.classList || !props.target.classList.contains("emoji")) return;

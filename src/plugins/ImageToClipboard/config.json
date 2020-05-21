@@ -7,11 +7,15 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.3.4",
+        "version": "0.3.5",
         "description": "Copies images (png/jpg) directly to clipboard.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ImageToClipboard",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ImageToClipboard/ImageToClipboard.plugin.js"
     },
+    "changelog": [
+        {"title": "Fixes", "type": "fixed", "items": ["Both context menus and image modals have the buttons again."]},
+		{"title": "Improved", "type": "improved", "items": ["Position in the image modal has swapped to the other side."]}
+    ],
     "defaultConfig": [
         {
             "type": "switch",
@@ -63,9 +67,5 @@
             }
         }
     },
-	"changelog": [
-        {"title": "Fixes", "type": "fixed", "items": ["It works again!", "Won't make you think it copied when it didn't.", "Won't tell you that it's BlurNSFW when it's not."]},
-		{"title": "Improved", "type": "improved", "items": ["Both the context menu and image preview buttons will show as disabled for unsupported image types.", "Attempting to copy invalid types will give you a warning."]}
-    ],
     "main": "index.js"
 }

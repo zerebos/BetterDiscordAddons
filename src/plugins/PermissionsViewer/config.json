@@ -7,13 +7,14 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.1.11",
+        "version": "0.1.12",
         "description": "Allows you to view a user's permissions. Thanks to Noodlebox for the idea!",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/PermissionsViewer/PermissionsViewer.plugin.js"
     },
     "changelog": [
-        {"title": "Bugs Squashed", "type": "fixed", "items": ["Doesn't break everything."]}
+        {"title": "Bugs Squashed", "type": "fixed", "items": ["Context menus are back."]},
+        {"title": "Internal Changes", "type": "improved", "items": ["Moved away from using the HTMLElement extensions"]}
     ],
     "defaultConfig": [
         {

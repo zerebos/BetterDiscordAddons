@@ -1,10 +1,9 @@
 module.exports = (Plugin, Api) => {
-    const {WebpackModules, ReactTools, Patcher, DiscordModules, Utilities, PluginUtilities} = Api;
+    const {WebpackModules, ReactTools, Patcher, DiscordModules, Utilities, DCM} = Api;
 
-    const Guilds = WebpackModules.getByDisplayName("Guilds");
+    const Guilds = WebpackModules.getModule(m => m.default && m.default.displayName == "NavigableGuilds");
     const GuildFolder = WebpackModules.getByPrototypes("renderExpandedGuilds");
 
-    const MenuItem = WebpackModules.getByDisplayName("ToggleMenuItem");
     const isGuildMuted = WebpackModules.getByProps("isMuted").isMuted;
 
     const isMuted = (guild) => {
@@ -32,28 +31,27 @@ module.exports = (Plugin, Api) => {
         }
 
         onStart() {
-            this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
-
-            this.patchGuildContextMenu(this.promises.state);
+            this.patchGuildContextMenu();
             if (this.settings.hide) this.hideGuilds();
             Patcher.after(DiscordModules.NotificationSettingsModal, "updateNotificationSettings", this.updateGuildList);
         }
 
         onStop() {
-            this.promises.cancel();
             Patcher.unpatchAll();
             this.showGuilds();
         }
 
         hideGuilds() {
-            this.guildListPatch = Patcher.after(Guilds.prototype, "render", (thisObject, args, ret) => {
+            console.log("hideGuilds");
+            this.guildListPatch = Patcher.after(Guilds, "default", (thisObject, args, ret) => {
+                console.log(args,ret);
                 const guilds = Utilities.findInReactTree(ret, a => a && a[0] && a[0].key && a[0].props && a[0].props.guildId);
                 if (!guilds) return;
                 guilds.splice(0, guilds.length, ...guilds.filter(g => !isMuted(g)));
             });
 
-            this.guildFolderExpandedPatch = Patcher.instead(GuildFolder.prototype, "renderExpandedGuilds", replaceGuilds);
-            this.guildFolderIconPatch = Patcher.instead(GuildFolder.prototype, "renderFolderIcon", replaceGuilds);
+            // this.guildFolderExpandedPatch = Patcher.instead(GuildFolder.prototype, "renderExpandedGuilds", replaceGuilds);
+            // this.guildFolderIconPatch = Patcher.instead(GuildFolder.prototype, "renderFolderIcon", replaceGuilds);
             this.updateGuildList();
         }
 
@@ -71,35 +69,27 @@ module.exports = (Plugin, Api) => {
                 if (!folderInstance || !folderInstance.forceUpdate) continue;
                 folderInstance.forceUpdate();
             }
-            const guildList = document.querySelector(".wrapper-1Rf91z");
+            const guildList = document.querySelector(".guilds-1SWlCJ");
             if (!guildList) return;
             const guildListInstance = ReactTools.getOwnerInstance(guildList);
             if (!guildListInstance) return;
             guildListInstance.forceUpdate();
         }
 
-        async patchGuildContextMenu(promiseState) {
-            const GuildContextMenu = await PluginUtilities.getContextMenu("GUILD_ICON_");
-            if (promiseState.cancelled) return;
-
-            Patcher.after(GuildContextMenu, "default", (_, __, retVal) => {
+        patchGuildContextMenu() {
+            const GuildContextMenu = WebpackModules.getModule(m => m.default && m.default.displayName == "GuildContextMenu");
+            Patcher.after(GuildContextMenu, "default", (_, args, retVal) => {
                 if (!retVal || !retVal.props || !retVal.props.children || !retVal.props.children[3]) return;
                 const original = retVal.props.children[3].props.children;
-                const newOne = DiscordModules.React.createElement(MenuItem, {
-                    label: "Hide Muted Servers",
-                    active: this.settings.hide,
-                    action: () => {
-                        this.settings.hide = !this.settings.hide;
-                        if (this.settings.hide) this.hideGuilds();
-                        else this.showGuilds();
-                        this.saveSettings();
-                        PluginUtilities.forceUpdateContextMenus();
-                    }
-                });
+                const newOne = DCM.buildMenuItem({type: "toggle", label: "Hide Muted Servers", active: this.settings.hide, action: () => {
+                    this.settings.hide = !this.settings.hide;
+                    if (this.settings.hide) this.hideGuilds();
+                    else this.showGuilds();
+                    this.saveSettings();
+                }});
                 if (Array.isArray(original)) original.splice(1, 0, newOne);
-                else retVal.props.children[0].props.children = [original, newOne];
+                else retVal.props.children[3].props.children = [original, newOne];
             });
-            PluginUtilities.forceUpdateContextMenus();
         }
 
     };

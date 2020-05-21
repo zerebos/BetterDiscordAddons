@@ -25,7 +25,7 @@ module.exports = (Plugin, Api) => {
 
             this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
             Utilities.suppressErrors(this.patchEmojiComponent.bind(this), "Emoji Patch")(this.promises);
-            Utilities.suppressErrors(this.patchMessageContextMenu.bind(this), "Message Context Menu Patch")(this.promises);
+            Utilities.suppressErrors(this.patchMessageContextMenu.bind(this), "Message Context Menu Patch")();
             Utilities.suppressErrors(this.patchEmojiPicker.bind(this), "Emoji Picker Patch")(this.promises);
             Utilities.suppressErrors(this.patchReactions.bind(this), "Reactions Patch")();
         }
@@ -167,9 +167,8 @@ module.exports = (Plugin, Api) => {
             Emoji.forceUpdateAll();
         }
 
-        async patchMessageContextMenu(promiseState) {
-            const MessageContextMenu = await PluginUtilities.getContextMenu("MESSAGE_MAIN");
-            if (promiseState.cancelled) return;
+        patchMessageContextMenu() {
+            const MessageContextMenu = WebpackModules.getModule(m => m.default && m.default.displayName == "MessageContextMenu");
 
             Patcher.after(MessageContextMenu, "default", (_, [props], retVal) => {
                 if (!props.target || !props.target.classList || !props.target.classList.contains("emoji")) return;
