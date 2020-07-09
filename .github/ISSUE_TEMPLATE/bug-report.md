@@ -8,13 +8,13 @@ assignees: ''
 ---
 
 **Which plugin/theme is this about?**
-<!-- A clear and concise description of what the bug is. -->
+<!-- Which plugin or theme the bug report is about. -->
 
 **Describe the Bug**
 <!-- A clear and concise description of what the bug is. -->
 
 **To Reproduce**
-<!-- Steps to reproduce the behavior -->
+<!-- Steps to reproduce the behavior. -->
 
 **Expected Behavior**
 <!-- A clear and concise description of what you expected to happen. -->
