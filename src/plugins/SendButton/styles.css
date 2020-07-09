@@ -6,10 +6,11 @@
 	position: absolute;
 	right: 12px;
 	top: 8px;
+	padding-left: 17px;
 }
 
 .send-button img {
-	opacity: 0.5;
+	opacity: 0.75;
 	width: 100%;
 	transition: all 200ms ease;
 }
