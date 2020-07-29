@@ -109,6 +109,26 @@
                     "note": "Adds a button to view the permissions modal to select context menus."
                 }
             }
+        },
+        "ru": {
+            "contextMenuLabel": "Полномочия",
+            "popoutLabel": "Полномочия",
+            "modal": {
+                "header": "Полномочия ${name}",
+                "rolesLabel": "Роли",
+                "permissionsLabel": "Полномочия",
+                "owner":"Владелец"
+            },
+            "settings": {
+                "popouts": {
+                    "name":"Показать во всплывающих окнах", 
+                    "note":"Отображает полномочия пользователя в их всплывающем окне, аналогичном ролям."
+                },
+                "contextMenus": {
+                    "name":"Кнопка контекстного меню",
+                    "note":"Добавить кнопку для отображения полномочий с помощью контекстных меню."
+                }
+            }
         }
     },
     "main": "index.js"
