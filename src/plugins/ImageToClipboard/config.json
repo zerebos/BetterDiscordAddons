@@ -16,28 +16,13 @@
         {"title": "Fixes", "type": "fixed", "items": ["Both context menus and image modals have the buttons again."]},
 		{"title": "Improved", "type": "improved", "items": ["Position in the image modal has swapped to the other side."]}
     ],
-    "defaultConfig": [
-        {
-            "type": "switch",
-            "id": "typing",
-            "name": "Typing",
-            "note": "Toggles colorizing of typing notifications.",
-            "value": true
-        }
-    ],
     "strings": {
         "es": {
             "contextMenuLabel": "Copiar Imagen",
             "modalLabel": "Copiar Original",
             "copySuccess": "Imagen copiada al portapapeles.",
             "copyFailed": "Hubo un problema al copiar la imagen.",
-            "invalidType": "No se puede copiar este tipo de imagen.",
-            "settings": {
-                "typing": {
-                    "name": "No estoy Typing",
-                    "note": "Doesn't colorize caca."
-                }
-            }
+            "invalidType": "No se puede copiar este tipo de imagen."
         },
         "pt": {
             "contextMenuLabel": "Copiar imagem",
@@ -58,13 +43,7 @@
             "modalLabel": "Copy Original",
             "copySuccess": "Image copied to clipboard.",
             "copyFailed": "There was an issue copying the image.",
-            "invalidType": "Cannot copy this image type.",
-            "settings": {
-                "typing": {
-                    "name": "Not Typing",
-                    "note": "Doesn't colorize shit."
-                }
-            }
+            "invalidType": "Cannot copy this image type."
         }
     },
     "main": "index.js"

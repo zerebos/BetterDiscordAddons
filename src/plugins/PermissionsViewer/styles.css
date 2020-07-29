@@ -277,3 +277,31 @@
     height: 8px;
     width: 8px;
 }
+
+
+
+.theme-light #permissions-modal-wrapper #permissions-modal {
+    background: #fff;
+}
+
+.theme-light #permissions-modal-wrapper .modal-body {
+    background: transparent;
+}
+
+.theme-light #permissions-modal-wrapper .header {
+    background: transparent;
+    color: #000;
+}
+
+.theme-light #permissions-modal-wrapper .role-side {
+    background: rgba(0,0,0,.2);
+}
+
+.theme-light #permissions-modal-wrapper .perm-side {
+    background: rgba(0,0,0,.1);
+}
+
+.theme-light #permissions-modal-wrapper .role-item,
+.theme-light #permissions-modal-wrapper .perm-name {
+    color: #000;
+}

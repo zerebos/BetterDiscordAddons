@@ -1,7 +1,7 @@
 /**
  * @name ServerSearch
  * @invite TyFxKer
- * @authorLink https://twitter.com/ZackRauen
+ * @authorLink https://twitter.com/Zerebos
  * @donate https://paypal.me/ZackRauen
  * @patreon https://patreon.com/Zerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch
@@ -32,7 +32,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {info:{name:"ServerSearch",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.3",description:"Adds a button to search your servers. Search in place or in popout.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSearch/ServerSearch.plugin.js"},changelog:[{title:"What's Changed?",items:["\"Small style\" popout has been removed. It became really hard to make work with server folders.","Completely removed all jQuery usage."]},{title:"Bugs Squashed",type:"fixed",items:["Properly transitions to guilds at the previous known channel."]}],main:"index.js"};
+    const config = {info:{name:"ServerSearch",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.4",description:"Adds a button to search your servers. Search in place or in popout.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSearch/ServerSearch.plugin.js"},changelog:[{title:"Bugs Squashed",type:"fixed",items:["Fixes the off-center issue"]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -123,7 +123,7 @@ module.exports = (() => {
 	background-size: contain;
 }`;
             this.guildHtml = `<div class="listItem-2P_4kh" id="server-search">
-        <div class="pill-3YxEhL wrapper-sa6paO">
+        <div class="pill-31IEus wrapper-sa6paO">
             <span class="item-2hkk8m" style="opacity: 0; height: 8px; transform: translate3d(-4px, 0px, 0px);"></span>
         </div>
         <div tabindex="0" class="circleButtonMask-2VNJsN wrapper-25eVIn" role="button" style="border-radius: 25px; background-color: rgb(47, 49, 54);">

@@ -1,7 +1,7 @@
 /**
  * @name AccountDetailsPlus
  * @invite TyFxKer
- * @authorLink https://twitter.com/ZackRauen
+ * @authorLink https://twitter.com/Zerebos
  * @donate https://paypal.me/ZackRauen
  * @patreon https://patreon.com/Zerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AccountDetailsPlus
@@ -32,7 +32,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {info:{name:"AccountDetailsPlus",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.9",description:"Lets you view popout, nickname and more from your account panel at the bottom.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AccountDetailsPlus",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AccountDetailsPlus/AccountDetailsPlus.plugin.js"},changelog:[{title:"Bugs Squashed",type:"fixed",items:["Doesn't die on startup part III: Discord Update."]}],main:"index.js",defaultConfig:[{type:"category",id:"popout",name:"User Popout",collapsible:true,shown:false,settings:[{type:"switch",id:"avatar",name:"Avatar",note:"Opens your popout when clicking your avatar.",value:true},{type:"switch",id:"username",name:"Username",note:"Opens your popout when clicking your username.",value:true}]},{type:"category",id:"statusPicker",name:"Status Picker",collapsible:true,shown:false,settings:[{type:"switch",id:"avatar",name:"Avatar",note:"Opens your popout when right clicking your avatar.",value:true},{type:"switch",id:"username",name:"Username",note:"Opens your popout when right clicking your username.",value:true}]},{type:"category",id:"nickname",name:"Nickname",collapsible:true,shown:false,settings:[{type:"dropdown",id:"showNickname",name:"Name Shown",value:true,options:[{label:"Username",value:false},{label:"Nickname",value:true}]},{type:"switch",id:"oppositeOnHover",name:"Opposite On Hover",note:"Shows the opposite on hover. e.g. if you are showing nickname, hovering will show your username.",value:true}]}]};
+    const config = {info:{name:"AccountDetailsPlus",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.10",description:"Lets you view popout, nickname and more from your account panel at the bottom.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AccountDetailsPlus",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AccountDetailsPlus/AccountDetailsPlus.plugin.js"},changelog:[{title:"Bugs Squashed",type:"fixed",items:["Fix conflicting popouts.","Stopped using deprecated functions."]}],main:"index.js",defaultConfig:[{type:"category",id:"popout",name:"User Popout",collapsible:true,shown:false,settings:[{type:"switch",id:"avatar",name:"Avatar",note:"Opens your popout when clicking your avatar.",value:true},{type:"switch",id:"username",name:"Username",note:"Opens your popout when clicking your username.",value:true}]},{type:"category",id:"statusPicker",name:"Status Picker",collapsible:true,shown:false,settings:[{type:"switch",id:"avatar",name:"Avatar",note:"Opens your popout when right clicking your avatar.",value:true},{type:"switch",id:"username",name:"Username",note:"Opens your popout when right clicking your username.",value:true}]},{type:"category",id:"nickname",name:"Nickname",collapsible:true,shown:false,settings:[{type:"dropdown",id:"showNickname",name:"Name Shown",value:true,options:[{label:"Username",value:false},{label:"Nickname",value:true}]},{type:"switch",id:"oppositeOnHover",name:"Opposite On Hover",note:"Shows the opposite on hover. e.g. if you are showing nickname, hovering will show your username.",value:true}]}]};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -56,7 +56,7 @@ module.exports = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {PluginUtilities, DiscordModules, DiscordSelectors, ReactTools, DOMTools, Utilities, WebpackModules} = Api;
+    const {PluginUtilities, DiscordModules, DiscordSelectors, ReactTools, Utilities, WebpackModules, Popouts, Logger} = Api;
 
     const rawClasses = WebpackModules.getByProps("container", "avatar", "hasBuildOverride");
     const container = DiscordSelectors.AccountDetails.container || `.${rawClasses.container.split(" ").join(".")}`;
@@ -64,69 +64,95 @@ module.exports = (() => {
     const nameTag = `.${rawClasses.nameTag.split(" ").join(".")}`;
 
     const tagSelector = `${container} ${nameTag}`;
+    const usernameCSS = tagSelector + "{ cursor: pointer; }";
 
     return class AccountDetailsPlus extends Plugin {
         constructor() {
             super();
-            // this.usernameCSS = `.container-iksrDt .accountDetails-26T3kW { cursor: pointer; }`;
             this.popoutOpen = false;
+
+            this.adjustNickname = this.adjustNickname.bind(this);
+            this.showStatusPicker = this.showStatusPicker.bind(this);
+            this.showUserPopout = this.showUserPopout.bind(this);
+            this.updateIsPopoutOpen = this.updateIsPopoutOpen.bind(this);
         }
 
         async onStart() {
+            // Resolve weird loading issues
             await new Promise(resolve => setTimeout(resolve, 1000));
-            this.FluxContainer = DiscordModules.UserPopout;
-            this.currentUser = DiscordModules.UserStore.getCurrentUser();
-            this.popoutWrapper = Utilities.findInTree(ReactTools.getReactInstance(document.querySelector(container + " .avatar-SmRMf2")), n => n && n.handleClick && n.toggleShow, {walkable: ["return", "stateNode"]});
-            this.originalRender = this.popoutWrapper.props.renderPopout;
-
-            this.activateShit();
+            this.doSetup();
         }
 
         onStop() {
-            this.popoutWrapper.props.renderPopout = this.originalRender;
-            PluginUtilities.removeStyle(this.getName() + "-css");
-            DOMTools.off(".AccountDetailsPlus");
-            this.saveSettings();
+            this.doCleanup();
         }
 
-        activateShit() {
-            document.querySelector(tagSelector).off("." + this.getName());
-            document.querySelector(container + " .avatar-SmRMf2").off("." + this.getName());
-            this.usernameCSS = tagSelector + "{ cursor: pointer; }";
-            PluginUtilities.removeStyle(this.getName() + "-css");
-            DOMTools.off(document, "mousemove." + this.getName());
-            document.querySelector(container + ` ${username}`).textContent = this.currentUser.username;
+        doSetup() {
+            this.FluxContainer = DiscordModules.UserPopout;
+            if (!this.FluxContainer) return Logger.err("Could not find UserPopout component");
 
-            if (this.settings.nickname.showNickname || this.settings.nickname.oppositeOnHover) {
-                DOMTools.on(document, "mousemove." + this.getName(), (e) => { this.adjustNickname(e); });
-            }
+            this.popoutWrapper = Utilities.findInTree(ReactTools.getReactInstance(document.querySelector(container + " .avatar-SmRMf2")), n => n && n.handleClick && n.toggleShow, {walkable: ["return", "stateNode"]});
+            if (!this.popoutWrapper) return Logger.err("Could not find popoutWrapper instance");
+
+            this.currentUser = DiscordModules.UserStore.getCurrentUser();
+
+            this.tagElement = document.querySelector(tagSelector);
+            if (!this.tagElement) return Logger.err("Could not find tag element");
+
+            this.avatarElement = document.querySelector(container + " .avatar-SmRMf2");
+            if (!this.avatarElement) return Logger.err("Could not find avatar element");
+            this.addAllListeners();
+        }
+
+        doCleanup() {
+            PluginUtilities.removeStyle(this.getName() + "-css");
+            document.querySelector(container + ` ${username}`).textContent = this.currentUser.username;
+            this.clearAllListeners();
+        }
+
+        clearAllListeners() {
+            document.removeEventListener("mousemove", this.adjustNickname);
+
+            if (!this.tagElement) return Logger.err("No tag element to remove listeners");
+            if (!this.avatarElement) return Logger.err("No avatar element to remove listeners");
+            this.tagElement.removeEventListener("mousedown", this.updateIsPopoutOpen);
+            this.tagElement.removeEventListener("click", this.showUserPopout);
+            this.tagElement.removeEventListener("contextmenu", this.showStatusPicker);
+
+            this.avatarElement.removeEventListener("mousedown", this.updateIsPopoutOpen);
+            this.avatarElement.removeEventListener("click", this.showUserPopout);
+            this.avatarElement.removeEventListener("contextmenu", this.showStatusPicker);
+        }
+
+        addAllListeners() {            
+            if (this.settings.nickname.showNickname || this.settings.nickname.oppositeOnHover) document.addEventListener("mousemove", this.adjustNickname);
+
+            if (!this.tagElement) return Logger.err("Tag element not available");
+            if (!this.avatarElement) return Logger.err("Avatar element not available");
             if (this.settings.popout.username) {
-                PluginUtilities.addStyle(this.getName() + "-css", this.usernameCSS);
-                document.querySelector(tagSelector).on("mousedown." + this.getName(), () => { this.popoutOpen = this.popoutWrapper.state.shouldShowPopout; });
-                document.querySelector(tagSelector).on("click." + this.getName(), (e) => { if (!this.popoutOpen) this.showUserPopout(e); });
+                PluginUtilities.addStyle(this.getName() + "-css", usernameCSS);
+                this.tagElement.addEventListener("mousedown", this.updateIsPopoutOpen);
+                this.tagElement.addEventListener("click", this.showUserPopout);
             }
             if (this.settings.popout.avatar) {
-                document.querySelector(tagSelector).on("mousedown." + this.getName(), () => { this.popoutOpen = this.popoutWrapper.state.shouldShowPopout; });
-                document.querySelector(container + " .avatar-SmRMf2").on("click." + this.getName(), (e) => { if (!this.popoutOpen) this.showUserPopout(e); });
+                this.tagElement.addEventListener("mousedown", this.updateIsPopoutOpen);
+                this.avatarElement.addEventListener("click", this.showUserPopout);
             }
             if (this.settings.statusPicker.username) {
-                document.querySelector(tagSelector).on("mousedown." + this.getName(), () => { this.popoutOpen = this.popoutWrapper.state.shouldShowPopout; });
-                document.querySelector(tagSelector).on("contextmenu." + this.getName(), (e) => {
-                    if (!this.popoutOpen) this.showStatusPicker(e);
-                });
+                this.tagElement.addEventListener("mousedown", this.updateIsPopoutOpen);
+                this.tagElement.addEventListener("contextmenu", this.showStatusPicker);
             }
             if (this.settings.statusPicker.avatar) {
-                document.querySelector(container + " .avatar-SmRMf2").on("mousedown." + this.getName(), () => { this.popoutOpen = this.popoutWrapper.state.shouldShowPopout; });
-                document.querySelector(container + " .avatar-SmRMf2").on("contextmenu." + this.getName(), (e) => {
-                    if (!this.popoutOpen) this.showStatusPicker(e);
-                });
+                this.avatarElement.addEventListener("mousedown", this.updateIsPopoutOpen);
+                this.avatarElement.addEventListener("contextmenu", this.showStatusPicker);
             }
         }
 
         adjustNickname(e) {
+            if (!this.settings.nickname.showNickname && !this.settings.nickname.oppositeOnHover) return;
             if (!e || !e.target || !(e.target instanceof Element)) return;
             const accountDetails = document.querySelector(container);
-            if (!accountDetails) return;
+            if (!accountDetails) return Logger.err("Could not find accountDetails element");
 
             const isHovering = accountDetails.contains(e.target);
             const nameElement = accountDetails.querySelector(username);
@@ -144,45 +170,31 @@ module.exports = (() => {
             }
         }
 
-        setRender(renderer, options = {}) {
-            this.popoutWrapper.props.renderPopout = renderer;
-            Object.assign(this.popoutWrapper.props, options);
+        updateIsPopoutOpen() {
+            this.popoutOpen = this.popoutWrapper.state.shouldShowPopout;
         }
 
         showStatusPicker(e) {
+            if (this.popoutOpen) return;
             e.preventDefault();
             e.stopPropagation();
-            this.setRender(this.originalRender, {position: "top"});
             this.popoutWrapper.toggleShow(e);
         }
 
         showUserPopout(e) {
+            if (this.popoutOpen) return;
             e.preventDefault();
             e.stopPropagation();
             const element = document.querySelector(container);
-            // e.target = e.currentTarget = e.toElement = e.delegateTarget = document.querySelector(container);
-            this.setRender((props) => {
-                const guild = DiscordModules.SelectedGuildStore.getGuildId();
-                const channel = DiscordModules.SelectedChannelStore.getChannelId();
-                return DiscordModules.React.createElement(this.FluxContainer, Object.assign({}, props, {
-                    userId: this.currentUser.id,
-                    guildId: guild,
-                    channelId: channel
-                }));
-            }, {position: "top"});
-
-            this.popoutWrapper.toggleShow(Object.assign({}, e, {
-                target: element,
-                toElement: element,
-                currentTarget: element,
-                delegateTarget: element
-            }));
-            this.setRender(this.originalRender, {position: "top"});
+            Popouts.showUserPopout(element, this.currentUser, {position: "top"});
         }
 
         getSettingsPanel() {
             const panel = this.buildSettingsPanel();
-            panel.addListener(this.activateShit.bind(this));
+            panel.addListener(() => {
+                this.doCleanup();
+                this.doSetup();
+            });
             return panel.getElement();
         }
 

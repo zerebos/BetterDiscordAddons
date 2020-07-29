@@ -1,7 +1,7 @@
 /**
  * @name SendButton
  * @invite TyFxKer
- * @authorLink https://twitter.com/ZackRauen
+ * @authorLink https://twitter.com/Zerebos
  * @donate https://paypal.me/ZackRauen
  * @patreon https://patreon.com/Zerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/SendButton
@@ -32,7 +32,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {info:{name:"SendButton",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.2",description:"Adds a clickable send button.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/SendButton",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/SendButton/SendButton.plugin.js"},changelog:[{title:"Fixed",type:"fixed",items:["Clicking the button should do something now."]}],main:"index.js"};
+    const config = {info:{name:"SendButton",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.3",description:"Adds a clickable send button.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/SendButton",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/SendButton/SendButton.plugin.js"},changelog:[{title:"Fixed",type:"fixed",items:["Styling should be more consistent","Less performance drain"]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -56,29 +56,15 @@ module.exports = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const css = `.send-button {
-	width: 30px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	position: absolute;
-	right: 12px;
-	top: 8px;
-}
-
-.send-button img {
-	opacity: 0.5;
-	width: 100%;
-	transition: all 200ms ease;
-}
-
-.send-button img:hover {
-	cursor: pointer;
-	opacity: 1;
-	transform:scale(1.1);
-}`;
-    const buttonHTML = `<div class="send-button">
-    <img src="data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTIuMDEgMjFMMjMgMTIgMi4wMSAzIDIgMTBsMTUgMi0xNSAyeiIvPiAgICA8cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PC9zdmc+">
+    const buttonHTML = `<div class="buttonContainer-28fw2U da-buttonContainer send-button">
+    <button aria-label="Send Message" tabindex="0" type="button" class="buttonWrapper-1ZmCpA da-buttonWrapper button-38aScr da-button lookBlank-3eh9lL colorBrand-3pXr91 grow-q77ONN da-grow noFocus-2C7BQj da-noFocus">
+        <div class="contents-18-Yxp da-contents button-3AYNKb da-button button-318s1X da-button">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon-3D60ES da-icon" viewBox="0 0 24 24" aria-hidden="false" fill="currentColor" width="24px" height="24px">
+                <path d="M0 0h24v24H0z" fill="none"/>
+                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            </svg>
+        </div>
+    </button>
 </div>`;
 
     const press = new KeyboardEvent("keydown", {key: "Enter", code: "Enter", which: 13, keyCode: 13, bubbles: true});
@@ -87,8 +73,8 @@ module.exports = (() => {
     const {DiscordSelectors, PluginUtilities, DOMTools, Logger} = Api;
     return class SendButton extends Plugin {
         onStart() {
-            PluginUtilities.addStyle(this.getName(), css);
-            if (document.querySelector("form")) this.addButton(document.querySelector("form"));
+            const form = document.querySelector("form");
+            if (form) this.addButton(form);
         }
         
         onStop() {
@@ -97,13 +83,11 @@ module.exports = (() => {
             PluginUtilities.removeStyle(this.getName());
         }
 
-        addButton(elem) {
-            if (elem.querySelector(".send-button")) return;
+        addButton(form) {
+            if (form.querySelector(".send-button")) return;
             const button = DOMTools.createElement(buttonHTML);
-            const form = elem.querySelector(DiscordSelectors.Textarea.inner);
-            form.append(button);
-            if (form.querySelector("[class*=\"emojiButton-\"]")) form.querySelector("[class*=\"emojiButton-\"]").css("margin-right", (button.outerWidth() + 10) + "px");
-            button.on("click", () => {
+            form.querySelector(DiscordSelectors.Textarea.buttons).append(button);
+            button.addEventListener("click", () => {
                 const textareaWrapper = form.querySelector(DiscordSelectors.Textarea.textArea);
                 if (!textareaWrapper) return Logger.warn("Could not find textarea wrapper");
                 const textarea = textareaWrapper.children && textareaWrapper.children[0];
@@ -113,10 +97,9 @@ module.exports = (() => {
         }
 
         observer(e) {
-            if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element)) return;
-            if (e.addedNodes[0].querySelector(DiscordSelectors.Textarea.inner)) {
-                this.addButton(e.addedNodes[0]);
-            }
+            if (!e.addedNodes.length || !e.addedNodes[0] || !e.addedNodes[0].querySelector) return;
+            const form = e.addedNodes[0].querySelector(DiscordSelectors.Textarea.inner);
+            if (form) this.addButton(form);
         }
 
     };

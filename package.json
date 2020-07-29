@@ -14,7 +14,7 @@
   "author": "Zerebos",
   "license": "MIT",
   "eslintIgnore": [
-    "scripts/template*"
+    "scripts/template.js"
   ],
   "buildConfig": {
     "pluginsFolder": "./src/plugins",
@@ -26,6 +26,6 @@
     "patreonLink": "https://patreon.com/Zerebos",
     "paypalLink": "https://paypal.me/ZackRauen",
     "inviteCode": "TyFxKer",
-    "authorLink": "https://twitter.com/ZackRauen"
+    "authorLink": "https://twitter.com/Zerebos"
   }
 }

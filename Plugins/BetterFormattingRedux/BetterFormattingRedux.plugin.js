@@ -1,7 +1,7 @@
 /**
  * @name BetterFormattingRedux
  * @invite TyFxKer
- * @authorLink https://twitter.com/ZackRauen
+ * @authorLink https://twitter.com/Zerebos
  * @donate https://paypal.me/ZackRauen
  * @patreon https://patreon.com/Zerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux
@@ -31,8 +31,8 @@
 
 @else@*/
 
-var BetterFormattingRedux = (() => {
-    const config = {info:{name:"BetterFormattingRedux",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"2.3.9",description:"Enables different types of formatting in standard Discord chat.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js"},changelog:[{title:"It's Fixed!",type:"fixed",items:["Toolbar shows up again.","The icons aren't all broken.","Formatting works!","Clicking the buttons works.","Works with the new editor and the old editor.","Fixed an issue that caused multiple insertions with certain plugins.","Rewrite of this plugin is in progress!"]}],main:"index.js",defaultConfig:[{type:"category",id:"toolbar",name:"Toolbar Buttons",collapsible:true,shown:false,settings:[{type:"switch",id:"bold",name:"Bold",value:true},{type:"switch",id:"italic",name:"Italic",value:true},{type:"switch",id:"underline",name:"Underline",value:true},{type:"switch",id:"strikethrough",name:"Strikethrough",value:true},{type:"switch",id:"spoiler",name:"Spoiler",value:true},{type:"switch",id:"code",name:"Code",value:true},{type:"switch",id:"codeblock",name:"Codeblock",value:true},{type:"switch",id:"superscript",name:"Superscript",value:true},{type:"switch",id:"smallcaps",name:"Smallcaps",value:true},{type:"switch",id:"fullwidth",name:"Full Width",value:true},{type:"switch",id:"upsidedown",name:"Upsidedown",value:true},{type:"switch",id:"varied",name:"Varied Caps",value:true},{type:"switch",id:"leet",name:"Leet (1337)",value:false},{type:"switch",id:"thicc",name:"Extra Thicc",value:false}]},{type:"category",id:"formats",name:"Active Formats",collapsible:true,shown:false,settings:[{type:"switch",id:"superscript",name:"Superscript",value:true},{type:"switch",id:"smallcaps",name:"Smallcaps",value:true},{type:"switch",id:"fullwidth",name:"Full Width",value:true},{type:"switch",id:"upsidedown",name:"Upsidedown",value:true},{type:"switch",id:"varied",name:"Varied Caps",value:true},{type:"switch",id:"leet",name:"Leet (1337)",value:false},{type:"switch",id:"thicc",name:"Extra Thicc",value:false}]},{type:"category",id:"wrappers",name:"Wrapper Options",collapsible:true,shown:false,settings:[{type:"textbox",id:"superscript",name:"Superscript",note:"The wrapper for superscripted text",value:"^^"},{type:"textbox",id:"smallcaps",name:"Smallcaps",note:"The wrapper to make Smallcaps.",value:"%%"},{type:"textbox",id:"fullwidth",name:"Full Width",note:"The wrapper for E X P A N D E D  T E X T.",value:"##"},{type:"textbox",id:"upsidedown",name:"Upsidedown",note:"The wrapper to flip the text upsidedown.",value:"&&"},{type:"textbox",id:"varied",name:"Varied Caps",note:"The wrapper to VaRy the capitalization.",value:"=="},{type:"textbox",id:"leet",name:"Leet (1337)",note:"The wrapper to talk in 13375p34k.",value:"++"},{type:"textbox",id:"thicc",name:"Extra Thicc",note:"The wrapper to get 乇乂下尺卂 下卄工匚匚.",value:"$$"}]},{type:"category",id:"formatting",name:"Formatting Options",collapsible:true,shown:false,settings:[{type:"dropdown",id:"fullWidthMap",name:"Fullwidth Style",note:"Which style of fullwidth formatting should be used.",value:true,options:[{label:"T H I S",value:false},{label:"ｔｈｉｓ",value:true}]},{type:"switch",id:"reorderUpsidedown",name:"Reorder Upsidedown Text",note:"Having this enabled reorders the upside down text to make it in-order.",value:true},{type:"switch",id:"fullwidth",name:"Start VaRiEd Caps With Capital",note:"Enabling this starts a varied text string with a capital.",value:true}]},{type:"category",id:"plugin",name:"Functional Options",collapsible:true,shown:false,settings:[{type:"dropdown",id:"hoverOpen",name:"Opening Toolbar",note:"Determines when to show the toolbar.",value:true,options:[{label:"Click",value:false},{label:"Hover",value:true}]},{type:"dropdown",id:"chainFormats",name:"Format Chaining",note:"Swaps priority of wrappers between inner first and outer first. Check the GitHub for more info.",value:true,options:[{label:"Inner",value:false},{label:"Outer",value:true}]},{type:"switch",id:"closeOnSend",name:"Close On Send",note:"This option will close the toolbar when a message is sent.",value:true}]},{type:"category",id:"style",name:"Style Options",collapsible:true,shown:false,settings:[{type:"dropdown",id:"icons",name:"Toolbar Style",note:"Switches between icons and text as the toolbar buttons.",value:true,options:[{label:"Text",value:false},{label:"Icons",value:true}]},{type:"dropdown",id:"rightSide",name:"Toolbar Location",note:"This option enables swapping toolbar location.",value:true,options:[{label:"Left",value:false},{label:"Right",value:true}]},{type:"slider",id:"toolbarOpacity",name:"Opacity",note:"This allows the toolbar to be partially seethrough.",value:1,min:0,max:1},{type:"slider",id:"fontSize",name:"Font Size",note:"Adjusts the font size between 0 and 100%.",value:85,min:0,max:100}]}]};
+module.exports = (() => {
+    const config = {info:{name:"BetterFormattingRedux",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"2.3.10",description:"Enables different types of formatting in standard Discord chat.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js"},changelog:[{title:"Codeblock Languages!",type:"fixed",items:["Codeblock languages are back!"]}],main:"index.js",defaultConfig:[{type:"category",id:"toolbar",name:"Toolbar Buttons",collapsible:true,shown:false,settings:[{type:"switch",id:"bold",name:"Bold",value:true},{type:"switch",id:"italic",name:"Italic",value:true},{type:"switch",id:"underline",name:"Underline",value:true},{type:"switch",id:"strikethrough",name:"Strikethrough",value:true},{type:"switch",id:"spoiler",name:"Spoiler",value:true},{type:"switch",id:"code",name:"Code",value:true},{type:"switch",id:"codeblock",name:"Codeblock",value:true},{type:"switch",id:"superscript",name:"Superscript",value:true},{type:"switch",id:"smallcaps",name:"Smallcaps",value:true},{type:"switch",id:"fullwidth",name:"Full Width",value:true},{type:"switch",id:"upsidedown",name:"Upsidedown",value:true},{type:"switch",id:"varied",name:"Varied Caps",value:true},{type:"switch",id:"leet",name:"Leet (1337)",value:false},{type:"switch",id:"thicc",name:"Extra Thicc",value:false}]},{type:"category",id:"formats",name:"Active Formats",collapsible:true,shown:false,settings:[{type:"switch",id:"superscript",name:"Superscript",value:true},{type:"switch",id:"smallcaps",name:"Smallcaps",value:true},{type:"switch",id:"fullwidth",name:"Full Width",value:true},{type:"switch",id:"upsidedown",name:"Upsidedown",value:true},{type:"switch",id:"varied",name:"Varied Caps",value:true},{type:"switch",id:"leet",name:"Leet (1337)",value:false},{type:"switch",id:"thicc",name:"Extra Thicc",value:false}]},{type:"category",id:"wrappers",name:"Wrapper Options",collapsible:true,shown:false,settings:[{type:"textbox",id:"superscript",name:"Superscript",note:"The wrapper for superscripted text",value:"^^"},{type:"textbox",id:"smallcaps",name:"Smallcaps",note:"The wrapper to make Smallcaps.",value:"%%"},{type:"textbox",id:"fullwidth",name:"Full Width",note:"The wrapper for E X P A N D E D  T E X T.",value:"##"},{type:"textbox",id:"upsidedown",name:"Upsidedown",note:"The wrapper to flip the text upsidedown.",value:"&&"},{type:"textbox",id:"varied",name:"Varied Caps",note:"The wrapper to VaRy the capitalization.",value:"=="},{type:"textbox",id:"leet",name:"Leet (1337)",note:"The wrapper to talk in 13375p34k.",value:"++"},{type:"textbox",id:"thicc",name:"Extra Thicc",note:"The wrapper to get 乇乂下尺卂 下卄工匚匚.",value:"$$"}]},{type:"category",id:"formatting",name:"Formatting Options",collapsible:true,shown:false,settings:[{type:"dropdown",id:"fullWidthMap",name:"Fullwidth Style",note:"Which style of fullwidth formatting should be used.",value:true,options:[{label:"T H I S",value:false},{label:"ｔｈｉｓ",value:true}]},{type:"switch",id:"reorderUpsidedown",name:"Reorder Upsidedown Text",note:"Having this enabled reorders the upside down text to make it in-order.",value:true},{type:"switch",id:"fullwidth",name:"Start VaRiEd Caps With Capital",note:"Enabling this starts a varied text string with a capital.",value:true}]},{type:"category",id:"plugin",name:"Functional Options",collapsible:true,shown:false,settings:[{type:"dropdown",id:"hoverOpen",name:"Opening Toolbar",note:"Determines when to show the toolbar.",value:true,options:[{label:"Click",value:false},{label:"Hover",value:true}]},{type:"dropdown",id:"chainFormats",name:"Format Chaining",note:"Swaps priority of wrappers between inner first and outer first. Check the GitHub for more info.",value:true,options:[{label:"Inner",value:false},{label:"Outer",value:true}]},{type:"switch",id:"closeOnSend",name:"Close On Send",note:"This option will close the toolbar when a message is sent.",value:true}]},{type:"category",id:"style",name:"Style Options",collapsible:true,shown:false,settings:[{type:"dropdown",id:"icons",name:"Toolbar Style",note:"Switches between icons and text as the toolbar buttons.",value:true,options:[{label:"Text",value:false},{label:"Icons",value:true}]},{type:"dropdown",id:"rightSide",name:"Toolbar Location",note:"This option enables swapping toolbar location.",value:true,options:[{label:"Left",value:false},{label:"Right",value:true}]},{type:"slider",id:"toolbarOpacity",name:"Opacity",note:"This allows the toolbar to be partially seethrough.",value:1,min:0,max:1},{type:"slider",id:"fontSize",name:"Font Size",note:"Adjusts the font size between 0 and 100%.",value:85,min:0,max:100}]}]};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -41,32 +41,22 @@ var BetterFormattingRedux = (() => {
         getDescription() {return config.info.description;}
         getVersion() {return config.info.version;}
         load() {
-            const title = "Library Missing";
-            const ModalStack = BdApi.findModuleByProps("push", "update", "pop", "popWithKey");
-            const TextElement = BdApi.findModuleByProps("Sizes", "Weights");
-            const ConfirmationModal = BdApi.findModule(m => m.defaultProps && m.key && m.key() == "confirm-modal");
-            if (!ModalStack || !ConfirmationModal || !TextElement) return BdApi.alert(title, `The library plugin needed for ${config.info.name} is missing.<br /><br /> <a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js" target="_blank">Click here to download the library!</a>`);
-            ModalStack.push(function(props) {
-                return BdApi.React.createElement(ConfirmationModal, Object.assign({
-                    header: title,
-                    children: [BdApi.React.createElement(TextElement, {color: TextElement.Colors.PRIMARY, children: [`The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`]})],
-                    red: false,
-                    confirmText: "Download Now",
-                    cancelText: "Cancel",
-                    onConfirm: () => {
-                        require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, response, body) => {
-                            if (error) return require("electron").shell.openExternal("https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js");
-                            await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
-                        });
-                    }
-                }, props));
+            BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
+                confirmText: "Download Now",
+                cancelText: "Cancel",
+                onConfirm: () => {
+                    require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, response, body) => {
+                        if (error) return require("electron").shell.openExternal("https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js");
+                        await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
+                    });
+                }
             });
         }
         start() {}
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {DiscordSelectors, PluginUtilities, ContextMenu, EmulatedTooltip, DiscordModules, Patcher, Utilities} = Api;
+    const {DiscordSelectors, PluginUtilities, EmulatedTooltip, DiscordModules, Patcher, Utilities, DCM} = Api;
 
     return class BetterFormattingRedux extends Plugin {
         constructor() {
@@ -162,7 +152,7 @@ var BetterFormattingRedux = (() => {
     S: {sql: "SQL"},
     V: {vbnet: "VB.NET", vhdl: "VHDL"}
 };})();
-            this.mainCSS =  `.bf-toolbar {
+            this.mainCSS = `.bf-toolbar {
 	user-select: none;
 	white-space: nowrap;
 	font-size:85%;
@@ -378,12 +368,11 @@ var BetterFormattingRedux = (() => {
 	background: rgba(255,255,255,.1);
 	color: rgba(255,255,255,.9);
 }`;
-
         }
 
         async onStart() {
             await PluginUtilities.addScript("sortableScript", "//rauenzi.github.io/BetterDiscordAddons/Plugins/Sortable.js");
-            PluginUtilities.addStyle(this.getName()  + "-style", this.mainCSS);
+            PluginUtilities.addStyle(this.getName() + "-style", this.mainCSS);
             this.buttonOrder = PluginUtilities.loadData(this.getName(), "buttonOrder", this.buttonOrder);
             this.setupToolbar();
             Patcher.before(DiscordModules.MessageActions, "sendMessage", (_, [, msg]) => {
@@ -414,8 +403,8 @@ var BetterFormattingRedux = (() => {
         }
 
         updateSide() {
-            if (this.settings.style.rightSide) { $(".bf-toolbar").removeClass("bf-left"); }
-            else { $(".bf-toolbar").addClass("bf-left"); }
+            if (this.settings.style.rightSide) {$(".bf-toolbar").removeClass("bf-left");}
+            else {$(".bf-toolbar").addClass("bf-left");}
         }
 
         updateOpacity() {
@@ -539,17 +528,17 @@ var BetterFormattingRedux = (() => {
         }
 
         getContextMenu() {
-            const items = [];
-            for (const letter in this.allLanguages) {
-                const subItems = [];
-                for (const language in this.allLanguages[letter]) {
-                    ((lang) => {
-                        subItems.push(new ContextMenu.TextItem(this.allLanguages[letter][lang], {callback: () => {this.wrapSelection("```" + lang + "\n", "```");}}));
-                    })(language);
-                }
-                items.push(new ContextMenu.SubMenuItem(letter, new ContextMenu.Menu(true).addItems(...subItems)));
-            }
-            return new ContextMenu.Menu().addItems(...items);
+            return DCM.buildMenu(
+                Object.keys(this.allLanguages).map(letter => {
+                    return {
+                        type: "submenu",
+                        label: letter,
+                        items: Object.keys(this.allLanguages[letter]).map(language => {
+                            return {label: this.allLanguages[letter][language], action: () => {this.wrapSelection("```" + language + "\n", "```");}};
+                        })
+                    };
+                })
+            );
         }
 
         buildToolbar() {
@@ -570,12 +559,12 @@ var BetterFormattingRedux = (() => {
                 button.addClass(this.toolbarData[sorted[i]].type);
                 new EmulatedTooltip(button, this.toolbarData[sorted[i]].name);
                 if (!this.settings.toolbar[sorted[i]]) button.addClass("disabled");
-                // if (sorted[i] === "codeblock") {
-                //     const contextMenu = this.getContextMenu();
-                //     button.on("contextmenu", (e) => {
-                //         contextMenu.show(e.clientX, e.clientY);
-                //     });
-                // }
+                if (sorted[i] === "codeblock") {
+                    const contextMenu = this.getContextMenu();
+                    button.on("contextmenu", (e) => {
+                        DCM.openContextMenu(e, contextMenu, {align: "bottom"});
+                    });
+                }
                 button.attr("data-name", sorted[i]);
                 if (this.settings.style.icons) button.html(this.toolbarData[sorted[i]].icon);
                 else button.html(this.toolbarData[sorted[i]].displayName);

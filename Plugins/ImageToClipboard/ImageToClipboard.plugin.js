@@ -1,7 +1,7 @@
 /**
  * @name ImageToClipboard
  * @invite TyFxKer
- * @authorLink https://twitter.com/ZackRauen
+ * @authorLink https://twitter.com/Zerebos
  * @donate https://paypal.me/ZackRauen
  * @patreon https://patreon.com/Zerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ImageToClipboard
@@ -32,7 +32,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {info:{name:"ImageToClipboard",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.3.5",description:"Copies images (png/jpg) directly to clipboard.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ImageToClipboard",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ImageToClipboard/ImageToClipboard.plugin.js"},changelog:[{title:"Fixes",type:"fixed",items:["Both context menus and image modals have the buttons again."]},{title:"Improved",type:"improved",items:["Position in the image modal has swapped to the other side."]}],defaultConfig:[{type:"switch",id:"typing",name:"Typing",note:"Toggles colorizing of typing notifications.",value:true}],strings:{es:{contextMenuLabel:"Copiar Imagen",modalLabel:"Copiar Original",copySuccess:"Imagen copiada al portapapeles.",copyFailed:"Hubo un problema al copiar la imagen.",invalidType:"No se puede copiar este tipo de imagen.",settings:{typing:{name:"No estoy Typing",note:"Doesn't colorize caca."}}},pt:{contextMenuLabel:"Copiar imagem",modalLabel:"Copiar original",copySuccess:"Imagem copiada para a área de transferência",copyFailed:"Houve um problema ao copiar a imagem",invalidType:"Não é possível copiar este tipo de imagem"},de:{contextMenuLabel:"Kopiere das Bild",modalLabel:"Original Kopieren",copySuccess:"Bild in die Zwischenablage kopiert.",copyFailed:"Beim Kopieren des Bildes ist ein Problem aufgetreten.",invalidType:"Dieser Bildtyp kann nicht kopiert werden"},en:{contextMenuLabel:"Copy Image",modalLabel:"Copy Original",copySuccess:"Image copied to clipboard.",copyFailed:"There was an issue copying the image.",invalidType:"Cannot copy this image type.",settings:{typing:{name:"Not Typing",note:"Doesn't colorize shit."}}}},main:"index.js"};
+    const config = {info:{name:"ImageToClipboard",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.3.5",description:"Copies images (png/jpg) directly to clipboard.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ImageToClipboard",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ImageToClipboard/ImageToClipboard.plugin.js"},changelog:[{title:"Fixes",type:"fixed",items:["Both context menus and image modals have the buttons again."]},{title:"Improved",type:"improved",items:["Position in the image modal has swapped to the other side."]}],strings:{es:{contextMenuLabel:"Copiar Imagen",modalLabel:"Copiar Original",copySuccess:"Imagen copiada al portapapeles.",copyFailed:"Hubo un problema al copiar la imagen.",invalidType:"No se puede copiar este tipo de imagen."},pt:{contextMenuLabel:"Copiar imagem",modalLabel:"Copiar original",copySuccess:"Imagem copiada para a área de transferência",copyFailed:"Houve um problema ao copiar a imagem",invalidType:"Não é possível copiar este tipo de imagem"},de:{contextMenuLabel:"Kopiere das Bild",modalLabel:"Original Kopieren",copySuccess:"Bild in die Zwischenablage kopiert.",copyFailed:"Beim Kopieren des Bildes ist ein Problem aufgetreten.",invalidType:"Dieser Bildtyp kann nicht kopiert werden"},en:{contextMenuLabel:"Copy Image",modalLabel:"Copy Original",copySuccess:"Image copied to clipboard.",copyFailed:"There was an issue copying the image.",invalidType:"Cannot copy this image type."}},main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -118,11 +118,15 @@ module.exports = (() => {
         patchContextMenu() {
             const MediaContextGroup = WebpackModules.getModule(m => m.default && m.default.toString && m.default.toString().includes("copy-native-link"));
             Patcher.after(MediaContextGroup, "default", (_, [url], retVal) => {
-                if (!this.isImage(url)) return;
+                if (!url || !this.isImage(url)) return;
                 const isValid = this.isValid(url);
-                retVal.push(DCM.buildMenuItem({label: this.strings.contextMenuLabel, disabled: !isValid, action: () => {
-                    this.copyToClipboard(url);
-                }}));
+                retVal.push(DCM.buildMenuItem({
+                    label: this.strings.contextMenuLabel,
+                    disabled: !isValid,
+                    action: () => {
+                        this.copyToClipboard(url);
+                    }
+                }));
             });
         }
 

@@ -1,24 +1,12 @@
 module.exports = (Plugin, Api) => {
     const {WebpackModules, ReactTools, Patcher, DiscordModules, Utilities, DCM} = Api;
 
-    const Guilds = WebpackModules.getModule(m => m.default && m.default.displayName == "NavigableGuilds");
-    const GuildFolder = WebpackModules.getByPrototypes("renderExpandedGuilds");
-
     const isGuildMuted = WebpackModules.getByProps("isMuted").isMuted;
 
     const isMuted = (guild) => {
         if (guild.props.guildId) return isGuildMuted(guild.props.guildId);
         const unmuted = guild.props.guildIds.filter(g => !isGuildMuted(g));
         return !unmuted.length;
-    };
-
-    const replaceGuilds = function(component, args, originalFunction) {
-        const originalGuilds = component.props.guildIds;
-        const unmuted = component.props.guildIds.filter(g => !isGuildMuted(g));
-        component.props.guildIds = unmuted;
-        const returnValue = originalFunction(...args);
-        component.props.guildIds = originalGuilds;
-        return returnValue;
     };
 
     return class HideMutedServers extends Plugin {
@@ -28,6 +16,7 @@ module.exports = (Plugin, Api) => {
             this.guildListPatch = () => {};
             this.guildFolderExpandedPatch = () => {};
             this.guildFolderIconPatch = () => {};
+            this.folderPatches = {};
         }
 
         onStart() {
@@ -37,33 +26,47 @@ module.exports = (Plugin, Api) => {
         }
 
         onStop() {
-            Patcher.unpatchAll();
             this.showGuilds();
         }
 
         hideGuilds() {
-            console.log("hideGuilds");
-            this.guildListPatch = Patcher.after(Guilds, "default", (thisObject, args, ret) => {
-                console.log(args,ret);
-                const guilds = Utilities.findInReactTree(ret, a => a && a[0] && a[0].key && a[0].props && a[0].props.guildId);
-                if (!guilds) return;
+
+            const guildList = document.querySelector(".guilds-1SWlCJ");
+            if (!guildList) return;
+            
+            const guildListInstance = Utilities.findInTree(ReactTools.getReactInstance(guildList), n => n && n.type && n.type.displayName && n.type.displayName === "Guilds", {walkable: ["return", "stateNode"]});
+            if (!guildListInstance) return;
+
+            const Guilds = guildListInstance.type;
+            this.guildListPatch = Patcher.after(Guilds.prototype, "render", (thisObject, args, ret) => {
+                const guildContainer = Utilities.findInReactTree(ret, a => a && a["data-ref-id"] && a["data-ref-id"] === "guildsnav");
+                if (!guildContainer || !guildContainer.children) return;
+                const guilds = guildContainer.children;
                 guilds.splice(0, guilds.length, ...guilds.filter(g => !isMuted(g)));
+                for (const guild of guilds) {
+                    if (!guild.props.guildIds || this.folderPatches[guild.props.folderId]) continue; // not a folder or already patched
+                    const originalGuilds = guild.props.guildIds.slice(0);
+                    guild.props.guildIds.splice(0, guild.props.guildIds.length, ...guild.props.guildIds.filter(g => !isGuildMuted(g)));
+                    const unpatchFolder = () => {
+                        if (!guild.props.guildIds) guild.props.guildIds = [];
+                        guild.props.guildIds.splice(0, guild.props.guildIds.length, ...originalGuilds);
+                        delete this.folderPatches[guild.props.folderId];
+                    };
+                    this.folderPatches[guild.props.folderId] = unpatchFolder;
+                }
             });
 
-            // this.guildFolderExpandedPatch = Patcher.instead(GuildFolder.prototype, "renderExpandedGuilds", replaceGuilds);
-            // this.guildFolderIconPatch = Patcher.instead(GuildFolder.prototype, "renderFolderIcon", replaceGuilds);
             this.updateGuildList();
         }
 
-        showGuilds() {
+        showGuilds() {           
             this.guildListPatch();
-            this.guildFolderExpandedPatch();
-            this.guildFolderIconPatch();
+            for (const patch in this.folderPatches) this.folderPatches[patch]();
             this.updateGuildList();
         }
 
         updateGuildList() {
-            const folderList = document.querySelectorAll(".wrapper-21YSNc");
+            const folderList = document.querySelectorAll(".wrapper-21YSNc"); // wrapper-21YSNc da-wrapper
             for (const folder of folderList) {
                 const folderInstance = ReactTools.getOwnerInstance(folder);
                 if (!folderInstance || !folderInstance.forceUpdate) continue;
@@ -81,12 +84,17 @@ module.exports = (Plugin, Api) => {
             Patcher.after(GuildContextMenu, "default", (_, args, retVal) => {
                 if (!retVal || !retVal.props || !retVal.props.children || !retVal.props.children[3]) return;
                 const original = retVal.props.children[3].props.children;
-                const newOne = DCM.buildMenuItem({type: "toggle", label: "Hide Muted Servers", active: this.settings.hide, action: () => {
-                    this.settings.hide = !this.settings.hide;
-                    if (this.settings.hide) this.hideGuilds();
-                    else this.showGuilds();
-                    this.saveSettings();
-                }});
+                const newOne = DCM.buildMenuItem({
+                    type: "toggle",
+                    label: "Hide Muted Servers",
+                    active: this.settings.hide,
+                    action: () => {
+                        this.settings.hide = !this.settings.hide;
+                        if (this.settings.hide) this.hideGuilds();
+                        else this.showGuilds();
+                        this.saveSettings();
+                    }
+                });
                 if (Array.isArray(original)) original.splice(1, 0, newOne);
                 else retVal.props.children[3].props.children = [original, newOne];
             });

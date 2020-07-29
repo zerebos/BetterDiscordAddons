@@ -1,5 +1,5 @@
 module.exports = (Plugin, Api) => {
-    const {DiscordSelectors, PluginUtilities, EmulatedTooltip, DiscordModules, Patcher, Utilities, DCM} = Api;
+    const {DiscordSelectors, PluginUtilities, EmulatedTooltip, DiscordModules, Patcher, Utilities, DCM, DOMTools} = Api;
 
     return class BetterFormattingRedux extends Plugin {
         constructor() {
@@ -23,12 +23,19 @@ module.exports = (Plugin, Api) => {
 
             this.toolbarData = require("toolbardata.js");
             this.allLanguages = require("languages.js");
-            this.mainCSS = require("styles.css");
+            this.mainCSS =  require("styles.css");
+
         }
 
         async onStart() {
-            await PluginUtilities.addScript("sortableScript", "//rauenzi.github.io/BetterDiscordAddons/Plugins/Sortable.js");
-            PluginUtilities.addStyle(this.getName() + "-style", this.mainCSS);
+
+            // Transition code
+            for (const format in this.settings.toolbar) {
+                if (typeof(this.settings.toolbar[format]) !== "object") continue;
+                this.settings.toolbar[format] = this.settings.toolbar[format].enabled || true;
+            }
+
+            PluginUtilities.addStyle(this.getName()  + "-style", this.mainCSS);
             this.buttonOrder = PluginUtilities.loadData(this.getName(), "buttonOrder", this.buttonOrder);
             this.setupToolbar();
             Patcher.before(DiscordModules.MessageActions, "sendMessage", (_, [, msg]) => {
@@ -40,7 +47,6 @@ module.exports = (Plugin, Api) => {
             Patcher.unpatchAll();
             $("*").off("." + this.getName());
             $(".bf-toolbar").remove();
-            PluginUtilities.removeScript("sortableScript");
             PluginUtilities.removeStyle(this.getName() + "-style");
         }
 
@@ -49,7 +55,7 @@ module.exports = (Plugin, Api) => {
 
             const elem = e.addedNodes[0];
             const textarea = elem.matches(DiscordSelectors.Textarea.textArea) ? elem : elem.querySelector(DiscordSelectors.Textarea.textArea);
-            if (textarea) this.addToolbar($(textarea));
+            if (textarea) this.addToolbar(textarea);
         }
 
         updateStyle() {
@@ -59,8 +65,8 @@ module.exports = (Plugin, Api) => {
         }
 
         updateSide() {
-            if (this.settings.style.rightSide) {$(".bf-toolbar").removeClass("bf-left");}
-            else {$(".bf-toolbar").addClass("bf-left");}
+            if (this.settings.style.rightSide) { $(".bf-toolbar").removeClass("bf-left"); }
+            else { $(".bf-toolbar").addClass("bf-left"); }
         }
 
         updateOpacity() {
@@ -72,6 +78,7 @@ module.exports = (Plugin, Api) => {
         }
 
         openClose() {
+            if (this.settings.plugin.hoverOpen) return;
             this.isOpen = !this.isOpen;
             $(".bf-toolbar").toggleClass("bf-visible");
         }
@@ -183,62 +190,71 @@ module.exports = (Plugin, Api) => {
             textarea.selectionEnd = textarea.selectionStart + len;
         }
 
-        getContextMenu() {
-            return DCM.buildMenu(
-                Object.keys(this.allLanguages).map(letter => {
-                    return {
-                        type: "submenu",
-                        label: letter,
-                        items: Object.keys(this.allLanguages[letter]).map(language => {
-                            return {label: this.allLanguages[letter][language], action: () => {this.wrapSelection("```" + language + "\n", "```");}};
-                        })
-                    };
-                })
-            );
-        }
+        // getContextMenu() {
+        //     const items = [];
+        //     for (const letter in this.allLanguages) {
+        //         const subItems = [];
+        //         for (const language in this.allLanguages[letter]) {
+        //             ((lang) => {
+        //                 subItems.push(new ContextMenu.TextItem(this.allLanguages[letter][lang], {callback: () => {this.wrapSelection("```" + lang + "\n", "```");}}));
+        //             })(language);
+        //         }
+        //         items.push(new ContextMenu.SubMenuItem(letter, new ContextMenu.Menu(true).addItems(...subItems)));
+        //     }
+        //     return new ContextMenu.Menu().addItems(...items);
+        // }
 
         buildToolbar() {
-            const toolbar = $(this.toolbarString);
-            if (typeof this.settings.toolbar.bold === "boolean") {
-                this.settings.toolbar = this.defaultSettings.toolbar;
-                this.saveSettings();
-            }
-            if (window.BdApi.getPlugin("Zalgo")) {
-                this.settings.toolbar.zalgo = true;
-                if (!this.buttonOrder.includes("zalgo")) this.buttonOrder.push("zalgo");
-            }
-            const sorted = Object.keys(this.settings.toolbar).sort((a,b) => {return this.buttonOrder.indexOf(a) - this.buttonOrder.indexOf(b);});
-            for (let i = 0; i < sorted.length; i++) {
-                const button = $("<div>");
-                button.addClass("format");
-                if (!this.toolbarData[sorted[i]]) continue;
-                button.addClass(this.toolbarData[sorted[i]].type);
-                new EmulatedTooltip(button, this.toolbarData[sorted[i]].name);
-                if (!this.settings.toolbar[sorted[i]]) button.addClass("disabled");
-                if (sorted[i] === "codeblock") {
-                    const contextMenu = this.getContextMenu();
-                    button.on("contextmenu", (e) => {
-                        DCM.openContextMenu(e, contextMenu, {align: "bottom"});
+            const toolbar = DOMTools.createElement(this.toolbarString);
+            // if (window.BdApi.getPlugin("Zalgo")) {
+            //     this.settings.toolbar.zalgo = true;
+            //     if (!this.buttonOrder.includes("zalgo")) this.buttonOrder.push("zalgo");
+            // }
+            console.log(this.settings.toolbar, this.toolbarData);
+            const formats = Object.keys(this.settings.toolbar);//.sort((a,b) => {return this.buttonOrder.indexOf(a) - this.buttonOrder.indexOf(b);});
+            for (let i = 0; i < formats.length; i++) {
+                const format = formats[i];
+                const button = DOMTools.createElement(`<div class="format">`);
+                if (!this.toolbarData[format]) continue;
+                button.classList.add(this.toolbarData[format].type);
+                new EmulatedTooltip(button, this.toolbarData[format].name);
+                if (!this.settings.toolbar[format]) button.classList.add("disabled");
+                if (format === "codeblock") {
+                    // const contextMenu = this.getContextMenu();
+                    button.addEventListener("contextmenu", (event) => {
+                        const menu = DCM.buildMenu([
+                            {type: "group", items: [
+                                {type: "toggle", label: "Item Toggle", active: false, action: () => {console.log("TOGGLE ITEM");}},
+                                {label: "Menu Item", action: () => {console.log("MENU ITEM");}},
+                                {label: "Menu Item", action: () => {console.log("MENU ITEM");}},
+                                {type: "group", items: [
+                                    {label: "Menu Item", action: () => {console.log("MENU ITEM");}, hint:"hint",tooltip: "WHAT", children: ["where", "are", "we"]},
+                                    {label: "Menu Item", action: () => {console.log("MENU ITEM");}},
+                                    {type: "image", label: "Image Item", image: "https://cdn.discordapp.com/attachments/292141134614888448/686025522303860760/zere_cube_rotate.gif", action: () => {console.log("MENU ITEM");}},
+                                    {label: "Menu Item", action: () => {console.log("MENU ITEM");}},
+                                    {label: "Menu Item", action: () => {console.log("MENU ITEM");}},
+                                    {type: "submenu", label: "Menu Item", action: () => {console.log("MENU ITEM");}, items: [
+                                        {type: "toggle", label: "Item Toggle", active: false, action: () => {console.log("MENU ITEM");}},
+                                        {type: "toggle", label: "Item Toggle", active: false, action: () => {console.log("MENU ITEM");}, loading: true},
+                                        {type: "toggle", label: "Item Toggle", active: false, action: () => {console.log("MENU ITEM");}},
+                                        {type: "slider", label: "Slide Value", onChange: function(){console.log(...arguments);},
+                                            renderValue: (value) => {return `$${Math.round(value)}`;}
+                                        }
+                                    ]}
+                                ]}
+                            ]}
+                        ]);
+                        DCM.openContextMenu(event, menu, {align: "bottom"});
                     });
                 }
-                button.attr("data-name", sorted[i]);
-                if (this.settings.style.icons) button.html(this.toolbarData[sorted[i]].icon);
-                else button.html(this.toolbarData[sorted[i]].displayName);
+                button.dataset.name = format;
+                if (this.settings.style.icons) button.innerHTML = this.toolbarData[format].icon;
+                else button.innerHTML = this.toolbarData[format].displayName;
                 toolbar.append(button);
             }
-            window.Sortable.create(toolbar[0], {
-                draggable: ".format", // css-selector of elements, which can be sorted
-                ghostClass: "ghost",
-                onUpdate: () => {
-                    const buttons = toolbar.children(".format");
-                    for (let i = 0; i < buttons.length; i++) {
-                        this.buttonOrder[i] = $(buttons[i]).data("name");
-                    }
-                    PluginUtilities.saveData(this.getName(), "buttonOrder", this.buttonOrder);
-                }
-            });
+
             if (!this.settings.style.icons) {
-                toolbar.on("mousemove." + this.getName(), (e) => {
+                toolbar.addEventListener("mousemove." + this.getName(), (e) => {
                     const $this = $(e.currentTarget);
                     const pos = e.pageX - $this.parent().offset().left;
                     let diff = -$this.width();
@@ -253,35 +269,34 @@ module.exports = (Plugin, Api) => {
         }
 
         setupToolbar() {
-            $(".bf-toolbar").remove();
-            $(`${DiscordSelectors.Textarea.textArea}`).each((index, elem) => {
-                this.addToolbar($(elem.children[0]));
-            });
+            const existing = document.querySelector(".bf-toolbar");
+            if (existing) existing.remove();
+            const textAreas = document.querySelectorAll(`${DiscordSelectors.Textarea.textArea}`);
+            for (const element of textAreas) {
+                this.addToolbar(element.children[0]);
+            }
         }
 
         addToolbar(textarea) {
             const toolbarElement = this.buildToolbar();
-            if (this.settings.plugin.hoverOpen == true) toolbarElement.addClass("bf-hover");
-            if (this.isOpen) toolbarElement.addClass("bf-visible");
+            if (this.settings.plugin.hoverOpen == true) toolbarElement.classList.add("bf-hover");
+            if (this.isOpen) toolbarElement.classList.add("bf-visible");
 
-            textarea.parent().parent().after(toolbarElement)
-                .siblings(".bf-toolbar")
-                .off("click." + this.getName())
-                .on("click." + this.getName(), "div", e => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const button = $(e.currentTarget);
-                    if (button.hasClass("bf-arrow")) {
-                        if (!this.settings.plugin.hoverOpen) this.openClose();
-                    }
-                    else {
-                        let wrapper = "";
-                        if (button.hasClass("native-format")) wrapper = this.discordWrappers[button.data("name")];
-                        else if (button.data("name") == "zalgo") return this.wrapSelection("{{", "}}");
-                        else wrapper = this.settings.wrappers[button.data("name")];
-                        this.wrapSelection(wrapper);
-                    }
-                });
+            const container = textarea.parentElement.parentElement;
+            container.parentElement.insertBefore(toolbarElement, container.nextSibling);
+            toolbarElement.addEventListener("click", e => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (e.target.classList.contains("bf-arrow")) return this.openClose();
+                
+                const button = e.target.closest(".format");
+                let wrapper = "";
+                if (button.classList.contains("native-format")) wrapper = this.discordWrappers[button.dataset.name];
+                else if (button.dataset.name == "zalgo") return this.wrapSelection("{{", "}}");
+                else wrapper = this.settings.wrappers[button.dataset.name];
+                this.wrapSelection(wrapper);
+            });
             this.updateStyle();
         }
 

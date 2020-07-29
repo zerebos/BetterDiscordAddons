@@ -59,11 +59,15 @@ module.exports = (Plugin, Api) => {
         patchContextMenu() {
             const MediaContextGroup = WebpackModules.getModule(m => m.default && m.default.toString && m.default.toString().includes("copy-native-link"));
             Patcher.after(MediaContextGroup, "default", (_, [url], retVal) => {
-                if (!this.isImage(url)) return;
+                if (!url || !this.isImage(url)) return;
                 const isValid = this.isValid(url);
-                retVal.push(DCM.buildMenuItem({label: this.strings.contextMenuLabel, disabled: !isValid, action: () => {
-                    this.copyToClipboard(url);
-                }}));
+                retVal.push(DCM.buildMenuItem({
+                    label: this.strings.contextMenuLabel,
+                    disabled: !isValid,
+                    action: () => {
+                        this.copyToClipboard(url);
+                    }
+                }));
             });
         }
 

@@ -9,12 +9,12 @@ module.exports = (Plugin, Api) => {
     const DiscordPerms = Object.assign({}, DiscordModules.DiscordConstants.Permissions);
     const AvatarDefaults = WebpackModules.getByProps("DEFAULT_AVATARS");
     const escapeHTML = DOMTools.escapeHTML ? DOMTools.escapeHTML : function(html) {
-		const textNode = document.createTextNode("");
-		const spanElement = document.createElement("span");
-		spanElement.append(textNode);
-		textNode.nodeValue = html;
-		return spanElement.innerHTML;
-	};
+        const textNode = document.createTextNode("");
+        const spanElement = document.createElement("span");
+        spanElement.append(textNode);
+        textNode.nodeValue = html;
+        return spanElement.innerHTML;
+    };
 
     if (DiscordPerms.SEND_TSS_MESSAGES) {
         DiscordPerms.SEND_TTS_MESSAGES = DiscordPerms.SEND_TSS_MESSAGES;
@@ -79,18 +79,18 @@ module.exports = (Plugin, Api) => {
                 let perms = 0;
 
                 const permBlock = DOMTools.createElement(Utilities.formatTString(pViewer.listHTML, {label: pViewer.strings.popoutLabel}));
-				const memberPerms = permBlock.querySelector(".member-perms");
+                const memberPerms = permBlock.querySelector(".member-perms");
                 const strings = DiscordModules.Strings;
 
                 for (let r = 0; r < userRoles.length; r++) {
                     const role = userRoles[r];
                     perms = perms | guild.roles[role].permissions;
                     for (const perm in DiscordPerms) {
-                        const permName = strings[perm];
+                        const permName = strings[perm] || perm.split("_").map(n => n[0].toUpperCase() + n.slice(1).toLowerCase()).join(" ");
                         const hasPerm = (perms & DiscordPerms[perm]) == DiscordPerms[perm];
                         if (hasPerm && !memberPerms.querySelector(`[data-name="${permName}"]`)) {
                             const element = DOMTools.createElement(pViewer.itemHTML);
-							let roleColor = guild.roles[role].colorString;
+                            let roleColor = guild.roles[role].colorString;
                             element.querySelector(".name").textContent = permName;
                             element.setAttribute("data-name", permName);
                             if (!roleColor) roleColor = "#B9BBBE";
@@ -99,7 +99,7 @@ module.exports = (Plugin, Api) => {
                             memberPerms.prepend(element);
                         }
                     }
-				}
+                }
 
                 permBlock.querySelector(".perm-details").addEventListener("click", () => {
                     pViewer.showModal(pViewer.createModalUser(name, user, guild));
@@ -140,9 +140,12 @@ module.exports = (Plugin, Api) => {
             const GuildContextMenu = WebpackModules.getModule(m => m.default && m.default.displayName == "GuildContextMenu");
             this.contextMenuPatches.push(Patcher.after(GuildContextMenu, "default", (_, [props], retVal) => {
                 const original = retVal.props.children[0].props.children;
-                const newOne = DCM.buildMenuItem({label: this.strings.contextMenuLabel, action: () => {
-                    this.showModal(this.createModalGuild(props.guild.name, props.guild));
-                }});
+                const newOne = DCM.buildMenuItem({
+                    label: this.strings.contextMenuLabel,
+                    action: () => {
+                        this.showModal(this.createModalGuild(props.guild.name, props.guild));
+                    }
+                });
                 if (Array.isArray(original)) original.splice(1, 0, newOne);
                 else retVal.props.children[0].props.children = [original, newOne];
             }));
@@ -150,17 +153,21 @@ module.exports = (Plugin, Api) => {
 
         patchChannelContextMenu() {
             const [VoiceChannelContextMenu] = WebpackModules.getModules(m => m.default && m.default.displayName == "ChannelListVoiceChannelContextMenu");
-            const [, , TextChannelContextMenu] = WebpackModules.getModules(m => m.default && m.default.displayName == "ChannelListTextChannelContextMenu");
+            const [, CategoryChannelContextMenu, TextChannelContextMenu] = WebpackModules.getModules(m => m.default && m.default.displayName == "ChannelListTextChannelContextMenu");
             const patch = (_, [props], retVal) => {
                 const original = retVal.props.children[0].props.children;
-                const newOne = DCM.buildMenuItem({label: this.strings.contextMenuLabel, action: () => {
-                    const channel = props.channel;
-                    if (!Object.keys(channel.permissionOverwrites).length) return Toasts.info(`#${channel.name} has no permission overrides`);
-                    this.showModal(this.createModalChannel(channel.name, channel, props.guild));
-                }});
+                const newOne = DCM.buildMenuItem({
+                    label: this.strings.contextMenuLabel,
+                    action: () => {
+                        const channel = props.channel;
+                        if (!Object.keys(channel.permissionOverwrites).length) return Toasts.info(`#${channel.name} has no permission overrides`);
+                        this.showModal(this.createModalChannel(channel.name, channel, props.guild));
+                    }
+                });
                 if (Array.isArray(original)) original.splice(1, 0, newOne);
                 else retVal.props.children[0].props.children = [original, newOne];
             };
+            this.contextMenuPatches.push(Patcher.after(CategoryChannelContextMenu, "default", patch));
             this.contextMenuPatches.push(Patcher.after(TextChannelContextMenu, "default", patch));
             this.contextMenuPatches.push(Patcher.after(VoiceChannelContextMenu, "default", patch));
         }
@@ -173,11 +180,14 @@ module.exports = (Plugin, Api) => {
                 const guild = GuildStore.getGuild(guildId);
                 if (!guild) return;
                 const original = retVal.props.children.props.children[0].props.children[0];
-                const newOne = DCM.buildMenuItem({label: this.strings.contextMenuLabel, action: () => {
-                    const user = MemberStore.getMember(guildId, props.user.id);
-                    const name = user.nick ? user.nick : UserStore.getUser(user.userId).username;
-                    this.showModal(this.createModalUser(name, user, guild));
-                }});
+                const newOne = DCM.buildMenuItem({
+                    label: this.strings.contextMenuLabel,
+                    action: () => {
+                        const user = MemberStore.getMember(guildId, props.user.id);
+                        const name = user.nick ? user.nick : UserStore.getUser(user.userId).username;
+                        this.showModal(this.createModalUser(name, user, guild));
+                    }
+                });
                 if (Array.isArray(original)) original.splice(1, 0, newOne);
                 else retVal.props.children.props.children[0].props.children[0] = [original, newOne];
             }));
@@ -217,7 +227,7 @@ module.exports = (Plugin, Api) => {
             const modal = DOMTools.createElement(Utilities.formatTString(Utilities.formatTString(this.modalHTML, this.strings.modal), {name: escapeHTML(title)}));
             modal.querySelector(".callout-backdrop").addEventListener("click", () => {
                 modal.classList.add("closing");
-                setTimeout(() => { modal.remove(); }, 300);
+                setTimeout(() => {modal.remove();}, 300);
             });
 
             const strings = DiscordModules.Strings;
@@ -240,7 +250,7 @@ module.exports = (Plugin, Api) => {
                     const permList = modal.querySelector(".perm-scroller");
                     permList.innerHTML = "";
                     for (const perm in DiscordPerms) {
-						const element = DOMTools.createElement(this.modalItem);
+                        const element = DOMTools.createElement(this.modalItem);
                         const permAllowed = (allowed & DiscordPerms[perm]) == DiscordPerms[perm];
                         const permDenied = isOverride ? (denied & DiscordPerms[perm]) == DiscordPerms[perm] : !permAllowed;
                         if (!permAllowed && !permDenied) continue;
@@ -252,9 +262,14 @@ module.exports = (Plugin, Api) => {
                             element.classList.add("denied");
                             element.prepend(DOMTools.createElement(this.permDeniedIcon));
                         }
-                        element.querySelector(".perm-name").textContent = strings[perm];
+                        element.querySelector(".perm-name").textContent = strings[perm] || perm.split("_").map(n => n[0].toUpperCase() + n.slice(1).toLowerCase()).join(" ");
                         permList.append(element);
                     }
+                });
+                item.addEventListener("contextmenu", (e) => {
+                    DCM.openContextMenu(e, DCM.buildMenu([
+                        {label: DiscordModules.Strings.COPY_ID, action: () => {DiscordModules.ElectronModule.copy(role);}}
+                    ]));
                 });
             }
 
