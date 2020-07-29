@@ -1,7 +1,7 @@
 /**
  * @name AccountDetailsPlus
  * @invite TyFxKer
- * @authorLink https://twitter.com/Zerebos
+ * @authorLink https://twitter.com/IAmZerebos
  * @donate https://paypal.me/ZackRauen
  * @patreon https://patreon.com/Zerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AccountDetailsPlus
