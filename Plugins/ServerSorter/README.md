@@ -1,6 +1,6 @@
 # ServerSorter - [Download](https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSorter/ServerSorter.plugin.js)
 
-Adds the ability to do some basic sorting of your servers. For support and update announcements you can visit [Zere's server](https://bit.ly/ZeresServer).
+Adds the ability to do some basic sorting of your servers.
 
 ![Sorter Demo](https://thumbs.gfycat.com/KeenDisastrousBighornedsheep-size_restricted.gif)
 
@@ -8,8 +8,6 @@ Adds the ability to do some basic sorting of your servers. For support and updat
 
 ### Sort Button
 Sorter adds a button with context menu to quickly sort the servers.
-
-![Sorter Demo](http://discord.zackrauen.com/ServerSorter/menu.png)
 
 ### Sorting
 

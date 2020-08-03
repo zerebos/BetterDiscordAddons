@@ -1,6 +1,6 @@
 # BetterRoleColors - [Download](https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js)
 
-Adds server-based role colors to typing, voice, popouts, modals and more! For support and update announcements you can visit [Zere's server](https://bit.ly/ZeresServer).
+Adds server-based role colors to typing, voice, popouts, modals and more!
 
 ### Mentions
 
@@ -16,27 +16,27 @@ You can also optionally have your account status at the bottom match your role i
 
 Colors the typing notification to match the user's role in that server.
 
-![Typing](http://discord.zackrauen.com/BetterRoleColors/typing.png)
+![Typing](https://i.imgur.com/5n5efGo.png)
 
 ### Colored Voice
 
 Colors the names in voice chat to match their roles.
 
-![Voice](http://discord.zackrauen.com/BetterRoleColors/voice.png)
+![Voice](https://i.imgur.com/pr6vwqa.png)
 
 ### Colored Popouts & Modals
 
 Colors the username/nickname and discriminator of the user in the popouts and modals. (This can be customized in settings.)
 
-![Popouts](http://discord.zackrauen.com/BetterRoleColors/popout.png)
+![Popouts](https://i.imgur.com/9agNkIZ.png)
 
-![Modals](http://discord.zackrauen.com/BetterRoleColors/modal.png)
+![Modals](https://i.imgur.com/KH5hsCK.png)
 
 ### Colored Audit Log
 
 Changes the colors of all users in the audit log to show with their role color. Allows at a quick glance to see if a specific group has been doing a lot.
 
-![Audit](http://discord.zackrauen.com/BetterRoleColors/auditlog.png)
+![Audit](https://i.imgur.com/76137Qo.png)
 
 ## Plugin Settings
 
@@ -44,23 +44,23 @@ Changes the colors of all users in the audit log to show with their role color. 
 
 Ability to turn on/off individual modules of the plugin.
 
-![Module Options](http://discord.zackrauen.com/BetterRoleColors/module_settings.png)
+![Module Options](https://i.imgur.com/KZPSCxN.png)
 
 ### Popout Options
 
 Able to change which portions get colored.
 
-![Popout Options](http://discord.zackrauen.com/BetterRoleColors/popout_settings.png)
+![Popout Options](https://i.imgur.com/oXwMqd3.png)
 
 ### Modal Options
 
 Able to change which portions of the modal gets colored.
 
-![Modal Options](http://discord.zackrauen.com/BetterRoleColors/modal_settings.png)
+![Modal Options](https://i.imgur.com/YK8r7Ap.png)
 
 ### Audit Log Options
 
 Able to change which portions of the modal gets colored.
 
-![Audit Log Options](http://discord.zackrauen.com/BetterRoleColors/auditlog_settings.png)
+![Audit Log Options](https://i.imgur.com/GT9Gd4l.png)
 

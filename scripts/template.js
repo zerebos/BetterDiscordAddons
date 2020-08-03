@@ -1,6 +1,5 @@
 /**
  * @name {{PLUGIN_NAME}}
- * @invite {{INVITE_CODE}}
  * @authorLink {{AUTHOR_LINK}}
  * @donate {{PAYPAL}}
  * @patreon {{PATREON}}

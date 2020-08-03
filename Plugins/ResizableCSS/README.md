@@ -1,6 +1,6 @@
 # ResizableCSS - [Download](https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ResizableCSS/ResizableCSS.plugin.js)
 
-Allows you to resize the detached CustomCSS window. Useful for development and customization. For support and update announcements you can visit [Zere's server](https://bit.ly/ZeresServer).
+Allows you to resize the detached CustomCSS window. Useful for development and customization.
 
 ![Demo](https://thumbs.gfycat.com/PopularLightBluebird-size_restricted.gif)
 

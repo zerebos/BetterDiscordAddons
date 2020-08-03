@@ -1,12 +1,6 @@
-# BetterDiscordAddons [![Patreon][patreon-badge]][patreon-link] [![Paypal][paypal-badge]][paypal-link]
+# BetterDiscordAddons
 
-[patreon-badge]: https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.herokuapp.com%2FZerebos&style=flat-square
-[patreon-link]: https://patreon.com/Zerebos
-
-[paypal-badge]: https://img.shields.io/badge/Paypal-Donate!-%2300457C.svg?logo=paypal&style=flat-square
-[paypal-link]: https://paypal.me/ZackRauen
-
-A series of plugins and themes for BetterDiscord. For support or announcements on any of them visit [my (Zere's) server](http://discord.zackrauen.com/).
+A series of plugins and themes for BetterDiscord.
 
 ## Plugins
  - [AccountDetailsPlus](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AccountDetailsPlus) - Lets you view popout, nickname and more from your account panel at the bottom.

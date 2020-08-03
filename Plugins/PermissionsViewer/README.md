@@ -1,10 +1,10 @@
 # PermissionsViewer - [Download](https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/PermissionsViewer/PermissionsViewer.plugin.js)
 
-Allows you to view a user's permissions. Thanks to Noodlebox for the idea! For support and update announcements you can visit [Zere's server](https://bit.ly/ZeresServer).
+Allows you to view a user's permissions. Thanks to Noodlebox for the idea!
 
-![Preview](https://i.zackrauen.com/BymIHO.png)
+![Preview](https://i.imgur.com/XmHjg4p.png)
 
-Click here for a GIF demo of all features: http://i.zackrauen.com/w9FfAS.gif
+Click here for a GIF demo of all features: https://i.imgur.com/lubnuMH.gif
 
 ## Features
 

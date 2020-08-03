@@ -1,9 +1,9 @@
 # ServerSearch - [Download](https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSearch/ServerSearch.plugin.js)
 
-Adds a button to search your servers. Search in place or in popout. For support and update announcements you can visit [Zere's server](https://bit.ly/ZeresServer).
+Adds a button to search your servers. Search in place or in popout.
 
 ## In Place
-![InPlace](https://i.zackrauen.com/OuzdlN.gif)
+![InPlace](https://i.imgur.com/F7u4NqG.gif)
 
 ## Popout
-![Popout](https://i.zackrauen.com/oWe5Vl.gif)
+![Popout](https://i.imgur.com/B5LKYJ4.gif)

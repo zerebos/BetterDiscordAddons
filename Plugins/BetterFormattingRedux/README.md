@@ -1,8 +1,8 @@
 # BetterFormattingRedux (BFRedux) - [Download](https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js)
 
-Lets you format your messages with buttons and adds more formatting options. For support and update announcements you can visit [Zere's server](https://bit.ly/ZeresServer).
+Lets you format your messages with buttons and adds more formatting options.
 
-![New Demo](https://i.zackrauen.com/OY2qYj.gif)
+![New Demo](https://i.imgur.com/hiJeQdY.gif)
 
 ![BFRedux Demo](https://zippy.gfycat.com/HugeDeadDuckling.gif)
 
@@ -11,18 +11,16 @@ Lets you format your messages with buttons and adds more formatting options. For
 
 ### Codeblocks & Programming Languages
 
-![Codeblocks](https://i.zackrauen.com/rTdu3g.gif)
+![Codeblocks](https://i.imgur.com/qm0zqIQ.gif)
 
 ### Sortable Buttons & Tooltips
 
-![Sortable](https://i.zackrauen.com/teYxPk.gif)
+![Sortable](https://i.imgur.com/OhgAV0L.gifv)
 
 ### Formatting Toolbar
 BFRedux adds a handy toolbar to make formatting easier.
 
 Click the buttons to insert tags or surround the selected text with tags.
-
-![BFRedux Demo](http://discord.zackrauen.com/BFRedux/bfredux.png)
 
 ### New Formatting Options
 
@@ -66,20 +64,20 @@ Note: There is no save button to click, settings update automatically.
 ### Wrappers
 The default wrappers (`^`, `%`, `##`, `&&`, `||`, `++`) can all be customized in the settings panel. They can be any symbol or letters of any length.
 
-![BFRedux Wrappers](http://discord.zackrauen.com/BFRedux/wrappers.png)
+![BFRedux Wrappers](https://i.imgur.com/isbKNur.png)
 
 ### Formatting
  - The fullwidth format can switch between Ｓａｍｐｌｅ　Ｔｅｘｔ and S A M P L E  T E X T.
  - The upsidedown text can switch between ʇxǝ┴ ǝldɯɐS and Sɐɯdlǝ ┴ǝxʇ.
  - The varied caps can switch between SaMpLe TeXt and sAmPlE tExT. (Change whether to start with a capital)
  
-![BFRedux Formatting](http://discord.zackrauen.com/BFRedux/formatting_new.png)
+![BFRedux Formatting](https://i.imgur.com/jiqJNkE.png)
  
 ### Functional Plugin Settings
 
  - You can switch between the text buttons or icons for buttons
 
-![BFRedux Chaining](http://discord.zackrauen.com/BFRedux/functional.png)
+![BFRedux Chaining](https://i.imgur.com/kCYinfe.png)
 
  - You can change between the default hover mode (from above), or click to see toolbar.
  
@@ -94,10 +92,10 @@ The default wrappers (`^`, `%`, `##`, `&&`, `||`, `++`) can all be customized in
 
 `##&&Sample Text&&##` will give you ʇｘǝ┴　ǝｌｄɯɐＳ instead of ＆＆Ｓａｍｐｌｅ　Ｔｅｘｔ＆＆ (May not appear right in browser)
 
- ![BFRedux Chaining](http://discord.zackrauen.com/BFRedux/chaining_order.png)
+ ![BFRedux Chaining](https://i.imgur.com/7NbaKfI.png)
  
 ### Style Settings
-![BFRedux Style](http://discord.zackrauen.com/BFRedux/style.png)
+![BFRedux Style](https://i.imgur.com/uzKORBE.png)
 
  - Change the opacity of the toolbar
  - Change the size of the text

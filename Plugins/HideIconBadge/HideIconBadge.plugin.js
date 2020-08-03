@@ -1,6 +1,5 @@
 /**
  * @name HideIconBadge
- * @invite TyFxKer
  * @authorLink https://twitter.com/IAmZerebos
  * @donate https://paypal.me/ZackRauen
  * @patreon https://patreon.com/Zerebos

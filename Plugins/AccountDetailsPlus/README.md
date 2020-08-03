@@ -1,10 +1,10 @@
 # AccountDetailsPlus - [Download](https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AccountDetailsPlus/AccountDetailsPlus.plugin.js)
 
-Lets you view popout, nickname and more from your account panel at the bottom. For support and update announcements you can visit [Zere's server](https://bit.ly/ZeresServer).
+Lets you view popout, nickname and more from your account panel at the bottom.
 
 ## Demo
 
-![Demo](https://i.zackrauen.com/0LeMdr.gif)
+![Demo](https://i.imgur.com/ZPhgorr.gif)
 
 ## Instructions
 
