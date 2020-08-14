@@ -631,10 +631,10 @@ module.exports = (() => {
                 const role = Array.isArray(displayRoles) ? displayRoles[r] : r;
                 const user = UserStore.getUser(role) || {avatarURL: AvatarDefaults.DEFAULT_AVATARS[Math.floor(Math.random() * AvatarDefaults.DEFAULT_AVATARS.length)], username: role};
                 const member = MemberStore.getMember(DiscordModules.SelectedGuildStore.getGuildId(), role) || {colorString: ""};
-                const item = DOMTools.createElement(!isOverride || displayRoles[role].type == "role" ? this.modalButton : Utilities.formatTString(this.modalButtonUser, {avatarUrl: user.avatarURL}));
-                if (!isOverride || displayRoles[role].type == "role") item.style.color = referenceRoles[role].colorString;
+                const item = DOMTools.createElement(!isOverride || displayRoles[role].type == 0 ? this.modalButton : Utilities.formatTString(this.modalButtonUser, {avatarUrl: user.avatarURL}));
+                if (!isOverride || displayRoles[role].type == 0) item.style.color = referenceRoles[role].colorString;
                 else item.style.color = member.colorString;
-                if (isOverride) item.querySelector(".role-name").textContent = escapeHTML(displayRoles[role].type == "role" ? referenceRoles[role].name : user.username);
+                if (isOverride) item.querySelector(".role-name").textContent = escapeHTML(displayRoles[role].type == 0 ? referenceRoles[role].name : user.username);
                 else item.querySelector(".role-name").textContent = escapeHTML(referenceRoles[role].name);
                 modal.querySelector(".role-scroller").append(item);
                 item.addEventListener("click", () => {
