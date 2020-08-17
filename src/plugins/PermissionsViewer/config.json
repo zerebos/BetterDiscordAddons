@@ -7,13 +7,13 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.1.14",
+        "version": "0.1.15",
         "description": "Allows you to view a user's permissions. Thanks to Noodlebox for the idea!",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/PermissionsViewer/PermissionsViewer.plugin.js"
     },
     "changelog": [
-        {"title": "Enhancements", "type": "improved", "items": ["Now works with light theme!", "Added ability to copy role id in the permissions modal with right click."]}
+        {"title": "Fixes", "type": "fixed", "items": ["Role names are displayed once again.", "That weird white box shouldn't show up in the user popout anymore.", "`Stream` should now use the local Discord translation for `Video`."]}
     ],
     "defaultConfig": [
         {

@@ -9,6 +9,7 @@
     margin-top: 2px;
     max-height: 160px;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .member-perms .member-perm .perm-circle {
