@@ -31,7 +31,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {info:{name:"RoleMembers",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.12",description:"Allows you to see the members of each role on a server.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"},changelog:[{title:"Updated",type:"fixed",items:["Context menus have been update to match Discord's changes."]}],main:"index.js"};
+    const config = {info:{name:"RoleMembers",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.13",description:"Allows you to see the members of each role on a server.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"},changelog:[{title:"No More Overflow",type:"fixed",items:["Long lists of users no longer take up the whole screen aka the plugin was updated to match Discord's new scrollers."]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -57,7 +57,7 @@ module.exports = (() => {
         const plugin = (Plugin, Api) => {
     const {Popouts, DiscordModules, DiscordSelectors, DiscordClasses, Utilities, WebpackModules, Patcher, DCM, DOMTools} = Api;
 
-    const from = arr => arr && arr.length > 0 && Object.assign(...arr.map( ([k, v]) => ({[k]: v}) ));
+    const from = arr => arr && arr.length > 0 && Object.assign(...arr.map(([k, v]) => ({[k]: v})));
     const filter = (obj, predicate) => from(Object.entries(obj).filter((o) => {return predicate(o[1]);}));
 
     const GuildStore = DiscordModules.GuildStore;
@@ -67,7 +67,7 @@ module.exports = (() => {
     const UserStore = DiscordModules.UserStore;
     const ImageResolver = DiscordModules.ImageResolver;
     const WrapperClasses = WebpackModules.getByProps("wrapperHover");
-    const animate = DOMTools.animate ? DOMTools.animate.bind(DOMTools) :  ({timing = _ => _, update, duration}) => {
+    const animate = DOMTools.animate ? DOMTools.animate.bind(DOMTools) : ({timing = _ => _, update, duration}) => {
         // https://javascript.info/js-animation
         const start = performance.now();
 
@@ -88,7 +88,8 @@ module.exports = (() => {
         });
     };
 
-    const popoutHTML = `<div class="{{className}} popout-role-members" style="margin-top: 0;">
+    const popoutHTML = `<div class="layer-v9HyYc">
+<div class="animatorBottom-fS5rNO translate-2dAEQ6 didRender-33z1u8 popout-role-members" style="margin-top: 0;">
     <div class="popoutList-T9CKZQ guildSettingsAuditLogsUserFilterPopout-3Jg5NE elevationBorderHigh-2WYJ09 role-members-popout">
         <div class="popoutListInput-1l9TUI size14-3iUx6q container-cMG81i small-2oHLgT">
             <div class="inner-2P4tQO"><input class="input-3Xdcic" placeholder="Search Members — {{memberCount}}" value="">
@@ -101,12 +102,11 @@ module.exports = (() => {
             </div>
         </div>
         <div class="divider-3573oO divider-faSUbd marginTop8-1DLZ1n marginBottom8-AtZOdT"></div>
-        <div class="scrollerWrap-2lJEkd firefoxFixScrollFlex-cnI2ix scrollerThemed-2oenus themeGhostHairline-DBD-2d scrollerTrack-1ZIpsv">
-            <div class="scroller-2FKFPG firefoxFixScrollFlex-cnI2ix systemPad-3UxEGl scroller-2CvAgC role-members">
-                
-            </div>
+        <div class="scroller-2CvAgC thin-1ybCId scrollerBase-289Jih role-members" dir="ltr" style="overflow: hidden scroll; padding-right: 0px;">
+            
         </div>
     </div>
+</div>
 </div>`;
     const itemHTML = `<div class="flex-1xMQg5 flex-1O1GKY horizontal-1ae9ci horizontal-2EEEnY flex-1O1GKY directionRow-3v3tfG justifyStart-2NDFzi alignCenter-1dQNNs noWrap-3jynv6 selectableItem-1MP3MQ role-member" style="flex: 1 1 auto; height: auto;">
     <div class="flex-1xMQg5 flex-1O1GKY horizontal-1ae9ci horizontal-2EEEnY flex-1O1GKY directionRow-3v3tfG justifyStart-2NDFzi alignCenter-1dQNNs noWrap-3jynv6 selectableItemLabel-1RKQjD" style="flex: 1 1 auto;">
@@ -162,14 +162,17 @@ module.exports = (() => {
         patchGuildContextMenu() {
             const GuildContextMenu = WebpackModules.getModule(m => m.default && m.default.displayName == "GuildContextMenu");
             Patcher.after(GuildContextMenu, "default", (_, args, retVal) => {
-				const props = args[0];
+                const props = args[0];
                 const guildId = props.guild.id;
                 const roles = props.guild.roles;
                 const roleItems = [];
 
                 for (const roleId in roles) {
                     const role = roles[roleId];
-                    const item = DCM.buildMenuItem({label: role.name, style: {color: role.colorString ? role.colorString : ""}, closeOnClick: false,
+                    const item = DCM.buildMenuItem({
+                        label: role.name,
+                        style: {color: role.colorString ? role.colorString : ""},
+                        closeOnClick: false,
                         action: (e) => {
                             this.showRolePopout(e.target.closest(DiscordSelectors.ContextMenu.item), guildId, role.id);
                         }

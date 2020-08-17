@@ -2,7 +2,7 @@
 module.exports = (Plugin, Api) => {
     const {Popouts, DiscordModules, DiscordSelectors, DiscordClasses, Utilities, WebpackModules, Patcher, DCM, DOMTools} = Api;
 
-    const from = arr => arr && arr.length > 0 && Object.assign(...arr.map( ([k, v]) => ({[k]: v}) ));
+    const from = arr => arr && arr.length > 0 && Object.assign(...arr.map(([k, v]) => ({[k]: v})));
     const filter = (obj, predicate) => from(Object.entries(obj).filter((o) => {return predicate(o[1]);}));
 
     const GuildStore = DiscordModules.GuildStore;
@@ -12,7 +12,7 @@ module.exports = (Plugin, Api) => {
     const UserStore = DiscordModules.UserStore;
     const ImageResolver = DiscordModules.ImageResolver;
     const WrapperClasses = WebpackModules.getByProps("wrapperHover");
-    const animate = DOMTools.animate ? DOMTools.animate.bind(DOMTools) :  ({timing = _ => _, update, duration}) => {
+    const animate = DOMTools.animate ? DOMTools.animate.bind(DOMTools) : ({timing = _ => _, update, duration}) => {
         // https://javascript.info/js-animation
         const start = performance.now();
 
@@ -72,14 +72,17 @@ module.exports = (Plugin, Api) => {
         patchGuildContextMenu() {
             const GuildContextMenu = WebpackModules.getModule(m => m.default && m.default.displayName == "GuildContextMenu");
             Patcher.after(GuildContextMenu, "default", (_, args, retVal) => {
-				const props = args[0];
+                const props = args[0];
                 const guildId = props.guild.id;
                 const roles = props.guild.roles;
                 const roleItems = [];
 
                 for (const roleId in roles) {
                     const role = roles[roleId];
-                    const item = DCM.buildMenuItem({label: role.name, style: {color: role.colorString ? role.colorString : ""}, closeOnClick: false,
+                    const item = DCM.buildMenuItem({
+                        label: role.name,
+                        style: {color: role.colorString ? role.colorString : ""},
+                        closeOnClick: false,
                         action: (e) => {
                             this.showRolePopout(e.target.closest(DiscordSelectors.ContextMenu.item), guildId, role.id);
                         }
