@@ -212,8 +212,9 @@ module.exports = (Plugin, Api) => {
             userRoles.sort((a, b) => {return guildRoles[b].position - guildRoles[a].position;});
 
             if (user.userId == guild.ownerId) {
+                const ALL_PERMISSIONS = Object.values(DiscordModules.DiscordConstants.Permissions).map(x => Number(x.data)).reduce((all, p) => all | p);
                 userRoles.push(user.userId);
-                guildRoles[user.userId] = {name: this.strings.modal.owner, permissions: DiscordModules.Permissions.ALL};
+                guildRoles[user.userId] = {name: this.strings.modal.owner, permissions: ALL_PERMISSIONS};
             }
             return this.createModal(name, userRoles, guildRoles);
         }
