@@ -636,7 +636,6 @@ module.exports = (() => {
                 const item = DOMTools.createElement(!isOverride || displayRoles[role].type == 0 ? this.modalButton : Utilities.formatTString(this.modalButtonUser, {avatarUrl: user.avatarURL}));
                 if (!isOverride || displayRoles[role].type == 0) item.style.color = referenceRoles[role].colorString;
                 else item.style.color = member.colorString;
-                console.log(referenceRoles[role].name)
                 if (isOverride) item.querySelector(".role-name").innerHTML = escapeHTML(displayRoles[role].type == 0 ? referenceRoles[role].name : user.username);
                 else item.querySelector(".role-name").innerHTML = escapeHTML(referenceRoles[role].name);
                 modal.querySelector(".role-scroller").append(item);
