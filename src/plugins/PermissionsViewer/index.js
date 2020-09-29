@@ -212,8 +212,9 @@ module.exports = (Plugin, Api) => {
             userRoles.sort((a, b) => {return guildRoles[b].position - guildRoles[a].position;});
 
             if (user.userId == guild.ownerId) {
+                const ALL_PERMISSIONS = Object.values(DiscordModules.DiscordConstants.Permissions).map(x => Number(x.data)).reduce((all, p) => all | p);
                 userRoles.push(user.userId);
-                guildRoles[user.userId] = {name: this.strings.modal.owner, permissions: DiscordModules.Permissions.ALL};
+                guildRoles[user.userId] = {name: this.strings.modal.owner, permissions: ALL_PERMISSIONS};
             }
             return this.createModal(name, userRoles, guildRoles);
         }
@@ -238,8 +239,8 @@ module.exports = (Plugin, Api) => {
                 const item = DOMTools.createElement(!isOverride || displayRoles[role].type == 0 ? this.modalButton : Utilities.formatTString(this.modalButtonUser, {avatarUrl: user.avatarURL}));
                 if (!isOverride || displayRoles[role].type == 0) item.style.color = referenceRoles[role].colorString;
                 else item.style.color = member.colorString;
-                if (isOverride) item.querySelector(".role-name").textContent = escapeHTML(displayRoles[role].type == 0 ? referenceRoles[role].name : user.username);
-                else item.querySelector(".role-name").textContent = escapeHTML(referenceRoles[role].name);
+                if (isOverride) item.querySelector(".role-name").innerHTML = escapeHTML(displayRoles[role].type == 0 ? referenceRoles[role].name : user.username);
+                else item.querySelector(".role-name").innerHTML = escapeHTML(referenceRoles[role].name);
                 modal.querySelector(".role-scroller").append(item);
                 item.addEventListener("click", () => {
                     modal.querySelectorAll(".role-item.selected").forEach(e => e.removeClass("selected"));
