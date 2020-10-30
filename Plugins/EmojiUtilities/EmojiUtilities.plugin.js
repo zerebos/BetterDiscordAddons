@@ -31,7 +31,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {info:{name:"EmojiUtilities",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.0.8",description:"Allows you to blacklist and favorite emojis.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmojiUtilities",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/EmojiUtilities/EmojiUtilities.plugin.js"},changelog:[{title:"Plugin Status",type:"fixed",items:["Fixed context menus"]}],main:"index.js"};
+    const config = {info:{name:"EmojiUtilities",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.0.9",description:"Allows you to blacklist and favorite emojis.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmojiUtilities",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/EmojiUtilities/EmojiUtilities.plugin.js"},changelog:[{title:"Plugin Status",type:"fixed",items:["Favorite emojis show up again as `Favorite Emojis`."]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -112,20 +112,19 @@ module.exports = (() => {
         }
 
         addCategories() {
-            DiscordModules.Strings.EMOJI_CATEGORY_FAVORITES = "Favorites";
             EmojiUtils.originalCategories = EmojiUtils.categories;
-            Object.defineProperty(EmojiUtils, "categories", {writable: true, value: ["favorites", ...EmojiUtils.originalCategories, "blacklist"]});
+            Object.defineProperty(EmojiUtils, "categories", {writable: true, value: ["favorite emojis", ...EmojiUtils.originalCategories, "blacklist"]});
 
             // Add favorites and blacklist categories
             Patcher.after(EmojiStore, "getByCategory", (_, args) => {
-                if (args[0] == "favorites") return this.favoriteEmojis.map(e => this.resolveEmoji(e)).filter(e => this.isResolvable(e));
+                if (args[0] == "favorite emojis") return this.favoriteEmojis.map(e => this.resolveEmoji(e)).filter(e => this.isResolvable(e));
                 if (args[0] == "blacklist") return this.disabledEmojis.map(e => this.resolveEmoji(e)).filter(e => this.isResolvable(e));
             });
 
             // Give the fake categories an icon
             const EmojiCategoryIcon = WebpackModules.getModule(m => m.default && m.default.type && m.default.type.toString().includes("FOOD"));
             Patcher.after(EmojiCategoryIcon.default, "type", (_, [props]) => {
-                if (props.categoryId == "favorites") return DiscordModules.React.createElement(FavoriteIcon, props);
+                if (props.categoryId == "favorite emojis") return DiscordModules.React.createElement(FavoriteIcon, props);
                 if (props.categoryId == "blacklist") return DiscordModules.React.createElement(DisabledIcon, props);
             });
         }
@@ -158,7 +157,7 @@ module.exports = (() => {
 
             // Add favorites category and filter other categories
             Patcher.after(EmojiStore, "getByCategory", (_, args, returnValue) => {
-                if (args[0] == "favorites" || args[0] == "blacklist") return;
+                if (args[0] == "favorite emojis" || args[0] == "blacklist") return;
                 return returnValue.filter(e => !this.isBlacklisted(e.uniqueName));
             });
         }
@@ -208,13 +207,16 @@ module.exports = (() => {
                         name: thisObject.props.emojiName.replace(/:/g, ""),
                         color: DiscordModules.TextElement.Colors.MUTED,
                         onContextMenu: (event) => {
-                            const menu = DCM.buildMenu([
-                                {type: "group", items: [
-                                    {label: "Remove From Blacklist", closeOnClick: true, action: () => {
+                            const menu = DCM.buildMenu([{
+                                type: "group",
+                                items: [{
+                                    label: "Remove From Blacklist",
+                                    closeOnClick: true,
+                                    action: () => {
                                         this.removeBlacklisted(emoji);
                                         thisObject.forceUpdate();
-                                    }},
-                                ]}
+                                    }
+                                }]}
                             ]);
                             DCM.openContextMenu(event, menu);
                         },
@@ -271,18 +273,25 @@ module.exports = (() => {
                     emojiComponents[e].props.onContextMenu = (event) => {
                         const isFavorite = this.isFavorite(emoji);
                         const isBlacklisted = this.isBlacklisted(emoji);
-                        const menu = DCM.buildMenu([
-                            {type: "group", items: [
-                                {label: isBlacklisted ? "Remove From Blacklist" : "Blacklist Emoji", closeOnClick: true, action: () => {
-                                    if (isBlacklisted) this.removeBlacklisted(emoji);
-                                    else this.addBlacklisted(emoji);
-                                }},
-                                {label: isFavorite ? "Remove Favorite" : "Favorite Emoji", closeOnClick: true, action: () => {
+                        const menu = DCM.buildMenu([{
+                            type: "group",
+                            items: [{
+                                    label: isBlacklisted ? "Remove From Blacklist" : "Blacklist Emoji",
+                                    closeOnClick: true,
+                                    action: () => {
+                                        if (isBlacklisted) this.removeBlacklisted(emoji);
+                                        else this.addBlacklisted(emoji);
+                                    }
+                            },
+                            {
+                                label: isFavorite ? "Remove Favorite" : "Favorite Emoji",
+                                closeOnClick: true,
+                                action: () => {
                                     if (isFavorite) this.removeFavorite(emoji);
                                     else this.addFavorite(emoji);
-                                }},
-                            ]}
-                        ]);
+                                }
+                            }]
+                        }]);
                         DCM.openContextMenu(event, menu);
                     };
                 }
