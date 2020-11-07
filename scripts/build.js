@@ -5,7 +5,7 @@ const args = process.argv.slice(2);
 const buildConfig = require(path.join(__dirname, "../package.json")).buildConfig;
 const pluginsPath = path.isAbsolute(buildConfig.pluginsFolder) ? buildConfig.pluginsFolder : path.join(__dirname, "..", buildConfig.pluginsFolder);
 const releasePath = path.isAbsolute(buildConfig.releaseFolder) ? buildConfig.releaseFolder : path.join(__dirname, "..", buildConfig.releaseFolder);
-const bdFolder = (process.platform == "win32" ? process.env.APPDATA : process.platform == "darwin" ? process.env.HOME + "/Library/Preferences" :  process.env.XDG_CONFIG_HOME ? process.env.XDG_CONFIG_HOME : process.env.HOME + "/.config") + "/BetterDiscord/";
+const bdFolder = (process.platform == "win32" ? process.env.APPDATA : process.platform == "darwin" ? process.env.HOME + "/Library/Preferences" : process.env.XDG_CONFIG_HOME ? process.env.XDG_CONFIG_HOME : process.env.HOME + "/.config") + "/BetterDiscord/";
 
 const formatString = function(string, values) {
     for (const val in values) string = string.replace(new RegExp(`{{${val}}}`, "g"), () => values[val]);
@@ -50,6 +50,8 @@ for (let f = 0; f < list.length; f++) {
         INNER: content,
         WEBSITE: config.info.github || formatString(buildConfig.github, {PLUGIN_NAME: pluginName}),
         SOURCE: config.info.github_raw || formatString(buildConfig.githubRaw, {PLUGIN_NAME: pluginName}),
+        UPDATE_URL: config.info.github_raw || formatString(buildConfig.githubRaw, {PLUGIN_NAME: pluginName}),
+        VERSION: config.info.version,
         PATREON: buildConfig.patreonLink,
         PAYPAL: buildConfig.paypalLink,
         AUTHOR_LINK: buildConfig.authorLink,
