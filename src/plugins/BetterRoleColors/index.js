@@ -7,7 +7,7 @@ module.exports = (Plugin, Api) => {
     const UserStore = DiscordModules.UserStore;
     const RelationshipStore = DiscordModules.RelationshipStore;
     const PopoutWrapper = WebpackModules.getByDisplayName("DeprecatedPopout");
-    const VoiceUser = WebpackModules.find(m => typeof(m) === "function" && m.List);
+    const VoiceUser = WebpackModules.getByDisplayName("VoiceUser");
     const RichTextareaComponents = WebpackModules.getByProps("UserMention");
 
     const ColoredDiscordTag = (DiscordTag) => function(props) {
@@ -98,15 +98,14 @@ module.exports = (Plugin, Api) => {
         }
 
         patchVoiceUsers() {
-            Patcher.after(VoiceUser.prototype, "render", (thisObject, _, returnValue) => {
+            Patcher.after(VoiceUser.prototype, "renderName", (thisObject, _, returnValue) => {
                 if (!this.settings.modules.voice) return;
+                if (!returnValue || !returnValue.props) return;
                 const member = this.getMember(thisObject.props.user.id);
                 if (!member || !member.colorString) return;
-                const username = Utilities.getNestedProp(returnValue, "props.children.props.children.2");
-                if (!username || !username.props) return;
-                username.props.style = {color: member.colorString};
+                returnValue.props.style = {color: member.colorString};
                 if (!this.settings.global.important) return;
-                username.ref = (element) => {
+                returnValue.ref = (element) => {
                     if (!element) return;
                     element.style.setProperty("color", member.colorString, "important");
                 };
@@ -132,8 +131,8 @@ module.exports = (Plugin, Api) => {
                 };
 
                 if (!this.settings.mentions.changeOnHover) return;
-                returnValue.props.onMouseEnter = () => { thisObject.setState({isHovered: true}); };
-                returnValue.props.onMouseLeave = () => { thisObject.setState({isHovered: false}); };
+                returnValue.props.onMouseEnter = () => {thisObject.setState({isHovered: true});};
+                returnValue.props.onMouseLeave = () => {thisObject.setState({isHovered: false});};
 
                 if (!thisObject.state.hasOwnProperty("isHovered")) thisObject.setState({isHovered: false});
                 const currentStyle = thisObject.state.isHovered ? hoverStyle : defaultStyle;

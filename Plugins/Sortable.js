@@ -6,14 +6,7 @@
 
 (function sortableModule(factory) {
 	"use strict";
-
-	if (typeof define === "function" && define.amd) {
-		define(factory);
-	}
-	else {
-		/* jshint sub:true */
-		window["Sortable"] = factory();
-	}
+	window["Sortable"] = factory();
 })(function sortableFactory() {
 	"use strict";
 
