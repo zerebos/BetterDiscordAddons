@@ -80,6 +80,7 @@ module.exports = (Plugin, Api) => {
                 for (const roleId in roles) {
                     const role = roles[roleId];
                     const item = DCM.buildMenuItem({
+                        id: roleId,
                         label: role.name,
                         style: {color: role.colorString ? role.colorString : ""},
                         closeOnClick: false,

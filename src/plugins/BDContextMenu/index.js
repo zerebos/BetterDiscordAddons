@@ -76,7 +76,7 @@ module.exports = (Plugin, Api) => {
             DiscordModules.ContextMenuActions.closeContextMenu();
             DiscordModules.UserSettingsWindow.open(DiscordModules.DiscordConstants.UserSettingsSections.ACCOUNT);
             while (!document.getElementsByClassName("bd-sidebar-header").length) await new Promise(r => setTimeout(r, 100));
-            const tabs = document.querySelectorAll(".bd-sidebar-header + .item-PXvHYJ");
+            const tabs = document.querySelectorAll(".bd-sidebar-header ~ .item-PXvHYJ");
             const index = Array.from(tabs).findIndex(e => e.textContent.toLowerCase() === id);
             if (tabs[index] && tabs[index].click) tabs[index].click();
         }

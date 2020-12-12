@@ -1,5 +1,5 @@
 module.exports = (Plugin, Api) => {
-    const {DiscordSelectors, PluginUtilities, EmulatedTooltip, DiscordModules, Patcher, Utilities, DCM} = Api;
+    const {DiscordSelectors, PluginUtilities, Tooltip, DiscordModules, Patcher, Utilities, DCM} = Api;
 
     return class BetterFormattingRedux extends Plugin {
         constructor() {
@@ -203,17 +203,13 @@ module.exports = (Plugin, Api) => {
                 this.settings.toolbar = this.defaultSettings.toolbar;
                 this.saveSettings();
             }
-            if (window.BdApi.getPlugin("Zalgo")) {
-                this.settings.toolbar.zalgo = true;
-                if (!this.buttonOrder.includes("zalgo")) this.buttonOrder.push("zalgo");
-            }
             const sorted = Object.keys(this.settings.toolbar).sort((a,b) => {return this.buttonOrder.indexOf(a) - this.buttonOrder.indexOf(b);});
             for (let i = 0; i < sorted.length; i++) {
                 const button = $("<div>");
                 button.addClass("format");
                 if (!this.toolbarData[sorted[i]]) continue;
                 button.addClass(this.toolbarData[sorted[i]].type);
-                new EmulatedTooltip(button, this.toolbarData[sorted[i]].name);
+                Tooltip.create(button, this.toolbarData[sorted[i]].name);
                 if (!this.settings.toolbar[sorted[i]]) button.addClass("disabled");
                 if (sorted[i] === "codeblock") {
                     const contextMenu = this.getContextMenu();
@@ -277,7 +273,6 @@ module.exports = (Plugin, Api) => {
                     else {
                         let wrapper = "";
                         if (button.hasClass("native-format")) wrapper = this.discordWrappers[button.data("name")];
-                        else if (button.data("name") == "zalgo") return this.wrapSelection("{{", "}}");
                         else wrapper = this.settings.wrappers[button.data("name")];
                         this.wrapSelection(wrapper);
                     }

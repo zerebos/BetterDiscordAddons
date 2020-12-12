@@ -122,6 +122,12 @@ module.exports = (() => {
 	height: 30px;
 	border-radius: 50%;
 	background-size: contain;
+}
+
+.search-results {
+	overflow: hidden scroll;
+	padding-right: 0px;
+	max-height: 400px;
 }`;
             this.guildHtml = `<div class="listItem-2P_4kh" id="server-search">
         <div class="pill-31IEus wrapper-sa6paO">
@@ -154,10 +160,8 @@ module.exports = (() => {
             </div>
         </div>
         <div class="divider-3573oO divider-faSUbd marginTop8-1DLZ1n marginBottom8-AtZOdT"></div>
-        <div class="scrollerWrap-2lJEkd firefoxFixScrollFlex-cnI2ix scrollerThemed-2oenus themeGhostHairline-DBD-2d scrollerTrack-1ZIpsv">
-            <div class="scroller-2FKFPG firefoxFixScrollFlex-cnI2ix systemPad-3UxEGl scroller-2CvAgC search-results">
+        <div class="scroller-2CvAgC thin-1ybCId scrollerBase-289Jih search-results">
                 
-            </div>
         </div>
     </div>
 </div>`;

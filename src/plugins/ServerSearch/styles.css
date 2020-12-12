@@ -29,3 +29,9 @@
 	border-radius: 50%;
 	background-size: contain;
 }
+
+.search-results {
+	overflow: hidden scroll;
+	padding-right: 0px;
+	max-height: 400px;
+}

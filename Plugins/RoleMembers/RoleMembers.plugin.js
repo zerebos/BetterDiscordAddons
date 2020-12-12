@@ -104,7 +104,7 @@ module.exports = (() => {
             </div>
         </div>
         <div class="divider-3573oO divider-faSUbd marginTop8-1DLZ1n marginBottom8-AtZOdT"></div>
-        <div class="scroller-2CvAgC thin-1ybCId scrollerBase-289Jih role-members" dir="ltr" style="overflow: hidden scroll; padding-right: 0px;">
+        <div class="scroller-2CvAgC thin-1ybCId scrollerBase-289Jih role-members" dir="ltr" style="overflow: hidden scroll; padding-right: 0px; max-height: 400px;">
             
         </div>
     </div>
@@ -172,6 +172,7 @@ module.exports = (() => {
                 for (const roleId in roles) {
                     const role = roles[roleId];
                     const item = DCM.buildMenuItem({
+                        id: roleId,
                         label: role.name,
                         style: {color: role.colorString ? role.colorString : ""},
                         closeOnClick: false,
