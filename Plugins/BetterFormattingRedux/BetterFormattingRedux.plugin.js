@@ -1,6 +1,6 @@
 /**
  * @name BetterFormattingRedux
- * @version 2.3.10
+ * @version 2.3.11
  * @authorLink https://twitter.com/IAmZerebos
  * @donate https://paypal.me/ZackRauen
  * @patreon https://patreon.com/Zerebos
@@ -33,7 +33,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {info:{name:"BetterFormattingRedux",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"2.3.10",description:"Enables different types of formatting in standard Discord chat.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js"},changelog:[{title:"Codeblock Languages!",type:"fixed",items:["Codeblock languages are back!"]}],main:"index.js",defaultConfig:[{type:"category",id:"toolbar",name:"Toolbar Buttons",collapsible:true,shown:false,settings:[{type:"switch",id:"bold",name:"Bold",value:true},{type:"switch",id:"italic",name:"Italic",value:true},{type:"switch",id:"underline",name:"Underline",value:true},{type:"switch",id:"strikethrough",name:"Strikethrough",value:true},{type:"switch",id:"spoiler",name:"Spoiler",value:true},{type:"switch",id:"code",name:"Code",value:true},{type:"switch",id:"codeblock",name:"Codeblock",value:true},{type:"switch",id:"superscript",name:"Superscript",value:true},{type:"switch",id:"smallcaps",name:"Smallcaps",value:true},{type:"switch",id:"fullwidth",name:"Full Width",value:true},{type:"switch",id:"upsidedown",name:"Upsidedown",value:true},{type:"switch",id:"varied",name:"Varied Caps",value:true},{type:"switch",id:"leet",name:"Leet (1337)",value:false},{type:"switch",id:"thicc",name:"Extra Thicc",value:false}]},{type:"category",id:"formats",name:"Active Formats",collapsible:true,shown:false,settings:[{type:"switch",id:"superscript",name:"Superscript",value:true},{type:"switch",id:"smallcaps",name:"Smallcaps",value:true},{type:"switch",id:"fullwidth",name:"Full Width",value:true},{type:"switch",id:"upsidedown",name:"Upsidedown",value:true},{type:"switch",id:"varied",name:"Varied Caps",value:true},{type:"switch",id:"leet",name:"Leet (1337)",value:false},{type:"switch",id:"thicc",name:"Extra Thicc",value:false}]},{type:"category",id:"wrappers",name:"Wrapper Options",collapsible:true,shown:false,settings:[{type:"textbox",id:"superscript",name:"Superscript",note:"The wrapper for superscripted text",value:"^^"},{type:"textbox",id:"smallcaps",name:"Smallcaps",note:"The wrapper to make Smallcaps.",value:"%%"},{type:"textbox",id:"fullwidth",name:"Full Width",note:"The wrapper for E X P A N D E D  T E X T.",value:"##"},{type:"textbox",id:"upsidedown",name:"Upsidedown",note:"The wrapper to flip the text upsidedown.",value:"&&"},{type:"textbox",id:"varied",name:"Varied Caps",note:"The wrapper to VaRy the capitalization.",value:"=="},{type:"textbox",id:"leet",name:"Leet (1337)",note:"The wrapper to talk in 13375p34k.",value:"++"},{type:"textbox",id:"thicc",name:"Extra Thicc",note:"The wrapper to get 乇乂下尺卂 下卄工匚匚.",value:"$$"}]},{type:"category",id:"formatting",name:"Formatting Options",collapsible:true,shown:false,settings:[{type:"dropdown",id:"fullWidthMap",name:"Fullwidth Style",note:"Which style of fullwidth formatting should be used.",value:true,options:[{label:"T H I S",value:false},{label:"ｔｈｉｓ",value:true}]},{type:"switch",id:"reorderUpsidedown",name:"Reorder Upsidedown Text",note:"Having this enabled reorders the upside down text to make it in-order.",value:true},{type:"switch",id:"fullwidth",name:"Start VaRiEd Caps With Capital",note:"Enabling this starts a varied text string with a capital.",value:true}]},{type:"category",id:"plugin",name:"Functional Options",collapsible:true,shown:false,settings:[{type:"dropdown",id:"hoverOpen",name:"Opening Toolbar",note:"Determines when to show the toolbar.",value:true,options:[{label:"Click",value:false},{label:"Hover",value:true}]},{type:"dropdown",id:"chainFormats",name:"Format Chaining",note:"Swaps priority of wrappers between inner first and outer first. Check the GitHub for more info.",value:true,options:[{label:"Inner",value:false},{label:"Outer",value:true}]},{type:"switch",id:"closeOnSend",name:"Close On Send",note:"This option will close the toolbar when a message is sent.",value:true}]},{type:"category",id:"style",name:"Style Options",collapsible:true,shown:false,settings:[{type:"dropdown",id:"icons",name:"Toolbar Style",note:"Switches between icons and text as the toolbar buttons.",value:true,options:[{label:"Text",value:false},{label:"Icons",value:true}]},{type:"dropdown",id:"rightSide",name:"Toolbar Location",note:"This option enables swapping toolbar location.",value:true,options:[{label:"Left",value:false},{label:"Right",value:true}]},{type:"slider",id:"toolbarOpacity",name:"Opacity",note:"This allows the toolbar to be partially seethrough.",value:1,min:0,max:1},{type:"slider",id:"fontSize",name:"Font Size",note:"Adjusts the font size between 0 and 100%.",value:85,min:0,max:100}]}]};
+    const config = {info:{name:"BetterFormattingRedux",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"2.3.11",description:"Enables different types of formatting in standard Discord chat.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js"},changelog:[{title:"Better Performance",type:"improved",items:["jQuery is no longer used!"]}],main:"index.js",defaultConfig:[{type:"category",id:"toolbar",name:"Toolbar Buttons",collapsible:true,shown:false,settings:[{type:"switch",id:"bold",name:"Bold",value:true},{type:"switch",id:"italic",name:"Italic",value:true},{type:"switch",id:"underline",name:"Underline",value:true},{type:"switch",id:"strikethrough",name:"Strikethrough",value:true},{type:"switch",id:"spoiler",name:"Spoiler",value:true},{type:"switch",id:"code",name:"Code",value:true},{type:"switch",id:"codeblock",name:"Codeblock",value:true},{type:"switch",id:"superscript",name:"Superscript",value:true},{type:"switch",id:"smallcaps",name:"Smallcaps",value:true},{type:"switch",id:"fullwidth",name:"Full Width",value:true},{type:"switch",id:"upsidedown",name:"Upsidedown",value:true},{type:"switch",id:"varied",name:"Varied Caps",value:true},{type:"switch",id:"leet",name:"Leet (1337)",value:false},{type:"switch",id:"thicc",name:"Extra Thicc",value:false}]},{type:"category",id:"formats",name:"Active Formats",collapsible:true,shown:false,settings:[{type:"switch",id:"superscript",name:"Superscript",value:true},{type:"switch",id:"smallcaps",name:"Smallcaps",value:true},{type:"switch",id:"fullwidth",name:"Full Width",value:true},{type:"switch",id:"upsidedown",name:"Upsidedown",value:true},{type:"switch",id:"varied",name:"Varied Caps",value:true},{type:"switch",id:"leet",name:"Leet (1337)",value:false},{type:"switch",id:"thicc",name:"Extra Thicc",value:false}]},{type:"category",id:"wrappers",name:"Wrapper Options",collapsible:true,shown:false,settings:[{type:"textbox",id:"superscript",name:"Superscript",note:"The wrapper for superscripted text",value:"^^"},{type:"textbox",id:"smallcaps",name:"Smallcaps",note:"The wrapper to make Smallcaps.",value:"%%"},{type:"textbox",id:"fullwidth",name:"Full Width",note:"The wrapper for E X P A N D E D  T E X T.",value:"##"},{type:"textbox",id:"upsidedown",name:"Upsidedown",note:"The wrapper to flip the text upsidedown.",value:"&&"},{type:"textbox",id:"varied",name:"Varied Caps",note:"The wrapper to VaRy the capitalization.",value:"=="},{type:"textbox",id:"leet",name:"Leet (1337)",note:"The wrapper to talk in 13375p34k.",value:"++"},{type:"textbox",id:"thicc",name:"Extra Thicc",note:"The wrapper to get 乇乂下尺卂 下卄工匚匚.",value:"$$"}]},{type:"category",id:"formatting",name:"Formatting Options",collapsible:true,shown:false,settings:[{type:"dropdown",id:"fullWidthMap",name:"Fullwidth Style",note:"Which style of fullwidth formatting should be used.",value:true,options:[{label:"T H I S",value:false},{label:"ｔｈｉｓ",value:true}]},{type:"switch",id:"reorderUpsidedown",name:"Reorder Upsidedown Text",note:"Having this enabled reorders the upside down text to make it in-order.",value:true},{type:"switch",id:"fullwidth",name:"Start VaRiEd Caps With Capital",note:"Enabling this starts a varied text string with a capital.",value:true}]},{type:"category",id:"plugin",name:"Functional Options",collapsible:true,shown:false,settings:[{type:"dropdown",id:"hoverOpen",name:"Opening Toolbar",note:"Determines when to show the toolbar.",value:true,options:[{label:"Click",value:false},{label:"Hover",value:true}]},{type:"dropdown",id:"chainFormats",name:"Format Chaining",note:"Swaps priority of wrappers between inner first and outer first. Check the GitHub for more info.",value:true,options:[{label:"Inner",value:false},{label:"Outer",value:true}]},{type:"switch",id:"closeOnSend",name:"Close On Send",note:"This option will close the toolbar when a message is sent.",value:true}]},{type:"category",id:"style",name:"Style Options",collapsible:true,shown:false,settings:[{type:"dropdown",id:"icons",name:"Toolbar Style",note:"Switches between icons and text as the toolbar buttons.",value:true,options:[{label:"Text",value:false},{label:"Icons",value:true}]},{type:"dropdown",id:"rightSide",name:"Toolbar Location",note:"This option enables swapping toolbar location.",value:true,options:[{label:"Left",value:false},{label:"Right",value:true}]},{type:"slider",id:"toolbarOpacity",name:"Opacity",note:"This allows the toolbar to be partially seethrough.",value:1,min:0,max:1},{type:"slider",id:"fontSize",name:"Font Size",note:"Adjusts the font size between 0 and 100%.",value:85,min:0,max:100}]}]};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -57,7 +57,7 @@ module.exports = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {DiscordSelectors, PluginUtilities, Tooltip, DiscordModules, Patcher, Utilities, DCM} = Api;
+    const {DiscordSelectors, PluginUtilities, Tooltip, DiscordModules, Patcher, Utilities, DCM, DOMTools} = Api;
 
     return class BetterFormattingRedux extends Plugin {
         constructor() {
@@ -378,8 +378,8 @@ module.exports = (() => {
 
         onStop() {
             Patcher.unpatchAll();
-            $("*").off("." + this.getName());
-            $(".bf-toolbar").remove();
+            // $("*").off("." + this.getName());
+            document.querySelector(".bf-toolbar")?.remove();
             PluginUtilities.removeScript("sortableScript");
             PluginUtilities.removeStyle(this.getName() + "-style");
         }
@@ -389,7 +389,7 @@ module.exports = (() => {
 
             const elem = e.addedNodes[0];
             const textarea = elem.matches(DiscordSelectors.Textarea.textArea) ? elem : elem.querySelector(DiscordSelectors.Textarea.textArea);
-            if (textarea) this.addToolbar($(textarea));
+            if (textarea) this.addToolbar(textarea);
         }
 
         updateStyle() {
@@ -399,21 +399,29 @@ module.exports = (() => {
         }
 
         updateSide() {
-            if (this.settings.style.rightSide) {$(".bf-toolbar").removeClass("bf-left");}
-            else {$(".bf-toolbar").addClass("bf-left");}
+            const toolbar = document.querySelector(".bf-toolbar");
+            if (!toolbar) return;
+            if (this.settings.style.rightSide) toolbar.classList.remove("bf-left");
+            else toolbar.classList.add("bf-left");
         }
 
         updateOpacity() {
-            $(".bf-toolbar").css("opacity", this.settings.style.toolbarOpacity);
+            const toolbar = document.querySelector(".bf-toolbar");
+            if (!toolbar) return;
+            toolbar.style.opacity = this.settings.style.toolbarOpacity;
         }
 
         updateFontSize() {
-            $(".bf-toolbar").css("font-size", this.settings.style.fontSize + "%");
+            const toolbar = document.querySelector(".bf-toolbar");
+            if (!toolbar) return;
+            toolbar.style.fontSize = this.settings.style.fontSize + "%";
         }
 
         openClose() {
             this.isOpen = !this.isOpen;
-            $(".bf-toolbar").toggleClass("bf-visible");
+            const toolbar = document.querySelector(".bf-toolbar");
+            if (!toolbar) return;
+            toolbar.classList.toggle("bf-visible");
         }
 
         escape(s) {
@@ -496,7 +504,7 @@ module.exports = (() => {
                     }
                 }
             }
-            if (this.settings.plugin.closeOnSend) $(".bf-toolbar").removeClass("bf-visible");
+            if (this.settings.plugin.closeOnSend) document.querySelector(".bf-toolbar")?.classList.remove("bf-visible");
             return text;
         }
 
@@ -538,50 +546,50 @@ module.exports = (() => {
         }
 
         buildToolbar() {
-            const toolbar = $(this.toolbarString);
+            const toolbar = DOMTools.createElement(this.toolbarString);
             if (typeof this.settings.toolbar.bold === "boolean") {
                 this.settings.toolbar = this.defaultSettings.toolbar;
                 this.saveSettings();
             }
             const sorted = Object.keys(this.settings.toolbar).sort((a,b) => {return this.buttonOrder.indexOf(a) - this.buttonOrder.indexOf(b);});
             for (let i = 0; i < sorted.length; i++) {
-                const button = $("<div>");
-                button.addClass("format");
+                const button = DOMTools.createElement("<div class='format'>");
                 if (!this.toolbarData[sorted[i]]) continue;
-                button.addClass(this.toolbarData[sorted[i]].type);
+                button.classList.add(this.toolbarData[sorted[i]].type);
                 Tooltip.create(button, this.toolbarData[sorted[i]].name);
-                if (!this.settings.toolbar[sorted[i]]) button.addClass("disabled");
+                if (!this.settings.toolbar[sorted[i]]) button.classList.add("disabled");
                 if (sorted[i] === "codeblock") {
                     const contextMenu = this.getContextMenu();
-                    button.on("contextmenu", (e) => {
+                    button.addEventListener("contextmenu", (e) => {
                         DCM.openContextMenu(e, contextMenu, {align: "bottom"});
                     });
                 }
-                button.attr("data-name", sorted[i]);
-                if (this.settings.style.icons) button.html(this.toolbarData[sorted[i]].icon);
-                else button.html(this.toolbarData[sorted[i]].displayName);
+                button.dataset.name = sorted[i];
+                if (this.settings.style.icons) button.innerHTML = this.toolbarData[sorted[i]].icon;
+                else button.innerHTML = this.toolbarData[sorted[i]].displayName;
                 toolbar.append(button);
             }
-            window.Sortable.create(toolbar[0], {
+            window.Sortable.create(toolbar, {
                 draggable: ".format", // css-selector of elements, which can be sorted
                 ghostClass: "ghost",
                 onUpdate: () => {
-                    const buttons = toolbar.children(".format");
+                    const buttons = toolbar.querySelectorAll(".format");
                     for (let i = 0; i < buttons.length; i++) {
-                        this.buttonOrder[i] = $(buttons[i]).data("name");
+                        this.buttonOrder[i] = buttons[i].dataset.name;
                     }
                     PluginUtilities.saveData(this.getName(), "buttonOrder", this.buttonOrder);
                 }
             });
             if (!this.settings.style.icons) {
-                toolbar.on("mousemove." + this.getName(), (e) => {
-                    const $this = $(e.currentTarget);
-                    const pos = e.pageX - $this.parent().offset().left;
-                    let diff = -$this.width();
-                    $this.children().each((index, elem) => {
-                        diff += $(elem).outerWidth();
+                toolbar.addEventListener("mousemove", (e) => {
+                    const target = e.currentTarget;
+                    const pos = e.pageX - target.parentElement.getBoundingClientRect().left;
+                    const width = parseInt(getComputedStyle(target).width);
+                    let diff = -1 * width;
+                    target.children.forEach(elem => {
+                        diff += elem.offsetWidth;
                     });
-                    $this.scrollLeft(pos / $this.width() * diff);
+                    target.scrollLeft = (pos / width * diff);
                 });
             }
 
@@ -589,34 +597,52 @@ module.exports = (() => {
         }
 
         setupToolbar() {
-            $(".bf-toolbar").remove();
-            $(`${DiscordSelectors.Textarea.textArea}`).each((index, elem) => {
-                this.addToolbar($(elem.children[0]));
+            document.querySelector(".bf-toolbar")?.remove();
+            document.querySelectorAll(`${DiscordSelectors.Textarea.textArea}`).forEach(elem => {
+                this.addToolbar(elem.children[0]);
             });
         }
 
         addToolbar(textarea) {
             const toolbarElement = this.buildToolbar();
-            if (this.settings.plugin.hoverOpen == true) toolbarElement.addClass("bf-hover");
-            if (this.isOpen) toolbarElement.addClass("bf-visible");
+            if (this.settings.plugin.hoverOpen == true) toolbarElement.classList.add("bf-hover");
+            if (this.isOpen) toolbarElement.classList.add("bf-visible");
 
-            textarea.parent().parent().after(toolbarElement)
-                .siblings(".bf-toolbar")
-                .off("click." + this.getName())
-                .on("click." + this.getName(), "div", e => {
+            const inner = textarea.parentElement.parentElement;
+            inner.parentElement.insertBefore(toolbarElement, inner.nextSibling);
+
+            toolbarElement.addEventListener("click", e => {
                     e.preventDefault();
                     e.stopPropagation();
-                    const button = $(e.currentTarget);
-                    if (button.hasClass("bf-arrow")) {
+                    const button = e.target.closest("div");
+                    if (button.classList.contains("bf-arrow")) {
                         if (!this.settings.plugin.hoverOpen) this.openClose();
                     }
-                    else {
+                    else if (button.classList.contains("format")) {
                         let wrapper = "";
-                        if (button.hasClass("native-format")) wrapper = this.discordWrappers[button.data("name")];
-                        else wrapper = this.settings.wrappers[button.data("name")];
+                        if (button.classList.contains("native-format")) wrapper = this.discordWrappers[button.dataset.name];
+                        else wrapper = this.settings.wrappers[button.dataset.name];
                         this.wrapSelection(wrapper);
                     }
                 });
+
+            // textarea.parent().parent().after(toolbarElement)
+            //     .siblings(".bf-toolbar")
+            //     .off("click." + this.getName())
+            //     .on("click." + this.getName(), "div", e => {
+            //         e.preventDefault();
+            //         e.stopPropagation();
+            //         const button = e.currentTarget;
+            //         if (button.classList.contains("bf-arrow")) {
+            //             if (!this.settings.plugin.hoverOpen) this.openClose();
+            //         }
+            //         else {
+            //             let wrapper = "";
+            //             if (button.classList.contains("native-format")) wrapper = this.discordWrappers[button.data("name")];
+            //             else wrapper = this.settings.wrappers[button.data("name")];
+            //             this.wrapSelection(wrapper);
+            //         }
+            //     });
             this.updateStyle();
         }
 
@@ -630,8 +656,14 @@ module.exports = (() => {
 
             if (group == "toolbar") this.setupToolbar();
             if (group == "plugin" && id == "hoverOpen") {
-                if (value) $(".bf-toolbar").removeClass("bf-visible").addClass("bf-hover");
-                else $(".bf-toolbar").removeClass("bf-hover");
+                const toolbar = document.querySelector(".bf-toolbar");
+                if (value) {
+                    toolbar?.classList.remove("bf-visible");
+                    toolbar?.classList.add("bf-hover");
+                }
+                else {
+                    toolbar?.classList.remove("bf-hover");
+                }
             }
 
             if (group == "style") {

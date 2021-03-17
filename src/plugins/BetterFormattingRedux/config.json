@@ -7,13 +7,13 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "2.3.10",
+        "version": "2.3.11",
         "description": "Enables different types of formatting in standard Discord chat.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js"
     },
     "changelog": [
-        {"title": "Codeblock Languages!", "type":"fixed", "items": ["Codeblock languages are back!"]}
+        {"title": "Better Performance", "type":"improved", "items": ["jQuery is no longer used!"]}
     ],
     "main": "index.js",
     "defaultConfig": [

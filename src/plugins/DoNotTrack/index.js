@@ -11,14 +11,14 @@ module.exports = (Plugin, Api) => {
             const Logger = window.__SENTRY__.logger;
             Logger.disable(); // Kill sentry logs
 
-            const SentryHub =  window.DiscordSentry.getCurrentHub();
+            const SentryHub = window.DiscordSentry.getCurrentHub();
             SentryHub.getClient().close(0); // Kill reporting
             SentryHub.getStackTop().scope.clear(); // Delete PII
 
             /* eslint-disable no-console */
             for (const method in console) {
                 if (!console[method].__sentry_original__) continue;
-                console[method] =  console[method].__sentry_original__;
+                console[method] = console[method].__sentry_original__;
             }            
 
             if (this.settings.stopProcessMonitor) this.disableProcessMonitor();

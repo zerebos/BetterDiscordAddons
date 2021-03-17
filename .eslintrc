@@ -2,11 +2,10 @@
     "extends": ["eslint:recommended"],
 	"env": {
         "browser": true,
-        "node": true,
-        "jquery": true
+        "node": true
     },
     "parserOptions": {
-        "ecmaVersion": 2017,
+        "ecmaVersion": 2020,
         "sourceType": "module"
     },
     "rules": {
