@@ -155,7 +155,7 @@ module.exports = (Plugin, Api) => {
             const [VoiceChannelContextMenu] = WebpackModules.getModules(m => m.default && m.default.displayName == "ChannelListVoiceChannelContextMenu");
             const [, CategoryChannelContextMenu, TextChannelContextMenu] = WebpackModules.getModules(m => m.default && m.default.displayName == "ChannelListTextChannelContextMenu");
             const patch = (_, [props], retVal) => {
-                const original = retVal.props.children[0].props.children;
+                const original = retVal.props.children[1].props.children;
                 const newOne = DCM.buildMenuItem({
                     label: this.strings.contextMenuLabel,
                     action: () => {
@@ -165,7 +165,7 @@ module.exports = (Plugin, Api) => {
                     }
                 });
                 if (Array.isArray(original)) original.splice(1, 0, newOne);
-                else retVal.props.children[0].props.children = [original, newOne];
+                else retVal.props.children[1].props.children = [original, newOne];
             };
             this.contextMenuPatches.push(Patcher.after(CategoryChannelContextMenu, "default", patch));
             this.contextMenuPatches.push(Patcher.after(TextChannelContextMenu, "default", patch));
