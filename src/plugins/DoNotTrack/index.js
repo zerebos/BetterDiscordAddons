@@ -1,11 +1,23 @@
 module.exports = (Plugin, Api) => {
-    const {Patcher, WebpackModules, Modals, DiscordModules} = Api;
+    const { Patcher, WebpackModules, Modals, DiscordModules } = Api;
     const electron = require("electron");
     return class DoNotTrack extends Plugin {
         onStart() {
+            this.cancelTracking();
+        }
+
+        onSwitch() {
+            this.cancelTracking();
+        }
+
+        onStop() {
+            Patcher.unpatchAll();
+        }
+
+        cancelTracking(){
             const Analytics = WebpackModules.getByProps("AnalyticEventConfigs");
-            Patcher.instead(Analytics.default, "track", () => {});
-    
+            Patcher.instead(Analytics.default, "track", () => { });
+
             electron.remote.getCurrentWebContents().removeAllListeners("devtools-opened"); // Remove dumb console warning
 
             const Logger = window.__SENTRY__.logger;
@@ -19,24 +31,20 @@ module.exports = (Plugin, Api) => {
             for (const method in console) {
                 if (!console[method].__sentry_original__) continue;
                 console[method] = console[method].__sentry_original__;
-            }            
+            }
 
             if (this.settings.stopProcessMonitor) this.disableProcessMonitor();
         }
-        
-        onStop() {
-            Patcher.unpatchAll();
-        }
 
         disableProcessMonitor() {
-            DiscordModules.UserSettingsUpdater.updateLocalSettings({showCurrentGame: false});
+            DiscordModules.UserSettingsUpdater.updateLocalSettings({ showCurrentGame: false });
             const NativeModule = WebpackModules.getByProps("getDiscordUtils");
             const DiscordUtils = NativeModule.getDiscordUtils();
-            DiscordUtils.setObservedGamesCallback([], () => {});
+            DiscordUtils.setObservedGamesCallback([], () => { });
         }
 
         enableProcessMonitor() {
-            DiscordModules.UserSettingsUpdater.updateLocalSettings({showCurrentGame: true});
+            DiscordModules.UserSettingsUpdater.updateLocalSettings({ showCurrentGame: true });
             Modals.showConfirmationModal("Reload Discord?", "To reenable the process monitor Discord needs to be reloaded.", {
                 confirmText: "Reload",
                 cancelText: "Later",
