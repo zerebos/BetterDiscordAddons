@@ -129,14 +129,14 @@ module.exports = (() => {
 	padding-right: 0px;
 	max-height: 400px;
 }`;
-            this.guildHtml = `<div class="listItem-2P_4kh" id="server-search">
-        <div class="pill-31IEus wrapper-sa6paO">
+            this.guildHtml = `<div class="listItem-GuPuDH" id="server-search">
+        <div class="pill-1z4sAY wrapper-sa6paO">
             <span class="item-2hkk8m" style="opacity: 0; height: 8px; transform: translate3d(-4px, 0px, 0px);"></span>
         </div>
-        <div tabindex="0" class="circleButtonMask-2VNJsN wrapper-25eVIn" role="button" style="border-radius: 25px; background-color: rgb(47, 49, 54);">
+        <div tabindex="0" class="circleButtonMask-1_597P wrapper-25eVIn" role="button" style="border-radius: 25px; background-color: rgb(47, 49, 54);">
             <svg width="48" height="48" viewBox="0 0 48 48" class="svg-1X37T1 da-svg">
                 <foreignObject mask="url(#782e4422-824c-4b8f-bbe5-18c62c59a77f)" x="0" y="0" width="48" height="48">
-                    <div tabindex="0" class="circleIconButton-jET_ig" role="button" style="background: none;">
+                    <div tabindex="0" class="circleIconButton-1QV--U" role="button" style="background: none;">
                         <svg name="Search" width="24" height="24" viewBox="0 0 18 18">
                             <g fill="none" fill-rule="evenodd">
                                 <path fill="white" d="M3.60091481,7.20297313 C3.60091481,5.20983419 5.20983419,3.60091481 7.20297313,3.60091481 C9.19611206,3.60091481 10.8050314,5.20983419 10.8050314,7.20297313 C10.8050314,9.19611206 9.19611206,10.8050314 7.20297313,10.8050314 C5.20983419,10.8050314 3.60091481,9.19611206 3.60091481,7.20297313 Z M12.0057176,10.8050314 L11.3733562,10.8050314 L11.1492281,10.5889079 C11.9336764,9.67638651 12.4059463,8.49170955 12.4059463,7.20297313 C12.4059463,4.32933105 10.0766152,2 7.20297313,2 C4.32933105,2 2,4.32933105 2,7.20297313 C2,10.0766152 4.32933105,12.4059463 7.20297313,12.4059463 C8.49170955,12.4059463 9.67638651,11.9336764 10.5889079,11.1492281 L10.8050314,11.3733562 L10.8050314,12.0057176 L14.8073185,16 L16,14.8073185 L12.2102538,11.0099776 L12.0057176,10.8050314 Z"></path>
@@ -147,7 +147,7 @@ module.exports = (() => {
             </svg>
         </div>
     </div>`;
-            this.separatorHtml = `<div class="listItem-2P_4kh"><div class="guildSeparator-3s64Iy server-search-separator"></div></div>`;
+            this.separatorHtml = `<div class="listItem-GuPuDH"><div class="guildSeparator-33mFX6 server-search-separator"></div></div>`;
             this.largePopoutHtml = `<div class="{{className}} popout-server-search" style="margin-top: 0;">
     <div class="popoutList-T9CKZQ guildSettingsAuditLogsUserFilterPopout-3Jg5NE elevationBorderHigh-2WYJ09 role-members-popout">
         <div class="popoutListInput-1l9TUI size14-3iUx6q container-cMG81i small-2oHLgT">
@@ -194,7 +194,7 @@ module.exports = (() => {
         addSearchButton() {
             const guildElement = DOMTools.createElement(this.guildHtml);
             const guildElementInner = guildElement.querySelector(".wrapper-25eVIn");
-            const separator = document.querySelector(".listItem-2P_4kh .guildSeparator-3s64Iy");
+            const separator = document.querySelector(".listItem-GuPuDH .guildSeparator-33mFX6");
             separator.parentElement.parentElement.insertBefore(DOMTools.createElement(this.separatorHtml), separator.parentElement);
             separator.parentElement.parentElement.insertBefore(guildElement, separator.parentElement);
     
