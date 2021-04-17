@@ -179,7 +179,7 @@ module.exports = (Plugin, Api) => {
                 const guildId = SelectedGuildStore.getGuildId();
                 const guild = GuildStore.getGuild(guildId);
                 if (!guild) return;
-                const original = retVal.props.children.props.children[0].props.children[0];
+                const original = retVal.props.children.props.children[1].props.children;
                 const newOne = DCM.buildMenuItem({
                     label: this.strings.contextMenuLabel,
                     action: () => {
@@ -189,7 +189,7 @@ module.exports = (Plugin, Api) => {
                     }
                 });
                 if (Array.isArray(original)) original.splice(1, 0, newOne);
-                else retVal.props.children.props.children[0].props.children[0] = [original, newOne];
+                else retVal.props.children.props.children[1].props.children = [original, newOne];
             }));
         }
 
@@ -245,15 +245,17 @@ module.exports = (Plugin, Api) => {
                 item.addEventListener("click", () => {
                     modal.querySelectorAll(".role-item.selected").forEach(e => e.removeClass("selected"));
                     item.classList.add("selected");
-                    const allowed = isOverride ? displayRoles[role].allow : referenceRoles[role].permissions;
+                    let allowed = isOverride ? displayRoles[role].allow : referenceRoles[role].permissions;
                     const denied = isOverride ? displayRoles[role].deny : null;
+
+                    if (!allowed.data) allowed = {data: BigInt(allowed)};
 
                     const permList = modal.querySelector(".perm-scroller");
                     permList.innerHTML = "";
                     for (const perm in DiscordPerms) {
                         const element = DOMTools.createElement(this.modalItem);
-                        const permAllowed = (allowed & DiscordPerms[perm]) == DiscordPerms[perm];
-                        const permDenied = isOverride ? (denied & DiscordPerms[perm]) == DiscordPerms[perm] : !permAllowed;
+                        const permAllowed = (allowed.data & DiscordPerms[perm].data) == DiscordPerms[perm].data;
+                        const permDenied = isOverride ? (denied.data & DiscordPerms[perm].data) == DiscordPerms[perm].data : !permAllowed;
                         if (!permAllowed && !permDenied) continue;
                         if (permAllowed) {
                             element.classList.add("allowed");

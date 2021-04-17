@@ -7,7 +7,7 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.1.14",
+        "version": "0.1.13",
         "description": "Allows you to see the members of each role on a server.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"

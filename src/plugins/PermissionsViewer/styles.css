@@ -64,6 +64,10 @@
     to { transform: scale(0.7); opacity: 0; }
 }
 
+#permissions-modal-wrapper {
+    z-index: 100;
+}
+
 #permissions-modal-wrapper .callout-backdrop {
     animation: permissions-backdrop 250ms ease;
     animation-fill-mode: forwards;

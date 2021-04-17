@@ -1,12 +1,9 @@
 module.exports = (Plugin, Api) => {
     const {Patcher, WebpackModules, Modals, DiscordModules} = Api;
-    const electron = require("electron");
     return class DoNotTrack extends Plugin {
         onStart() {
             const Analytics = WebpackModules.getByProps("AnalyticEventConfigs");
             Patcher.instead(Analytics.default, "track", () => {});
-    
-            electron.remote.getCurrentWebContents().removeAllListeners("devtools-opened"); // Remove dumb console warning
 
             const Logger = window.__SENTRY__.logger;
             Logger.disable(); // Kill sentry logs

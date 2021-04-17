@@ -1,6 +1,6 @@
 /**
  * @name ServerSearch
- * @version 0.1.4
+ * @version 0.1.5
  * @authorLink https://twitter.com/IAmZerebos
  * @donate https://paypal.me/ZackRauen
  * @patreon https://patreon.com/Zerebos
@@ -10,30 +10,30 @@
  */
 /*@cc_on
 @if (@_jscript)
-	
-	// Offer to self-install for clueless users that try to run this directly.
-	var shell = WScript.CreateObject("WScript.Shell");
-	var fs = new ActiveXObject("Scripting.FileSystemObject");
-	var pathPlugins = shell.ExpandEnvironmentStrings("%APPDATA%\BetterDiscord\plugins");
-	var pathSelf = WScript.ScriptFullName;
-	// Put the user at ease by addressing them in the first person
-	shell.Popup("It looks like you've mistakenly tried to run me directly. \n(Don't do that!)", 0, "I'm a plugin for BetterDiscord", 0x30);
-	if (fs.GetParentFolderName(pathSelf) === fs.GetAbsolutePathName(pathPlugins)) {
-		shell.Popup("I'm in the correct folder already.", 0, "I'm already installed", 0x40);
-	} else if (!fs.FolderExists(pathPlugins)) {
-		shell.Popup("I can't find the BetterDiscord plugins folder.\nAre you sure it's even installed?", 0, "Can't install myself", 0x10);
-	} else if (shell.Popup("Should I copy myself to BetterDiscord's plugins folder for you?", 0, "Do you need some help?", 0x34) === 6) {
-		fs.CopyFile(pathSelf, fs.BuildPath(pathPlugins, fs.GetFileName(pathSelf)), true);
-		// Show the user where to put plugins in the future
-		shell.Exec("explorer " + pathPlugins);
-		shell.Popup("I'm installed!", 0, "Successfully installed", 0x40);
-	}
-	WScript.Quit();
+    
+    // Offer to self-install for clueless users that try to run this directly.
+    var shell = WScript.CreateObject("WScript.Shell");
+    var fs = new ActiveXObject("Scripting.FileSystemObject");
+    var pathPlugins = shell.ExpandEnvironmentStrings("%APPDATA%\\BetterDiscord\\plugins");
+    var pathSelf = WScript.ScriptFullName;
+    // Put the user at ease by addressing them in the first person
+    shell.Popup("It looks like you've mistakenly tried to run me directly. \n(Don't do that!)", 0, "I'm a plugin for BetterDiscord", 0x30);
+    if (fs.GetParentFolderName(pathSelf) === fs.GetAbsolutePathName(pathPlugins)) {
+        shell.Popup("I'm in the correct folder already.", 0, "I'm already installed", 0x40);
+    } else if (!fs.FolderExists(pathPlugins)) {
+        shell.Popup("I can't find the BetterDiscord plugins folder.\nAre you sure it's even installed?", 0, "Can't install myself", 0x10);
+    } else if (shell.Popup("Should I copy myself to BetterDiscord's plugins folder for you?", 0, "Do you need some help?", 0x34) === 6) {
+        fs.CopyFile(pathSelf, fs.BuildPath(pathPlugins, fs.GetFileName(pathSelf)), true);
+        // Show the user where to put plugins in the future
+        shell.Exec("explorer " + pathPlugins);
+        shell.Popup("I'm installed!", 0, "Successfully installed", 0x40);
+    }
+    WScript.Quit();
 
 @else@*/
 
 module.exports = (() => {
-    const config = {info:{name:"ServerSearch",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.4",description:"Adds a button to search your servers. Search in place or in popout.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSearch/ServerSearch.plugin.js"},changelog:[{title:"Bugs Squashed",type:"fixed",items:["Fixes the off-center issue"]}],main:"index.js"};
+    const config = {info:{name:"ServerSearch",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.5",description:"Adds a button to search your servers. Search in place or in popout.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSearch/ServerSearch.plugin.js"},changelog:[{title:"Bugs Squashed",type:"fixed",items:["Fixes the popout for long lists"]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -57,7 +57,7 @@ module.exports = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {DiscordSelectors, PluginUtilities, ColorConverter, WebpackModules, DiscordModules, DOMTools, EmulatedTooltip, Utilities, DiscordClasses} = Api;
+    const {DiscordSelectors, PluginUtilities, ColorConverter, WebpackModules, DiscordModules, DOMTools, Tooltip, Utilities, DiscordClasses} = Api;
 
     const SortedGuildStore = DiscordModules.SortedGuildStore;
     const ImageResolver = DiscordModules.ImageResolver;
@@ -67,7 +67,7 @@ module.exports = (() => {
     const PrivateChannelActions = DiscordModules.PrivateChannelActions;
     const Animations = WebpackModules.getByProps("spring");
 
-    const animateDOM = DOMTools.animate ? DOMTools.animate.bind(DOMTools) :  ({timing = _ => _, update, duration}) => {
+    const animateDOM = DOMTools.animate ? DOMTools.animate.bind(DOMTools) : ({timing = _ => _, update, duration}) => {
         // https://javascript.info/js-animation
         const start = performance.now();
 
@@ -129,14 +129,14 @@ module.exports = (() => {
 	padding-right: 0px;
 	max-height: 400px;
 }`;
-            this.guildHtml = `<div class="listItem-2P_4kh" id="server-search">
-        <div class="pill-31IEus wrapper-sa6paO">
-            <span class="item-2hkk8m" style="opacity: 0; height: 8px; transform: translate3d(-4px, 0px, 0px);"></span>
+            this.guildHtml = `<div class="listItem-GuPuDH" id="server-search">
+        <div class="pill-1aYSec">
+            <div class="wrapper-sa6paO" style="opacity: 0; height: 8px; transform: translate3d(-4px, 0px, 0px);"></div>
         </div>
-        <div tabindex="0" class="circleButtonMask-2VNJsN wrapper-25eVIn" role="button" style="border-radius: 25px; background-color: rgb(47, 49, 54);">
+        <div tabindex="0" class="circleButtonMask-1_597P wrapper-25eVIn" role="button" style="border-radius: 25px; background-color: rgb(47, 49, 54);">
             <svg width="48" height="48" viewBox="0 0 48 48" class="svg-1X37T1 da-svg">
                 <foreignObject mask="url(#782e4422-824c-4b8f-bbe5-18c62c59a77f)" x="0" y="0" width="48" height="48">
-                    <div tabindex="0" class="circleIconButton-jET_ig" role="button" style="background: none;">
+                    <div tabindex="0" class="circleIconButton-1QV--U" role="button" style="background: none;">
                         <svg name="Search" width="24" height="24" viewBox="0 0 18 18">
                             <g fill="none" fill-rule="evenodd">
                                 <path fill="white" d="M3.60091481,7.20297313 C3.60091481,5.20983419 5.20983419,3.60091481 7.20297313,3.60091481 C9.19611206,3.60091481 10.8050314,5.20983419 10.8050314,7.20297313 C10.8050314,9.19611206 9.19611206,10.8050314 7.20297313,10.8050314 C5.20983419,10.8050314 3.60091481,9.19611206 3.60091481,7.20297313 Z M12.0057176,10.8050314 L11.3733562,10.8050314 L11.1492281,10.5889079 C11.9336764,9.67638651 12.4059463,8.49170955 12.4059463,7.20297313 C12.4059463,4.32933105 10.0766152,2 7.20297313,2 C4.32933105,2 2,4.32933105 2,7.20297313 C2,10.0766152 4.32933105,12.4059463 7.20297313,12.4059463 C8.49170955,12.4059463 9.67638651,11.9336764 10.5889079,11.1492281 L10.8050314,11.3733562 L10.8050314,12.0057176 L14.8073185,16 L16,14.8073185 L12.2102538,11.0099776 L12.0057176,10.8050314 Z"></path>
@@ -194,7 +194,7 @@ module.exports = (() => {
         addSearchButton() {
             const guildElement = DOMTools.createElement(this.guildHtml);
             const guildElementInner = guildElement.querySelector(".wrapper-25eVIn");
-            const separator = document.querySelector(".listItem-2P_4kh .guildSeparator-3s64Iy");
+            const separator = document.querySelector(".listItem-GuPuDH .guildSeparator-33mFX6");
             separator.parentElement.parentElement.insertBefore(DOMTools.createElement(this.separatorHtml), separator.parentElement);
             separator.parentElement.parentElement.insertBefore(guildElement, separator.parentElement);
     
@@ -224,7 +224,7 @@ module.exports = (() => {
     
             borderRadius.addListener((value) => {
                 // (end - start) * value + start
-                guildElementInner.style.borderRadius =  ((15 - 25) * value.value + 25) + "px";
+                guildElementInner.style.borderRadius = ((15 - 25) * value.value + 25) + "px";
             });
     
             const animate = (v) => {
@@ -240,7 +240,7 @@ module.exports = (() => {
                 if (!guildElement.classList.contains("selected")) animate(0);
             });
     
-            new EmulatedTooltip(guildElement, "Server Search", {side: "right"});
+            Tooltip.create(guildElement, "Server Search", {side: "right"});
     
             guildElement.addEventListener("click", (e) => {
                 if (guildElement.classList.contains("selected")) return;

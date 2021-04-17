@@ -11,6 +11,7 @@ module.exports = (Plugin, Api) => {
         constructor() {
             super();
             this.styleTemplate = `
+            {{blurOnFocus}}
             img.blur:hover,
             video.blur:hover {
                 transition: {{time}}ms cubic-bezier(.2, .11, 0, 1) !important;
@@ -57,7 +58,11 @@ module.exports = (Plugin, Api) => {
         }
 
         addStyle() {
-            const styleString = Utilities.formatString(this.styleTemplate, {size: Math.round(this.settings.blurSize), time: Math.round(this.settings.blurTime)});
+            const styleString = Utilities.formatString(this.styleTemplate, {
+                size: Math.round(this.settings.blurSize),
+                time: Math.round(this.settings.blurTime),
+                blurOnFocus: this.settings.blurOnFocus ? "" : ".layer-2KE1M9 img.blur,"
+            });
             PluginUtilities.addStyle(this.getName(), styleString);
         }
 

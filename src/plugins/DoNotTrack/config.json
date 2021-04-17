@@ -7,14 +7,13 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.0.6",
+        "version": "0.0.7",
         "description": "Stops Discord from tracking everything you do like Sentry and Analytics.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/DoNotTrack",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/DoNotTrack/DoNotTrack.plugin.js"
     },
     "changelog": [
-        {"title":"What's New?","items":["Clear identifying information from Sentry cache to prevent manually sending by Discord.","Kill devtools warning and manip.","Updated to match Sentry changes."]},
-        {"title":"Fixes","type:":"fixed","items":["Fixed the plugin not loading.","Should clear game status."]}
+        {"title":"Fixes","type:":"fixed","items":["Fixed for Discord/BetterDiscord changes"]}
     ],
     "main": "index.js",
     "defaultConfig": [

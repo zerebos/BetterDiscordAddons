@@ -1,5 +1,5 @@
 module.exports = (Plugin, Api) => {
-    const {DiscordSelectors, PluginUtilities, ColorConverter, WebpackModules, DiscordModules, DOMTools, EmulatedTooltip, Utilities, DiscordClasses} = Api;
+    const {DiscordSelectors, PluginUtilities, ColorConverter, WebpackModules, DiscordModules, DOMTools, Tooltip, Utilities, DiscordClasses} = Api;
 
     const SortedGuildStore = DiscordModules.SortedGuildStore;
     const ImageResolver = DiscordModules.ImageResolver;
@@ -9,7 +9,7 @@ module.exports = (Plugin, Api) => {
     const PrivateChannelActions = DiscordModules.PrivateChannelActions;
     const Animations = WebpackModules.getByProps("spring");
 
-    const animateDOM = DOMTools.animate ? DOMTools.animate.bind(DOMTools) :  ({timing = _ => _, update, duration}) => {
+    const animateDOM = DOMTools.animate ? DOMTools.animate.bind(DOMTools) : ({timing = _ => _, update, duration}) => {
         // https://javascript.info/js-animation
         const start = performance.now();
 
@@ -41,8 +41,9 @@ module.exports = (Plugin, Api) => {
             this.popoutItemHtml = require("popout_item.html");
         }
 
-        onStart() {
+        async onStart() {
             PluginUtilities.addStyle(this.getName(), this.css);
+            await new Promise(resolve => setTimeout(resolve, 1000));
             this.addSearchButton();
         }
         
@@ -57,7 +58,7 @@ module.exports = (Plugin, Api) => {
         addSearchButton() {
             const guildElement = DOMTools.createElement(this.guildHtml);
             const guildElementInner = guildElement.querySelector(".wrapper-25eVIn");
-            const separator = document.querySelector(".listItem-2P_4kh .guildSeparator-3s64Iy");
+            const separator = document.querySelector(".listItem-GuPuDH .guildSeparator-33mFX6");
             separator.parentElement.parentElement.insertBefore(DOMTools.createElement(this.separatorHtml), separator.parentElement);
             separator.parentElement.parentElement.insertBefore(guildElement, separator.parentElement);
     
@@ -87,7 +88,7 @@ module.exports = (Plugin, Api) => {
     
             borderRadius.addListener((value) => {
                 // (end - start) * value + start
-                guildElementInner.style.borderRadius =  ((15 - 25) * value.value + 25) + "px";
+                guildElementInner.style.borderRadius = ((15 - 25) * value.value + 25) + "px";
             });
     
             const animate = (v) => {
@@ -103,7 +104,7 @@ module.exports = (Plugin, Api) => {
                 if (!guildElement.classList.contains("selected")) animate(0);
             });
     
-            new EmulatedTooltip(guildElement, "Server Search", {side: "right"});
+            Tooltip.create(guildElement, "Server Search", {side: "right"});
     
             guildElement.addEventListener("click", (e) => {
                 if (guildElement.classList.contains("selected")) return;

@@ -83,6 +83,7 @@
         "yoda": "error"
     },
     "globals": {
+        "BigInt": "readonly",
         "webpackJsonp": "readonly",
         "Proxy": "readonly",
         "Set": "readonly",

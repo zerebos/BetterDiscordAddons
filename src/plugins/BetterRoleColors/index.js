@@ -1,6 +1,6 @@
 
 module.exports = (Plugin, Api) => {
-    const {DiscordSelectors, WebpackModules, DiscordModules, Patcher, ColorConverter, ReactComponents, Utilities, ReactTools, PluginUtilities, Logger} = Api;
+    const {DiscordSelectors, WebpackModules, DiscordModules, Patcher, ColorConverter, ReactComponents, Utilities, ReactTools, Logger} = Api;
 
     const GuildMemberStore = DiscordModules.GuildMemberStore;
     const SelectedGuildStore = DiscordModules.SelectedGuildStore;
@@ -10,8 +10,8 @@ module.exports = (Plugin, Api) => {
     const VoiceUser = WebpackModules.getByDisplayName("VoiceUser");
     const RichTextareaComponents = WebpackModules.getByProps("UserMention");
 
-    const ColoredDiscordTag = (DiscordTag) => function(props) {
-        const returnValue = DiscordTag(props);
+    const makeColoredDiscordTag = (makeParent) => function(props) {
+        const returnValue = makeParent(props);
         const username = returnValue.props.children[0];
         const discriminator = returnValue.props.children[1];
         if (username) username.props.className = "username " + username.props.className;
@@ -35,10 +35,10 @@ module.exports = (Plugin, Api) => {
         return returnValue;
     };
 
-    const FluxTag = WebpackModules.getByDisplayName("DiscordTag");
+    const makeFluxTag = WebpackModules.getByDisplayName("DiscordTag");
     const ColoredFluxTag = function(props) {
-        const returnValue = FluxTag(props);
-        returnValue.type = ColoredDiscordTag(returnValue.type);
+        const returnValue = makeFluxTag(props);
+        returnValue.type = makeColoredDiscordTag(returnValue.type);
         return returnValue;
     };
 
@@ -60,6 +60,10 @@ module.exports = (Plugin, Api) => {
         onStop() {
             Patcher.unpatchAll();
             this.promises.cancel();
+            if (this.unpatchAccountDetails) {
+                this.unpatchAccountDetails();
+                delete this.unpatchAccountDetails;
+            }
         }
 
         getSettingsPanel() {
@@ -81,7 +85,7 @@ module.exports = (Plugin, Api) => {
             const usernameSelector = `${containerSelector} .${rawClasses.usernameContainer.split(" ").join(".")} > div`;
             const discrimSelector = `${containerSelector} .${rawClasses.usernameContainer.split(" ").join(".")} + div`;
 
-            const colorizeAccountDetails = () => {
+            const colorizeAccountDetails = (reset = false) => {
                 let username = document.querySelector(usernameSelector);
                 if (!username) username = document.querySelector(usernameSelector.replace(" > div", ""));
                 const discrim = document.querySelector(discrimSelector);
@@ -89,12 +93,17 @@ module.exports = (Plugin, Api) => {
                 let member = this.getMember(UserStore.getCurrentUser().id, SelectedGuildStore.getGuildId());
                 if (!member || !member.colorString) member = {colorString: ""};
                 const doImportant = this.settings.global.important ? "important" : undefined;
-                username.style.setProperty("color", this.settings.account.username ? member.colorString : "", doImportant);
-                discrim.style.setProperty("color", this.settings.account.discriminator ? member.colorString : "", doImportant);
+
+                username.style.setProperty("color", this.settings.account.username && !reset ? member.colorString : "", doImportant);
+                discrim.style.setProperty("color", this.settings.account.discriminator && !reset ? member.colorString : "", doImportant);
             };
-            PluginUtilities.addOnSwitchListener(colorizeAccountDetails);
+
+            this.onSwitch = colorizeAccountDetails;
             colorizeAccountDetails();
-            return () => {PluginUtilities.removeOnSwitchListener(colorizeAccountDetails);};
+            this.unpatchAccountDetails = () => {
+                delete this.onSwitch;
+                colorizeAccountDetails(true);
+            };
         }
 
         patchVoiceUsers() {
@@ -279,7 +288,7 @@ module.exports = (Plugin, Api) => {
         }
 
         async patchUserModals(promiseState) {
-            const UserProfileBody = await ReactComponents.getComponentByName("UserProfileBody", DiscordSelectors.UserModal.root);
+            const UserProfileBody = await ReactComponents.getComponentByName("UserProfileBody", DiscordSelectors.UserModal.root || ".root-SR8cQa");
             if (promiseState.cancelled) return;
             Patcher.after(UserProfileBody.component.prototype, "render", (thisObject, _, returnValue) => {
                 if (!this.settings.modals.username && !this.settings.modals.discriminator) return;

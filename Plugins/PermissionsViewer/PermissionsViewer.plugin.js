@@ -14,7 +14,7 @@
 	// Offer to self-install for clueless users that try to run this directly.
 	var shell = WScript.CreateObject("WScript.Shell");
 	var fs = new ActiveXObject("Scripting.FileSystemObject");
-	var pathPlugins = shell.ExpandEnvironmentStrings("%APPDATA%\BetterDiscord\plugins");
+	var pathPlugins = shell.ExpandEnvironmentStrings("%APPDATA%\\BetterDiscord\\plugins");
 	var pathSelf = WScript.ScriptFullName;
 	// Put the user at ease by addressing them in the first person
 	shell.Popup("It looks like you've mistakenly tried to run me directly. \n(Don't do that!)", 0, "I'm a plugin for BetterDiscord", 0x30);
@@ -149,6 +149,10 @@ module.exports = (() => {
 
 @keyframes permissions-modal-wrapper-closing {
     to { transform: scale(0.7); opacity: 0; }
+}
+
+#permissions-modal-wrapper {
+    z-index: 100;
 }
 
 #permissions-modal-wrapper .callout-backdrop {
@@ -578,7 +582,7 @@ module.exports = (() => {
                 const guildId = SelectedGuildStore.getGuildId();
                 const guild = GuildStore.getGuild(guildId);
                 if (!guild) return;
-                const original = retVal.props.children.props.children[0].props.children[0];
+                const original = retVal.props.children.props.children[1].props.children;
                 const newOne = DCM.buildMenuItem({
                     label: this.strings.contextMenuLabel,
                     action: () => {
@@ -588,7 +592,7 @@ module.exports = (() => {
                     }
                 });
                 if (Array.isArray(original)) original.splice(1, 0, newOne);
-                else retVal.props.children.props.children[0].props.children[0] = [original, newOne];
+                else retVal.props.children.props.children[1].props.children = [original, newOne];
             }));
         }
 
@@ -644,15 +648,18 @@ module.exports = (() => {
                 item.addEventListener("click", () => {
                     modal.querySelectorAll(".role-item.selected").forEach(e => e.removeClass("selected"));
                     item.classList.add("selected");
-                    const allowed = isOverride ? displayRoles[role].allow : referenceRoles[role].permissions;
-                    const denied = isOverride ? displayRoles[role].deny : null;
+                    let allowed = isOverride ? displayRoles[role].allow : referenceRoles[role].permissions;
+                    let denied = isOverride ? displayRoles[role].deny : null;
+
+                    if (!allowed.data) allowed = {data: BigInt(allowed)};
 
                     const permList = modal.querySelector(".perm-scroller");
                     permList.innerHTML = "";
                     for (const perm in DiscordPerms) {
+                        console.log(allowed, DiscordPerms[perm])
                         const element = DOMTools.createElement(this.modalItem);
-                        const permAllowed = (allowed & DiscordPerms[perm]) == DiscordPerms[perm];
-                        const permDenied = isOverride ? (denied & DiscordPerms[perm]) == DiscordPerms[perm] : !permAllowed;
+                        const permAllowed = (allowed.data & DiscordPerms[perm].data) == DiscordPerms[perm].data;
+                        const permDenied = isOverride ? (denied.data & DiscordPerms[perm].data) == DiscordPerms[perm].data : !permAllowed;
                         if (!permAllowed && !permDenied) continue;
                         if (permAllowed) {
                             element.classList.add("allowed");

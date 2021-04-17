@@ -7,13 +7,13 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.2.4",
+        "version": "0.2.5",
         "description": "Blurs images in NSFW channels until you hover over it.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BlurNSFW",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BlurNSFW/BlurNSFW.plugin.js"
     },
     "changelog": [
-        {"title": "Huge Massive Changes", "items": ["Plugin no longer uses jQuery.", "The css vars have been converted to sliders in plugin settings."]}
+        {"title": "New Option", "items": ["An option to stop blurring a picture when clicking on it/expanding it was added to settings."]}
     ],
     "defaultConfig": [
         {
@@ -35,6 +35,13 @@
             "min": 0,
             "max": 5000,
             "units": "ms"
+        },
+        {
+            "type": "switch",
+            "id": "blurOnFocus",
+            "name": "Blur When Focused",
+            "note": "This setting keeps the blur when clicking on/expanding an image.",
+            "value": true
         }
     ],
     "main": "index.js"
