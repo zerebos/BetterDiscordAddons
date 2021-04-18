@@ -1,6 +1,6 @@
 /**
  * @name ImageToClipboard
- * @version 0.3.5
+ * @version 0.3.6
  * @authorLink https://twitter.com/IAmZerebos
  * @donate https://paypal.me/ZackRauen
  * @patreon https://patreon.com/Zerebos
@@ -33,7 +33,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {info:{name:"ImageToClipboard",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.3.5",description:"Copies images (png/jpg) directly to clipboard.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ImageToClipboard",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ImageToClipboard/ImageToClipboard.plugin.js"},changelog:[{title:"Fixes",type:"fixed",items:["Both context menus and image modals have the buttons again."]},{title:"Improved",type:"improved",items:["Position in the image modal has swapped to the other side."]}],strings:{es:{contextMenuLabel:"Copiar Imagen",modalLabel:"Copiar Original",copySuccess:"Imagen copiada al portapapeles.",copyFailed:"Hubo un problema al copiar la imagen.",invalidType:"No se puede copiar este tipo de imagen."},pt:{contextMenuLabel:"Copiar imagem",modalLabel:"Copiar original",copySuccess:"Imagem copiada para a área de transferência",copyFailed:"Houve um problema ao copiar a imagem",invalidType:"Não é possível copiar este tipo de imagem"},de:{contextMenuLabel:"Kopiere das Bild",modalLabel:"Original Kopieren",copySuccess:"Bild in die Zwischenablage kopiert.",copyFailed:"Beim Kopieren des Bildes ist ein Problem aufgetreten.",invalidType:"Dieser Bildtyp kann nicht kopiert werden"},en:{contextMenuLabel:"Copy Image",modalLabel:"Copy Original",copySuccess:"Image copied to clipboard.",copyFailed:"There was an issue copying the image.",invalidType:"Cannot copy this image type."}},main:"index.js"};
+    const config = {info:{name:"ImageToClipboard",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.3.6",description:"Copies images (png/jpg) directly to clipboard.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ImageToClipboard",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ImageToClipboard/ImageToClipboard.plugin.js"},changelog:[{title:"Fixes",type:"fixed",items:["Remove unused settings button."]},{title:"Improvements",type:"improved",items:["[Linux] Copy image directly to clipboard instead of writing to a temporary file first."]}],strings:{es:{contextMenuLabel:"Copiar Imagen",modalLabel:"Copiar Original",copySuccess:"Imagen copiada al portapapeles.",copyFailed:"Hubo un problema al copiar la imagen.",invalidType:"No se puede copiar este tipo de imagen."},pt:{contextMenuLabel:"Copiar imagem",modalLabel:"Copiar original",copySuccess:"Imagem copiada para a área de transferência",copyFailed:"Houve um problema ao copiar a imagem",invalidType:"Não é possível copiar este tipo de imagem"},de:{contextMenuLabel:"Kopiere das Bild",modalLabel:"Original Kopieren",copySuccess:"Bild in die Zwischenablage kopiert.",copyFailed:"Beim Kopieren des Bildes ist ein Problem aufgetreten.",invalidType:"Dieser Bildtyp kann nicht kopiert werden"},en:{contextMenuLabel:"Copy Image",modalLabel:"Copy Original",copySuccess:"Image copied to clipboard.",copyFailed:"There was an issue copying the image.",invalidType:"Cannot copy this image type."}},main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -89,15 +89,8 @@ module.exports = (() => {
             request({url: url, encoding: null}, (error, response, buffer) => {
                 if (error) return Toasts.error(this.strings.copyFailed);
 
-                if (process.platform === "win32" || process.platform === "darwin") {
-                    clipboard.write({image: nativeImage.createFromBuffer(buffer)});
-                }
-                else {
-                        const file = path.join(process.env.HOME || process.env.USERPROFILE, "i2ctemp.png");
-                        fs.writeFileSync(file, buffer, {encoding: null});
-                        clipboard.write({image: file});
-                        fs.unlinkSync(file);
-                }
+                clipboard.write({image: nativeImage.createFromBuffer(buffer)});
+
                 Toasts.success(this.strings.copySuccess);
             });
         }
@@ -110,10 +103,6 @@ module.exports = (() => {
         isValid(url) {
             const file = DiscordModules.URLParser.parse(url).pathname.toLowerCase();
             return file.endsWith(".jpg") || file.endsWith(".jpeg") || file.endsWith(".png");
-        }
-
-        getSettingsPanel() {
-            return this.buildSettingsPanel().getElement();
         }
 
         patchContextMenu() {
