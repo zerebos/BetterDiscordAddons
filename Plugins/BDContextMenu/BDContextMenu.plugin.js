@@ -1,6 +1,6 @@
 /**
  * @name BDContextMenu
- * @version 0.1.9
+ * @version 0.2.0
  * @authorLink https://twitter.com/IAmZerebos
  * @donate https://paypal.me/ZackRauen
  * @patreon https://patreon.com/Zerebos
@@ -33,7 +33,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {info:{name:"BDContextMenu",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.9",description:"Adds BD shortcuts to the settings context menu.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"},changelog:[{title:"Bugfixes",type:"fixed",items:["Fixes for update META structures."]}],main:"index.js"};
+    const config = {info:{name:"BDContextMenu",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.2.0",description:"Adds BD shortcuts to the settings context menu.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"},changelog:[{title:"Bugfixes",type:"fixed",items:["Fixes for update META structures."]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -103,17 +103,17 @@ module.exports = (() => {
         buildCollectionMenu(collection) {
             return {
                 type: "submenu",
-                label: collection.name,
+                label: collection.name || "",
                 action: () => {this.openCategory(collection.name.toLowerCase());},
                 items: collection.settings.map(category => {
                     return {
                         type: "submenu",
-                        label: category.name,
+                        label: category.name || "",
                         action: () => () => {this.openCategory(collection.name.toLowerCase());},
                         items: category.settings.filter(s => s.type === "switch" && !s.hidden).map(setting => {
                             return {
                                 type: "toggle",
-                                label: setting.name,
+                                label: setting.name || "",
                                 active: window.BdApi.isSettingEnabled(collection.id, category.id, setting.id),
                                 action: () => window.BdApi.toggleSetting(collection.id, category.id, setting.id)
                             };
