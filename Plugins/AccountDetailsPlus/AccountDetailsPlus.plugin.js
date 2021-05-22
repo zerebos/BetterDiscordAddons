@@ -33,104 +33,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {
-        info: {
-            name: "AccountDetailsPlus",
-            authors: [{
-                name: "Zerebos",
-                discord_id: "249746236008169473",
-                github_username: "rauenzi",
-                twitter_username: "ZackRauen"
-            }],
-            version: "0.1.10",
-            description: "Lets you view popout, nickname and more from your account panel at the bottom.",
-            github: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AccountDetailsPlus",
-            github_raw: "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AccountDetailsPlus/AccountDetailsPlus.plugin.js"
-        },
-        changelog: [{
-            title: "Bugs Squashed",
-            type: "fixed",
-            items: ["Fix conflicting popouts.", "Stopped using deprecated functions."]
-        }],
-        main: "index.js",
-        defaultConfig: [{
-            type: "category",
-            id: "popout",
-            name: "User Popout",
-            collapsible: true,
-            shown: false,
-            settings: [{
-                type: "switch",
-                id: "avatar",
-                name: "Avatar",
-                note: "Opens your popout when clicking your avatar.",
-                value: true
-            }, {
-                type: "switch",
-                id: "username",
-                name: "Username",
-                note: "Opens your popout when clicking your username.",
-                value: true
-            }]
-        }, {
-            type: "category",
-            id: "statusPicker",
-            name: "Status Picker",
-            collapsible: true,
-            shown: false,
-            settings: [{
-                type: "switch",
-                id: "avatar",
-                name: "Avatar",
-                note: "Opens your popout when right clicking your avatar.",
-                value: true
-            }, {
-                type: "switch",
-                id: "username",
-                name: "Username",
-                note: "Opens your popout when right clicking your username.",
-                value: true
-            }]
-        }, {
-            type: "category",
-            id: "nickname",
-            name: "Nickname",
-            collapsible: true,
-            shown: false,
-            settings: [{
-                type: "dropdown",
-                id: "showNickname",
-                name: "Name Shown",
-                value: true,
-                options: [{
-                    label: "Username",
-                    value: false
-                }, {
-                    label: "Nickname",
-                    value: true
-                }]
-            }, {
-                type: "switch",
-                id: "oppositeOnHover",
-                name: "Opposite On Hover",
-                note: "Shows the opposite on hover. e.g. if you are showing nickname, hovering will show your username.",
-                value: true
-            }]
-        }, {
-            type: "category",
-            id: "flip",
-            name: "Flip Mouse",
-            collapsible: false,
-            shown: false,
-            settings: [{
-                type: "switch",
-                id: "FlipMouseInteractions",
-                name: "Flip Mouse Interactions",
-                note: "switches left and right mosue buttons. (this DOESN'T change the name description of other settings!)",
-                value: true
-            }]
-        }]
-    };
+    const config={info:{name:"AccountDetailsPlus",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.10",description:"Lets you view popout, nickname and more from your account panel at the bottom.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AccountDetailsPlus",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AccountDetailsPlus/AccountDetailsPlus.plugin.js"},changelog:[{title:"Bugs Squashed",type:"fixed",items:["Fix conflicting popouts.","Stopped using deprecated functions."]}],main:"index.js",defaultConfig:[{type:"category",id:"popout",name:"User Popout",collapsible:!0,shown:!1,settings:[{type:"switch",id:"avatar",name:"Avatar",note:"Opens your popout when clicking your avatar.",value:!0},{type:"switch",id:"username",name:"Username",note:"Opens your popout when clicking your username.",value:!0}]},{type:"category",id:"statusPicker",name:"Status Picker",collapsible:!0,shown:!1,settings:[{type:"switch",id:"avatar",name:"Avatar",note:"Opens your popout when right clicking your avatar.",value:!0},{type:"switch",id:"username",name:"Username",note:"Opens your popout when right clicking your username.",value:!0}]},{type:"category",id:"nickname",name:"Nickname",collapsible:!0,shown:!1,settings:[{type:"dropdown",id:"showNickname",name:"Name Shown",value:!0,options:[{label:"Username",value:!1},{label:"Nickname",value:!0}]},{type:"switch",id:"oppositeOnHover",name:"Opposite On Hover",note:"Shows the opposite on hover. e.g. if you are showing nickname, hovering will show your username.",value:!0}]},{type:"category",id:"flip",name:"Flip Mouse",collapsible:!1,shown:!1,settings:[{type:"switch",id:"FlipMouseInteractions",name:"Flip Mouse Interactions",note:"switches left and right mosue buttons. (this DOESN'T change the name description of other settings!)",value:!0}]}]};
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
         getName() {return config.info.name;}
@@ -213,12 +116,12 @@ module.exports = (() => {
             if (!this.tagElement) return Logger.err("No tag element to remove listeners");
             if (!this.avatarElement) return Logger.err("No avatar element to remove listeners");
             this.tagElement.removeEventListener("mousedown", this.updateIsPopoutOpen);
-            this.tagElement.removeEventListener(this.settings.flip?"contextmenu":"click", this.showUserPopout);//originaly click
-            this.tagElement.removeEventListener(this.settings.flip?"click":"contextmenu", this.showStatusPicker);//originaly contextmenu
+            this.tagElement.removeEventListener(this.settings.flip?"contextmenu":"click", this.showUserPopout);
+            this.tagElement.removeEventListener(this.settings.flip?"click":"contextmenu", this.showStatusPicker);
 
             this.avatarElement.removeEventListener("mousedown", this.updateIsPopoutOpen);
-            this.avatarElement.removeEventListener(this.settings.flip?"contextmenu":"click", this.showUserPopout);//originaly click
-            this.avatarElement.removeEventListener(this.settings.flip?"click":"contextmenu", this.showStatusPicker);//originaly contextmenu
+            this.avatarElement.removeEventListener(this.settings.flip?"contextmenu":"click", this.showUserPopout);
+            this.avatarElement.removeEventListener(this.settings.flip?"click":"contextmenu", this.showStatusPicker);
         }
 
         addAllListeners() {
@@ -229,19 +132,19 @@ module.exports = (() => {
             if (this.settings.popout.username) {
                 PluginUtilities.addStyle(this.getName() + "-css", usernameCSS);
                 this.tagElement.addEventListener("mousedown", this.updateIsPopoutOpen);
-                this.tagElement.addEventListener(flipmouse[!flipper], this.showUserPopout);//originaly click
+                this.tagElement.addEventListener(flipmouse[!flipper], this.showUserPopout);
             }
             if (this.settings.popout.avatar) {
                 this.tagElement.addEventListener("mousedown", this.updateIsPopoutOpen);
-                this.avatarElement.addEventListener(this.settings.flip?"contextmenu":"click", this.showUserPopout);//originaly click
+                this.avatarElement.addEventListener(this.settings.flip?"contextmenu":"click", this.showUserPopout);
             }
             if (this.settings.statusPicker.username) {
                 this.tagElement.addEventListener("mousedown", this.updateIsPopoutOpen);
-                this.tagElement.addEventListener(this.settings.flip?"click":"contextmenu", this.showStatusPicker);//originaly contextmenu
+                this.tagElement.addEventListener(this.settings.flip?"click":"contextmenu", this.showStatusPicker);
             }
             if (this.settings.statusPicker.avatar) {
                 this.avatarElement.addEventListener("mousedown", this.updateIsPopoutOpen);
-                this.avatarElement.addEventListener(this.settings.flip?"click":"contextmenu", this.showStatusPicker);//originaly contextmenu
+                this.avatarElement.addEventListener(this.settings.flip?"click":"contextmenu", this.showStatusPicker);
             }
         }
 
