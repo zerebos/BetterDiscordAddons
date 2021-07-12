@@ -1,4 +1,4 @@
-# ImageToClipboard - [Download](https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ImageToClipboard/ImageToClipboard.plugin.js)
+# ImageToClipboard
 
 Allows you to copy images (png/jpg) directly to your system clipboard.
 
