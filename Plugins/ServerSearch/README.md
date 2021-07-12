@@ -1,4 +1,4 @@
-# ServerSearch - [Download](https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSearch/ServerSearch.plugin.js)
+# ServerSearch - [Download](https://betterdiscord.app/Download?id=192)
 
 Adds a button to search your servers. Search in place or in popout.
 
