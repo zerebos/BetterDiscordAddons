@@ -1,4 +1,4 @@
-# AccountDetailsPlus - [Download](https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AccountDetailsPlus/AccountDetailsPlus.plugin.js)
+# AccountDetailsPlus - [Download](https://betterdiscord.app/Download?id=31)
 
 Lets you view popout, nickname and more from your account panel at the bottom.
 
