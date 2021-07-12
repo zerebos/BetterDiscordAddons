@@ -1,4 +1,4 @@
-# ZeresPluginLibrary - [Download](https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js)
+# ZeresPluginLibrary - [Download](https://betterdiscord.app/Download?id=9)
 
 Gives other plugins utility functions and the ability to emulate v2.
 
