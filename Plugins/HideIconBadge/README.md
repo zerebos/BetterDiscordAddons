@@ -1,4 +1,4 @@
-# HideIconBadge - [Download](https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/HideIconBadge/HideIconBadge.plugin.js)
+# HideIconBadge - [Download](https://betterdiscord.app/Download?id=189)
 
 Hides the badge that appears on the taskbar icon.
 
