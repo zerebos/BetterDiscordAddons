@@ -1,4 +1,4 @@
-# PermissionsViewer - [Download](https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/PermissionsViewer/PermissionsViewer.plugin.js)
+# PermissionsViewer - [Download](https://betterdiscord.app/Download?id=29)
 
 Allows you to view a user's permissions. Thanks to Noodlebox for the idea!
 
