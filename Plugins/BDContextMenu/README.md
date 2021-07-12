@@ -1,4 +1,4 @@
-# BDContextMenu - [Download](https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js)
+# BDContextMenu - [Download](https://betterdiscord.app/Download?id=185)
 
 Adds BD shortcuts to the settings context menu.
 
