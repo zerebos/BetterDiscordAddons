@@ -1,6 +1,6 @@
 /**
  * @name RoleMembers
- * @version 0.1.13
+ * @version 0.1.14
  * @authorLink https://twitter.com/IAmZerebos
  * @donate https://paypal.me/ZackRauen
  * @patreon https://patreon.com/Zerebos
@@ -142,6 +142,7 @@ module.exports = (() => {
         }
 
         patchRoleMention() {
+            /*
             const Pill = WebpackModules.getByDisplayName("Pill");
             Patcher.after(Pill.prototype, "componentWillMount", (component) => {
                 if (!component || !component.props || !component.props.className) return;
@@ -159,6 +160,7 @@ module.exports = (() => {
                     this.showRolePopout(DiscordModules.ReactDOM.findDOMNode(component), currentServer, role.id);
                 };
             });
+            */
         }
 
         patchGuildContextMenu() {
