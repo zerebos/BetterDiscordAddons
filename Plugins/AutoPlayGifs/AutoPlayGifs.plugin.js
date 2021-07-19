@@ -128,9 +128,10 @@ module.exports = (() => {
                 AvatarComponent.props.children = function() {
                     const rv = renderer(...arguments);
                     const id = rv.props.src.split("/")[4];
-                    const hasAnimatedAvatar = DiscordModules.ImageResolver.hasAnimatedAvatar(DiscordModules.UserStore.getUser(id));
+                    const avatar = DiscordModules.ImageResolver.getUserAvatarURL(DiscordModules.UserStore.getUser(id));
+                    const hasAnimatedAvatar = avatar.includes("a_");
                     if (!hasAnimatedAvatar) return rv;
-                    rv.props.src = DiscordModules.ImageResolver.getUserAvatarURL(DiscordModules.UserStore.getUser(id)).replace("webp", "gif");
+                    rv.props.src = avatar.replace("webp", "gif");
                     return rv;
                 };
                 AvatarComponent.props.children.__patchedAPG = true;
@@ -142,9 +143,10 @@ module.exports = (() => {
             this.cancelMemberListAvatars = Patcher.before(MemberList.prototype, "render", (thisObject) => {
                 if (!thisObject.props.user) return;
                 const id = thisObject.props.user.id;
-                const hasAnimatedAvatar = DiscordModules.ImageResolver.hasAnimatedAvatar(DiscordModules.UserStore.getUser(id));
+                const avatar = DiscordModules.ImageResolver.getUserAvatarURL(DiscordModules.UserStore.getUser(id));
+                const hasAnimatedAvatar = avatar.includes("a_");
                 if (!hasAnimatedAvatar) return;
-                thisObject.props.user.getAvatarURL = () => {return DiscordModules.ImageResolver.getUserAvatarURL(DiscordModules.UserStore.getUser(id)).replace("webp", "gif");};
+                thisObject.props.user.getAvatarURL = () => {return avatar.replace("webp", "gif");};
             });
         }
 
