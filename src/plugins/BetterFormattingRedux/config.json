@@ -7,13 +7,13 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "2.3.11",
+        "version": "2.3.12",
         "description": "Enables different types of formatting in standard Discord chat.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js"
     },
     "changelog": [
-        {"title": "Better Performance", "type":"improved", "items": ["jQuery is no longer used!"]}
+        {"title": "GUI Works Again", "type":"fixed", "items": ["Fixed for latest Discord changes which prevented the wrappers from being added via click."]}
     ],
     "main": "index.js",
     "defaultConfig": [
