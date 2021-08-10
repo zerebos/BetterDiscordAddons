@@ -1,0 +1,17 @@
+#permissions-modal-wrapper #permissions-modal .modal-body {
+    height: 840px;
+}
+
+#permissions-modal-wrapper #permissions-modal .perm-side {
+    width: 500px;
+}
+
+#permissions-modal .perm-scroller {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+}
+
+#permissions-modal .perm-item {
+    width: 50%;
+}
