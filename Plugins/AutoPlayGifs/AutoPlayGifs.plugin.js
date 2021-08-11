@@ -1,6 +1,6 @@
 /**
  * @name AutoPlayGifs
- * @version 0.1.3
+ * @version 0.1.4
  * @authorLink https://twitter.com/IAmZerebos
  * @donate https://paypal.me/ZackRauen
  * @patreon https://patreon.com/Zerebos
@@ -33,7 +33,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {info:{name:"AutoPlayGifs",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.3",description:"Automatically plays avatars and stuff.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AutoPlayGifs",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AutoPlayGifs/AutoPlayGifs.plugin.js"},changelog:[{title:"What's New?",items:["Add ability to always animate activity statuses!"]},{title:"Fixed",type:"fixed",items:["Should animate avatars in chat again!"]}],defaultConfig:[{type:"switch",id:"chat",name:"Autoplay Chat",note:"Autoplays avatars in the chat area for Nitro users.",value:true},{type:"switch",id:"memberList",name:"Autoplay Memberlist",note:"Autoplays avatars in the member list for Nitro users.",value:true},{type:"switch",id:"guildList",name:"Autoplay Guilds",note:"Autoplays guild icons in the guild list for servers that have been boosted.",value:true},{type:"switch",id:"activityStatus",name:"Activity Status",note:"Autoplays emojis and icons in the activity status like in the member list.",value:true}],main:"index.js"};
+    const config = {info:{name:"AutoPlayGifs",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.4",description:"Automatically plays avatars and stuff.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AutoPlayGifs",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AutoPlayGifs/AutoPlayGifs.plugin.js"},changelog:[{title:"Fixed",type:"fixed",items:["Should animate avatars in chat again!","Guild icons animate again!"]}],defaultConfig:[{type:"switch",id:"chat",name:"Autoplay Chat",note:"Autoplays avatars in the chat area for Nitro users.",value:true},{type:"switch",id:"memberList",name:"Autoplay Memberlist",note:"Autoplays avatars in the member list for Nitro users.",value:true},{type:"switch",id:"guildList",name:"Autoplay Guilds",note:"Autoplays guild icons in the guild list for servers that have been boosted.",value:true},{type:"switch",id:"activityStatus",name:"Activity Status",note:"Autoplays emojis and icons in the activity status like in the member list.",value:true}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -60,13 +60,6 @@ module.exports = (() => {
     const {WebpackModules, DiscordModules, Patcher, ReactComponents, Utilities} = Api;
 
     return class AutoPlayGifs extends Plugin {
-        constructor() {
-            super();
-            this.cancelChatAvatars = () => {};
-            this.cancelMemberListAvatars = () => {};
-            this.cancelGuildList = () => {};
-            this.cancelActivityStatus = () => {};
-        }
 
         onStart() {
             this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
@@ -77,10 +70,10 @@ module.exports = (() => {
         }
 
         onStop() {
-            this.cancelChatAvatars();
-            this.cancelMemberListAvatars();
-            this.cancelGuildList();
-            this.cancelActivityStatus();
+            if (this.cancelChatAvatars) this.cancelChatAvatars();
+            if (this.cancelMemberListAvatars) this.cancelMemberListAvatars();
+            if (this.cancelGuildList) this.cancelGuildList();
+            if (this.cancelActivityStatus) this.cancelActivityStatus();
         }
 
         getSettingsPanel() {
@@ -107,7 +100,7 @@ module.exports = (() => {
         }
 
         async patchGuildList(promiseState) {
-            const Guild = await ReactComponents.getComponentByName("Guild", ".listItem-2P_4kh");
+            const Guild = await ReactComponents.getComponentByName("Guild", ".listItem-GuPuDH");
             if (promiseState.cancelled) return;
             this.cancelGuildList = Patcher.after(Guild.component.prototype, "render", (thisObject, args, returnValue) => {
                 if (!thisObject.props.animatable) return;
