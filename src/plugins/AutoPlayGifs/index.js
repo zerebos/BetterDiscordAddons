@@ -3,13 +3,6 @@ module.exports = (Plugin, Api) => {
     const {WebpackModules, DiscordModules, Patcher, ReactComponents, Utilities} = Api;
 
     return class AutoPlayGifs extends Plugin {
-        constructor() {
-            super();
-            this.cancelChatAvatars = () => {};
-            this.cancelMemberListAvatars = () => {};
-            this.cancelGuildList = () => {};
-            this.cancelActivityStatus = () => {};
-        }
 
         onStart() {
             this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
@@ -20,10 +13,10 @@ module.exports = (Plugin, Api) => {
         }
 
         onStop() {
-            this.cancelChatAvatars();
-            this.cancelMemberListAvatars();
-            this.cancelGuildList();
-            this.cancelActivityStatus();
+            if (this.cancelChatAvatars) this.cancelChatAvatars();
+            if (this.cancelMemberListAvatars) this.cancelMemberListAvatars();
+            if (this.cancelGuildList) this.cancelGuildList();
+            if (this.cancelActivityStatus) this.cancelActivityStatus();
         }
 
         getSettingsPanel() {
@@ -50,7 +43,7 @@ module.exports = (Plugin, Api) => {
         }
 
         async patchGuildList(promiseState) {
-            const Guild = await ReactComponents.getComponentByName("Guild", ".listItem-2P_4kh");
+            const Guild = await ReactComponents.getComponentByName("Guild", ".listItem-GuPuDH");
             if (promiseState.cancelled) return;
             this.cancelGuildList = Patcher.after(Guild.component.prototype, "render", (thisObject, args, returnValue) => {
                 if (!thisObject.props.animatable) return;
@@ -71,9 +64,10 @@ module.exports = (Plugin, Api) => {
                 AvatarComponent.props.children = function() {
                     const rv = renderer(...arguments);
                     const id = rv.props.src.split("/")[4];
-                    const hasAnimatedAvatar = DiscordModules.ImageResolver.hasAnimatedAvatar(DiscordModules.UserStore.getUser(id));
+                    const avatar = DiscordModules.ImageResolver.getUserAvatarURL(DiscordModules.UserStore.getUser(id));
+                    const hasAnimatedAvatar = avatar.includes("a_");
                     if (!hasAnimatedAvatar) return rv;
-                    rv.props.src = DiscordModules.ImageResolver.getUserAvatarURL(DiscordModules.UserStore.getUser(id)).replace("webp", "gif");
+                    rv.props.src = avatar.replace("webp", "gif");
                     return rv;
                 };
                 AvatarComponent.props.children.__patchedAPG = true;
@@ -85,9 +79,10 @@ module.exports = (Plugin, Api) => {
             this.cancelMemberListAvatars = Patcher.before(MemberList.prototype, "render", (thisObject) => {
                 if (!thisObject.props.user) return;
                 const id = thisObject.props.user.id;
-                const hasAnimatedAvatar = DiscordModules.ImageResolver.hasAnimatedAvatar(DiscordModules.UserStore.getUser(id));
+                const avatar = DiscordModules.ImageResolver.getUserAvatarURL(DiscordModules.UserStore.getUser(id));
+                const hasAnimatedAvatar = avatar.includes("a_");
                 if (!hasAnimatedAvatar) return;
-                thisObject.props.user.getAvatarURL = () => {return DiscordModules.ImageResolver.getUserAvatarURL(DiscordModules.UserStore.getUser(id)).replace("webp", "gif");};
+                thisObject.props.user.getAvatarURL = () => {return avatar.replace("webp", "gif");};
             });
         }
 

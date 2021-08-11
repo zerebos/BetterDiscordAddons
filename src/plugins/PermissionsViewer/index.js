@@ -1,6 +1,6 @@
 
 module.exports = (Plugin, Api) => {
-    const {Patcher, DiscordModules, WebpackModules, PluginUtilities, Toasts, ReactTools, DiscordClasses, DiscordSelectors, Utilities, DOMTools, ColorConverter, ReactComponents, DCM} = Api;
+    const {Patcher, DiscordModules, WebpackModules, PluginUtilities, Toasts, DiscordClasses, Utilities, DOMTools, ColorConverter, DCM, Structs, ReactTools} = Api;
 
     const GuildStore = DiscordModules.GuildStore;
     const SelectedGuildStore = DiscordModules.SelectedGuildStore;
@@ -8,6 +8,8 @@ module.exports = (Plugin, Api) => {
     const UserStore = DiscordModules.UserStore;
     const DiscordPerms = Object.assign({}, DiscordModules.DiscordConstants.Permissions);
     const AvatarDefaults = WebpackModules.getByProps("DEFAULT_AVATARS");
+    const UserPopoutSelectors = Object.assign({}, WebpackModules.getByProps("userPopout"), WebpackModules.getByProps("rolesList"));
+    for (const key in UserPopoutSelectors) UserPopoutSelectors[key] = new Structs.Selector(UserPopoutSelectors[key]);
     const escapeHTML = DOMTools.escapeHTML ? DOMTools.escapeHTML : function(html) {
         const textNode = document.createTextNode("");
         const spanElement = document.createElement("span");
@@ -29,6 +31,7 @@ module.exports = (Plugin, Api) => {
         constructor() {
             super();
             this.css = require("styles.css");
+            this.jumbo = require("jumbo.css");
             this.listHTML = require("list.html");
             this.itemHTML = require("item.html");
             this.modalHTML = require("modal.html");
@@ -51,45 +54,49 @@ module.exports = (Plugin, Api) => {
             this.modalHTML = Utilities.formatTString(this.modalHTML, DiscordClasses.Backdrop);
             this.modalHTML = Utilities.formatTString(this.modalHTML, DiscordClasses.Modals);
 
-            this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
-            if (this.settings.popouts) this.bindPopouts(this.promises.state);
+            if (this.settings.popouts) this.bindPopouts();
             if (this.settings.contextMenus) this.bindContextMenus();
+            this.setDisplayMode(this.settings.displayMode);
         }
 
         onStop() {
             PluginUtilities.removeStyle(this.getName());
-            this.promises.cancel();
             this.unbindPopouts();
             this.unbindContextMenus();
         }
 
-        async bindPopouts(promiseState) {
-            const pViewer = this;
-            const popoutMount = function() {
-                const popout = DiscordModules.ReactDOM.findDOMNode(this);
+        setDisplayMode(mode) {
+            if (mode === "cozy") PluginUtilities.addStyle(this.getName() + "-jumbo", this.jumbo);
+            else PluginUtilities.removeStyle(this.getName() + "-jumbo");
+        }
+
+        async bindPopouts() {
+            const popoutMount = (props) => {
+                const popout = document.querySelector(UserPopoutSelectors.userPopout);
                 if (!popout || popout.querySelector("#permissions-popout")) return;
-                const user = this.props.guildMember;
-                const guild = this.props.guild;
-                const name = this.props.nickname ? this.props.nickname : this.props.user.username;
+                const user = MemberStore.getMember(props.guildId, props.user.id);
+                const guild = GuildStore.getGuild(props.guildId);
+                const name = MemberStore.getNick(props.guildId, props.user.id) ?? props.user.username;
                 if (!user || !guild || !name) return;
 
                 const userRoles = user.roles.slice(0);
                 userRoles.push(guild.id);
                 userRoles.reverse();
-                let perms = 0;
+                let perms = 0n;
 
-                const permBlock = DOMTools.createElement(Utilities.formatTString(pViewer.listHTML, {label: pViewer.strings.popoutLabel}));
+                const permBlock = DOMTools.createElement(Utilities.formatTString(this.listHTML, {label: this.strings.popoutLabel}));
                 const memberPerms = permBlock.querySelector(".member-perms");
                 const strings = DiscordModules.Strings;
 
                 for (let r = 0; r < userRoles.length; r++) {
                     const role = userRoles[r];
+                    if (!guild.roles[role]) continue;
                     perms = perms | guild.roles[role].permissions;
                     for (const perm in DiscordPerms) {
                         const permName = strings[perm] || perm.split("_").map(n => n[0].toUpperCase() + n.slice(1).toLowerCase()).join(" ");
                         const hasPerm = (perms & DiscordPerms[perm]) == DiscordPerms[perm];
                         if (hasPerm && !memberPerms.querySelector(`[data-name="${permName}"]`)) {
-                            const element = DOMTools.createElement(pViewer.itemHTML);
+                            const element = DOMTools.createElement(this.itemHTML);
                             let roleColor = guild.roles[role].colorString;
                             element.querySelector(".name").textContent = permName;
                             element.setAttribute("data-name", permName);
@@ -102,24 +109,19 @@ module.exports = (Plugin, Api) => {
                 }
 
                 permBlock.querySelector(".perm-details").addEventListener("click", () => {
-                    pViewer.showModal(pViewer.createModalUser(name, user, guild));
+                    this.showModal(this.createModalUser(name, user, guild));
                 });
-                const roleList = popout.querySelector(DiscordSelectors.UserPopout.rolesList);
+                const roleList = popout.querySelector(UserPopoutSelectors.rolesList);
                 roleList.parentNode.insertBefore(permBlock, roleList.nextSibling);
+
+
+                const popoutInstance = ReactTools.getOwnerInstance(popout, {include: ["Popout"]});
+                if (!popoutInstance || !popoutInstance.updateOffsets) return;
+                popoutInstance.updateOffsets();
             };
 
-            const UserPopout = await ReactComponents.getComponentByName("UserPopout", DiscordSelectors.UserPopout.userPopout);
-            if (promiseState.cancelled) return;
-            this.cancelUserPopout = Patcher.after(UserPopout.component.prototype, "componentDidMount", (thisObject) => {
-                const bound = popoutMount.bind(thisObject); bound();
-            });
-            const instance = ReactTools.getOwnerInstance(document.querySelector(DiscordSelectors.UserPopout.userPopout), {include: ["UserPopout"]});
-            if (!instance) return;
-            popoutMount.bind(instance)();
 
-            const popoutInstance = ReactTools.getOwnerInstance(document.querySelector(DiscordSelectors.UserPopout.userPopout), {include: ["Popout"]});
-            if (!popoutInstance || !popoutInstance.updateOffsets) return;
-            popoutInstance.updateOffsets();
+            this.cancelUserPopout = Patcher.after(DiscordModules.UserPopout, "type", (_, __, retVal) => popoutMount(retVal.props));
         }
 
         unbindPopouts() {
@@ -153,7 +155,8 @@ module.exports = (Plugin, Api) => {
 
         patchChannelContextMenu() {
             const [VoiceChannelContextMenu] = WebpackModules.getModules(m => m.default && m.default.displayName == "ChannelListVoiceChannelContextMenu");
-            const [, CategoryChannelContextMenu, TextChannelContextMenu] = WebpackModules.getModules(m => m.default && m.default.displayName == "ChannelListTextChannelContextMenu");
+            // eslint-disable-next-line no-unused-vars
+            const [CategoryChannelContextMenu, UNUSED, TextChannelContextMenu] = WebpackModules.getModules(m => m.default && m.default.displayName == "ChannelListTextChannelContextMenu");
             const patch = (_, [props], retVal) => {
                 const original = retVal.props.children[0].props.children;
                 const newOne = DCM.buildMenuItem({
@@ -194,7 +197,7 @@ module.exports = (Plugin, Api) => {
         }
 
         showModal(modal) {
-            const popout = document.querySelector(DiscordSelectors.UserPopout.userPopout);
+            const popout = document.querySelector(UserPopoutSelectors.userPopout);
             if (popout) popout.style.display = "none";
             const app = document.querySelector(".app-19_DXt");
             if (app) app.append(modal);
@@ -207,12 +210,13 @@ module.exports = (Plugin, Api) => {
 
         createModalUser(name, user, guild) {
             const userRoles = user.roles.slice(0);
-            const guildRoles = JSON.parse(JSON.stringify(guild.roles));
+            const guildRoles = Object.assign({}, guild.roles);
+            
             userRoles.push(guild.id);
             userRoles.sort((a, b) => {return guildRoles[b].position - guildRoles[a].position;});
 
             if (user.userId == guild.ownerId) {
-                const ALL_PERMISSIONS = Object.values(DiscordModules.DiscordConstants.Permissions).map(x => Number(x.data)).reduce((all, p) => all | p);
+                const ALL_PERMISSIONS = Object.values(DiscordModules.DiscordConstants.Permissions).reduce((all, p) => all | p);
                 userRoles.push(user.userId);
                 guildRoles[user.userId] = {name: this.strings.modal.owner, permissions: ALL_PERMISSIONS};
             }
@@ -235,7 +239,7 @@ module.exports = (Plugin, Api) => {
             for (const r in displayRoles) {
                 const role = Array.isArray(displayRoles) ? displayRoles[r] : r;
                 const user = UserStore.getUser(role) || {avatarURL: AvatarDefaults.DEFAULT_AVATARS[Math.floor(Math.random() * AvatarDefaults.DEFAULT_AVATARS.length)], username: role};
-                const member = MemberStore.getMember(DiscordModules.SelectedGuildStore.getGuildId(), role) || {colorString: ""};
+                const member = MemberStore.getMember(SelectedGuildStore.getGuildId(), role) || {colorString: ""};
                 const item = DOMTools.createElement(!isOverride || displayRoles[role].type == 0 ? this.modalButton : Utilities.formatTString(this.modalButtonUser, {avatarUrl: user.avatarURL}));
                 if (!isOverride || displayRoles[role].type == 0) item.style.color = referenceRoles[role].colorString;
                 else item.style.color = member.colorString;
@@ -245,17 +249,15 @@ module.exports = (Plugin, Api) => {
                 item.addEventListener("click", () => {
                     modal.querySelectorAll(".role-item.selected").forEach(e => e.removeClass("selected"));
                     item.classList.add("selected");
-                    let allowed = isOverride ? displayRoles[role].allow : referenceRoles[role].permissions;
+                    const allowed = isOverride ? displayRoles[role].allow : referenceRoles[role].permissions;
                     const denied = isOverride ? displayRoles[role].deny : null;
-
-                    if (!allowed.data) allowed = {data: BigInt(allowed)};
 
                     const permList = modal.querySelector(".perm-scroller");
                     permList.innerHTML = "";
                     for (const perm in DiscordPerms) {
                         const element = DOMTools.createElement(this.modalItem);
-                        const permAllowed = (allowed.data & DiscordPerms[perm].data) == DiscordPerms[perm].data;
-                        const permDenied = isOverride ? (denied.data & DiscordPerms[perm].data) == DiscordPerms[perm].data : !permAllowed;
+                        const permAllowed = (allowed & DiscordPerms[perm]) == DiscordPerms[perm];
+                        const permDenied = isOverride ? (denied & DiscordPerms[perm]) == DiscordPerms[perm] : !permAllowed;
                         if (!permAllowed && !permDenied) continue;
                         if (permAllowed) {
                             element.classList.add("allowed");
@@ -292,6 +294,7 @@ module.exports = (Plugin, Api) => {
                     if (checked) this.bindContextMenus();
                     this.unbindContextMenus();
                 }
+                if (id == "displayMode") this.setDisplayMode(checked);
             });
             return panel.getElement();
         }

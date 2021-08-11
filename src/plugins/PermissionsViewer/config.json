@@ -7,13 +7,14 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.1.17",
+        "version": "0.2.0",
         "description": "Allows you to view a user's permissions. Thanks to Noodlebox for the idea!",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/PermissionsViewer/PermissionsViewer.plugin.js"
     },
     "changelog": [
-        {"title": "Fixes", "type": "fixed", "items": ["Permissions modal now shows overtop of everything.", "Right clicking on users works again.", "Permissions are calculated properly with `BigInt`."]}
+        {"title": "New Features", "items": ["The modal now has a cozy/large display mode setting."]},
+        {"title": "Fixes", "type": "fixed", "items": ["Context menus show again.", "Permissions are calculated properly with `BigInt`.", "Permissions show in the user popout again."]}
     ],
     "defaultConfig": [
         {
@@ -27,6 +28,16 @@
             "id": "popouts",
             "name": "Popouts",
             "value": true
+        },
+        {
+            "type": "radio",
+            "id": "displayMode",
+            "name": "Modal Display Mode",
+            "value": "compact",
+            "options": [
+                {"name": "Cozy", "value": "cozy"},
+                {"name": "Compact", "value": "compact"}
+            ]
         }
     ],
     "strings": {
@@ -107,6 +118,9 @@
                 "contextMenus": {
                     "name": "Context Menu Button",
                     "note": "Adds a button to view the permissions modal to select context menus."
+                },
+                "displayMode": {
+                    "name": "Modal Display Mode"
                 }
             }
         },

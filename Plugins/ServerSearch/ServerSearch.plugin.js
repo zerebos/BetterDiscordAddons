@@ -1,6 +1,6 @@
 /**
  * @name ServerSearch
- * @version 0.1.5
+ * @version 0.1.8
  * @authorLink https://twitter.com/IAmZerebos
  * @donate https://paypal.me/ZackRauen
  * @patreon https://patreon.com/Zerebos
@@ -33,7 +33,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {info:{name:"ServerSearch",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.5",description:"Adds a button to search your servers. Search in place or in popout.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSearch/ServerSearch.plugin.js"},changelog:[{title:"Bugs Squashed",type:"fixed",items:["Fixes the popout for long lists"]}],main:"index.js"};
+    const config = {info:{name:"ServerSearch",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.8",description:"Adds a button to search your servers. Search in place or in popout.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSearch/ServerSearch.plugin.js"},changelog:[{title:"Bugs Squashed",type:"fixed",items:["Should no longer need to disable and enable after startup.","Icon style matches Discord's discovery and add server buttons.","Fixed button appearing multiple times when rerendering the guild list."]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -57,7 +57,7 @@ module.exports = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {DiscordSelectors, PluginUtilities, ColorConverter, WebpackModules, DiscordModules, DOMTools, Tooltip, Utilities, DiscordClasses} = Api;
+    const {DiscordSelectors, PluginUtilities, ColorConverter, WebpackModules, DiscordModules, DOMTools, Tooltip, Utilities, DiscordClasses, Patcher} = Api;
 
     const SortedGuildStore = DiscordModules.SortedGuildStore;
     const ImageResolver = DiscordModules.ImageResolver;
@@ -133,18 +133,20 @@ module.exports = (() => {
         <div class="pill-1aYSec">
             <div class="wrapper-sa6paO" style="opacity: 0; height: 8px; transform: translate3d(-4px, 0px, 0px);"></div>
         </div>
-        <div tabindex="0" class="circleButtonMask-1_597P wrapper-25eVIn" role="button" style="border-radius: 25px; background-color: rgb(47, 49, 54);">
-            <svg width="48" height="48" viewBox="0 0 48 48" class="svg-1X37T1 da-svg">
-                <foreignObject mask="url(#782e4422-824c-4b8f-bbe5-18c62c59a77f)" x="0" y="0" width="48" height="48">
-                    <div tabindex="0" class="circleIconButton-1QV--U" role="button" style="background: none;">
-                        <svg name="Search" width="24" height="24" viewBox="0 0 18 18">
-                            <g fill="none" fill-rule="evenodd">
-                                <path fill="white" d="M3.60091481,7.20297313 C3.60091481,5.20983419 5.20983419,3.60091481 7.20297313,3.60091481 C9.19611206,3.60091481 10.8050314,5.20983419 10.8050314,7.20297313 C10.8050314,9.19611206 9.19611206,10.8050314 7.20297313,10.8050314 C5.20983419,10.8050314 3.60091481,9.19611206 3.60091481,7.20297313 Z M12.0057176,10.8050314 L11.3733562,10.8050314 L11.1492281,10.5889079 C11.9336764,9.67638651 12.4059463,8.49170955 12.4059463,7.20297313 C12.4059463,4.32933105 10.0766152,2 7.20297313,2 C4.32933105,2 2,4.32933105 2,7.20297313 C2,10.0766152 4.32933105,12.4059463 7.20297313,12.4059463 C8.49170955,12.4059463 9.67638651,11.9336764 10.5889079,11.1492281 L10.8050314,11.3733562 L10.8050314,12.0057176 L14.8073185,16 L16,14.8073185 L12.2102538,11.0099776 L12.0057176,10.8050314 Z"></path>
-                            </g>
-                        </svg>
-                    </div>
-                </foreignObject>
-            </svg>
+        <div class="listItemWrapper-KhRmzM">
+            <div tabindex="0" class="circleButtonMask-1_597P wrapper-25eVIn" role="button" style="border-radius: 25px; background-color: rgb(47, 49, 54);">
+                <svg width="48" height="48" viewBox="0 0 48 48" class="svg-1X37T1 da-svg">
+                    <foreignObject mask="url(#782e4422-824c-4b8f-bbe5-18c62c59a77f)" x="0" y="0" width="48" height="48">
+                        <div tabindex="0" class="circleButtonBase-2DCxIZ circleIconButton-1QV--U" role="button" style="background: none;">
+                            <svg name="Search" width="24" height="24" viewBox="0 0 18 18">
+                                <g fill="none" fill-rule="evenodd">
+                                    <path fill="white" d="M3.60091481,7.20297313 C3.60091481,5.20983419 5.20983419,3.60091481 7.20297313,3.60091481 C9.19611206,3.60091481 10.8050314,5.20983419 10.8050314,7.20297313 C10.8050314,9.19611206 9.19611206,10.8050314 7.20297313,10.8050314 C5.20983419,10.8050314 3.60091481,9.19611206 3.60091481,7.20297313 Z M12.0057176,10.8050314 L11.3733562,10.8050314 L11.1492281,10.5889079 C11.9336764,9.67638651 12.4059463,8.49170955 12.4059463,7.20297313 C12.4059463,4.32933105 10.0766152,2 7.20297313,2 C4.32933105,2 2,4.32933105 2,7.20297313 C2,10.0766152 4.32933105,12.4059463 7.20297313,12.4059463 C8.49170955,12.4059463 9.67638651,11.9336764 10.5889079,11.1492281 L10.8050314,11.3733562 L10.8050314,12.0057176 L14.8073185,16 L16,14.8073185 L12.2102538,11.0099776 L12.0057176,10.8050314 Z"></path>
+                                </g>
+                            </svg>
+                        </div>
+                    </foreignObject>
+                </svg>
+            </div>
         </div>
     </div>`;
             this.separatorHtml = `<div class="listItem-2P_4kh"><div class="guildSeparator-3s64Iy server-search-separator"></div></div>`;
@@ -178,12 +180,16 @@ module.exports = (() => {
 </div>`;
         }
 
-        onStart() {
+        async onStart() {
             PluginUtilities.addStyle(this.getName(), this.css);
+            const GuildList = WebpackModules.find(m => m.type && m.type.displayName == "NavigableGuilds");
+            this.guildPatch = Patcher.after(GuildList, "type", () => {this.addSearchButton();});
+            await new Promise(resolve => setTimeout(resolve, 1000));
             this.addSearchButton();
         }
         
         onStop() {
+            Patcher.unpatchAll();
             const button = document.querySelector("#server-search");
             if (button) button.remove();
             const separator = document.querySelector(".server-search-separator");
@@ -192,6 +198,7 @@ module.exports = (() => {
         }
 
         addSearchButton() {
+            if (document.querySelector("#server-search")) return;
             const guildElement = DOMTools.createElement(this.guildHtml);
             const guildElementInner = guildElement.querySelector(".wrapper-25eVIn");
             const separator = document.querySelector(".listItem-GuPuDH .guildSeparator-33mFX6");

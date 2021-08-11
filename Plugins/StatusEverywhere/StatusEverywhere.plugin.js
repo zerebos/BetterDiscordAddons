@@ -1,6 +1,6 @@
 /**
  * @name StatusEverywhere
- * @version 0.4.9
+ * @version 0.5.0
  * @authorLink https://twitter.com/IAmZerebos
  * @donate https://paypal.me/ZackRauen
  * @patreon https://patreon.com/Zerebos
@@ -33,7 +33,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {info:{name:"StatusEverywhere",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.4.9",description:"Adds user status everywhere Discord doesn't.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/StatusEverywhere",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/StatusEverywhere/StatusEverywhere.plugin.js"},changelog:[{title:"Hot Fixes",type:"fixed",items:["Fix a crashing issue when clicking on a user with default avatar.","Fix an issue where users with default avatars showed the wrong status."]}],main:"index.js"};
+    const config = {info:{name:"StatusEverywhere",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.5.0",description:"Adds user status everywhere Discord doesn't.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/StatusEverywhere",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/StatusEverywhere/StatusEverywhere.plugin.js"},main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -57,50 +57,22 @@ module.exports = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {Patcher, WebpackModules, DiscordModules, PluginUtilities, Utilities, Popouts} = Api;
-
-    const Flux = WebpackModules.getByProps("connectStores");
-    const StatusStore = DiscordModules.UserStatusStore;
+    const {Modals} = Api;
 
     return class StatusEverywhere extends Plugin {
-
-        onStart() {
-			PluginUtilities.addStyle(this.getName(), `.message-2qnXI6 .avatar-1BDn8e { overflow: visible; position: absolute; }`);
-            const Avatar = WebpackModules.getByProps("AnimatedAvatar");
-            const original = Avatar.default;
-            Patcher.after(Avatar, "default", (_, [props]) => {
-                if (props.status || props.size.includes("100")) return;
-                const id = props.userId || props.src.split("/")[4];
-                const size = props.size.includes("128") ? Avatar.Sizes.SIZE_120 : props.size;
-                const fluxWrapper = Flux.connectStores([StatusStore], () => ({status: StatusStore.getStatus(id)}));
-                return DiscordModules.React.createElement(fluxWrapper(({status}) => {
-                    return DiscordModules.React.createElement(original, Object.assign({}, props, {status, size}));
-                }));
-            });
-            Object.assign(Avatar.default, original);
-
-            const MessageHeader = WebpackModules.getByProps("MessageTimestamp");
-            Patcher.after(MessageHeader, "default", (_, [props], returnValue) => {
-                const AvatarComponent = Utilities.getNestedProp(returnValue, "props.children.0");
-                if (!AvatarComponent || !AvatarComponent.props || !AvatarComponent.props.renderPopout) return;
-                const renderer = Utilities.getNestedProp(AvatarComponent, "props.children");
-                if (!renderer || typeof(renderer) !== "function" || renderer.__patched) return;
-                AvatarComponent.props.children = function() {
-                    const rv = renderer(...arguments);
-                    if (rv.type !== "img") return rv;
-                    return DiscordModules.React.createElement(Avatar.default, Object.assign({}, rv.props, {userId: props.message.author.id, size: Avatar.Sizes.SIZE_40, onClick: (event) => {
-                        Popouts.showUserPopout(event.target, props.message.author);
-                    }}));
-                };
-                AvatarComponent.props.children.__patched = true;
-            });
+        load() {
+            Modals.showConfirmationModal(
+                "Discontinued",
+                "This version of StatusEverywhere by Zerebos has been discontinued. Please download the maintained version from Strencher https://betterdiscord.app/plugin/StatusEverywhere",
+                {
+                    confirmText: "Download Now",
+                    cancelText: "Maybe Later",
+                    onConfirm: function() {
+                        require("electron").shell.openExternal(`https://betterdiscord.app/plugin/StatusEverywhere`);
+                    }
+                }
+            );
         }
-
-        onStop() {
-            PluginUtilities.removeStyle(this.getName());
-            Patcher.unpatchAll();
-        }
-
     };
 };
         return plugin(Plugin, Api);

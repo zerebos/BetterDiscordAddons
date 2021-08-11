@@ -1,5 +1,5 @@
 module.exports = (Plugin, Api) => {
-    const {DiscordSelectors, PluginUtilities, ColorConverter, WebpackModules, DiscordModules, DOMTools, Tooltip, Utilities, DiscordClasses} = Api;
+    const {DiscordSelectors, PluginUtilities, ColorConverter, WebpackModules, DiscordModules, DOMTools, Tooltip, Utilities, DiscordClasses, Patcher} = Api;
 
     const SortedGuildStore = DiscordModules.SortedGuildStore;
     const ImageResolver = DiscordModules.ImageResolver;
@@ -43,11 +43,14 @@ module.exports = (Plugin, Api) => {
 
         async onStart() {
             PluginUtilities.addStyle(this.getName(), this.css);
+            const GuildList = WebpackModules.find(m => m.type && m.type.displayName == "NavigableGuilds");
+            this.guildPatch = Patcher.after(GuildList, "type", () => {this.addSearchButton();});
             await new Promise(resolve => setTimeout(resolve, 1000));
             this.addSearchButton();
         }
         
         onStop() {
+            Patcher.unpatchAll();
             const button = document.querySelector("#server-search");
             if (button) button.remove();
             const separator = document.querySelector(".server-search-separator");
@@ -56,6 +59,7 @@ module.exports = (Plugin, Api) => {
         }
 
         addSearchButton() {
+            if (document.querySelector("#server-search")) return;
             const guildElement = DOMTools.createElement(this.guildHtml);
             const guildElementInner = guildElement.querySelector(".wrapper-25eVIn");
             const separator = document.querySelector(".listItem-GuPuDH .guildSeparator-33mFX6");

@@ -1,5 +1,5 @@
 module.exports = (Plugin, Api) => {
-    const {DiscordSelectors, PluginUtilities, Tooltip, DiscordModules, Patcher, Utilities, DCM, DOMTools} = Api;
+    const {DiscordSelectors, PluginUtilities, Tooltip, DiscordModules, Patcher, Utilities, DCM, DOMTools, ReactTools} = Api;
 
     return class BetterFormattingRedux extends Plugin {
         constructor() {
@@ -175,7 +175,7 @@ module.exports = (Plugin, Api) => {
             const textarea = document.querySelector(DiscordSelectors.Textarea.textArea);
             if (!textarea) return;
             if (textarea.tagName === "TEXTAREA") return this.oldWrapSelection(textarea, leftWrapper, rightWrapper);
-            const slateEditor = Utilities.findInTree(textarea.__reactInternalInstance$, e => e && e.wrapText, {walkable: ["return", "stateNode", "editorRef"]});
+            const slateEditor = Utilities.findInTree(ReactTools.getReactInstance(textarea), e => e && e.wrapText, {walkable: ["return", "stateNode", "editorRef"]});
             if (!slateEditor) return;
             return slateEditor.wrapText(leftWrapper, rightWrapper);
         }

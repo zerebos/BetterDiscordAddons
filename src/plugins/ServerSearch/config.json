@@ -7,13 +7,13 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.1.6",
+        "version": "0.1.8",
         "description": "Adds a button to search your servers. Search in place or in popout.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSearch/ServerSearch.plugin.js"
     },
     "changelog": [
-        {"title": "Bugs Squashed", "type": "fixed", "items": ["Button shows up again!", "Should no longer need to disable and enable after startup."]}
+        {"title": "Bugs Squashed", "type": "fixed", "items": ["Should no longer need to disable and enable after startup.", "Icon style matches Discord's discovery and add server buttons.", "Fixed button appearing multiple times when rerendering the guild list."]}
     ],
     "main": "index.js"
 }
