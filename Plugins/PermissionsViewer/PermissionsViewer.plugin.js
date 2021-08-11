@@ -57,7 +57,7 @@ module.exports = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {Patcher, DiscordModules, WebpackModules, PluginUtilities, Toasts, DiscordClasses, Utilities, DOMTools, ColorConverter, DCM, Structs} = Api;
+    const {Patcher, DiscordModules, WebpackModules, PluginUtilities, Toasts, DiscordClasses, Utilities, DOMTools, ColorConverter, DCM, Structs, ReactTools} = Api;
 
     const GuildStore = DiscordModules.GuildStore;
     const SelectedGuildStore = DiscordModules.SelectedGuildStore;
@@ -532,6 +532,11 @@ module.exports = (() => {
                 });
                 const roleList = popout.querySelector(UserPopoutSelectors.rolesList);
                 roleList.parentNode.insertBefore(permBlock, roleList.nextSibling);
+
+
+                const popoutInstance = ReactTools.getOwnerInstance(popout, {include: ["Popout"]});
+                if (!popoutInstance || !popoutInstance.updateOffsets) return;
+                popoutInstance.updateOffsets();
             };
 
 
