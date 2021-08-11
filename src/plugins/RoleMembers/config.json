@@ -13,6 +13,7 @@
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"
     },
     "changelog": [
+        {"title": "Small Change", "items": ["Holding control when clicking on a context menu item will now copy the role ID instead of open the popup."]},
         {"title": "Fully Fixed", "type": "fixed", "items": ["Context menu item shows and works again.", "Role mentions can be clicked once again.", "Now only one popout will show at a time instead of infinite."]}
 
     ],

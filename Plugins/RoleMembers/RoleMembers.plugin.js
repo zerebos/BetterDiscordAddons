@@ -33,7 +33,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {info:{name:"RoleMembers",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.14",description:"Allows you to see the members of each role on a server.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"},changelog:[{title:"Fully Fixed",type:"fixed",items:["Context menu item shows and works again.","Role mentions can be clicked once again.","Now only one popout will show at a time instead of infinite."]}],main:"index.js"};
+    const config = {info:{name:"RoleMembers",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.14",description:"Allows you to see the members of each role on a server.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"},changelog:[{title:"Small Change",items:["Holding control when clicking on a context menu item will now copy the role ID instead of open the popup."]},{title:"Fully Fixed",type:"fixed",items:["Context menu item shows and works again.","Role mentions can be clicked once again.","Now only one popout will show at a time instead of infinite."]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -57,7 +57,7 @@ module.exports = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {Popouts, DiscordModules, DiscordSelectors, DiscordClasses, Utilities, WebpackModules, Patcher, DCM, DOMTools} = Api;
+    const {Popouts, DiscordModules, DiscordSelectors, DiscordClasses, Utilities, WebpackModules, Patcher, DCM, DOMTools, Toasts} = Api;
 
     const from = arr => arr && arr.length > 0 && Object.assign(...arr.map(([k, v]) => ({[k]: v})));
     const filter = (obj, predicate) => from(Object.entries(obj).filter((o) => {return predicate(o[1]);}));
@@ -174,12 +174,22 @@ module.exports = (() => {
                         style: {color: role.colorString ? role.colorString : ""},
                         closeOnClick: false,
                         action: (e) => {
-                            this.showRolePopout(e.target.closest(DiscordSelectors.ContextMenu.item), guildId, role.id);
+                            if (e.ctrlKey) {
+                                try {
+                                    DiscordNative.clipboard.copy(role.id);
+                                    Toasts.success("Copied Role ID to clipboard!");
+                                }
+                                catch {
+                                    Toasts.success("Could not copy Role ID to clipboard");
+                                }
+                            }
+                            else {
+                                this.showRolePopout(e.target.closest(DiscordSelectors.ContextMenu.item), guildId, role.id);
+                            }
                         }
                     });
                     roleItems.push(item);
                 }
-                // props.children[""0""].props.children
                 const original = retVal.props.children[0].props.children;
                 const newOne = DCM.buildMenuItem({type: "submenu", label: "Role Members", children: roleItems});
                 if (Array.isArray(original)) original.splice(1, 0, newOne);

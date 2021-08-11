@@ -1,6 +1,6 @@
 
 module.exports = (Plugin, Api) => {
-    const {Popouts, DiscordModules, DiscordSelectors, DiscordClasses, Utilities, WebpackModules, Patcher, DCM, DOMTools} = Api;
+    const {Popouts, DiscordModules, DiscordSelectors, DiscordClasses, Utilities, WebpackModules, Patcher, DCM, DOMTools, Toasts} = Api;
 
     const from = arr => arr && arr.length > 0 && Object.assign(...arr.map(([k, v]) => ({[k]: v})));
     const filter = (obj, predicate) => from(Object.entries(obj).filter((o) => {return predicate(o[1]);}));
@@ -82,12 +82,22 @@ module.exports = (Plugin, Api) => {
                         style: {color: role.colorString ? role.colorString : ""},
                         closeOnClick: false,
                         action: (e) => {
-                            this.showRolePopout(e.target.closest(DiscordSelectors.ContextMenu.item), guildId, role.id);
+                            if (e.ctrlKey) {
+                                try {
+                                    DiscordNative.clipboard.copy(role.id);
+                                    Toasts.success("Copied Role ID to clipboard!");
+                                }
+                                catch {
+                                    Toasts.success("Could not copy Role ID to clipboard");
+                                }
+                            }
+                            else {
+                                this.showRolePopout(e.target.closest(DiscordSelectors.ContextMenu.item), guildId, role.id);
+                            }
                         }
                     });
                     roleItems.push(item);
                 }
-                // props.children[""0""].props.children
                 const original = retVal.props.children[0].props.children;
                 const newOne = DCM.buildMenuItem({type: "submenu", label: "Role Members", children: roleItems});
                 if (Array.isArray(original)) original.splice(1, 0, newOne);
