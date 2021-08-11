@@ -4,7 +4,7 @@ ServerSorter is going away.
 
 It's become unrealistic to sort servers/guilds in the list with the new server folders. If you do would miss the functionality of ServerSorter, do not worry, the functionality will be absorbed into [ServerSearch](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch) at some point, so keep your eyes peeled for that.
 
-# ServerSorter - [Download](https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSorter/ServerSorter.plugin.js)
+# ServerSorter
 
 Adds the ability to do some basic sorting of your servers.
 
