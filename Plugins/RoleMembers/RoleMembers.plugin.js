@@ -1,6 +1,6 @@
 /**
  * @name RoleMembers
- * @version 0.1.13
+ * @version 0.1.14
  * @authorLink https://twitter.com/IAmZerebos
  * @donate https://paypal.me/ZackRauen
  * @patreon https://patreon.com/Zerebos
@@ -33,7 +33,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {info:{name:"RoleMembers",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.13",description:"Allows you to see the members of each role on a server.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"},changelog:[{title:"No More Overflow",type:"fixed",items:["Long lists of users no longer take up the whole screen aka the plugin was updated to match Discord's new scrollers."]}],main:"index.js"};
+    const config = {info:{name:"RoleMembers",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.14",description:"Allows you to see the members of each role on a server.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"},changelog:[{title:"Fully Fixed",type:"fixed",items:["Context menu item shows and works again.","Role mentions can be clicked once again.","Now only one popout will show at a time instead of infinite."]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -63,12 +63,11 @@ module.exports = (() => {
     const filter = (obj, predicate) => from(Object.entries(obj).filter((o) => {return predicate(o[1]);}));
 
     const GuildStore = DiscordModules.GuildStore;
-    const SelectedGuildStore = DiscordModules.SelectedGuildStore;
     const PopoutStack = DiscordModules.PopoutStack;
     const GuildMemberStore = DiscordModules.GuildMemberStore;
     const UserStore = DiscordModules.UserStore;
     const ImageResolver = DiscordModules.ImageResolver;
-    const WrapperClasses = WebpackModules.getByProps("wrapperHover");
+    // const WrapperClasses = WebpackModules.getByProps("wrapperHover");
     const animate = DOMTools.animate ? DOMTools.animate.bind(DOMTools) : ({timing = _ => _, update, duration}) => {
         // https://javascript.info/js-animation
         const start = performance.now();
@@ -136,27 +135,25 @@ module.exports = (() => {
         }
 
         onStop() {
+            if (this.listener) this.listener({target: {classList: {contains: () => {}}, closest: () => {}}});
             const elements = document.querySelectorAll(".popout-role-members");
             for (const el of elements) el && el.remove();
             Patcher.unpatchAll();
         }
 
         patchRoleMention() {
-            const Pill = WebpackModules.getByDisplayName("Pill");
-            Patcher.after(Pill.prototype, "componentWillMount", (component) => {
+            const Pill = WebpackModules.getModule(m => m?.default.displayName === "RoleMention");
+            Patcher.after(Pill, "default", (_, [props], component) => {
                 if (!component || !component.props || !component.props.className) return;
-                if (!component.props.className.includes("mention")) return;
-                component.props.className += ` ${WrapperClasses.wrapper} ${WrapperClasses.wrapperHover}`;
-                component.props.onClick = () => {
-                    const currentServer = SelectedGuildStore.getGuildId();
-
-                    const roles = GuildStore.getGuild(currentServer).roles;
+                if (!component.props.className.toLowerCase().includes("mention")) return;
+                component.props.className += ` mention interactive`;
+                component.props.onClick = (e) => {
+                    const roles = GuildStore.getGuild(props.guildId).roles;
                     const name = component.props.children[0].slice(1);
                     let role = filter(roles, r => r.name == name);
                     if (!role) return;
                     role = role[Object.keys(role)[0]];
-
-                    this.showRolePopout(DiscordModules.ReactDOM.findDOMNode(component), currentServer, role.id);
+                    this.showRolePopout(e.nativeEvent.target, props.guildId, role.id);
                 };
             });
         }
@@ -226,7 +223,10 @@ module.exports = (() => {
         }
 
         showPopout(popout, relativeTarget) {
+            if (this.listener) this.listener({target: {classList: {contains: () => {}}, closest: () => {}}}); // Close any previous popouts
+            
             document.querySelector(DiscordSelectors.Popouts.popouts).append(popout);
+
             const maxWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
             const maxHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
@@ -267,13 +267,15 @@ module.exports = (() => {
             if (offset.top + popout.offsetHeight >= maxHeight) popout.style.top = Math.round(maxHeight - popout.offsetHeight) + "px";
             else popout.style.top = offset.top + "px";
 
-            const listener = document.addEventListener("click", (e) => {
+            this.listener = (e) => {
                 const target = e.target;
                 if (!target.classList.contains("popout-role-members") && !target.closest(".popout-role-members")) {
                     popout.remove();
-                    document.removeEventListener("click", listener);
+                    document.removeEventListener("click", this.listener);
+                    delete this.listener;
                 }
-            });
+            };
+            setTimeout(() => document.addEventListener("click", this.listener), 500);
         }
 
     };
