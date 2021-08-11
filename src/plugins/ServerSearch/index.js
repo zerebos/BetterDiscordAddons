@@ -59,6 +59,7 @@ module.exports = (Plugin, Api) => {
         }
 
         addSearchButton() {
+            if (document.querySelector("#server-search")) return;
             const guildElement = DOMTools.createElement(this.guildHtml);
             const guildElementInner = guildElement.querySelector(".wrapper-25eVIn");
             const separator = document.querySelector(".listItem-GuPuDH .guildSeparator-33mFX6");

@@ -1,6 +1,6 @@
 /**
  * @name ServerSearch
- * @version 0.1.7
+ * @version 0.1.8
  * @authorLink https://twitter.com/IAmZerebos
  * @donate https://paypal.me/ZackRauen
  * @patreon https://patreon.com/Zerebos
@@ -33,7 +33,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {info:{name:"ServerSearch",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.7",description:"Adds a button to search your servers. Search in place or in popout.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSearch/ServerSearch.plugin.js"},changelog:[{title:"Bugs Squashed",type:"fixed",items:["Should no longer need to disable and enable after startup.","Icon style matches Discord's discovery and add server buttons."]}],main:"index.js"};
+    const config = {info:{name:"ServerSearch",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.8",description:"Adds a button to search your servers. Search in place or in popout.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/ServerSearch/ServerSearch.plugin.js"},changelog:[{title:"Bugs Squashed",type:"fixed",items:["Should no longer need to disable and enable after startup.","Icon style matches Discord's discovery and add server buttons.","Fixed button appearing multiple times when rerendering the guild list."]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -198,6 +198,7 @@ module.exports = (() => {
         }
 
         addSearchButton() {
+            if (document.querySelector("#server-search")) return;
             const guildElement = DOMTools.createElement(this.guildHtml);
             const guildElementInner = guildElement.querySelector(".wrapper-25eVIn");
             const separator = document.querySelector(".listItem-GuPuDH .guildSeparator-33mFX6");
