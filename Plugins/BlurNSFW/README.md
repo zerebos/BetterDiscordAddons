@@ -1,4 +1,4 @@
-# BlurNSFW - [Download](https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BlurNSFW/BlurNSFW.plugin.js)
+# BlurNSFW - [Download](https://betterdiscord.app/Download?id=28)
 
 Blurs images in NSFW channels until you hover over it.
 

@@ -1,4 +1,4 @@
-# RoleMembers - [Download](https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js)
+# RoleMembers - [Download](https://betterdiscord.app/Download?id=190)
 
 Allows you to see the members of each role on a server. Can also see members from a mention.
 
