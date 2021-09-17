@@ -139,15 +139,22 @@ module.exports = (() => {
             }
 };})();
             this.allLanguages = (() => {return {
-    C: {cpp: "C++", csharp: "C#", coffeescript: "CoffeeScript", css: "CSS"},
-    H: {html: "HTML/XML"},
-    J: {java: "Java", js: "JavaScript", json: "JSON"},
-    M: {markdown: "Markdown"},
-    P: {perl: "Perl", php: "PHP", py: "Python"},
-    R: {ruby: "Ruby"},
-    S: {sql: "SQL"},
-    V: {vbnet: "VB.NET", vhdl: "VHDL"}
-};})();
+    B: { bash: "Bash" },
+    C: { cpp: "Cpp", csharp: "C#", coffeescript: "CoffeeScript", css: "CSS" },
+    D: { dockerfile: "Dockerfile" },
+    G: { go: "Go" },
+    H: { html: "HTML/XML" },
+    J: { java: "Java", js: "JavaScript", json: "JSON" },
+    K: { kotlin: "Kotlin" },
+    L: { lua: "Lua", less: "Less" },
+    M: { markdown: "Markdown" },
+    O: { objectivec: "Objective-C" },
+    P: { perl: "Perl", php: "PHP", py: "Python" },
+    R: { ruby: "Ruby", rust: "Rust" },
+    S: { sql: "SQL", swift: "Swift", scss: "SCSS" },
+    T: { ts: "TypeScript" },
+    V: { vbnet: "VB.NET", vhdl: "VHDL" }
+	    };})();
             this.mainCSS = `.bf-toolbar {
 	user-select: none;
 	white-space: nowrap;
