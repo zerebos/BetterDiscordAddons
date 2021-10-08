@@ -33,7 +33,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {info:{name:"BlurNSFW",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.2.5",description:"Blurs images in NSFW channels until you hover over it.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BlurNSFW",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BlurNSFW/BlurNSFW.plugin.js"},changelog:[{title:"New Option",items:["An option to stop blurring a picture when clicking on it/expanding it was added to settings."]}],defaultConfig:[{type:"slider",id:"blurSize",name:"Blur Size",note:"The size (in px) of the blurred pixels.",value:10,min:0,max:50,units:"px"},{type:"slider",id:"blurTime",name:"Blur Time",note:"The time (in ms) it takes for the blur to disappear and reappear.",value:200,min:0,max:5000,units:"ms"},{type:"switch",id:"blurOnFocus",name:"Blur When Focused",note:"This setting keeps the blur when clicking on/expanding an image.",value:true}],main:"index.js"};
+    const config = {info:{name:"BlurNSFW",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.2.5",description:"Blurs images in NSFW channels until you hover over it.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BlurNSFW",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BlurNSFW/BlurNSFW.plugin.js"},changelog:[{title:"New Option",items:["An option to blur everything in every channel was added to settings."]}],defaultConfig:[{type:"slider",id:"blurSize",name:"Blur Size",note:"The size (in px) of the blurred pixels.",value:10,min:0,max:50,units:"px"},{type:"slider",id:"blurTime",name:"Blur Time",note:"The time (in ms) it takes for the blur to disappear and reappear.",value:200,min:0,max:5000,units:"ms"},{type:"switch",id:"blurOnFocus",name:"Blur When Focused",note:"This setting keeps the blur when clicking on/expanding an image.",value:true},{type:"switch",id:"blurEverything",name:"Blur everything",note:"Blurs every image/video in every channel",value:false}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -85,7 +85,9 @@ module.exports = (() => {
         onStart() {
             const blurAccessory = (thisObject) => {
                 const channel = ChannelStore.getChannel(SelectedChannelStore.getChannelId());
-                if (!channel || !channel.isNSFW || !channel.isNSFW()) return;
+                if (!this.settings.blurEverything) {
+                  if (!channel || !channel.isNSFW || !channel.isNSFW()) return;
+                }
                 const element = ReactDOM.findDOMNode(thisObject);
                 const mediaElement = element.querySelector("img") || element.querySelector("video");
                 if (!mediaElement) return;
@@ -118,7 +120,8 @@ module.exports = (() => {
             const styleString = Utilities.formatString(this.styleTemplate, {
                 size: Math.round(this.settings.blurSize),
                 time: Math.round(this.settings.blurTime),
-                blurOnFocus: this.settings.blurOnFocus ? "" : ".layer-2KE1M9 img.blur,"
+                blurOnFocus: this.settings.blurOnFocus ? "" : ".layer-2KE1M9 img.blur,",
+                blurEverything: this.settings.blurEverything
             });
             PluginUtilities.addStyle(this.getName(), styleString);
         }
