@@ -1,6 +1,6 @@
 /**
  * @name RoleMembers
- * @version 0.1.14
+ * @version 0.1.15
  * @authorLink https://twitter.com/IAmZerebos
  * @donate https://paypal.me/ZackRauen
  * @patreon https://patreon.com/Zerebos
@@ -31,6 +31,8 @@
     WScript.Quit();
 
 @else@*/
+
+
 
 module.exports = (() => {
     const config = {info:{name:"RoleMembers",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.14",description:"Allows you to see the members of each role on a server.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"},changelog:[{title:"Small Change",items:["Holding control when clicking on a context menu item will now copy the role ID instead of open the popup."]},{title:"Fully Fixed",type:"fixed",items:["Context menu item shows and works again.","Role mentions can be clicked once again.","Now only one popout will show at a time instead of infinite."]}],main:"index.js"};
@@ -67,6 +69,117 @@ module.exports = (() => {
     const GuildMemberStore = DiscordModules.GuildMemberStore;
     const UserStore = DiscordModules.UserStore;
     const ImageResolver = DiscordModules.ImageResolver;
+    var popoutElement = `<div class="layer1" style="position: fixed; z-index: 1001;     forced-color-adjust: none; position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: none!important;
+    pointer-events: none;
+    z-index: 1002;     outline: 0;     margin: 0;
+    padding: 0;
+    border: 0;
+    font-weight: inherit;
+    font-style: inherit;
+    font-family: inherit;
+    font-size: 100%;
+    vertical-align: baseline;
+    }">
+    <div class="backdrop1" style="opacity: 0.85; background: hsl(0, calc(var(--saturation-factor, 1) * 0%), 0%); pointer-events: all;     forced-color-adjust: none;     position: fixed;
+       top: 0;
+       right: 0;
+       bottom: 0;
+       left: 0;
+       -webkit-transform: translateZ(0);
+       transform: translateZ(0);     outline: 0;     margin: 0;
+       padding: 0;
+       border: 0;
+       font-weight: inherit;
+       font-style: inherit;
+       font-family: inherit;
+       font-size: 100%;
+       vertical-align: baseline;     text-rendering: optimizeLegibility; position: absolute;
+       overflow: hidden;
+       display: -webkit-box;
+       display: -ms-flexbox;
+       display: flex;
+       -webkit-box-orient: vertical;
+       -webkit-box-direction: normal;
+       -ms-flex-direction: column;
+       flex-direction: column; line-height: 1;
+       margin: 0;
+       padding: 0;
+       font-family: var(--font-primary);
+       overflow: hidden;
+       -webkit-user-select: none;
+       -moz-user-select: none;
+       -ms-user-select: none;
+       user-select: none;"></div>
+    <div class="layer2" style = "forced-color-adjust: none;     -webkit-box-align: center;
+       -ms-flex-align: center;
+       align-items: center;
+       display: -webkit-box;
+       display: -ms-flexbox;
+       display: flex;
+       -webkit-box-pack: center;
+       -ms-flex-pack: center;
+       justify-content: center;
+       -webkit-box-orient: vertical;
+       -webkit-box-direction: normal;
+       -ms-flex-direction: column;
+       flex-direction: column;
+       min-height: 0;
+       padding-top: 40px;
+       padding-bottom: 40px; position: absolute;
+       top: 0;
+       bottom: 0;
+       left: 0;
+       right: 0; outline: 0; margin: 0;
+       padding: 0;
+       border: 0;
+       font-weight: inherit;
+       font-style: inherit;
+       font-family: inherit;
+       font-size: 100%;
+       vertical-align: baseline; position: absolute;
+       top: 0;
+       left: 0;
+       right: 0;
+       bottom: 0;
+       background: none!important;
+       pointer-events: none;
+       z-index: 1002;     position: absolute;
+       overflow: hidden;
+       display: -webkit-box;
+       display: -ms-flexbox;
+       display: flex;
+       -webkit-box-orient: vertical;
+       -webkit-box-direction: normal;
+       -ms-flex-direction: column;
+       flex-direction: column;">
+       <div class="focusLock-Ns3yie" role="dialog" aria-label="Écran du profil d'utilisateur" tabindex="-1" aria-modal="true">
+          <div class="root-3QyAh1 root-1gCeng small-3iVZYw fullscreenOnMobile-1bD22y" style="opacity: 1; transform: scale(1);">
+             <div class="topSection-y3p-_D">
+                <div class="tabBarContainer-37hZsr">
+                   <div class="tabBar-3nvOPa top-28JiJ-" role="tablist" aria-orientation="horizontal">
+                      <div class="tabBarItem-3dfX8P item-PXvHYJ selected-3s45Ha themed-OHr7kt" role="tab" aria-selected="true" aria-controls="user_info-tab" aria-disabled="false" tabindex="0">Utilisateurs trouvés</div>
+                   </div>
+                </div>
+             </div>
+             <div class="body1 auto-Ge5KZx" style="forced-color-adjust: none;height: 240px;background-color: var(--background-floating);    outline: 0;margin: 0;
+             padding: 0;
+             border: 0;
+             font-weight: inherit;
+             font-style: inherit;
+             font-family: inherit;
+             font-size: 100%;
+             vertical-align: baseline;
+             overflow:hidden scroll">
+             </div>
+          </div>
+       </div>
+    </div>
+ </div>`
     // const WrapperClasses = WebpackModules.getByProps("wrapperHover");
     const animate = DOMTools.animate ? DOMTools.animate.bind(DOMTools) : ({timing = _ => _, update, duration}) => {
         // https://javascript.info/js-animation
@@ -197,26 +310,19 @@ module.exports = (() => {
             });
         }
 
+
         showRolePopout(target, guildId, roleId) {
             const roles = GuildStore.getGuild(guildId).roles;
             const role = roles[roleId];
+            let popout;
             let members = GuildMemberStore.getMembers(guildId);
+            var parser = new DOMParser();
             if (guildId != roleId) members = members.filter(m => m.roles.includes(role.id));
 
-            const popout = DOMTools.createElement(Utilities.formatString(popoutHTML, {className: DiscordClasses.Popouts.popout.add(DiscordClasses.Popouts.noArrow), memberCount: members.length}));
-            const searchInput = popout.querySelector("input");
-            searchInput.addEventListener("keyup", () => {
-                const items = popout.querySelectorAll(".role-member");
-                for (let i = 0, len = items.length; i < len; i++) {
-                    const search = searchInput.value.toLowerCase();
-                    const item = items[i];
-                    const username = item.querySelector(".username").textContent.toLowerCase();
-                    if (!username.includes(search)) item.style.display = "none";
-                    else item.style.display = "";
-                }
-            });
-
-            const scroller = popout.querySelector(".role-members");
+            var doc = parser.parseFromString(popoutElement, 'text/html');
+            popout = doc;
+            popout.getElementsByClassName("backdrop1")[0].onclick = function(){document.getElementsByClassName("layer1")[0].remove()}
+            document.getElementById("app-mount").prepend(popout.getElementsByClassName("layer1")[0])
             for (const member of members) {
                 const user = UserStore.getUser(member.userId);
                 const elem = DOMTools.createElement(Utilities.formatString(itemHTML, {username: user.username, discriminator: "#" + user.discriminator, avatar_url: ImageResolver.getUserAvatarURL(user)}));
@@ -225,11 +331,8 @@ module.exports = (() => {
                     elem.classList.add("popout-open");
                     if (elem.classList.contains("popout-open")) Popouts.showUserPopout(elem, user, {guild: guildId});
                 });
-                scroller.append(elem);
+                document.getElementsByClassName("body1")[0].append(elem);
             }
-
-            this.showPopout(popout, target);
-            searchInput.focus();
         }
 
         showPopout(popout, relativeTarget) {
