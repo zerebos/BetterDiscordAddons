@@ -1,3 +1,7 @@
+# Discontinued
+
+The functionality of this plugin has been incoorporated into Discord itself.
+
 # ImageToClipboard
 
 Allows you to copy images (png/jpg) directly to your system clipboard.

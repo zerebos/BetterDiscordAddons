@@ -15,12 +15,8 @@ A series of plugins and themes for BetterDiscord.
  - [HideDisabledEmojis](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideDisabledEmojis) - Hides disabled emojis from the emoji picker.
  - [HideIconBadge](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideIconBadge) - Hides the badge that appears on the taskbar icon.
  - [HideMutedServers](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideMutedServers) - Hides muted servers with a context menu option to show/hide.
- - [ImageToClipboard](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ImageToClipboard) - Allows you to copy images (png/jpg) directly to your system clipboard.
  - [PermissionsViewer](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer) - Allows you to view a user's permissions. Thanks to Noodlebox for the idea!
- - [RemoveMinimumSize](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RemoveMinimumSize) - Removes the minimum window size forced by Discord.
- - [ResizableCSS](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ResizableCSS) - Allows you to resize the detached CustomCSS window.
  - [RoleMembers](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers) - Allows you to see the members of each role on a server.
- - [SendButton](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/SendButton) - Adds a send button to discord.
  - [ServerSearch](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/ServerSearch) - Adds a button to search your servers.
  - [ZeresPluginLibrary](https://github.com/rauenzi/BDPluginLibrary) - Gives other plugins utility functions and the ability to emulate v2.
  
