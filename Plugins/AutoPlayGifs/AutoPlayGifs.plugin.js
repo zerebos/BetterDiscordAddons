@@ -1,9 +1,7 @@
 /**
  * @name AutoPlayGifs
- * @version 0.1.4
+ * @version 0.1.5
  * @authorLink https://twitter.com/IAmZerebos
- * @donate https://paypal.me/ZackRauen
- * @patreon https://patreon.com/Zerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AutoPlayGifs
  * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AutoPlayGifs/AutoPlayGifs.plugin.js
  * @updateUrl https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AutoPlayGifs/AutoPlayGifs.plugin.js
@@ -33,7 +31,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {info:{name:"AutoPlayGifs",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.4",description:"Automatically plays avatars and stuff.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AutoPlayGifs",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AutoPlayGifs/AutoPlayGifs.plugin.js"},changelog:[{title:"Fixed",type:"fixed",items:["Should animate avatars in chat again!","Guild icons animate again!"]}],defaultConfig:[{type:"switch",id:"chat",name:"Autoplay Chat",note:"Autoplays avatars in the chat area for Nitro users.",value:true},{type:"switch",id:"memberList",name:"Autoplay Memberlist",note:"Autoplays avatars in the member list for Nitro users.",value:true},{type:"switch",id:"guildList",name:"Autoplay Guilds",note:"Autoplays guild icons in the guild list for servers that have been boosted.",value:true},{type:"switch",id:"activityStatus",name:"Activity Status",note:"Autoplays emojis and icons in the activity status like in the member list.",value:true}],main:"index.js"};
+    const config = {info:{name:"AutoPlayGifs",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.5",description:"Automatically plays avatars and stuff.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AutoPlayGifs",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AutoPlayGifs/AutoPlayGifs.plugin.js"},changelog:[{title:"Fixed",type:"fixed",items:["Should animate avatars in chat again!","Guild icons animate again!"]}],defaultConfig:[{type:"switch",id:"avatars",name:"Autoplay User Avatars",note:"Autoplays avatars for Nitro users.",value:true},{type:"switch",id:"guilds",name:"Autoplay Guild Icons",note:"Autoplays guild icons in the guild list for servers that have been boosted.",value:true},{type:"switch",id:"activityStatus",name:"Activity Status",note:"Autoplays emojis and icons in the activity status like in the member list.",value:true}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -57,39 +55,30 @@ module.exports = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {WebpackModules, DiscordModules, Patcher, ReactComponents, Utilities} = Api;
+    const {WebpackModules, DiscordModules, Patcher} = Api;
 
     return class AutoPlayGifs extends Plugin {
 
         onStart() {
-            this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
-            if (this.settings.chat) this.patchChatAvatars();
-            if (this.settings.memberList) this.patchMemberListAvatars();
-            if (this.settings.guildList) this.patchGuildList(this.promises.state);
+            if (this.settings.avatars) this.patchUsers();
+            if (this.settings.guilds) this.patchGuilds();
             if (this.settings.activityStatus) this.patchActivityStatus();
         }
 
         onStop() {
-            if (this.cancelChatAvatars) this.cancelChatAvatars();
-            if (this.cancelMemberListAvatars) this.cancelMemberListAvatars();
-            if (this.cancelGuildList) this.cancelGuildList();
-            if (this.cancelActivityStatus) this.cancelActivityStatus();
+            Patcher.unpatchAll();
         }
 
         getSettingsPanel() {
             const panel = this.buildSettingsPanel();
             panel.addListener((id, value) => {
-                if (id == "chat") {
-                    if (value) this.patchChatAvatars();
-                    else this.cancelChatAvatars();
+                if (id == "avatars") {
+                    if (value) this.patchUsers();
+                    else this.cancelUsers();
                 }
-                if (id == "memberList") {
-                    if (value) this.patchMemberListAvatars();
-                    else this.cancelMemberListAvatars();
-                }
-                if (id == "guildList") {
-                    if (value) this.patchGuildList();
-                    else this.cancelGuildList();
+                if (id == "guilds") {
+                    if (value) this.patchGuilds();
+                    else this.cancelGuilds();
                 }
                 if (id == "activityStatus") {
                     if (value) this.patchActivityStatus();
@@ -99,47 +88,17 @@ module.exports = (() => {
             return panel.getElement();
         }
 
-        async patchGuildList(promiseState) {
-            const Guild = await ReactComponents.getComponentByName("Guild", ".listItem-GuPuDH");
-            if (promiseState.cancelled) return;
-            this.cancelGuildList = Patcher.after(Guild.component.prototype, "render", (thisObject, args, returnValue) => {
-                if (!thisObject.props.animatable) return;
-                const iconComponent = Utilities.findInReactTree(returnValue, p => p.icon);
-                if (!iconComponent) return;
-                iconComponent.icon = thisObject.props.guild.getIconURL("gif");
-            });
-            Guild.forceUpdateAll();
-        }
-
-        patchChatAvatars() {
-            const MessageHeader = WebpackModules.getByProps("MessageTimestamp");
-            this.cancelChatAvatars = Patcher.after(MessageHeader, "default", (_, __, returnValue) => {
-                const AvatarComponent = Utilities.getNestedProp(returnValue, "props.children.0");
-                if (!AvatarComponent || !AvatarComponent.props || !AvatarComponent.props.renderPopout) return;
-                const renderer = Utilities.getNestedProp(AvatarComponent, "props.children");
-                if (!renderer || typeof(renderer) !== "function" || renderer.__patchedAPG) return;
-                AvatarComponent.props.children = function() {
-                    const rv = renderer(...arguments);
-                    const id = rv.props.src.split("/")[4];
-                    const avatar = DiscordModules.ImageResolver.getUserAvatarURL(DiscordModules.UserStore.getUser(id));
-                    const hasAnimatedAvatar = avatar.includes("a_");
-                    if (!hasAnimatedAvatar) return rv;
-                    rv.props.src = avatar.replace("webp", "gif");
-                    return rv;
-                };
-                AvatarComponent.props.children.__patchedAPG = true;
+        patchGuilds() {
+            const firstGuild = DiscordModules.SortedGuildStore.getFlattenedGuilds()[0];
+            this.cancelGuildList = Patcher.before(firstGuild.constructor.prototype, "getIconURL", (thisObject, args) => {
+                args[1] = true;
             });
         }
 
-        patchMemberListAvatars() {
-            const MemberList = WebpackModules.findByDisplayName("MemberListItem");
-            this.cancelMemberListAvatars = Patcher.before(MemberList.prototype, "render", (thisObject) => {
-                if (!thisObject.props.user) return;
-                const id = thisObject.props.user.id;
-                const avatar = DiscordModules.ImageResolver.getUserAvatarURL(DiscordModules.UserStore.getUser(id));
-                const hasAnimatedAvatar = avatar.includes("a_");
-                if (!hasAnimatedAvatar) return;
-                thisObject.props.user.getAvatarURL = () => {return avatar.replace("webp", "gif");};
+        patchUsers() {
+            const selfUser = DiscordModules.UserStore.getCurrentUser();
+            this.cancelUsers = Patcher.before(selfUser.constructor.prototype, "getAvatarURL", (thisObject, args) => {
+                args[2] = true;
             });
         }
 

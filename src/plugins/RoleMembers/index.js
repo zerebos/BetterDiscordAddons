@@ -1,12 +1,11 @@
 
 module.exports = (Plugin, Api) => {
-    const {Popouts, DiscordModules, DiscordSelectors, DiscordClasses, Utilities, WebpackModules, Patcher, DCM, DOMTools, Toasts} = Api;
+    const {Popouts, DiscordModules, DiscordSelectors, Utilities, WebpackModules, Patcher, DCM, DOMTools, Toasts} = Api;
 
     const from = arr => arr && arr.length > 0 && Object.assign(...arr.map(([k, v]) => ({[k]: v})));
     const filter = (obj, predicate) => from(Object.entries(obj).filter((o) => {return predicate(o[1]);}));
 
     const GuildStore = DiscordModules.GuildStore;
-    const PopoutStack = DiscordModules.PopoutStack;
     const GuildMemberStore = DiscordModules.GuildMemberStore;
     const UserStore = DiscordModules.UserStore;
     const ImageResolver = DiscordModules.ImageResolver;
@@ -38,11 +37,13 @@ module.exports = (Plugin, Api) => {
     return class RoleMembers extends Plugin {
 
         onStart() {
+            this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
             this.patchRoleMention(); // <@&367344340231782410>
-            this.patchGuildContextMenu();
+            this.patchGuildContextMenu(this.promises.state);
         }
 
         onStop() {
+            this.promises.cancel();
             if (this.listener) this.listener({target: {classList: {contains: () => {}}, closest: () => {}}});
             const elements = document.querySelectorAll(".popout-role-members");
             for (const el of elements) el && el.remove();
@@ -66,8 +67,9 @@ module.exports = (Plugin, Api) => {
             });
         }
 
-        patchGuildContextMenu() {
-            const GuildContextMenu = WebpackModules.getModule(m => m.default && m.default.displayName == "GuildContextMenu");
+        async patchGuildContextMenu(promiseState) {
+            const GuildContextMenu = await DCM.getDiscordMenu("GuildContextMenu");
+            if (promiseState.cancelled) return;
             Patcher.after(GuildContextMenu, "default", (_, args, retVal) => {
                 const props = args[0];
                 const guildId = props.guild.id;
@@ -111,7 +113,7 @@ module.exports = (Plugin, Api) => {
             let members = GuildMemberStore.getMembers(guildId);
             if (guildId != roleId) members = members.filter(m => m.roles.includes(role.id));
 
-            const popout = DOMTools.createElement(Utilities.formatString(popoutHTML, {className: DiscordClasses.Popouts.popout.add(DiscordClasses.Popouts.noArrow), memberCount: members.length}));
+            const popout = DOMTools.createElement(Utilities.formatString(popoutHTML, {memberCount: members.length}));
             const searchInput = popout.querySelector("input");
             searchInput.addEventListener("keyup", () => {
                 const items = popout.querySelectorAll(".role-member");
@@ -129,9 +131,7 @@ module.exports = (Plugin, Api) => {
                 const user = UserStore.getUser(member.userId);
                 const elem = DOMTools.createElement(Utilities.formatString(itemHTML, {username: user.username, discriminator: "#" + user.discriminator, avatar_url: ImageResolver.getUserAvatarURL(user)}));
                 elem.addEventListener("click", () => {
-                    PopoutStack.close("role-members");
-                    elem.classList.add("popout-open");
-                    if (elem.classList.contains("popout-open")) Popouts.showUserPopout(elem, user, {guild: guildId});
+                    setTimeout(() => Popouts.showUserPopout(elem, user, {guild: guildId}), 1);
                 });
                 scroller.append(elem);
             }
@@ -143,14 +143,14 @@ module.exports = (Plugin, Api) => {
         showPopout(popout, relativeTarget) {
             if (this.listener) this.listener({target: {classList: {contains: () => {}}, closest: () => {}}}); // Close any previous popouts
             
-            document.querySelector(DiscordSelectors.Popouts.popouts).append(popout);
+            document.querySelector(`#app-mount > ${DiscordSelectors.TooltipLayers.layerContainer}`).append(popout);
 
             const maxWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
             const maxHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
             const offset = relativeTarget.getBoundingClientRect();
             if (offset.right + popout.offsetHeight >= maxWidth) {
-                popout.classList.add(...DiscordClasses.Popouts.popoutLeft.value.split(" "));
+                // popout.classList.add(...DiscordClasses.Popouts.popoutLeft.value.split(" "));
                 popout.style.left = Math.round(offset.left - popout.offsetWidth - 20) + "px";
                 // popout.animate({left: Math.round(offset.left - popout.offsetWidth - 10)}, 100);
                 const original = Math.round(offset.left - popout.offsetWidth - 20);
@@ -166,7 +166,7 @@ module.exports = (Plugin, Api) => {
                 });
             }
             else {
-                popout.classList.add(...DiscordClasses.Popouts.popoutRight.value.split(" "));
+                // popout.classList.add(...DiscordClasses.Popouts.popoutRight.value.split(" "));
                 popout.style.left = (offset.right + 10) + "px";
                 // popout.animate({left: offset.right}, 100);
                 const original = offset.right + 10;

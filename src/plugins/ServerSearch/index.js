@@ -1,5 +1,5 @@
 module.exports = (Plugin, Api) => {
-    const {DiscordSelectors, PluginUtilities, ColorConverter, WebpackModules, DiscordModules, DOMTools, Tooltip, Utilities, DiscordClasses, Patcher} = Api;
+    const {DiscordSelectors, PluginUtilities, ColorConverter, WebpackModules, DiscordModules, DOMTools, Tooltip, Utilities, Patcher} = Api;
 
     const SortedGuildStore = DiscordModules.SortedGuildStore;
     const ImageResolver = DiscordModules.ImageResolver;
@@ -61,8 +61,8 @@ module.exports = (Plugin, Api) => {
         addSearchButton() {
             if (document.querySelector("#server-search")) return;
             const guildElement = DOMTools.createElement(this.guildHtml);
-            const guildElementInner = guildElement.querySelector(".wrapper-25eVIn");
-            const separator = document.querySelector(".listItem-GuPuDH .guildSeparator-33mFX6");
+            const guildElementInner = guildElement.querySelector(".wrapper-28eC3z");
+            const separator = document.querySelector(".listItem-3SmSlK .guildSeparator-a4uisj");
             separator.parentElement.parentElement.insertBefore(DOMTools.createElement(this.separatorHtml), separator.parentElement);
             separator.parentElement.parentElement.insertBefore(guildElement, separator.parentElement);
     
@@ -94,6 +94,9 @@ module.exports = (Plugin, Api) => {
                 // (end - start) * value + start
                 guildElementInner.style.borderRadius = ((15 - 25) * value.value + 25) + "px";
             });
+
+            guildElementInner.style.backgroundColor = gray;
+            guildElementInner.style.borderRadius = "25px";
     
             const animate = (v) => {
                 Animations.parallel([
@@ -124,14 +127,18 @@ module.exports = (Plugin, Api) => {
 
         showPopout(popout, relativeTarget, id, options = {}) {
             const {onClose} = options;
-            document.querySelector(DiscordSelectors.Popouts.popouts).append(popout);
+            if (this.listener) this.listener({target: {classList: {contains: () => {}}, closest: () => {}}}); // Close any previous popouts
+            
+            document.querySelector(`#app-mount > ${DiscordSelectors.TooltipLayers.layerContainer}`).append(popout);
+
             const maxWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
             const maxHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
             const offset = relativeTarget.getBoundingClientRect();
             if (offset.right + popout.offsetHeight >= maxWidth) {
-                popout.classList.add(...DiscordClasses.Popouts.popoutLeft.value.split(" "));
+                // popout.classList.add(...DiscordClasses.Popouts.popoutLeft.value.split(" "));
                 popout.style.left = Math.round(offset.left - popout.offsetWidth - 20) + "px";
+                // popout.animate({left: Math.round(offset.left - popout.offsetWidth - 10)}, 100);
                 const original = Math.round(offset.left - popout.offsetWidth - 20);
                 const endPoint = Math.round(offset.left - popout.offsetWidth - 10);
                 animateDOM({
@@ -145,8 +152,9 @@ module.exports = (Plugin, Api) => {
                 });
             }
             else {
-                popout.classList.add(...DiscordClasses.Popouts.popoutRight.value.split(" "));
+                // popout.classList.add(...DiscordClasses.Popouts.popoutRight.value.split(" "));
                 popout.style.left = (offset.right + 10) + "px";
+                // popout.animate({left: offset.right}, 100);
                 const original = offset.right + 10;
                 const endPoint = offset.right;
                 animateDOM({
@@ -163,21 +171,23 @@ module.exports = (Plugin, Api) => {
             if (offset.top + popout.offsetHeight >= maxHeight) popout.style.top = Math.round(maxHeight - popout.offsetHeight) + "px";
             else popout.style.top = offset.top + "px";
 
-            const listener = document.addEventListener("click", (e) => {
+            this.listener = (e) => {
                 const target = e.target;
                 if (!target.classList.contains(id) && !target.closest(`.${id}`)) {
                     popout.remove();
-                    document.removeEventListener("click", listener);
+                    document.removeEventListener("click", this.listener);
+                    delete this.listener;
                     if (onClose) onClose();
                 }
-            });
+            };
+            setTimeout(() => document.addEventListener("click", this.listener), 500);
         }
     
         showLargePopout(target, options = {}) {
             const {onClose} = options;
     
             const guilds = SortedGuildStore.getFlattenedGuilds().slice(0);
-            const popout = DOMTools.createElement(Utilities.formatString(this.largePopoutHtml, {className: DiscordClasses.Popouts.popout.add(DiscordClasses.Popouts.noArrow), count: guilds.length}));
+            const popout = DOMTools.createElement(Utilities.formatString(this.largePopoutHtml, {count: guilds.length}));
     
             const searchInput = popout.querySelector("input");
             searchInput.addEventListener("keyup", () => {

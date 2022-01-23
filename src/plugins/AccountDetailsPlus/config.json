@@ -7,56 +7,34 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.1.10",
+        "version": "1.0.0",
         "description": "Lets you view popout, nickname and more from your account panel at the bottom.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AccountDetailsPlus",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AccountDetailsPlus/AccountDetailsPlus.plugin.js"
     },
     "changelog": [
-        {"title": "Bugs Squashed", "type": "fixed", "items": ["Fix conflicting popouts.", "Stopped using deprecated functions."]}
+        {"title": "Rewrite", "items": ["Plugin has been completely rewritten and simplified.", "Settings are more streamlined and straightforward.", "More compatible with Discord's changes."]}
     ],
     "main": "index.js",
     "defaultConfig": [
         {
-            "type": "category",
-            "id": "popout",
-            "name": "User Popout",
-            "collapsible": true,
-            "shown": false,
-            "settings": [
-                {"type": "switch", "id": "avatar", "name": "Avatar", "note": "Opens your popout when clicking your avatar.", "value": true},
-                {"type": "switch", "id": "username", "name": "Username", "note": "Opens your popout when clicking your username.", "value": true}
+            "type": "dropdown",
+            "id": "popoutOnClick",
+            "name": "Which should be shown on the left click of your avatar? (Opposite will be shown on right click)",
+            "value": true,
+            "options": [
+                {"label": "Status Picker", "value": false},
+                {"label": "User Popout", "value": true}
             ]
         },
         {
-            "type": "category",
-            "id": "statusPicker",
-            "name": "Status Picker",
-            "collapsible": true,
-            "shown": false,
-            "settings": [
-                {"type": "switch", "id": "avatar", "name": "Avatar", "note": "Opens your popout when right clicking your avatar.", "value": true},
-                {"type": "switch", "id": "username", "name": "Username", "note": "Opens your popout when right clicking your username.", "value": true}
-            ]
-        },
-        {
-            "type": "category",
-            "id": "nickname",
-            "name": "Nickname",
-            "collapsible": true,
-            "shown": false,
-            "settings": [
-                {
-                    "type": "dropdown",
-                    "id": "showNickname",
-                    "name": "Name Shown",
-                    "value": true,
-                    "options": [
-                        {"label": "Username", "value": false},
-                        {"label": "Nickname", "value": true}
-                    ]
-                },
-                {"type": "switch", "id": "oppositeOnHover", "name": "Opposite On Hover", "note": "Shows the opposite on hover. e.g. if you are showing nickname, hovering will show your username.", "value": true}
+            "type": "dropdown",
+            "id": "nicknameByDefault",
+            "name": "Which should be shown by default? (Opposite will be shown on hover)",
+            "value": true,
+            "options": [
+                {"label": "Username", "value": false},
+                {"label": "Nickname", "value": true}
             ]
         }
     ]

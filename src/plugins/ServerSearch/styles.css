@@ -2,6 +2,10 @@
 	margin-bottom: 10px;
 }
 
+#server-search .icon-wrap {
+	background: transparent;
+}
+
 .popout-server-search,
 .popout-server-search-small {
 	margin-top: 0;
@@ -16,14 +20,18 @@
 }
 
 .no-image {
-	background: rgb(47, 49, 54);
 	font-size: 12px;
 	justify-content: center;
 	align-items: center;
 	display: flex;
 }
 
-.popout-server-search .image-33JSyf {
+.popout-server-search .avatar-b5OQ1N::before {
+	display: none;
+}
+
+.popout-server-search .avatar-b5OQ1N {
+	background-color: rgb(47, 49, 54);
 	width: 30px;
 	height: 30px;
 	border-radius: 50%;

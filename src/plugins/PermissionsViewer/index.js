@@ -54,6 +54,7 @@ module.exports = (Plugin, Api) => {
             this.modalHTML = Utilities.formatTString(this.modalHTML, DiscordClasses.Backdrop);
             this.modalHTML = Utilities.formatTString(this.modalHTML, DiscordClasses.Modals);
 
+            this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
             if (this.settings.popouts) this.bindPopouts();
             if (this.settings.contextMenus) this.bindContextMenus();
             this.setDisplayMode(this.settings.displayMode);
@@ -61,6 +62,7 @@ module.exports = (Plugin, Api) => {
 
         onStop() {
             PluginUtilities.removeStyle(this.getName());
+            this.promises.cancel();
             this.unbindPopouts();
             this.unbindContextMenus();
         }
@@ -138,8 +140,9 @@ module.exports = (Plugin, Api) => {
             for (const cancel of this.contextMenuPatches) cancel();
         }
 
-        patchGuildContextMenu() {
-            const GuildContextMenu = WebpackModules.getModule(m => m.default && m.default.displayName == "GuildContextMenu");
+        async patchGuildContextMenu() {
+            const GuildContextMenu = await DCM.getDiscordMenu("GuildContextMenu");
+            if (this.promises.state.cancelled) return;
             this.contextMenuPatches.push(Patcher.after(GuildContextMenu, "default", (_, [props], retVal) => {
                 const original = retVal.props.children[0].props.children;
                 const newOne = DCM.buildMenuItem({
@@ -154,9 +157,6 @@ module.exports = (Plugin, Api) => {
         }
 
         patchChannelContextMenu() {
-            const [VoiceChannelContextMenu] = WebpackModules.getModules(m => m.default && m.default.displayName == "ChannelListVoiceChannelContextMenu");
-            // eslint-disable-next-line no-unused-vars
-            const [CategoryChannelContextMenu, UNUSED, TextChannelContextMenu] = WebpackModules.getModules(m => m.default && m.default.displayName == "ChannelListTextChannelContextMenu");
             const patch = (_, [props], retVal) => {
                 const original = retVal.props.children[0].props.children;
                 const newOne = DCM.buildMenuItem({
@@ -170,14 +170,26 @@ module.exports = (Plugin, Api) => {
                 if (Array.isArray(original)) original.splice(1, 0, newOne);
                 else retVal.props.children[0].props.children = [original, newOne];
             };
-            this.contextMenuPatches.push(Patcher.after(CategoryChannelContextMenu, "default", patch));
-            this.contextMenuPatches.push(Patcher.after(TextChannelContextMenu, "default", patch));
-            this.contextMenuPatches.push(Patcher.after(VoiceChannelContextMenu, "default", patch));
+
+            DCM.getDiscordMenu("ChannelListVoiceChannelContextMenu").then(VoiceChannelContextMenu => {
+                if (this.promises.state.cancelled) return;
+                this.contextMenuPatches.push(Patcher.after(VoiceChannelContextMenu, "default", patch));
+            });
+
+            DCM.getDiscordMenu(m => m.displayName === "ChannelListTextChannelContextMenu" && !m.toString().includes("AnalyticsLocations.CONTEXT_MENU")).then(TextChannelContextMenu => {
+                if (this.promises.state.cancelled) return;
+                this.contextMenuPatches.push(Patcher.after(TextChannelContextMenu, "default", patch));
+            });
+
+            DCM.getDiscordMenu(m => m.displayName === "ChannelListTextChannelContextMenu" && m.toString().includes("AnalyticsLocations.CONTEXT_MENU")).then(CategoryChannelContextMenu => {
+                if (this.promises.state.cancelled) return;
+                this.contextMenuPatches.push(Patcher.after(CategoryChannelContextMenu, "default", patch));
+            });
         }
 
-        patchUserContextMenu() {
-            const UserContextMenu = WebpackModules.getModule(m => m.default && m.default.displayName == "GuildChannelUserContextMenu");
-
+        async patchUserContextMenu() {
+            const UserContextMenu = await DCM.getDiscordMenu("GuildChannelUserContextMenu");
+            if (this.promises.state.cancelled) return;
             this.contextMenuPatches.push(Patcher.after(UserContextMenu, "default", (_, [props], retVal) => {
                 const guildId = SelectedGuildStore.getGuildId();
                 const guild = GuildStore.getGuild(guildId);

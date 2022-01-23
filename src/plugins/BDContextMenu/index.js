@@ -1,6 +1,6 @@
 
 module.exports = (Plugin, Api) => {
-    const {Patcher, DiscordModules, WebpackModules, DCM, PluginUtilities} = Api;
+    const {Patcher, DiscordModules, DCM, PluginUtilities} = Api;
 
     const collections = window.BdApi.settings;
     const css = require("styles.css");
@@ -8,17 +8,20 @@ module.exports = (Plugin, Api) => {
     return class BDContextMenu extends Plugin {
 
         async onStart() {
-            this.patchSettingsContextMenu();
+            this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
+            this.patchSettingsContextMenu(this.promises.state);
             PluginUtilities.addStyle("BDCM", css);
         }
 
         onStop() {
+            this.promises.cancel();
             PluginUtilities.removeStyle("BDCM");
             Patcher.unpatchAll();
         }
 
-        async patchSettingsContextMenu() {
-            const SettingsContextMenu = WebpackModules.getModule(m => m.default && m.default.displayName == "UserSettingsCogContextMenu");
+        async patchSettingsContextMenu(promiseState) {
+            const SettingsContextMenu = await DCM.getDiscordMenu("UserSettingsCogContextMenu");
+            if (promiseState.cancelled) return;
             Patcher.after(SettingsContextMenu, "default", (component, args, retVal) => {
                 const items = collections.map(c => this.buildCollectionMenu(c));
                 items.push({label: "Custom CSS", action: () => {this.openCategory("custom css");}});

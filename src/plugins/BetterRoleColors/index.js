@@ -1,14 +1,12 @@
 
 module.exports = (Plugin, Api) => {
-    const {DiscordSelectors, WebpackModules, DiscordModules, Patcher, ColorConverter, ReactComponents, Utilities, ReactTools, Logger} = Api;
+    const {DiscordSelectors, WebpackModules, DiscordModules, Patcher, ColorConverter, ReactComponents, Utilities, Logger} = Api;
 
     const GuildMemberStore = DiscordModules.GuildMemberStore;
     const SelectedGuildStore = DiscordModules.SelectedGuildStore;
     const UserStore = DiscordModules.UserStore;
     const RelationshipStore = DiscordModules.RelationshipStore;
-    const PopoutWrapper = WebpackModules.getByDisplayName("DeprecatedPopout");
     const VoiceUser = WebpackModules.getByDisplayName("VoiceUser");
-    const RichTextareaComponents = WebpackModules.getByProps("UserMention");
 
     const makeColoredDiscordTag = (makeParent) => function(props) {
         const returnValue = makeParent(props);
@@ -48,11 +46,11 @@ module.exports = (Plugin, Api) => {
             Utilities.suppressErrors(this.patchAccountDetails.bind(this), "account details patch")();
             Utilities.suppressErrors(this.patchVoiceUsers.bind(this), "voice users patch")();
             Utilities.suppressErrors(this.patchMentions.bind(this), "mentions patch")();
+            Utilities.suppressErrors(this.patchUserPopouts.bind(this), "user popout patch")();
 
             this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
             Utilities.suppressErrors(this.patchAuditLog.bind(this), "audit log patch")(this.promises.state);
             Utilities.suppressErrors(this.patchTypingUsers.bind(this), "typing users patch")(this.promises.state);
-            Utilities.suppressErrors(this.patchUserPopouts.bind(this), "user popout patch")(this.promises.state);
             Utilities.suppressErrors(this.patchUserModals.bind(this), "user modal patch")(this.promises.state);
             Utilities.suppressErrors(this.patchMemberList.bind(this), "member list patch")(this.promises.state);
         }
@@ -122,68 +120,17 @@ module.exports = (Plugin, Api) => {
         }
 
         patchMentions() {
-            Patcher.after(PopoutWrapper.prototype, "render", (thisObject, _, returnValue) => {
-                if (!this.settings.modules.mentions) return;
-                const isMention = returnValue.props.className.toLowerCase().includes("mention");
-                if (!isMention) return;
-                const userId = thisObject.props.render().props.userId;
-                const member = GuildMemberStore.getMember(SelectedGuildStore.getGuildId(), userId);
-                if (!member || !member.colorString) return;
-                const defaultStyle = {
-                    color: member.colorString,
-                    background: ColorConverter.rgbToAlpha(member.colorString, 0.1)
-                };
-
-                const hoverStyle = {
-                    color: "#ffffff",
-                    background: ColorConverter.rgbToAlpha(member.colorString, 0.7)
-                };
-
-                if (!this.settings.mentions.changeOnHover) return;
-                returnValue.props.onMouseEnter = () => {thisObject.setState({isHovered: true});};
-                returnValue.props.onMouseLeave = () => {thisObject.setState({isHovered: false});};
-
-                if (!thisObject.state.hasOwnProperty("isHovered")) thisObject.setState({isHovered: false});
-                const currentStyle = thisObject.state.isHovered ? hoverStyle : defaultStyle;
-                returnValue.props.style = currentStyle;
-                if (!this.settings.global.important) return;
-                const element = DiscordModules.ReactDOM.findDOMNode(thisObject);
-                if (!element) return;
-                setImmediate(() => element.style.setProperty("color", currentStyle.color, "important"));
-                setImmediate(() => element.style.setProperty("background", currentStyle.background, "important"));
-            });
-            for (const e of document.querySelectorAll(".mention")) {
-                const instance = ReactTools.getOwnerInstance(e, {include: ["Popout"]});
-                if (instance) instance.forceUpdate();
-            }
-            Patcher.after(RichTextareaComponents, "UserMention", (_, [props], ret) => {
+            const UserMention = WebpackModules.getModule(m => m.default && m.default.displayName == "UserMention");
+            Patcher.after(UserMention, "default", (_, [props], ret) => {
                 const old = Utilities.getNestedProp(ret, "props.children");
                 if (typeof old !== "function" || !this.settings.modules.mentions) return;
-                let tooltipRef;
-                ret.ref = e => tooltipRef = e;
                 ret.props.children = childProps => {
                     try {
                         const ret2 = old(childProps);
-                        const userId = props.id;
+                        const userId = props.userId;
                         const member = GuildMemberStore.getMember(SelectedGuildStore.getGuildId(), userId);
                         if (!member || !member.colorString) return ret2;
-                        const defaultStyle = {
-                            color: member.colorString,
-                            background: ColorConverter.rgbToAlpha(member.colorString, 0.1)
-                        };
-                        const hoverStyle = {
-                            color: "#ffffff",
-                            background: ColorConverter.rgbToAlpha(member.colorString, 0.7)
-                        };
-                        const currentStyle = this.settings.mentions.changeOnHover && tooltipRef && tooltipRef.state.shouldShowTooltip ? hoverStyle : defaultStyle;
-                        ret2.props.style = currentStyle;
-                        if (this.settings.global.important) {
-                            ret2.props.ref = e => {
-                                if (!e || !e.ref) return;
-                                e.ref.style.setProperty("color", currentStyle.color, "important");
-                                e.ref.style.setProperty("background", currentStyle.background, "important");
-                            };
-                        }
+                        ret2.props.color = ColorConverter.hex2int(member.colorString);
                         return ret2;
                     }
                     catch (err) {
@@ -202,16 +149,12 @@ module.exports = (Plugin, Api) => {
             });
         }
 
-
-
-        // Start ReactComponents using patches.
-
         async patchAuditLog(promiseState) {
             const UserHook = await ReactComponents.getComponentByName("UserHook", DiscordSelectors.AuditLog.userHook);
             if (promiseState.cancelled) return;
             Patcher.after(UserHook.component.prototype, "render", (thisObject, _, returnValue) => {
                 if (!this.settings.auditLog.username && !this.settings.auditLog.discriminator) return;
-                const auditLogProps = Utilities.findInTree(thisObject._reactInternalFiber, m => m && m.guildId, {walkable: ["return", "stateNode", "props"]});
+                const auditLogProps = Utilities.findInTree(thisObject._reactInternals, m => m && m.guildId, {walkable: ["return", "stateNode", "props"]});
                 const member = this.getMember(thisObject.props.user.id, auditLogProps.guildId);
                 if (!member || !member.colorString) return;
                 const username = returnValue.props.children[0];
@@ -255,9 +198,11 @@ module.exports = (Plugin, Api) => {
                 for (let m = 0; m < typingUsers.length; m++) {
                     const member = GuildMemberStore.getMember(SelectedGuildStore.getGuildId(), typingUsers[m].id);
                     if (!member) continue;
-                    returnValue.props.children[1].props.children[m * 2].props.style = {color: member.colorString};
+                    const username = Utilities.getNestedProp(returnValue, `props.children.1.props.children.${m * 2}`);
+                    if (!username) return;
+                    username.props.style = {color: member.colorString};
                     if (!this.settings.global.important) continue;
-                    returnValue.props.children[1].props.children[m * 2].ref = (element) => {
+                    username.ref = (element) => {
                         if (!element) return;
                         element.style.setProperty("color", member.colorString, "important");
                     };
@@ -266,42 +211,52 @@ module.exports = (Plugin, Api) => {
             TypingUsers.forceUpdateAll();
         }
 
-        async patchUserPopouts(promiseState) {
-            const UserPopout = await ReactComponents.getComponentByName("UserPopout", DiscordSelectors.UserPopout.userPopout);
-            if (promiseState.cancelled) return;
-            Patcher.after(UserPopout.component.prototype, "render", (thisObject, _, returnValue) => {
-                const member = thisObject.props.guildMember;
+        async patchUserPopouts() {
+            Patcher.after(DiscordModules.UserPopout, "type", (_, [containerProps], returnValue) => {
+                const member = this.getMember(containerProps.userId);
                 if (!member || !member.colorString) return;
-                const nickname = Utilities.getNestedProp(returnValue, "props.children.props.children.0.props.children.0.props.children.1.props.children.0.props.children");
-                const tag = Utilities.getNestedProp(returnValue, "props.children.props.children.0.props.children.0.props.children.1.props.children.1.props.children");
-                const shouldColorUsername = this.settings.popouts.username || (!nickname && this.settings.popouts.fallback);
-                const shouldColorDiscriminator = this.settings.popouts.discriminator;
-                const shouldColorNickname = this.settings.popouts.nickname && nickname;
-                if (shouldColorNickname) nickname.props.style = {color: member.colorString};
-                if ((!shouldColorUsername && !shouldColorDiscriminator) || !tag) return;
-                if (shouldColorUsername) tag.props.colorUsername = member.colorString;
-                if (shouldColorDiscriminator) tag.props.colorDiscriminator = member.colorString;
-                if (this.settings.global.important) tag.props.important = true;
-                tag.type = ColoredFluxTag;
+                const popoutRender = returnValue.type;
+                returnValue.type = popoutProps => {
+                    const popoutRet = Reflect.apply(popoutRender, null, [popoutProps]);
+                    const infoSection = Utilities.findInTree(popoutRet, m => m && m.type && m.type.displayName === "UserPopoutInfo", {walkable: ["props", "children"]});
+                    if (!infoSection) return popoutRet;
+                    const infoRender = infoSection.type;
+                    infoSection.type = infoProps => {
+                        const infoRet = Reflect.apply(infoRender, null, [infoProps]);
+                        const tag = Utilities.findInTree(infoRet, m => m && m.type && m.type.displayName === "DiscordTag", {walkable: ["props", "children"]});
+                        if (!tag) return infoRet;
+                        const nickname = Utilities.findInTree(infoRet, m => m && m.type && m.type.displayName === "Header", {walkable: ["props", "children"]});
+                        const shouldColorUsername = this.settings.popouts.username || (!nickname && this.settings.popouts.fallback);
+                        const shouldColorDiscriminator = this.settings.popouts.discriminator;
+                        const shouldColorNickname = this.settings.popouts.nickname && nickname;
+                        if (shouldColorNickname) nickname.props.style = {color: member.colorString};
+                        if ((!shouldColorUsername && !shouldColorDiscriminator) || !tag) return infoRet;
+                        if (shouldColorUsername) tag.props.colorUsername = member.colorString;
+                        if (shouldColorDiscriminator) tag.props.colorDiscriminator = member.colorString;
+                        if (this.settings.global.important) tag.props.important = true;
+                        tag.type = ColoredFluxTag;
+                        return infoRet;
+                    };
+                    return popoutRet;
+                };
             });
-            UserPopout.forceUpdateAll();
         }
 
         async patchUserModals(promiseState) {
-            const UserProfileBody = await ReactComponents.getComponentByName("UserProfileBody", DiscordSelectors.UserModal.root || ".root-SR8cQa");
+            await ReactComponents.getComponentByName("UserProfileModalHeader", ".topSection-13QKHs > header");
             if (promiseState.cancelled) return;
-            Patcher.after(UserProfileBody.component.prototype, "render", (thisObject, _, returnValue) => {
+            const ModalHeader = WebpackModules.getModule(m => m.default && m.default.displayName == "UserProfileModalHeader");
+            Patcher.after(ModalHeader, "default", (_, [props], returnValue) => {
                 if (!this.settings.modals.username && !this.settings.modals.discriminator) return;
-                const member = this.getMember(thisObject.props.user.id);
+                const member = this.getMember(props.user.id);
                 if (!member || !member.colorString) return;
-                const tag = Utilities.getNestedProp(returnValue, "props.children.props.children.0.props.children.0.props.children.1.props.children.0");
+                const tag = Utilities.findInTree(returnValue, m => m && m.type && m.type.displayName === "DiscordTag", {walkable: ["props", "children"]});
                 if (!tag) return;
                 if (this.settings.modals.username) tag.props.colorUsername = member.colorString;
                 if (this.settings.modals.discriminator) tag.props.colorDiscriminator = member.colorString;
                 if (this.settings.global.important) tag.props.important = true;
                 tag.type = ColoredFluxTag;
             });
-            UserProfileBody.forceUpdateAll();
         }
 
         async patchMemberList(promiseState) {

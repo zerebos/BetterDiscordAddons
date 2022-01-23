@@ -1,9 +1,7 @@
 /**
  * @name BDContextMenu
- * @version 0.1.9
+ * @version 0.1.10
  * @authorLink https://twitter.com/IAmZerebos
- * @donate https://paypal.me/ZackRauen
- * @patreon https://patreon.com/Zerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu
  * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js
  * @updateUrl https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js
@@ -33,7 +31,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {info:{name:"BDContextMenu",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.9",description:"Adds BD shortcuts to the settings context menu.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"},changelog:[{title:"Bugfixes",type:"fixed",items:["Fixes for update META structures."]}],main:"index.js"};
+    const config = {info:{name:"BDContextMenu",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.10",description:"Adds BD shortcuts to the settings context menu.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"},changelog:[{title:"Bugfixes",type:"fixed",items:["Context menu should show up again.","Scrollers in submenus show up again."]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -57,39 +55,42 @@ module.exports = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {Patcher, DiscordModules, WebpackModules, DCM, PluginUtilities} = Api;
+    const {Patcher, DiscordModules, DCM, PluginUtilities} = Api;
 
     const collections = window.BdApi.settings;
-    const css = `#user-settings-cog-BandagedBD--Settings + .layer-v9HyYc .submenu-2-ysNh .scroller-2FKFPG {
+    const css = `#user-settings-cog-BetterDiscord--Settings + .layer-2aCOJ3 .submenu-1apzyU .scroller-1bVxF5 {
     max-height: 320px;
 }
 
-#user-settings-cog-BandagedBD--Emotes + .layer-v9HyYc .submenu-2-ysNh .scroller-2FKFPG {
+#user-settings-cog-BetterDiscord--Emotes + .layer-2aCOJ3 .submenu-1apzyU .scroller-1bVxF5 {
     max-height: 320px;
 }
 
-#user-settings-cog-BandagedBD--Plugins + .layer-v9HyYc .submenu-2-ysNh .scroller-2FKFPG {
+#user-settings-cog-BetterDiscord--Plugins + .layer-2aCOJ3 .submenu-1apzyU .scroller-1bVxF5 {
     max-height: 320px;
 }
 
-#user-settings-cog-BandagedBD--Themes + .layer-v9HyYc .submenu-2-ysNh .scroller-2FKFPG {
+#user-settings-cog-BetterDiscord--Themes + .layer-2aCOJ3 .submenu-1apzyU .scroller-1bVxF5 {
     max-height: 320px;
 }`;
 
     return class BDContextMenu extends Plugin {
 
         async onStart() {
-            this.patchSettingsContextMenu();
+            this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
+            this.patchSettingsContextMenu(this.promises.state);
             PluginUtilities.addStyle("BDCM", css);
         }
 
         onStop() {
+            this.promises.cancel();
             PluginUtilities.removeStyle("BDCM");
             Patcher.unpatchAll();
         }
 
-        async patchSettingsContextMenu() {
-            const SettingsContextMenu = WebpackModules.getModule(m => m.default && m.default.displayName == "UserSettingsCogContextMenu");
+        async patchSettingsContextMenu(promiseState) {
+            const SettingsContextMenu = await DCM.getDiscordMenu("UserSettingsCogContextMenu");
+            if (promiseState.cancelled) return;
             Patcher.after(SettingsContextMenu, "default", (component, args, retVal) => {
                 const items = collections.map(c => this.buildCollectionMenu(c));
                 items.push({label: "Custom CSS", action: () => {this.openCategory("custom css");}});

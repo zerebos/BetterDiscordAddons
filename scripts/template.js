@@ -2,8 +2,6 @@
  * @name {{PLUGIN_NAME}}
  * @version {{VERSION}}
  * @authorLink {{AUTHOR_LINK}}
- * @donate {{PAYPAL}}
- * @patreon {{PATREON}}
  * @website {{WEBSITE}}
  * @source {{SOURCE}}
  * @updateUrl {{UPDATE_URL}}
