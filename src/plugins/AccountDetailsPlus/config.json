@@ -7,7 +7,7 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "1.0.0",
+        "version": "1.0.1",
         "description": "Lets you view popout, nickname and more from your account panel at the bottom.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AccountDetailsPlus",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AccountDetailsPlus/AccountDetailsPlus.plugin.js"

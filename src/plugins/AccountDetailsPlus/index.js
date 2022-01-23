@@ -103,5 +103,9 @@ module.exports = (Plugin, Api) => {
             else nameElement.textContent = this.currentUser.username;
         }
 
+        getSettingsPanel() {
+            return this.buildSettingsPanel().getElement();
+        }
+
     };
 };

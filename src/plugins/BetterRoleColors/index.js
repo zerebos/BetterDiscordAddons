@@ -8,6 +8,10 @@ module.exports = (Plugin, Api) => {
     const RelationshipStore = DiscordModules.RelationshipStore;
     const VoiceUser = WebpackModules.getByDisplayName("VoiceUser");
 
+    // .usernameFont-2oJxoI {
+    //     backface-visibility: hidden;
+    // }
+
     const makeColoredDiscordTag = (makeParent) => function(props) {
         const returnValue = makeParent(props);
         const username = returnValue.props.children[0];
