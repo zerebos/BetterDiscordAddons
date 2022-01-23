@@ -40,6 +40,7 @@ module.exports = (Plugin, Api) => {
     const makeFluxTag = WebpackModules.getByDisplayName("DiscordTag");
     const ColoredFluxTag = function(props) {
         const returnValue = makeFluxTag(props);
+        if (!returnValue.type || typeof(returnValue.type) !== "function") return returnValue;
         returnValue.type = makeColoredDiscordTag(returnValue.type);
         return returnValue;
     };
