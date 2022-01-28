@@ -154,7 +154,7 @@ module.exports = (Plugin, Api) => {
         patchMessageContent() {
             const MessageContent = WebpackModules.getModule(m => m.type && m.type.displayName === "MessageContent");
             Patcher.after(MessageContent, "type", (_, [props], returnValue) => {
-                if (!this.settings.modules.mentions) return;
+                if (!this.settings.modules.chat) return;
                 const channel = DiscordModules.ChannelStore.getChannel(props.message.channel_id);
                 if (!channel || !channel.guild_id) return;
                 const member = this.getMember(props.message.author.id, channel.guild_id);
