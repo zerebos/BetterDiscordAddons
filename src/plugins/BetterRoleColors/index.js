@@ -8,10 +8,6 @@ module.exports = (Plugin, Api) => {
     const RelationshipStore = DiscordModules.RelationshipStore;
     const VoiceUser = WebpackModules.getByDisplayName("VoiceUser");
 
-    // .usernameFont-2oJxoI {
-    //     backface-visibility: hidden;
-    // }
-
     const makeColoredDiscordTag = (makeParent) => function(props) {
         const returnValue = makeParent(props);
         const username = returnValue.props.children[0];
@@ -52,6 +48,7 @@ module.exports = (Plugin, Api) => {
             Utilities.suppressErrors(this.patchVoiceUsers.bind(this), "voice users patch")();
             Utilities.suppressErrors(this.patchMentions.bind(this), "mentions patch")();
             Utilities.suppressErrors(this.patchUserPopouts.bind(this), "user popout patch")();
+            Utilities.suppressErrors(this.patchMessageContent.bind(this), "user popout patch")();
 
             this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
             Utilities.suppressErrors(this.patchAuditLog.bind(this), "audit log patch")(this.promises.state);
@@ -115,7 +112,7 @@ module.exports = (Plugin, Api) => {
                 if (!returnValue || !returnValue.props) return;
                 const member = this.getMember(thisObject.props.user.id);
                 if (!member || !member.colorString) return;
-                returnValue.props.style = {color: member.colorString};
+                returnValue.props.style = {color: member.colorString, backfaceVisibility: "hidden"};
                 if (!this.settings.global.important) return;
                 returnValue.ref = (element) => {
                     if (!element) return;
@@ -151,6 +148,17 @@ module.exports = (Plugin, Api) => {
                         }
                     }
                 };
+            });
+        }
+
+        patchMessageContent() {
+            const MessageContent = WebpackModules.getModule(m => m.type && m.type.displayName === "MessageContent");
+            Patcher.after(MessageContent, "type", (_, [props], returnValue) => {
+                if (!this.settings.modules.mentions) return;
+                const channel = DiscordModules.ChannelStore.getChannel(props.message.channel_id);
+                if (!channel || !channel.guild_id) return;
+                const member = this.getMember(props.message.author.id, channel.guild_id);
+                returnValue.props.style = {color: member?.colorString || ""};
             });
         }
 
@@ -204,7 +212,7 @@ module.exports = (Plugin, Api) => {
                     const member = GuildMemberStore.getMember(SelectedGuildStore.getGuildId(), typingUsers[m].id);
                     if (!member) continue;
                     const username = Utilities.getNestedProp(returnValue, `props.children.1.props.children.${m * 2}`);
-                    if (!username) return;
+                    if (!username || !username.props) return;
                     username.props.style = {color: member.colorString};
                     if (!this.settings.global.important) continue;
                     username.ref = (element) => {

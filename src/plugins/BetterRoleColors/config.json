@@ -7,16 +7,20 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.8.16",
+        "version": "0.8.17",
         "description": "Adds server-based role colors to typing, voice, popouts, modals and more!",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js"
     },
     "changelog": [
         {
+            "title":"Added",
+            "items":["Now able to color user's messages to match their role colors. (Formerly ColoredText of BD)"]
+        },
+        {
             "title":"Bug Fixes",
             "type":"fixed",
-            "items":["Fixed crashing conflict with `PlatformIndicators`.", "Fixed not coloring audit log.", "Fixed not coloring user modals.", "Fixed not coloring user popouts.", "Fixed not coloring user mentions."]
+            "items":["Fixed blinking/flashing of voice chat usernames."]
         }
     ],
     "defaultConfig": [
@@ -62,6 +66,13 @@
                     "id": "mentions",
                     "name": "Mentions",
                     "note": "Toggles colorizing of user mentions in chat.",
+                    "value": true
+                },
+                {
+                    "type": "switch",
+                    "id": "chat",
+                    "name": "Chat",
+                    "note": "Toggles colorizing the message text of users in chat.",
                     "value": true
                 },
                 {
@@ -183,22 +194,6 @@
                     "name": "Discriminator",
                     "note": "Toggles coloring on the discriminator in account details.",
                     "value": false
-                }
-            ]
-        },
-        {
-            "type": "category",
-            "id": "mentions",
-            "name": "Mention Options",
-            "collapsible": true,
-            "shown": false,
-            "settings": [
-                {
-                    "type": "switch",
-                    "id": "changeOnHover",
-                    "name": "Hover Color",
-                    "note": "Turning this on adjusts the color on hover to match role color, having it off defers to your theme.",
-                    "value": true
                 }
             ]
         }

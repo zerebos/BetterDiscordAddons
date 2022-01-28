@@ -259,7 +259,7 @@ module.exports = (Plugin, Api) => {
                 else item.querySelector(".role-name").innerHTML = escapeHTML(referenceRoles[role].name);
                 modal.querySelector(".role-scroller").append(item);
                 item.addEventListener("click", () => {
-                    modal.querySelectorAll(".role-item.selected").forEach(e => e.removeClass("selected"));
+                    modal.querySelectorAll(".role-item.selected").forEach(e => e.classList.remove("selected"));
                     item.classList.add("selected");
                     const allowed = isOverride ? displayRoles[role].allow : referenceRoles[role].permissions;
                     const denied = isOverride ? displayRoles[role].deny : null;

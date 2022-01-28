@@ -1,6 +1,6 @@
 /**
  * @name BetterRoleColors
- * @version 0.8.16
+ * @version 0.8.17
  * @authorLink https://twitter.com/IAmZerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors
  * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js
@@ -31,7 +31,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {info:{name:"BetterRoleColors",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.8.16",description:"Adds server-based role colors to typing, voice, popouts, modals and more!",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js"},changelog:[{title:"Bug Fixes",type:"fixed",items:["Fixed crashing conflict with `PlatformIndicators`.","Fixed not coloring audit log.","Fixed not coloring user modals.","Fixed not coloring user popouts.","Fixed not coloring user mentions."]}],defaultConfig:[{type:"category",id:"global",name:"Global Settings",collapsible:true,shown:false,settings:[{type:"switch",id:"important",name:"Use Important",note:"Add !important to role colors. (Only enable this if the plugin isn't working with your theme).",value:false}]},{type:"category",id:"modules",name:"Module Settings",collapsible:true,shown:true,settings:[{type:"switch",id:"typing",name:"Typing",note:"Toggles colorizing of typing notifications.",value:true},{type:"switch",id:"voice",name:"Voice",note:"Toggles colorizing of voice users.",value:true},{type:"switch",id:"mentions",name:"Mentions",note:"Toggles colorizing of user mentions in chat.",value:true},{type:"switch",id:"botTags",name:"Bot Tags",note:"Toggles coloring the background of bot tags to match role.",value:true},{type:"switch",id:"memberList",name:"Memberlist Headers",note:"Toggles coloring role names in the member list.",value:true}]},{type:"category",id:"popouts",name:"Popout Options",collapsible:true,shown:false,settings:[{type:"switch",id:"username",name:"Username",note:"Toggles coloring on the username in popouts.",value:false},{type:"switch",id:"discriminator",name:"Discriminator",note:"Toggles coloring on the discriminator in popouts.",value:false},{type:"switch",id:"nickname",name:"Nickname",note:"Toggles coloring on the nickname in popouts.",value:true},{type:"switch",id:"fallback",name:"Enable Fallback",note:"If nickname is on and username is off, enabling this will automatically color the username.",value:true}]},{type:"category",id:"modals",name:"Modal Options",collapsible:true,shown:false,settings:[{type:"switch",id:"username",name:"Username",note:"Toggles coloring on the username in modals.",value:true},{type:"switch",id:"discriminator",name:"Discriminator",note:"Toggles coloring on the discriminator in modals.",value:false}]},{type:"category",id:"auditLog",name:"Audit Log Options",collapsible:true,shown:false,settings:[{type:"switch",id:"username",name:"Username",note:"Toggles coloring on the username in audit log.",value:true},{type:"switch",id:"discriminator",name:"Discriminator",note:"Toggles coloring on the discriminator in audit log.",value:false}]},{type:"category",id:"account",name:"Account Details Options",collapsible:true,shown:false,settings:[{type:"switch",id:"username",name:"Username",note:"Toggles coloring on the username in account details.",value:true},{type:"switch",id:"discriminator",name:"Discriminator",note:"Toggles coloring on the discriminator in account details.",value:false}]},{type:"category",id:"mentions",name:"Mention Options",collapsible:true,shown:false,settings:[{type:"switch",id:"changeOnHover",name:"Hover Color",note:"Turning this on adjusts the color on hover to match role color, having it off defers to your theme.",value:true}]}],main:"index.js"};
+    const config = {info:{name:"BetterRoleColors",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.8.17",description:"Adds server-based role colors to typing, voice, popouts, modals and more!",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js"},changelog:[{title:"Added",items:["Now able to color user's messages to match their role colors. (Formerly ColoredText of BD)"]},{title:"Bug Fixes",type:"fixed",items:["Fixed blinking/flashing of voice chat usernames."]}],defaultConfig:[{type:"category",id:"global",name:"Global Settings",collapsible:true,shown:false,settings:[{type:"switch",id:"important",name:"Use Important",note:"Add !important to role colors. (Only enable this if the plugin isn't working with your theme).",value:false}]},{type:"category",id:"modules",name:"Module Settings",collapsible:true,shown:true,settings:[{type:"switch",id:"typing",name:"Typing",note:"Toggles colorizing of typing notifications.",value:true},{type:"switch",id:"voice",name:"Voice",note:"Toggles colorizing of voice users.",value:true},{type:"switch",id:"mentions",name:"Mentions",note:"Toggles colorizing of user mentions in chat.",value:true},{type:"switch",id:"chat",name:"Chat",note:"Toggles colorizing the message text of users in chat.",value:true},{type:"switch",id:"botTags",name:"Bot Tags",note:"Toggles coloring the background of bot tags to match role.",value:true},{type:"switch",id:"memberList",name:"Memberlist Headers",note:"Toggles coloring role names in the member list.",value:true}]},{type:"category",id:"popouts",name:"Popout Options",collapsible:true,shown:false,settings:[{type:"switch",id:"username",name:"Username",note:"Toggles coloring on the username in popouts.",value:false},{type:"switch",id:"discriminator",name:"Discriminator",note:"Toggles coloring on the discriminator in popouts.",value:false},{type:"switch",id:"nickname",name:"Nickname",note:"Toggles coloring on the nickname in popouts.",value:true},{type:"switch",id:"fallback",name:"Enable Fallback",note:"If nickname is on and username is off, enabling this will automatically color the username.",value:true}]},{type:"category",id:"modals",name:"Modal Options",collapsible:true,shown:false,settings:[{type:"switch",id:"username",name:"Username",note:"Toggles coloring on the username in modals.",value:true},{type:"switch",id:"discriminator",name:"Discriminator",note:"Toggles coloring on the discriminator in modals.",value:false}]},{type:"category",id:"auditLog",name:"Audit Log Options",collapsible:true,shown:false,settings:[{type:"switch",id:"username",name:"Username",note:"Toggles coloring on the username in audit log.",value:true},{type:"switch",id:"discriminator",name:"Discriminator",note:"Toggles coloring on the discriminator in audit log.",value:false}]},{type:"category",id:"account",name:"Account Details Options",collapsible:true,shown:false,settings:[{type:"switch",id:"username",name:"Username",note:"Toggles coloring on the username in account details.",value:true},{type:"switch",id:"discriminator",name:"Discriminator",note:"Toggles coloring on the discriminator in account details.",value:false}]}],main:"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -62,10 +62,6 @@ module.exports = (() => {
     const UserStore = DiscordModules.UserStore;
     const RelationshipStore = DiscordModules.RelationshipStore;
     const VoiceUser = WebpackModules.getByDisplayName("VoiceUser");
-
-    // .usernameFont-2oJxoI {
-    //     backface-visibility: hidden;
-    // }
 
     const makeColoredDiscordTag = (makeParent) => function(props) {
         const returnValue = makeParent(props);
@@ -107,6 +103,7 @@ module.exports = (() => {
             Utilities.suppressErrors(this.patchVoiceUsers.bind(this), "voice users patch")();
             Utilities.suppressErrors(this.patchMentions.bind(this), "mentions patch")();
             Utilities.suppressErrors(this.patchUserPopouts.bind(this), "user popout patch")();
+            Utilities.suppressErrors(this.patchMessageContent.bind(this), "user popout patch")();
 
             this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
             Utilities.suppressErrors(this.patchAuditLog.bind(this), "audit log patch")(this.promises.state);
@@ -170,7 +167,7 @@ module.exports = (() => {
                 if (!returnValue || !returnValue.props) return;
                 const member = this.getMember(thisObject.props.user.id);
                 if (!member || !member.colorString) return;
-                returnValue.props.style = {color: member.colorString};
+                returnValue.props.style = {color: member.colorString, backfaceVisibility: "hidden"};
                 if (!this.settings.global.important) return;
                 returnValue.ref = (element) => {
                     if (!element) return;
@@ -206,6 +203,17 @@ module.exports = (() => {
                         }
                     }
                 };
+            });
+        }
+
+        patchMessageContent() {
+            const MessageContent = WebpackModules.getModule(m => m.type && m.type.displayName === "MessageContent");
+            Patcher.after(MessageContent, "type", (_, [props], returnValue) => {
+                if (!this.settings.modules.mentions) return;
+                const channel = DiscordModules.ChannelStore.getChannel(props.message.channel_id);
+                if (!channel || !channel.guild_id) return;
+                const member = this.getMember(props.message.author.id, channel.guild_id);
+                returnValue.props.style = {color: member?.colorString || ""};
             });
         }
 
@@ -259,7 +267,7 @@ module.exports = (() => {
                     const member = GuildMemberStore.getMember(SelectedGuildStore.getGuildId(), typingUsers[m].id);
                     if (!member) continue;
                     const username = Utilities.getNestedProp(returnValue, `props.children.1.props.children.${m * 2}`);
-                    if (!username) return;
+                    if (!username || !username.props) return;
                     username.props.style = {color: member.colorString};
                     if (!this.settings.global.important) continue;
                     username.ref = (element) => {
