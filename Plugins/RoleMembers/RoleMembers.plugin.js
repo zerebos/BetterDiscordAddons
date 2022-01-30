@@ -106,6 +106,7 @@ module.exports = (() => {
     </div>
 </div>
 </div>`;
+
     const itemHTML = `<div class="item-1BCeuB role-member">
     <div class="itemCheckbox-2G8-Td">
         <div class="avatar-1XUb0A wrapper-1VLyxH" role="img" aria-hidden="false" style="width: 32px; height: 32px;">
@@ -195,6 +196,7 @@ module.exports = (() => {
                 else retVal.props.children[0].props.children = [original, newOne];
             });
         }
+		
 
         showRolePopout(target, guildId, roleId) {
             const roles = GuildStore.getGuild(guildId).roles;
@@ -222,6 +224,10 @@ module.exports = (() => {
                 elem.addEventListener("click", () => {
                     setTimeout(() => Popouts.showUserPopout(elem, user, {guild: guildId}), 1);
                 });
+				elem.addEventListener('contextmenu', function(ev) {
+					DiscordNative.clipboard.copy(user.id);
+					Toasts.success(`Successfully copied user id for <strong>${user.username}</strong>!`);
+				});
                 scroller.append(elem);
             }
 
