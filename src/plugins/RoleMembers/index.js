@@ -133,6 +133,10 @@ module.exports = (Plugin, Api) => {
                 elem.addEventListener("click", () => {
                     setTimeout(() => Popouts.showUserPopout(elem, user, {guild: guildId}), 1);
                 });
+                elem.addEventListener('contextmenu', function () {
+                    DiscordNative.clipboard.copy(user.id);
+                    Toasts.success(`Successfully copied user id for <strong>${user.username}</strong>!`);
+                });
                 scroller.append(elem);
             }
 
