@@ -1,7 +1,9 @@
 /**
  * @name BlurNSFW
- * @version 0.2.5
+ * @version 0.2.6
  * @authorLink https://twitter.com/IAmZerebos
+ * @donate https://paypal.me/ZackRauen
+ * @patreon https://patreon.com/Zerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BlurNSFW
  * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BlurNSFW/BlurNSFW.plugin.js
  * @updateUrl https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BlurNSFW/BlurNSFW.plugin.js
@@ -67,14 +69,13 @@ module.exports = (() => {
             super();
             this.styleTemplate = `
             {{blurOnFocus}}
-            img.blur:hover,
-            video.blur:hover {
+ a.originalLink-Azwuo9:hover + div.clickableWrapper-2WTAkL > img.blur, video.blur:hover,img.blur:hover {
                 transition: {{time}}ms cubic-bezier(.2, .11, 0, 1) !important;
                 filter: blur(0px) !important;
             }
             
             img.blur,
-            video.blur {
+            video.blur{
                 filter: blur({{size}}px) !important;
                 transition: {{time}}ms cubic-bezier(.2, .11, 0, 1) !important;
             }`;
@@ -116,7 +117,7 @@ module.exports = (() => {
             const styleString = Utilities.formatString(this.styleTemplate, {
                 size: Math.round(this.settings.blurSize),
                 time: Math.round(this.settings.blurTime),
-                blurOnFocus: this.settings.blurOnFocus ? "" : ".layer-2KE1M9 img.blur,"
+                blurOnFocus: this.settings.blurOnFocus ? "" : ".layer-1Ixpg3 img.blur,"
             });
             PluginUtilities.addStyle(this.getName(), styleString);
         }
