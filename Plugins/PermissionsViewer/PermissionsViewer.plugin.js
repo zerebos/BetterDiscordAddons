@@ -63,7 +63,7 @@ module.exports = (() => {
     const UserStore = DiscordModules.UserStore;
     const DiscordPerms = Object.assign({}, DiscordModules.DiscordConstants.Permissions);
     const AvatarDefaults = WebpackModules.getByProps("DEFAULT_AVATARS");
-    const UserPopoutSelectors = Object.assign({}, WebpackModules.getByProps("userPopout"), WebpackModules.getByProps("rolesList"));
+    const UserPopoutSelectors = Object.assign({}, WebpackModules.find(m=>m.userPopout && !m.menu), WebpackModules.getByProps("rolesList"));
     for (const key in UserPopoutSelectors) UserPopoutSelectors[key] = new Structs.Selector(UserPopoutSelectors[key]);
     const escapeHTML = DOMTools.escapeHTML ? DOMTools.escapeHTML : function(html) {
         const textNode = document.createTextNode("");
@@ -212,7 +212,6 @@ module.exports = (() => {
 }
 
 #permissions-modal-wrapper #permissions-modal {
-    display: flex;
     contain: layout;
     flex-direction: column;
     pointer-events: auto;
