@@ -112,7 +112,6 @@
 }
 
 #permissions-modal-wrapper .modal-body {
-    max-height: 80vh;
     background-color: #36393f;
     height: 440px;
     width: auto;
@@ -126,9 +125,7 @@
 }
 
 #permissions-modal-wrapper #permissions-modal {
-    display: flex;
     contain: layout;
-    flex-direction: column;
     pointer-events: auto;
     border: 1px solid rgba(28,36,43,.6);
     border-radius: 5px;
