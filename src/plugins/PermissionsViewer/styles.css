@@ -112,6 +112,7 @@
 }
 
 #permissions-modal-wrapper .modal-body {
+    max-height: 80vh;
     background-color: #36393f;
     height: 440px;
     width: auto;
