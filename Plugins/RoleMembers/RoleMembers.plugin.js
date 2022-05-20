@@ -233,7 +233,7 @@ module.exports = (() => {
             if (this.listener) this.listener({target: {classList: {contains: () => {}}, closest: () => {}}}); // Close any previous popouts
             
             if (document.querySelector(`#app-mount > ${DiscordSelectors.TooltipLayers.layerContainer}`) != null)
-                document.querySelector(`#app-mount > ${DiscordSelectors.TooltipLayers.layerContainer}`).append(popout)
+                document.querySelector(`#app-mount > ${DiscordSelectors.TooltipLayers.layerContainer}`).append(popout);
             else
                 document.querySelector(`#app-mount`).querySelector(`${DiscordSelectors.TooltipLayers.layerContainer}`).appendChild(popout);
 
