@@ -232,7 +232,10 @@ module.exports = (() => {
         showPopout(popout, relativeTarget) {
             if (this.listener) this.listener({target: {classList: {contains: () => {}}, closest: () => {}}}); // Close any previous popouts
             
-            document.querySelector(`#app-mount > ${DiscordSelectors.TooltipLayers.layerContainer}`).append(popout);
+            if (document.querySelector(`#app-mount > ${DiscordSelectors.TooltipLayers.layerContainer}`) != null)
+                document.querySelector(`#app-mount > ${DiscordSelectors.TooltipLayers.layerContainer}`).append(popout)
+            else
+                document.querySelector(`#app-mount`).querySelector(`${DiscordSelectors.TooltipLayers.layerContainer}`).appendChild(popout);
 
             const maxWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
             const maxHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
