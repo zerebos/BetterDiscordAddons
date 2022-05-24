@@ -35,9 +35,9 @@ module.exports = (Plugin, Api) => {
             if (promiseState.cancelled) return;
             Patcher.after(Account.component.prototype, "render", (thisObject, _, retAccount) => {
                 if (!thisObject._renderStatusPickerPopout) thisObject._renderStatusPickerPopout = thisObject.renderStatusPickerPopout;
-                const popoutWrap = Utilities.getNestedProp(retAccount, "props.children.0.props");
+                const popoutWrap = Utilities.findInReactTree(retAccount, (n) => n && typeof(n.children) === "function");
                 const popoutWrapRender = popoutWrap.children;
-                if (!popoutWrap || !popoutWrapRender) return retAccount;
+                if (!popoutWrap || typeof(popoutWrapRender) !== "function") return retAccount;
                 popoutWrap.children = (popoutProps) => {
                     const retPopout = Reflect.apply(popoutWrapRender, thisObject, [popoutProps]);
                     const avatarWrap = Utilities.getNestedProp(retPopout, "props.children.props");
