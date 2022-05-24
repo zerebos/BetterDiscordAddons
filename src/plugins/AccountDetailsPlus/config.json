@@ -7,13 +7,13 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "1.0.1",
+        "version": "1.0.2",
         "description": "Lets you view popout, nickname and more from your account panel at the bottom.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AccountDetailsPlus",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AccountDetailsPlus/AccountDetailsPlus.plugin.js"
     },
     "changelog": [
-        {"title": "Rewrite", "items": ["Plugin has been completely rewritten and simplified.", "Settings are more streamlined and straightforward.", "More compatible with Discord's changes."]}
+        {"title": "Fixed", "type": "fixed", "items": ["Fixed username & avatar disappearing."]}
     ],
     "main": "index.js",
     "defaultConfig": [
