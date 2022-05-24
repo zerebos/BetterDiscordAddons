@@ -1,4 +1,12 @@
+.perm-user-avatar {
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    margin-right: 3px;
+}
+
 .member-perms-header {
+    color: var(--header-secondary);
     display: flex;
     justify-content: space-between;
 }
@@ -204,7 +212,7 @@
 }
 
 #permissions-modal-wrapper .perm-side {
-    width: 250px;
+    width: 273px;
     background-color: #36393f;
     flex: 0 0 auto;
     display: flex;
