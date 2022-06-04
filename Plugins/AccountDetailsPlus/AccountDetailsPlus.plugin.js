@@ -1,6 +1,6 @@
 /**
  * @name AccountDetailsPlus
- * @version 1.0.1
+ * @version 1.0.2
  * @authorLink https://twitter.com/IAmZerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AccountDetailsPlus
  * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AccountDetailsPlus/AccountDetailsPlus.plugin.js
@@ -31,7 +31,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {info:{name:"AccountDetailsPlus",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"1.0.1",description:"Lets you view popout, nickname and more from your account panel at the bottom.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AccountDetailsPlus",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AccountDetailsPlus/AccountDetailsPlus.plugin.js"},changelog:[{title:"Rewrite",items:["Plugin has been completely rewritten and simplified.","Settings are more streamlined and straightforward.","More compatible with Discord's changes."]}],main:"index.js",defaultConfig:[{type:"dropdown",id:"popoutOnClick",name:"Which should be shown on the left click of your avatar? (Opposite will be shown on right click)",value:true,options:[{label:"Status Picker",value:false},{label:"User Popout",value:true}]},{type:"dropdown",id:"nicknameByDefault",name:"Which should be shown by default? (Opposite will be shown on hover)",value:true,options:[{label:"Username",value:false},{label:"Nickname",value:true}]}]};
+    const config = {info:{name:"AccountDetailsPlus",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"1.0.2",description:"Lets you view popout, nickname and more from your account panel at the bottom.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AccountDetailsPlus",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AccountDetailsPlus/AccountDetailsPlus.plugin.js"},changelog:[{title:"Fixed",type:"fixed",items:["Fixed username & avatar disappearing."]}],main:"index.js",defaultConfig:[{type:"dropdown",id:"popoutOnClick",name:"Which should be shown on the left click of your avatar? (Opposite will be shown on right click)",value:true,options:[{label:"Status Picker",value:false},{label:"User Popout",value:true}]},{type:"dropdown",id:"nicknameByDefault",name:"Which should be shown by default? (Opposite will be shown on hover)",value:true,options:[{label:"Username",value:false},{label:"Nickname",value:true}]}]};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -90,9 +90,9 @@ module.exports = (() => {
             if (promiseState.cancelled) return;
             Patcher.after(Account.component.prototype, "render", (thisObject, _, retAccount) => {
                 if (!thisObject._renderStatusPickerPopout) thisObject._renderStatusPickerPopout = thisObject.renderStatusPickerPopout;
-                const popoutWrap = Utilities.getNestedProp(retAccount, "props.children.0.props");
+                const popoutWrap = Utilities.findInReactTree(retAccount, (n) => n && typeof(n.children) === "function");
                 const popoutWrapRender = popoutWrap.children;
-                if (!popoutWrap || !popoutWrapRender) return retAccount;
+                if (!popoutWrap || typeof(popoutWrapRender) !== "function") return retAccount;
                 popoutWrap.children = (popoutProps) => {
                     const retPopout = Reflect.apply(popoutWrapRender, thisObject, [popoutProps]);
                     const avatarWrap = Utilities.getNestedProp(retPopout, "props.children.props");
