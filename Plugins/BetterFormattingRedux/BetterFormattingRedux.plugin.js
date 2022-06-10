@@ -1,6 +1,6 @@
 /**
  * @name BetterFormattingRedux
- * @version 2.3.12
+ * @version 2.3.13
  * @authorLink https://twitter.com/IAmZerebos
  * @donate https://paypal.me/ZackRauen
  * @patreon https://patreon.com/Zerebos
@@ -509,16 +509,22 @@ module.exports = (() => {
         }
 
         async wrapSelection(leftWrapper, rightWrapper) {
-            if (!rightWrapper) rightWrapper = leftWrapper;
-            if (leftWrapper.startsWith("```")) leftWrapper = leftWrapper + "\n";
-            if (rightWrapper.startsWith("```")) rightWrapper = "\n" + rightWrapper;
-            const textarea = document.querySelector(DiscordSelectors.Textarea.textArea);
-            if (!textarea) return;
-            if (textarea.tagName === "TEXTAREA") return this.oldWrapSelection(textarea, leftWrapper, rightWrapper);
-            const slateEditor = Utilities.findInTree(ReactTools.getReactInstance(textarea), e => e && e.wrapText, {walkable: ["return", "stateNode", "editorRef"]});
-            if (!slateEditor) return;
-            return slateEditor.wrapText(leftWrapper, rightWrapper);
-        }
+	if (!rightWrapper) rightWrapper = leftWrapper;
+	if (leftWrapper.startsWith("```")) leftWrapper = leftWrapper + "\n";
+	if (rightWrapper.startsWith("```")) rightWrapper = "\n" + rightWrapper;
+	const textarea = document.querySelector(DiscordSelectors.Textarea.textArea);
+	if (!textarea) return;
+	if (textarea.tagName === "TEXTAREA") return this.oldWrapSelection(textarea, leftWrapper, rightWrapper);
+	const { Transforms } = BdApi.findModuleByProps('Transforms');
+	const slate = ReactTools.getOwnerInstance(textarea).ref.current.getSlateEditor();
+	let selection = JSON.parse(JSON.stringify(slate.selection));
+	Transforms.insertText(slate,leftWrapper,{at:slate.selection.anchor});
+	Transforms.insertText(slate,rightWrapper,{at:slate.selection.focus});
+	selection.anchor.offset += 2;
+	selection.focus.offset += 2;
+	Transforms.select(slate,selection); 
+	return 1; 
+}
 
         oldWrapSelection(textarea, leftWrapper, rightWrapper) {
             let text = textarea.value;
