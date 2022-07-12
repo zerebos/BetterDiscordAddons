@@ -1,6 +1,6 @@
 /**
  * @name RoleMembers
- * @version 0.1.15
+ * @version 0.1.16
  * @authorLink https://twitter.com/IAmZerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers
  * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js
@@ -147,7 +147,7 @@ module.exports = (() => {
                 component.props.className += ` mention interactive`;
                 component.props.onClick = (e) => {
                     const roles = GuildStore.getGuild(props.guildId).roles;
-                    const name = component.props.children[0].slice(1);
+                    const name = component.props.children[1][0].slice(1);
                     let role = filter(roles, r => r.name == name);
                     if (!role) return;
                     role = role[Object.keys(role)[0]];
@@ -218,7 +218,7 @@ module.exports = (() => {
             const scroller = popout.querySelector(".role-members");
             for (const member of members) {
                 const user = UserStore.getUser(member.userId);
-                const elem = DOMTools.createElement(Utilities.formatString(itemHTML, {username: user.username, discriminator: "#" + user.discriminator, avatar_url: ImageResolver.getUserAvatarURL(user)}));
+                const elem = DOMTools.createElement(Utilities.formatString(itemHTML, {username: member.nick, discriminator: "#" + user.discriminator, avatar_url: ImageResolver.getUserAvatarURL(user)}));
                 elem.addEventListener("click", () => {
                     setTimeout(() => Popouts.showUserPopout(elem, user, {guild: guildId}), 1);
                 });
@@ -231,8 +231,11 @@ module.exports = (() => {
 
         showPopout(popout, relativeTarget) {
             if (this.listener) this.listener({target: {classList: {contains: () => {}}, closest: () => {}}}); // Close any previous popouts
-            
-            document.querySelector(`#app-mount > ${DiscordSelectors.TooltipLayers.layerContainer}`).append(popout);
+
+            if (document.querySelector(`#app-mount > ${DiscordSelectors.TooltipLayers.layerContainer}`) != null)
+                document.querySelector(`#app-mount > ${DiscordSelectors.TooltipLayers.layerContainer}`).append(popout);
+            else
+                document.querySelector(`#app-mount`).querySelector(`${DiscordSelectors.TooltipLayers.layerContainer}`).appendChild(popout);
 
             const maxWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
             const maxHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
