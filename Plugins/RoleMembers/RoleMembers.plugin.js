@@ -1,6 +1,6 @@
 /**
  * @name RoleMembers
- * @version 0.1.16
+ * @version 0.1.15
  * @authorLink https://twitter.com/IAmZerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers
  * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js
@@ -218,7 +218,7 @@ module.exports = (() => {
             const scroller = popout.querySelector(".role-members");
             for (const member of members) {
                 const user = UserStore.getUser(member.userId);
-                const elem = DOMTools.createElement(Utilities.formatString(itemHTML, {username: member.nick, discriminator: "#" + user.discriminator, avatar_url: ImageResolver.getUserAvatarURL(user)}));
+                const elem = DOMTools.createElement(Utilities.formatString(itemHTML, {username: (member.nick !== null ? member.nick : user.username) , discriminator: "#" + user.discriminator, avatar_url: ImageResolver.getUserAvatarURL(user)}));
                 elem.addEventListener("click", () => {
                     setTimeout(() => Popouts.showUserPopout(elem, user, {guild: guildId}), 1);
                 });
