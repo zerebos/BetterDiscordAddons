@@ -64,6 +64,7 @@ module.exports = (() => {
     const DiscordPerms = Object.assign({}, DiscordModules.DiscordConstants.Permissions);
     const AvatarDefaults = WebpackModules.getByProps("DEFAULT_AVATARS");
     const UserPopoutSelectors = Object.assign({}, WebpackModules.find(m=>m.userPopout && !m.menu), WebpackModules.getByProps("rolesList"));
+    const PopoutRoles = WebpackModules.getByProps("roleFlowerStar", "role");
     const StringsModule = WebpackModules.find(m=> m.Messages && Object.keys(m.Messages).length && m.Messages.COPY_ID).Messages;
     for (const key in UserPopoutSelectors) UserPopoutSelectors[key] = new Structs.Selector(UserPopoutSelectors[key]);
     const escapeHTML = DOMTools.escapeHTML ? DOMTools.escapeHTML : function(html) {
@@ -466,8 +467,8 @@ module.exports = (() => {
             PluginUtilities.addStyle(this.getName(), this.css);
 
             this.listHTML = Utilities.formatTString(this.listHTML, DiscordClasses.UserPopout);
-            this.listHTML = Utilities.formatTString(this.listHTML, DiscordClasses.PopoutRoles);
-            this.itemHTML = Utilities.formatTString(this.itemHTML, DiscordClasses.PopoutRoles);
+            this.listHTML = Utilities.formatTString(this.listHTML, PopoutRoles);
+            this.itemHTML = Utilities.formatTString(this.itemHTML, PopoutRoles);
             this.modalHTML = Utilities.formatTString(this.modalHTML, DiscordClasses.Backdrop);
             this.modalHTML = Utilities.formatTString(this.modalHTML, DiscordClasses.Modals);
 
