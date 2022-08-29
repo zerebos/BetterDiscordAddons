@@ -7,13 +7,13 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.2.2",
+        "version": "0.2.3",
         "description": "Allows you to view a user's permissions. Thanks to Noodlebox for the idea!",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/PermissionsViewer/PermissionsViewer.plugin.js"
     },
     "changelog": [
-        {"title": "Fixes", "type": "fixed", "items": ["Can select other roles in the modal."]}
+        {"title": "Fixes", "type": "fixed", "items": ["Permissions modal being too tall", "Channel related contextmenus including UserContextMenu", "other small fixes..."]}
     ],
     "defaultConfig": [
         {

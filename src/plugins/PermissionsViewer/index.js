@@ -8,8 +8,12 @@ module.exports = (Plugin, Api) => {
     const UserStore = DiscordModules.UserStore;
     const DiscordPerms = Object.assign({}, DiscordModules.DiscordConstants.Permissions);
     const AvatarDefaults = WebpackModules.getByProps("DEFAULT_AVATARS");
-    const UserPopoutSelectors = Object.assign({}, WebpackModules.getByProps("userPopout"), WebpackModules.getByProps("rolesList"));
-    for (const key in UserPopoutSelectors) UserPopoutSelectors[key] = new Structs.Selector(UserPopoutSelectors[key]);
+    const ModalClasses = WebpackModules.getByProps("root", "header", "small");
+    const MenuSeparator = WebpackModules.getByProps("MenuSeparator").MenuSeparator;
+    const Strings = WebpackModules.getModule(m => m.Messages && m.COPY_ID);
+    const UserPopoutClasses = Object.assign({}, WebpackModules.getByProps("userPopout"), WebpackModules.getByProps("rolesList"), WebpackModules.getByProps("eyebrow"));
+    const UserPopoutSelectors = {};
+    for (const key in UserPopoutClasses) UserPopoutSelectors[key] = new Structs.Selector(UserPopoutClasses[key]);
     const escapeHTML = DOMTools.escapeHTML ? DOMTools.escapeHTML : function(html) {
         const textNode = document.createTextNode("");
         const spanElement = document.createElement("span");
@@ -50,9 +54,10 @@ module.exports = (Plugin, Api) => {
 
             this.listHTML = Utilities.formatTString(this.listHTML, DiscordClasses.UserPopout);
             this.listHTML = Utilities.formatTString(this.listHTML, DiscordClasses.PopoutRoles);
+            this.listHTML = Utilities.formatTString(this.listHTML, UserPopoutClasses);
             this.itemHTML = Utilities.formatTString(this.itemHTML, DiscordClasses.PopoutRoles);
             this.modalHTML = Utilities.formatTString(this.modalHTML, DiscordClasses.Backdrop);
-            this.modalHTML = Utilities.formatTString(this.modalHTML, DiscordClasses.Modals);
+            this.modalHTML = Utilities.formatTString(this.modalHTML, {root: ModalClasses.root, small: ModalClasses.small});
 
             this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
             if (this.settings.popouts) this.bindPopouts();
@@ -136,6 +141,39 @@ module.exports = (Plugin, Api) => {
             this.patchUserContextMenu();
         }
 
+        async findContextMenu(displayName) {
+            const normalFilter = (exports) => exports && exports.default && exports.default.displayName === displayName;
+            const nestedFilter = (module) => module.toString().includes(displayName);
+
+            {
+                const normalCache = WebpackModules.getModule(normalFilter);
+                if (normalCache) return {type: "normal", module: normalCache};
+            }
+
+            {
+                const webpackId = Object.keys(WebpackModules.require.m).find(id => nestedFilter(WebpackModules.require.m[id]));
+                const nestedCache = webpackId !== undefined && WebpackModules.getByIndex(webpackId);
+                if (nestedCache) return {type: "nested", module: nestedCache};
+            }
+
+            return new Promise((resolve) => {
+                const listener = (exports, module) => {
+                    const normal = normalFilter(exports);
+                    const nested = nestedFilter(module);
+
+                    if (!nested && !normal) return;
+
+                    resolve({type: normal ? "normal" : "nested", module: exports});
+                    WebpackModules.removeListener(listener);
+                };
+
+                WebpackModules.addListener(listener);
+                this.contextMenuPatches.push(() => {
+                    WebpackModules.removeListener(listener);
+                });
+            });
+        }
+
         unbindContextMenus() {
             for (const cancel of this.contextMenuPatches) cancel();
         }
@@ -156,45 +194,39 @@ module.exports = (Plugin, Api) => {
             }));
         }
 
-        patchChannelContextMenu() {
-            const patch = (_, [props], retVal) => {
-                const original = retVal.props.children[0].props.children;
+        async patchChannelContextMenu() {
+            const ChannelDeleteItem = await DCM.getDiscordMenu("useChannelDeleteItem");
+            const patch = (original, channel, guild) => {
                 const newOne = DCM.buildMenuItem({
                     label: this.strings.contextMenuLabel,
                     action: () => {
-                        const channel = props.channel;
                         if (!Object.keys(channel.permissionOverwrites).length) return Toasts.info(`#${channel.name} has no permission overrides`);
-                        this.showModal(this.createModalChannel(channel.name, channel, props.guild));
+                        this.showModal(this.createModalChannel(channel.name, channel, guild));
                     }
                 });
-                if (Array.isArray(original)) original.splice(1, 0, newOne);
-                else retVal.props.children[0].props.children = [original, newOne];
+
+                return [
+                    newOne,
+                    DiscordModules.React.createElement(MenuSeparator),
+                    original
+                ];
             };
 
-            DCM.getDiscordMenu("ChannelListVoiceChannelContextMenu").then(VoiceChannelContextMenu => {
-                if (this.promises.state.cancelled) return;
-                this.contextMenuPatches.push(Patcher.after(VoiceChannelContextMenu, "default", patch));
-            });
-
-            DCM.getDiscordMenu(m => m.displayName === "ChannelListTextChannelContextMenu" && !m.toString().includes("AnalyticsLocations.CONTEXT_MENU")).then(TextChannelContextMenu => {
-                if (this.promises.state.cancelled) return;
-                this.contextMenuPatches.push(Patcher.after(TextChannelContextMenu, "default", patch));
-            });
-
-            DCM.getDiscordMenu(m => m.displayName === "ChannelListTextChannelContextMenu" && m.toString().includes("AnalyticsLocations.CONTEXT_MENU")).then(CategoryChannelContextMenu => {
-                if (this.promises.state.cancelled) return;
-                this.contextMenuPatches.push(Patcher.after(CategoryChannelContextMenu, "default", patch));
-            });
+            this.contextMenuPatches.push(Patcher.after(ChannelDeleteItem, "default", (_, [channel], ret) => {
+                const guild = GuildStore.getGuild(channel.guild_id);
+                return patch(ret, channel, guild);
+            }));
         }
 
         async patchUserContextMenu() {
-            const UserContextMenu = await DCM.getDiscordMenu("GuildChannelUserContextMenu");
+            const UserContextMenu = await this.findContextMenu("GuildChannelUserContextMenu");
             if (this.promises.state.cancelled) return;
-            this.contextMenuPatches.push(Patcher.after(UserContextMenu, "default", (_, [props], retVal) => {
+
+            const patch = (props, retVal) => {
                 const guildId = SelectedGuildStore.getGuildId();
                 const guild = GuildStore.getGuild(guildId);
                 if (!guild) return;
-                const original = retVal.props.children.props.children[1].props.children;
+                const original = retVal.props.children[0].props.children[1].props.children;
                 const newOne = DCM.buildMenuItem({
                     label: this.strings.contextMenuLabel,
                     action: () => {
@@ -204,7 +236,22 @@ module.exports = (Plugin, Api) => {
                     }
                 });
                 if (Array.isArray(original)) original.splice(1, 0, newOne);
-                else retVal.props.children.props.children[1].props.children = [original, newOne];
+                else retVal.props.children[0].props.children[1].props.children = [original, newOne];
+            };
+
+            this.contextMenuPatches.push(Patcher.after(UserContextMenu.module, "default", (_, [props], ret) => {
+                if (UserContextMenu.type === "normal") return patch(props, ret);
+
+                const unpatch = Patcher.after(ret.props.children, "type", (_, [props], retVal) => {
+                    patch(props, retVal);
+                });
+
+                const listener = () => {
+                    unpatch();
+                    DiscordModules.Dispatcher.unsubscribe("CONTEXT_MENU_CLOSE", listener);  
+                };
+
+                DiscordModules.Dispatcher.subscribe("CONTEXT_MENU_CLOSE", listener);
             }));
         }
 
@@ -221,8 +268,8 @@ module.exports = (Plugin, Api) => {
         }
 
         createModalUser(name, user, guild) {
-            const userRoles = user.roles.slice(0);
             const guildRoles = Object.assign({}, guild.roles);
+            const userRoles = user.roles.slice(0).filter(r => typeof(guildRoles[r]) !== "undefined");
             
             userRoles.push(guild.id);
             userRoles.sort((a, b) => {return guildRoles[b].position - guildRoles[a].position;});
@@ -247,12 +294,12 @@ module.exports = (Plugin, Api) => {
                 setTimeout(() => {modal.remove();}, 300);
             });
 
-            const strings = DiscordModules.Strings;
+            const strings = Strings?.Messages || {};
             for (const r in displayRoles) {
                 const role = Array.isArray(displayRoles) ? displayRoles[r] : r;
-                const user = UserStore.getUser(role) || {avatarURL: AvatarDefaults.DEFAULT_AVATARS[Math.floor(Math.random() * AvatarDefaults.DEFAULT_AVATARS.length)], username: role};
+                const user = UserStore.getUser(role) || {getAvatarURL: () => AvatarDefaults.DEFAULT_AVATARS[Math.floor(Math.random() * AvatarDefaults.DEFAULT_AVATARS.length)], username: role};
                 const member = MemberStore.getMember(SelectedGuildStore.getGuildId(), role) || {colorString: ""};
-                const item = DOMTools.createElement(!isOverride || displayRoles[role].type == 0 ? this.modalButton : Utilities.formatTString(this.modalButtonUser, {avatarUrl: user.avatarURL}));
+                const item = DOMTools.createElement(!isOverride || displayRoles[role].type == 0 ? this.modalButton : Utilities.formatTString(this.modalButtonUser, {avatarUrl: user.getAvatarURL(null, 16, true)})); // getAvatarURL(guildId, size, canAnimate);
                 if (!isOverride || displayRoles[role].type == 0) item.style.color = referenceRoles[role].colorString;
                 else item.style.color = member.colorString;
                 if (isOverride) item.querySelector(".role-name").innerHTML = escapeHTML(displayRoles[role].type == 0 ? referenceRoles[role].name : user.username);
@@ -285,7 +332,7 @@ module.exports = (Plugin, Api) => {
                 });
                 item.addEventListener("contextmenu", (e) => {
                     DCM.openContextMenu(e, DCM.buildMenu([
-                        {label: DiscordModules.Strings.COPY_ID, action: () => {DiscordModules.ElectronModule.copy(role);}}
+                        {label: Strings?.Messages?.COPY_ID ?? "Copy Id", action: () => {DiscordModules.ElectronModule.copy(role);}}
                     ]));
                 });
             }
