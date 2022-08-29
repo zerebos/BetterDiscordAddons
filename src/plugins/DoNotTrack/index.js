@@ -1,8 +1,12 @@
 module.exports = (Plugin, Api) => {
-    const {Patcher, WebpackModules, Modals, DiscordModules} = Api;
+    const {Patcher, WebpackModules, Modals} = Api;
+
+    const SettingsManager = WebpackModules.getByProps("ShowCurrentGame");
+    const Analytics = WebpackModules.getByProps("AnalyticEventConfigs");
+
     return class DoNotTrack extends Plugin {
         onStart() {
-            const Analytics = WebpackModules.getByProps("AnalyticEventConfigs");
+            
             Patcher.instead(Analytics.default, "track", () => {});
 
             const Logger = window.__SENTRY__.logger;
@@ -26,14 +30,14 @@ module.exports = (Plugin, Api) => {
         }
 
         disableProcessMonitor() {
-            DiscordModules.UserSettingsUpdater.updateLocalSettings({showCurrentGame: false});
+            SettingsManager?.ShowCurrentGame?.updateSetting(false);
             const NativeModule = WebpackModules.getByProps("getDiscordUtils");
             const DiscordUtils = NativeModule.getDiscordUtils();
             DiscordUtils.setObservedGamesCallback([], () => {});
         }
 
         enableProcessMonitor() {
-            DiscordModules.UserSettingsUpdater.updateLocalSettings({showCurrentGame: true});
+            SettingsManager?.ShowCurrentGame?.updateSetting(true);
             Modals.showConfirmationModal("Reload Discord?", "To reenable the process monitor Discord needs to be reloaded.", {
                 confirmText: "Reload",
                 cancelText: "Later",

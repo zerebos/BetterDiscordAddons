@@ -8,7 +8,7 @@ const releasePath = path.isAbsolute(buildConfig.releaseFolder) ? buildConfig.rel
 const bdFolder = (process.platform == "win32" ? process.env.APPDATA : process.platform == "darwin" ? process.env.HOME + "/Library/Preferences" : process.env.XDG_CONFIG_HOME ? process.env.XDG_CONFIG_HOME : process.env.HOME + "/.config") + "/BetterDiscord/";
 
 const formatString = function(string, values) {
-    for (const val in values) string = string.replace(new RegExp(`{{${val}}}`, "g"), () => values[val]);
+    for (const val in values) string = string.replace(new RegExp(`\`{{${val}}}\``, "g"), () => values[val]);
     return string;
 };
 
@@ -46,11 +46,10 @@ for (let f = 0; f < list.length; f++) {
     const content = embedFiles(require(path.join(pluginsPath, pluginName, config.main)).toString(), pluginName, files);
     let result = formatString(template, {
         PLUGIN_NAME: pluginName,
-        CONFIG: JSON.stringify(config).replace(/"((?:[A-Za-z]|[0-9]|_)+)"\s?:/g, "$1:"),
+        CONFIG: JSON.stringify(config, null, 4).replace(/"((?:[A-Za-z]|[0-9]|_)+)"\s?:/g, "$1:"),
         INNER: content,
         WEBSITE: config.info.github || formatString(buildConfig.github, {PLUGIN_NAME: pluginName}),
         SOURCE: config.info.github_raw || formatString(buildConfig.githubRaw, {PLUGIN_NAME: pluginName}),
-        UPDATE_URL: config.info.github_raw || formatString(buildConfig.githubRaw, {PLUGIN_NAME: pluginName}),
         VERSION: config.info.version,
         PATREON: buildConfig.patreonLink,
         PAYPAL: buildConfig.paypalLink,
