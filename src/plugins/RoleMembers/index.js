@@ -58,7 +58,7 @@ module.exports = (Plugin, Api) => {
                 component.props.className += ` mention interactive`;
                 component.props.onClick = (e) => {
                     const roles = GuildStore.getGuild(props.guildId).roles;
-                    const name = component.props.children[0].slice(1);
+                    const name = component.props.children[1][0].slice(1);
                     let role = filter(roles, r => r.name == name);
                     if (!role) return;
                     role = role[Object.keys(role)[0]];
@@ -68,12 +68,11 @@ module.exports = (Plugin, Api) => {
         }
 
         async patchGuildContextMenu(promiseState) {
-            const GuildContextMenu = await DCM.getDiscordMenu("GuildContextMenu");
+            const GuildContextMenu = await DCM.getDiscordMenu("useGuildMarkAsReadItem");
             if (promiseState.cancelled) return;
-            Patcher.after(GuildContextMenu, "default", (_, args, retVal) => {
-                const props = args[0];
-                const guildId = props.guild.id;
-                const roles = props.guild.roles;
+            Patcher.after(GuildContextMenu, "default", (_, [guild], retVal) => {
+                const guildId = guild.id;
+                const roles = guild.roles;
                 const roleItems = [];
 
                 for (const roleId in roles) {
@@ -100,10 +99,15 @@ module.exports = (Plugin, Api) => {
                     });
                     roleItems.push(item);
                 }
-                const original = retVal.props.children[0].props.children;
+                const original = retVal;
                 const newOne = DCM.buildMenuItem({type: "submenu", label: "Role Members", children: roleItems});
-                if (Array.isArray(original)) original.splice(1, 0, newOne);
-                else retVal.props.children[0].props.children = [original, newOne];
+                if (Array.isArray(original)) {
+                    const separatorIndex = original.findIndex(k => !k?.props?.label);
+                    const insertIndex = separatorIndex > 0 ? separatorIndex + 1 : 1;
+                    original.splice(insertIndex, 0, newOne);
+                    return original;
+                }
+                return [original, newOne];
             });
         }
 
@@ -143,7 +147,7 @@ module.exports = (Plugin, Api) => {
         showPopout(popout, relativeTarget) {
             if (this.listener) this.listener({target: {classList: {contains: () => {}}, closest: () => {}}}); // Close any previous popouts
             
-            document.querySelector(`#app-mount > ${DiscordSelectors.TooltipLayers.layerContainer}`).append(popout);
+            document.querySelector(`[class*="app-"] ~ ${DiscordSelectors.TooltipLayers.layerContainer}`).append(popout);
 
             const maxWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
             const maxHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);

@@ -1,10 +1,9 @@
 /**
  * @name RoleMembers
- * @version 0.1.15
+ * @version 0.1.16
  * @authorLink https://twitter.com/IAmZerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers
  * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js
- * @updateUrl https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js
  */
 /*@cc_on
 @if (@_jscript)
@@ -30,31 +29,56 @@
 
 @else@*/
 
-module.exports = (() => {
-    const config = {info:{name:"RoleMembers",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"0.1.15",description:"Allows you to see the members of each role on a server.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"},changelog:[{title:"Fully Fixed",type:"fixed",items:["Context menu item shows and works again.","Popout is whole instead of transparent."]}],main:"index.js"};
 
-    return !global.ZeresPluginLibrary ? class {
-        constructor() {this._config = config;}
-        getName() {return config.info.name;}
-        getAuthor() {return config.info.authors.map(a => a.name).join(", ");}
-        getDescription() {return config.info.description;}
-        getVersion() {return config.info.version;}
-        load() {
-            BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
-                confirmText: "Download Now",
-                cancelText: "Cancel",
-                onConfirm: () => {
-                    require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, response, body) => {
-                        if (error) return require("electron").shell.openExternal("https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js");
-                        await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
-                    });
-                }
+const config = {
+    info: {
+        name: "RoleMembers",
+        authors: [
+            {
+                name: "Zerebos",
+                discord_id: "249746236008169473",
+                github_username: "rauenzi",
+                twitter_username: "ZackRauen"
+            }
+        ],
+        version: "0.1.16",
+        description: "Allows you to see the members of each role on a server.",
+        github: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers",
+        github_raw: "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"
+    },
+    changelog: [
+        {
+            title: "Fully Fixed",
+            type: "fixed",
+            items: [
+                "Context menu item shows and works again.",
+                "Role mentions work again."
+            ]
+        }
+    ],
+    main: "index.js"
+};
+class Dummy {
+    constructor() {this._config = config;}
+    start() {}
+    stop() {}
+}
+
+if (!global.ZeresPluginLibrary) {
+        BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
+        confirmText: "Download Now",
+        cancelText: "Cancel",
+        onConfirm: () => {
+            require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, response, body) => {
+                if (error) return require("electron").shell.openExternal("https://betterdiscord.app/Download?id=9");
+                await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
             });
         }
-        start() {}
-        stop() {}
-    } : (([Plugin, Api]) => {
-        const plugin = (Plugin, Api) => {
+    });
+}
+
+module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
+    const plugin = (Plugin, Api) => {
     const {Popouts, DiscordModules, DiscordSelectors, Utilities, WebpackModules, Patcher, DCM, DOMTools, Toasts} = Api;
 
     const from = arr => arr && arr.length > 0 && Object.assign(...arr.map(([k, v]) => ({[k]: v})));
@@ -147,7 +171,7 @@ module.exports = (() => {
                 component.props.className += ` mention interactive`;
                 component.props.onClick = (e) => {
                     const roles = GuildStore.getGuild(props.guildId).roles;
-                    const name = component.props.children[0].slice(1);
+                    const name = component.props.children[1][0].slice(1);
                     let role = filter(roles, r => r.name == name);
                     if (!role) return;
                     role = role[Object.keys(role)[0]];
@@ -157,12 +181,11 @@ module.exports = (() => {
         }
 
         async patchGuildContextMenu(promiseState) {
-            const GuildContextMenu = await DCM.getDiscordMenu("GuildContextMenu");
+            const GuildContextMenu = await DCM.getDiscordMenu("useGuildMarkAsReadItem");
             if (promiseState.cancelled) return;
-            Patcher.after(GuildContextMenu, "default", (_, args, retVal) => {
-                const props = args[0];
-                const guildId = props.guild.id;
-                const roles = props.guild.roles;
+            Patcher.after(GuildContextMenu, "default", (_, [guild], retVal) => {
+                const guildId = guild.id;
+                const roles = guild.roles;
                 const roleItems = [];
 
                 for (const roleId in roles) {
@@ -189,10 +212,15 @@ module.exports = (() => {
                     });
                     roleItems.push(item);
                 }
-                const original = retVal.props.children[0].props.children;
+                const original = retVal;
                 const newOne = DCM.buildMenuItem({type: "submenu", label: "Role Members", children: roleItems});
-                if (Array.isArray(original)) original.splice(1, 0, newOne);
-                else retVal.props.children[0].props.children = [original, newOne];
+                if (Array.isArray(original)) {
+                    const separatorIndex = original.findIndex(k => !k?.props?.label);
+                    const insertIndex = separatorIndex > 0 ? separatorIndex + 1 : 1;
+                    original.splice(insertIndex, 0, newOne);
+                    return original;
+                }
+                return [original, newOne];
             });
         }
 
@@ -232,7 +260,7 @@ module.exports = (() => {
         showPopout(popout, relativeTarget) {
             if (this.listener) this.listener({target: {classList: {contains: () => {}}, closest: () => {}}}); // Close any previous popouts
             
-            document.querySelector(`#app-mount > ${DiscordSelectors.TooltipLayers.layerContainer}`).append(popout);
+            document.querySelector(`[class*="app-"] ~ ${DiscordSelectors.TooltipLayers.layerContainer}`).append(popout);
 
             const maxWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
             const maxHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
@@ -287,7 +315,6 @@ module.exports = (() => {
 
     };
 };
-        return plugin(Plugin, Api);
-    })(global.ZeresPluginLibrary.buildPlugin(config));
-})();
+    return plugin(Plugin, Api);
+})(global.ZeresPluginLibrary.buildPlugin(config));
 /*@end@*/

@@ -751,7 +751,12 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                         this.showModal(this.createModalGuild(guild.name, guild));
                     }
                 });
-                if (Array.isArray(original)) return original.splice(1, 0, newOne);
+                if (Array.isArray(original)) {
+                    const separatorIndex = original.findIndex(k => !k?.props?.label);
+                    const insertIndex = separatorIndex > 0 ? separatorIndex + 1 : 1;
+                    original.splice(insertIndex, 0, newOne);
+                    return original;
+                }
                 return [original, DiscordModules.React.createElement(MenuSeparator), newOne];
             }));
         }
@@ -767,6 +772,13 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                         this.showModal(this.createModalChannel(channel.name, channel, guild));
                     }
                 });
+
+                if (Array.isArray(original)) {
+                    const separatorIndex = original.findIndex(k => !k?.props?.label);
+                    const insertIndex = separatorIndex > 0 ? separatorIndex + 1 : 1;
+                    original.splice(insertIndex, 0, newOne);
+                    return original;
+                }
 
                 return [
                     original,
@@ -798,7 +810,12 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                         this.showModal(this.createModalUser(name, user, guild));
                     }
                 });
-                if (Array.isArray(original)) return original.splice(1, 0, newOne);
+                if (Array.isArray(original)) {
+                    const separatorIndex = original.findIndex(k => !k?.props?.label);
+                    const insertIndex = separatorIndex > 0 ? separatorIndex + 1 : 1;
+                    original.splice(insertIndex, 0, newOne);
+                    return original;
+                }
                 return [original, newOne];
             }));
         }
