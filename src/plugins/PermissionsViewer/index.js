@@ -14,6 +14,7 @@ module.exports = (Plugin, Api) => {
     const UserPopoutClasses = Object.assign({}, WebpackModules.getByProps("userPopout"), WebpackModules.getByProps("rolesList"), WebpackModules.getByProps("eyebrow"));
     const UserPopoutSelectors = {};
     for (const key in UserPopoutClasses) UserPopoutSelectors[key] = new Structs.Selector(UserPopoutClasses[key]);
+    const RoleClasses = Object.assign({}, DiscordClasses.PopoutRoles, WebpackModules.getByProps("rolesList"), WebpackModules.getByProps("roleName", "roleIcon"));
     const escapeHTML = DOMTools.escapeHTML ? DOMTools.escapeHTML : function(html) {
         const textNode = document.createTextNode("");
         const spanElement = document.createElement("span");
@@ -53,9 +54,9 @@ module.exports = (Plugin, Api) => {
             PluginUtilities.addStyle(this.getName(), this.css);
 
             this.listHTML = Utilities.formatTString(this.listHTML, DiscordClasses.UserPopout);
-            this.listHTML = Utilities.formatTString(this.listHTML, DiscordClasses.PopoutRoles);
+            this.listHTML = Utilities.formatTString(this.listHTML, RoleClasses);
             this.listHTML = Utilities.formatTString(this.listHTML, UserPopoutClasses);
-            this.itemHTML = Utilities.formatTString(this.itemHTML, DiscordClasses.PopoutRoles);
+            this.itemHTML = Utilities.formatTString(this.itemHTML, RoleClasses);
             this.modalHTML = Utilities.formatTString(this.modalHTML, DiscordClasses.Backdrop);
             this.modalHTML = Utilities.formatTString(this.modalHTML, {root: ModalClasses.root, small: ModalClasses.small});
 
@@ -77,7 +78,7 @@ module.exports = (Plugin, Api) => {
             else PluginUtilities.removeStyle(this.getName() + "-jumbo");
         }
 
-        async bindPopouts() {
+        patchPopouts(e) {
             const popoutMount = (props) => {
                 const popout = document.querySelector(UserPopoutSelectors.userPopout);
                 if (!popout || popout.querySelector("#permissions-popout")) return;
@@ -127,12 +128,21 @@ module.exports = (Plugin, Api) => {
                 popoutInstance.updateOffsets();
             };
 
+            if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element)) return;
+            // console.log(e)
+            const element = e.addedNodes[0];
+            const popout = element.querySelector(`[class*="userPopout-"]`) ?? element;
+            if (!popout || !popout.matches(`[class*="userPopout-"]`)) return;
+            const props = Utilities.findInTree(ReactTools.getReactInstance(popout), m => m && m.user, {walkable: ["return", "memoizedProps"]});
+            popoutMount(props);
+        }
 
-            this.cancelUserPopout = Patcher.after(DiscordModules.UserPopout, "type", (_, __, retVal) => popoutMount(retVal.props));
+        bindPopouts() {
+            this.observer = this.patchPopouts.bind(this);
         }
 
         unbindPopouts() {
-            this.cancelUserPopout();
+            this.observer = undefined;
         }
 
         async bindContextMenus() {
@@ -141,61 +151,29 @@ module.exports = (Plugin, Api) => {
             this.patchUserContextMenu();
         }
 
-        async findContextMenu(displayName) {
-            const normalFilter = (exports) => exports && exports.default && exports.default.displayName === displayName;
-            const nestedFilter = (module) => module.toString().includes(displayName);
-
-            {
-                const normalCache = WebpackModules.getModule(normalFilter);
-                if (normalCache) return {type: "normal", module: normalCache};
-            }
-
-            {
-                const webpackId = Object.keys(WebpackModules.require.m).find(id => nestedFilter(WebpackModules.require.m[id]));
-                const nestedCache = webpackId !== undefined && WebpackModules.getByIndex(webpackId);
-                if (nestedCache) return {type: "nested", module: nestedCache};
-            }
-
-            return new Promise((resolve) => {
-                const listener = (exports, module) => {
-                    const normal = normalFilter(exports);
-                    const nested = nestedFilter(module);
-
-                    if (!nested && !normal) return;
-
-                    resolve({type: normal ? "normal" : "nested", module: exports});
-                    WebpackModules.removeListener(listener);
-                };
-
-                WebpackModules.addListener(listener);
-                this.contextMenuPatches.push(() => {
-                    WebpackModules.removeListener(listener);
-                });
-            });
-        }
-
         unbindContextMenus() {
             for (const cancel of this.contextMenuPatches) cancel();
         }
 
         async patchGuildContextMenu() {
-            const GuildContextMenu = await DCM.getDiscordMenu("GuildContextMenu");
+            const GuildContextMenu = await DCM.getDiscordMenu("useGuildMarkAsReadItem");
             if (this.promises.state.cancelled) return;
-            this.contextMenuPatches.push(Patcher.after(GuildContextMenu, "default", (_, [props], retVal) => {
-                const original = retVal.props.children[0].props.children;
+            this.contextMenuPatches.push(Patcher.after(GuildContextMenu, "default", (_, [guild], retVal) => {
+                const original = retVal;
                 const newOne = DCM.buildMenuItem({
                     label: this.strings.contextMenuLabel,
                     action: () => {
-                        this.showModal(this.createModalGuild(props.guild.name, props.guild));
+                        this.showModal(this.createModalGuild(guild.name, guild));
                     }
                 });
-                if (Array.isArray(original)) original.splice(1, 0, newOne);
-                else retVal.props.children[0].props.children = [original, newOne];
+                if (Array.isArray(original)) return original.splice(1, 0, newOne);
+                return [original, DiscordModules.React.createElement(MenuSeparator), newOne];
             }));
         }
 
         async patchChannelContextMenu() {
-            const ChannelDeleteItem = await DCM.getDiscordMenu("useChannelDeleteItem");
+            const ChannelDeleteItem = await DCM.getDiscordMenu("useChannelMarkAsReadItem");
+            if (this.promises.state.cancelled) return;
             const patch = (original, channel, guild) => {
                 const newOne = DCM.buildMenuItem({
                     label: this.strings.contextMenuLabel,
@@ -206,9 +184,9 @@ module.exports = (Plugin, Api) => {
                 });
 
                 return [
-                    newOne,
+                    original,
                     DiscordModules.React.createElement(MenuSeparator),
-                    original
+                    newOne,
                 ];
             };
 
@@ -219,39 +197,24 @@ module.exports = (Plugin, Api) => {
         }
 
         async patchUserContextMenu() {
-            const UserContextMenu = await this.findContextMenu("GuildChannelUserContextMenu");
+            const UserContextMenu = await DCM.getDiscordMenu("useUserProfileItem");
             if (this.promises.state.cancelled) return;
 
-            const patch = (props, retVal) => {
-                const guildId = SelectedGuildStore.getGuildId();
+            this.contextMenuPatches.push(Patcher.after(UserContextMenu, "default", (_, [userId, guildId], retVal) => {
                 const guild = GuildStore.getGuild(guildId);
                 if (!guild) return;
-                const original = retVal.props.children[0].props.children[1].props.children;
+
+                const original = retVal;
                 const newOne = DCM.buildMenuItem({
                     label: this.strings.contextMenuLabel,
                     action: () => {
-                        const user = MemberStore.getMember(guildId, props.user.id);
+                        const user = MemberStore.getMember(guildId, userId);
                         const name = user.nick ? user.nick : UserStore.getUser(user.userId).username;
                         this.showModal(this.createModalUser(name, user, guild));
                     }
                 });
-                if (Array.isArray(original)) original.splice(1, 0, newOne);
-                else retVal.props.children[0].props.children[1].props.children = [original, newOne];
-            };
-
-            this.contextMenuPatches.push(Patcher.after(UserContextMenu.module, "default", (_, [props], ret) => {
-                if (UserContextMenu.type === "normal") return patch(props, ret);
-
-                const unpatch = Patcher.after(ret.props.children, "type", (_, [props], retVal) => {
-                    patch(props, retVal);
-                });
-
-                const listener = () => {
-                    unpatch();
-                    DiscordModules.Dispatcher.unsubscribe("CONTEXT_MENU_CLOSE", listener);  
-                };
-
-                DiscordModules.Dispatcher.subscribe("CONTEXT_MENU_CLOSE", listener);
+                if (Array.isArray(original)) return original.splice(1, 0, newOne);
+                return [original, newOne];
             }));
         }
 
