@@ -68,7 +68,8 @@ module.exports = (() => {
             this.styleTemplate = `
             {{blurOnFocus}}
             img.blur:hover,
-            video.blur:hover {
+            video.blur:hover,
+            a:hover + div > .blur {
                 transition: {{time}}ms cubic-bezier(.2, .11, 0, 1) !important;
                 filter: blur(0px) !important;
             }

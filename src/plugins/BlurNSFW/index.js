@@ -19,7 +19,8 @@ module.exports = (Plugin, Api) => {
             }
             
             img.blur,
-            video.blur {
+            video.blur,
+            a:hover + div > .blur {
                 filter: blur({{size}}px) !important;
                 transition: {{time}}ms cubic-bezier(.2, .11, 0, 1) !important;
             }`;
