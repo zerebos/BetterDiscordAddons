@@ -1,6 +1,9 @@
 /**
  * @name BetterRoleColors
+ * @description Adds server-based role colors to typing, voice, popouts, modals and more!
  * @version 0.9.0
+ * @author Zerebos
+ * @authorId 249746236008169473
  * @authorLink https://twitter.com/IAmZerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors
  * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js
@@ -28,8 +31,6 @@
     WScript.Quit();
 
 @else@*/
-
-
 const config = {
     info: {
         name: "BetterRoleColors",
@@ -246,9 +247,9 @@ class Dummy {
     start() {}
     stop() {}
 }
-
+ 
 if (!global.ZeresPluginLibrary) {
-        BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
+    BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
         confirmText: "Download Now",
         cancelText: "Cancel",
         onConfirm: () => {
@@ -259,9 +260,9 @@ if (!global.ZeresPluginLibrary) {
         }
     });
 }
-
+ 
 module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
-    const plugin = (Plugin, Api) => {
+     const plugin = (Plugin, Api) => {
     const {DiscordSelectors, WebpackModules, DiscordModules, Patcher, ColorConverter, ReactComponents, Utilities, Logger} = Api;
 
     const GuildMemberStore = DiscordModules.GuildMemberStore;
@@ -642,6 +643,6 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
 
     };
 };
-    return plugin(Plugin, Api);
+     return plugin(Plugin, Api);
 })(global.ZeresPluginLibrary.buildPlugin(config));
 /*@end@*/

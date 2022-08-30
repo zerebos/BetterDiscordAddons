@@ -1,6 +1,9 @@
 /**
  * @name BetterFormattingRedux
+ * @description Enables different types of formatting in standard Discord chat.
  * @version 2.3.13
+ * @author Zerebos
+ * @authorId 249746236008169473
  * @authorLink https://twitter.com/IAmZerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux
  * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js
@@ -28,8 +31,6 @@
     WScript.Quit();
 
 @else@*/
-
-
 const config = {
     info: {
         name: "BetterFormattingRedux",
@@ -256,7 +257,7 @@ const config = {
                     id: "thicc",
                     name: "Extra Thicc",
                     note: "The wrapper to get 乇乂下尺卂 下卄工匚匚.",
-                    value: "$$"
+                    value: "$"
                 }
             ]
         },
@@ -418,9 +419,9 @@ class Dummy {
     start() {}
     stop() {}
 }
-
+ 
 if (!global.ZeresPluginLibrary) {
-        BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
+    BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
         confirmText: "Download Now",
         cancelText: "Cancel",
         onConfirm: () => {
@@ -431,9 +432,9 @@ if (!global.ZeresPluginLibrary) {
         }
     });
 }
-
+ 
 module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
-    const plugin = (Plugin, Api) => {
+     const plugin = (Plugin, Api) => {
     const {DiscordSelectors, PluginUtilities, Tooltip, DiscordModules, Patcher, Utilities, DCM, DOMTools, ReactTools, WebpackModules} = Api;
 
     const SlateEditor = WebpackModules.getByProps("Editor", "Transforms");
@@ -1074,6 +1075,6 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
 
     };
 };
-    return plugin(Plugin, Api);
+     return plugin(Plugin, Api);
 })(global.ZeresPluginLibrary.buildPlugin(config));
 /*@end@*/

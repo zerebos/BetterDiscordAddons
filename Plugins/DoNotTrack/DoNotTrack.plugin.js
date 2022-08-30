@@ -1,6 +1,9 @@
 /**
  * @name DoNotTrack
+ * @description Stops Discord from tracking everything you do like Sentry and Analytics.
  * @version 0.0.8
+ * @author Zerebos
+ * @authorId 249746236008169473
  * @authorLink https://twitter.com/IAmZerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/DoNotTrack
  * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/DoNotTrack/DoNotTrack.plugin.js
@@ -28,8 +31,6 @@
     WScript.Quit();
 
 @else@*/
-
-
 const config = {
     info: {
         name: "DoNotTrack",
@@ -71,9 +72,9 @@ class Dummy {
     start() {}
     stop() {}
 }
-
+ 
 if (!global.ZeresPluginLibrary) {
-        BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
+    BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
         confirmText: "Download Now",
         cancelText: "Cancel",
         onConfirm: () => {
@@ -84,9 +85,9 @@ if (!global.ZeresPluginLibrary) {
         }
     });
 }
-
+ 
 module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
-    const plugin = (Plugin, Api) => {
+     const plugin = (Plugin, Api) => {
     const {Patcher, WebpackModules, Modals} = Api;
 
     const SettingsManager = WebpackModules.getByProps("ShowCurrentGame");
@@ -149,6 +150,6 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
 
     };
 };
-    return plugin(Plugin, Api);
+     return plugin(Plugin, Api);
 })(global.ZeresPluginLibrary.buildPlugin(config));
 /*@end@*/
