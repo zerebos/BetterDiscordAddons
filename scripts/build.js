@@ -48,7 +48,7 @@ for (let f = 0; f < list.length; f++) {
     let result = buildMeta(config);
     if (buildConfig.addInstallScript) result += require(path.join(__dirname, "installscript.js"));
     result += template.replace(`const config = "";`, `const config = ${JSON.stringify(config, null, 4).replace(/"((?:[A-Za-z]|[0-9]|_)+)"\s?:/g, "$1:")};`)
-                      .replace(`const plugin = "";`, `const plugin = ${content};`);
+                      .replace(`const plugin = "";`, () => `const plugin = ${content};`);
     if (buildConfig.addInstallScript) result += "\n/*@end@*/";
     const buildFile = path.join(releasePath, pluginName, pluginName + ".plugin.js");
     fs.writeFileSync(buildFile, result);

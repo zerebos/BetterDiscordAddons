@@ -38,6 +38,7 @@ module.exports = (Plugin, Api) => {
             this.css = require("styles.css");
             this.jumbo = require("jumbo.css");
             this.listHTML = require("list.html");
+            this.skinHTML = require("listnew.html");
             this.itemHTML = require("item.html");
             this.modalHTML = require("modal.html");
             this.modalItem = require("modalitem.html");
@@ -56,6 +57,9 @@ module.exports = (Plugin, Api) => {
             this.listHTML = Utilities.formatTString(this.listHTML, DiscordClasses.UserPopout);
             this.listHTML = Utilities.formatTString(this.listHTML, RoleClasses);
             this.listHTML = Utilities.formatTString(this.listHTML, UserPopoutClasses);
+            this.skinHTML = Utilities.formatTString(this.skinHTML, DiscordClasses.UserPopout);
+            this.skinHTML = Utilities.formatTString(this.skinHTML, RoleClasses);
+            this.skinHTML = Utilities.formatTString(this.skinHTML, UserPopoutClasses);
             this.itemHTML = Utilities.formatTString(this.itemHTML, RoleClasses);
             this.modalHTML = Utilities.formatTString(this.modalHTML, DiscordClasses.Backdrop);
             this.modalHTML = Utilities.formatTString(this.modalHTML, {root: ModalClasses.root, small: ModalClasses.small});
@@ -80,7 +84,7 @@ module.exports = (Plugin, Api) => {
 
         patchPopouts(e) {
             const popoutMount = (props) => {
-                const popout = document.querySelector(UserPopoutSelectors.userPopout);
+                const popout = document.querySelector(`[class*="userPopout-"]`);
                 if (!popout || popout.querySelector("#permissions-popout")) return;
                 const user = MemberStore.getMember(props.guildId, props.user.id);
                 const guild = GuildStore.getGuild(props.guildId);
@@ -92,7 +96,8 @@ module.exports = (Plugin, Api) => {
                 userRoles.reverse();
                 let perms = 0n;
 
-                const permBlock = DOMTools.createElement(Utilities.formatTString(this.listHTML, {label: this.strings.popoutLabel}));
+                const isSkin = popout.id === "user-popout";
+                const permBlock = DOMTools.createElement(Utilities.formatTString(isSkin ? this.skinHTML : this.listHTML, {label: this.strings.popoutLabel}));
                 const memberPerms = permBlock.querySelector(".member-perms");
                 const strings = Strings;
 
@@ -105,6 +110,7 @@ module.exports = (Plugin, Api) => {
                         const hasPerm = (perms & DiscordPerms[perm]) == DiscordPerms[perm];
                         if (hasPerm && !memberPerms.querySelector(`[data-name="${permName}"]`)) {
                             const element = DOMTools.createElement(this.itemHTML);
+                            if (isSkin) element.classList.add("rolePill-2Lo5dd");
                             let roleColor = guild.roles[role].colorString;
                             element.querySelector(".name").textContent = permName;
                             element.setAttribute("data-name", permName);
@@ -119,8 +125,10 @@ module.exports = (Plugin, Api) => {
                 permBlock.querySelector(".perm-details").addEventListener("click", () => {
                     this.showModal(this.createModalUser(name, user, guild));
                 });
-                const roleList = popout.querySelector(UserPopoutSelectors.rolesList);
+                let roleList = popout.querySelector(isSkin ? ".roles-1waBHC" : UserPopoutSelectors.rolesList);
+                if (isSkin) roleList = roleList.parentElement;
                 roleList.parentNode.insertBefore(permBlock, roleList.nextSibling);
+                
 
 
                 const popoutInstance = ReactTools.getOwnerInstance(popout, {include: ["Popout"]});
