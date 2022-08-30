@@ -1,3 +1,7 @@
+# Discontinued
+
+Due to complexity and time constraints, as well as the new crowded account panel, this plugin is discontinued. Developers that would like to pick up where this left off are free to do so.
+
 # AccountDetailsPlus - [Download](https://betterdiscord.app/Download?id=31)
 
 Lets you view popout, nickname and more from your account panel at the bottom.
