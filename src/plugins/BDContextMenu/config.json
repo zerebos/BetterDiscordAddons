@@ -7,13 +7,13 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.1.10",
+        "version": "0.1.11",
         "description": "Adds BD shortcuts to the settings context menu.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"
     },
     "changelog": [
-        {"title": "Bugfixes", "type": "fixed", "items": ["Context menu should show up again.", "Scrollers in submenus show up again."]}
+        {"title": "Bugfixes", "type": "fixed", "items": ["Context menu should show up again."]}
     ],
     "main": "index.js"
 }
