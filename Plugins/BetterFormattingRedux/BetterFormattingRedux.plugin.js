@@ -1,12 +1,9 @@
 /**
  * @name BetterFormattingRedux
- * @version 2.3.12
+ * @version 2.3.13
  * @authorLink https://twitter.com/IAmZerebos
- * @donate https://paypal.me/ZackRauen
- * @patreon https://patreon.com/Zerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux
  * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js
- * @updateUrl https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js
  */
 /*@cc_on
 @if (@_jscript)
@@ -32,32 +29,414 @@
 
 @else@*/
 
-module.exports = (() => {
-    const config = {info:{name:"BetterFormattingRedux",authors:[{name:"Zerebos",discord_id:"249746236008169473",github_username:"rauenzi",twitter_username:"ZackRauen"}],version:"2.3.12",description:"Enables different types of formatting in standard Discord chat.",github:"https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux",github_raw:"https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js"},changelog:[{title:"GUI Works Again",type:"fixed",items:["Fixed for latest Discord changes which prevented the wrappers from being added via click."]}],main:"index.js",defaultConfig:[{type:"category",id:"toolbar",name:"Toolbar Buttons",collapsible:true,shown:false,settings:[{type:"switch",id:"bold",name:"Bold",value:true},{type:"switch",id:"italic",name:"Italic",value:true},{type:"switch",id:"underline",name:"Underline",value:true},{type:"switch",id:"strikethrough",name:"Strikethrough",value:true},{type:"switch",id:"spoiler",name:"Spoiler",value:true},{type:"switch",id:"code",name:"Code",value:true},{type:"switch",id:"codeblock",name:"Codeblock",value:true},{type:"switch",id:"superscript",name:"Superscript",value:true},{type:"switch",id:"smallcaps",name:"Smallcaps",value:true},{type:"switch",id:"fullwidth",name:"Full Width",value:true},{type:"switch",id:"upsidedown",name:"Upsidedown",value:true},{type:"switch",id:"varied",name:"Varied Caps",value:true},{type:"switch",id:"leet",name:"Leet (1337)",value:false},{type:"switch",id:"thicc",name:"Extra Thicc",value:false}]},{type:"category",id:"formats",name:"Active Formats",collapsible:true,shown:false,settings:[{type:"switch",id:"superscript",name:"Superscript",value:true},{type:"switch",id:"smallcaps",name:"Smallcaps",value:true},{type:"switch",id:"fullwidth",name:"Full Width",value:true},{type:"switch",id:"upsidedown",name:"Upsidedown",value:true},{type:"switch",id:"varied",name:"Varied Caps",value:true},{type:"switch",id:"leet",name:"Leet (1337)",value:false},{type:"switch",id:"thicc",name:"Extra Thicc",value:false}]},{type:"category",id:"wrappers",name:"Wrapper Options",collapsible:true,shown:false,settings:[{type:"textbox",id:"superscript",name:"Superscript",note:"The wrapper for superscripted text",value:"^^"},{type:"textbox",id:"smallcaps",name:"Smallcaps",note:"The wrapper to make Smallcaps.",value:"%%"},{type:"textbox",id:"fullwidth",name:"Full Width",note:"The wrapper for E X P A N D E D  T E X T.",value:"##"},{type:"textbox",id:"upsidedown",name:"Upsidedown",note:"The wrapper to flip the text upsidedown.",value:"&&"},{type:"textbox",id:"varied",name:"Varied Caps",note:"The wrapper to VaRy the capitalization.",value:"=="},{type:"textbox",id:"leet",name:"Leet (1337)",note:"The wrapper to talk in 13375p34k.",value:"++"},{type:"textbox",id:"thicc",name:"Extra Thicc",note:"The wrapper to get 乇乂下尺卂 下卄工匚匚.",value:"$$"}]},{type:"category",id:"formatting",name:"Formatting Options",collapsible:true,shown:false,settings:[{type:"dropdown",id:"fullWidthMap",name:"Fullwidth Style",note:"Which style of fullwidth formatting should be used.",value:true,options:[{label:"T H I S",value:false},{label:"ｔｈｉｓ",value:true}]},{type:"switch",id:"reorderUpsidedown",name:"Reorder Upsidedown Text",note:"Having this enabled reorders the upside down text to make it in-order.",value:true},{type:"switch",id:"fullwidth",name:"Start VaRiEd Caps With Capital",note:"Enabling this starts a varied text string with a capital.",value:true}]},{type:"category",id:"plugin",name:"Functional Options",collapsible:true,shown:false,settings:[{type:"dropdown",id:"hoverOpen",name:"Opening Toolbar",note:"Determines when to show the toolbar.",value:true,options:[{label:"Click",value:false},{label:"Hover",value:true}]},{type:"dropdown",id:"chainFormats",name:"Format Chaining",note:"Swaps priority of wrappers between inner first and outer first. Check the GitHub for more info.",value:true,options:[{label:"Inner",value:false},{label:"Outer",value:true}]},{type:"switch",id:"closeOnSend",name:"Close On Send",note:"This option will close the toolbar when a message is sent.",value:true}]},{type:"category",id:"style",name:"Style Options",collapsible:true,shown:false,settings:[{type:"dropdown",id:"icons",name:"Toolbar Style",note:"Switches between icons and text as the toolbar buttons.",value:true,options:[{label:"Text",value:false},{label:"Icons",value:true}]},{type:"dropdown",id:"rightSide",name:"Toolbar Location",note:"This option enables swapping toolbar location.",value:true,options:[{label:"Left",value:false},{label:"Right",value:true}]},{type:"slider",id:"toolbarOpacity",name:"Opacity",note:"This allows the toolbar to be partially seethrough.",value:1,min:0,max:1},{type:"slider",id:"fontSize",name:"Font Size",note:"Adjusts the font size between 0 and 100%.",value:85,min:0,max:100}]}]};
 
-    return !global.ZeresPluginLibrary ? class {
-        constructor() {this._config = config;}
-        getName() {return config.info.name;}
-        getAuthor() {return config.info.authors.map(a => a.name).join(", ");}
-        getDescription() {return config.info.description;}
-        getVersion() {return config.info.version;}
-        load() {
-            BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
-                confirmText: "Download Now",
-                cancelText: "Cancel",
-                onConfirm: () => {
-                    require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, response, body) => {
-                        if (error) return require("electron").shell.openExternal("https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js");
-                        await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
-                    });
+const config = {
+    info: {
+        name: "BetterFormattingRedux",
+        authors: [
+            {
+                name: "Zerebos",
+                discord_id: "249746236008169473",
+                github_username: "rauenzi",
+                twitter_username: "ZackRauen"
+            }
+        ],
+        version: "2.3.13",
+        description: "Enables different types of formatting in standard Discord chat.",
+        github: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux",
+        github_raw: "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js"
+    },
+    changelog: [
+        {
+            title: "GUI Works Again",
+            type: "fixed",
+            items: [
+                "Fixed for latest Discord changes which prevented the wrappers from being added via click. (Thanks to @BadScribbles on GitHub for the initial work)",
+                "Leet and Thicc options will no longer be overridden on every startup!"
+            ]
+        }
+    ],
+    main: "index.js",
+    defaultConfig: [
+        {
+            type: "category",
+            id: "toolbar",
+            name: "Toolbar Buttons",
+            collapsible: true,
+            shown: false,
+            settings: [
+                {
+                    type: "switch",
+                    id: "bold",
+                    name: "Bold",
+                    value: true
+                },
+                {
+                    type: "switch",
+                    id: "italic",
+                    name: "Italic",
+                    value: true
+                },
+                {
+                    type: "switch",
+                    id: "underline",
+                    name: "Underline",
+                    value: true
+                },
+                {
+                    type: "switch",
+                    id: "strikethrough",
+                    name: "Strikethrough",
+                    value: true
+                },
+                {
+                    type: "switch",
+                    id: "spoiler",
+                    name: "Spoiler",
+                    value: true
+                },
+                {
+                    type: "switch",
+                    id: "code",
+                    name: "Code",
+                    value: true
+                },
+                {
+                    type: "switch",
+                    id: "codeblock",
+                    name: "Codeblock",
+                    value: true
+                },
+                {
+                    type: "switch",
+                    id: "superscript",
+                    name: "Superscript",
+                    value: true
+                },
+                {
+                    type: "switch",
+                    id: "smallcaps",
+                    name: "Smallcaps",
+                    value: true
+                },
+                {
+                    type: "switch",
+                    id: "fullwidth",
+                    name: "Full Width",
+                    value: true
+                },
+                {
+                    type: "switch",
+                    id: "upsidedown",
+                    name: "Upsidedown",
+                    value: true
+                },
+                {
+                    type: "switch",
+                    id: "varied",
+                    name: "Varied Caps",
+                    value: true
+                },
+                {
+                    type: "switch",
+                    id: "leet",
+                    name: "Leet (1337)",
+                    value: false
+                },
+                {
+                    type: "switch",
+                    id: "thicc",
+                    name: "Extra Thicc",
+                    value: false
                 }
+            ]
+        },
+        {
+            type: "category",
+            id: "formats",
+            name: "Active Formats",
+            collapsible: true,
+            shown: false,
+            settings: [
+                {
+                    type: "switch",
+                    id: "superscript",
+                    name: "Superscript",
+                    value: true
+                },
+                {
+                    type: "switch",
+                    id: "smallcaps",
+                    name: "Smallcaps",
+                    value: true
+                },
+                {
+                    type: "switch",
+                    id: "fullwidth",
+                    name: "Full Width",
+                    value: true
+                },
+                {
+                    type: "switch",
+                    id: "upsidedown",
+                    name: "Upsidedown",
+                    value: true
+                },
+                {
+                    type: "switch",
+                    id: "varied",
+                    name: "Varied Caps",
+                    value: true
+                },
+                {
+                    type: "switch",
+                    id: "leet",
+                    name: "Leet (1337)",
+                    value: false
+                },
+                {
+                    type: "switch",
+                    id: "thicc",
+                    name: "Extra Thicc",
+                    value: false
+                }
+            ]
+        },
+        {
+            type: "category",
+            id: "wrappers",
+            name: "Wrapper Options",
+            collapsible: true,
+            shown: false,
+            settings: [
+                {
+                    type: "textbox",
+                    id: "superscript",
+                    name: "Superscript",
+                    note: "The wrapper for superscripted text",
+                    value: "^^"
+                },
+                {
+                    type: "textbox",
+                    id: "smallcaps",
+                    name: "Smallcaps",
+                    note: "The wrapper to make Smallcaps.",
+                    value: "%%"
+                },
+                {
+                    type: "textbox",
+                    id: "fullwidth",
+                    name: "Full Width",
+                    note: "The wrapper for E X P A N D E D  T E X T.",
+                    value: "##"
+                },
+                {
+                    type: "textbox",
+                    id: "upsidedown",
+                    name: "Upsidedown",
+                    note: "The wrapper to flip the text upsidedown.",
+                    value: "&&"
+                },
+                {
+                    type: "textbox",
+                    id: "varied",
+                    name: "Varied Caps",
+                    note: "The wrapper to VaRy the capitalization.",
+                    value: "=="
+                },
+                {
+                    type: "textbox",
+                    id: "leet",
+                    name: "Leet (1337)",
+                    note: "The wrapper to talk in 13375p34k.",
+                    value: "++"
+                },
+                {
+                    type: "textbox",
+                    id: "thicc",
+                    name: "Extra Thicc",
+                    note: "The wrapper to get 乇乂下尺卂 下卄工匚匚.",
+                    value: "$$"
+                }
+            ]
+        },
+        {
+            type: "category",
+            id: "formatting",
+            name: "Formatting Options",
+            collapsible: true,
+            shown: false,
+            settings: [
+                {
+                    type: "dropdown",
+                    id: "fullWidthMap",
+                    name: "Fullwidth Style",
+                    note: "Which style of fullwidth formatting should be used.",
+                    value: true,
+                    options: [
+                        {
+                            label: "T H I S",
+                            value: false
+                        },
+                        {
+                            label: "ｔｈｉｓ",
+                            value: true
+                        }
+                    ]
+                },
+                {
+                    type: "switch",
+                    id: "reorderUpsidedown",
+                    name: "Reorder Upsidedown Text",
+                    note: "Having this enabled reorders the upside down text to make it in-order.",
+                    value: true
+                },
+                {
+                    type: "switch",
+                    id: "fullwidth",
+                    name: "Start VaRiEd Caps With Capital",
+                    note: "Enabling this starts a varied text string with a capital.",
+                    value: true
+                }
+            ]
+        },
+        {
+            type: "category",
+            id: "plugin",
+            name: "Functional Options",
+            collapsible: true,
+            shown: false,
+            settings: [
+                {
+                    type: "dropdown",
+                    id: "hoverOpen",
+                    name: "Opening Toolbar",
+                    note: "Determines when to show the toolbar.",
+                    value: true,
+                    options: [
+                        {
+                            label: "Click",
+                            value: false
+                        },
+                        {
+                            label: "Hover",
+                            value: true
+                        }
+                    ]
+                },
+                {
+                    type: "dropdown",
+                    id: "chainFormats",
+                    name: "Format Chaining",
+                    note: "Swaps priority of wrappers between inner first and outer first. Check the GitHub for more info.",
+                    value: true,
+                    options: [
+                        {
+                            label: "Inner",
+                            value: false
+                        },
+                        {
+                            label: "Outer",
+                            value: true
+                        }
+                    ]
+                },
+                {
+                    type: "switch",
+                    id: "closeOnSend",
+                    name: "Close On Send",
+                    note: "This option will close the toolbar when a message is sent.",
+                    value: true
+                }
+            ]
+        },
+        {
+            type: "category",
+            id: "style",
+            name: "Style Options",
+            collapsible: true,
+            shown: false,
+            settings: [
+                {
+                    type: "dropdown",
+                    id: "icons",
+                    name: "Toolbar Style",
+                    note: "Switches between icons and text as the toolbar buttons.",
+                    value: true,
+                    options: [
+                        {
+                            label: "Text",
+                            value: false
+                        },
+                        {
+                            label: "Icons",
+                            value: true
+                        }
+                    ]
+                },
+                {
+                    type: "dropdown",
+                    id: "rightSide",
+                    name: "Toolbar Location",
+                    note: "This option enables swapping toolbar location.",
+                    value: true,
+                    options: [
+                        {
+                            label: "Left",
+                            value: false
+                        },
+                        {
+                            label: "Right",
+                            value: true
+                        }
+                    ]
+                },
+                {
+                    type: "slider",
+                    id: "toolbarOpacity",
+                    name: "Opacity",
+                    note: "This allows the toolbar to be partially seethrough.",
+                    value: 1,
+                    min: 0,
+                    max: 1
+                },
+                {
+                    type: "slider",
+                    id: "fontSize",
+                    name: "Font Size",
+                    note: "Adjusts the font size between 0 and 100%.",
+                    value: 85,
+                    min: 0,
+                    max: 100
+                }
+            ]
+        }
+    ]
+};
+class Dummy {
+    constructor() {this._config = config;}
+    start() {}
+    stop() {}
+}
+
+if (!global.ZeresPluginLibrary) {
+        BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
+        confirmText: "Download Now",
+        cancelText: "Cancel",
+        onConfirm: () => {
+            require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, response, body) => {
+                if (error) return require("electron").shell.openExternal("https://betterdiscord.app/Download?id=9");
+                await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
             });
         }
-        start() {}
-        stop() {}
-    } : (([Plugin, Api]) => {
-        const plugin = (Plugin, Api) => {
-    const {DiscordSelectors, PluginUtilities, Tooltip, DiscordModules, Patcher, Utilities, DCM, DOMTools, ReactTools} = Api;
+    });
+}
+
+module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
+    const plugin = (Plugin, Api) => {
+    const {DiscordSelectors, PluginUtilities, Tooltip, DiscordModules, Patcher, Utilities, DCM, DOMTools, ReactTools, WebpackModules} = Api;
+
+    const SlateEditor = WebpackModules.getByProps("Editor", "Transforms");
 
     return class BetterFormattingRedux extends Plugin {
         constructor() {
@@ -515,9 +894,18 @@ module.exports = (() => {
             const textarea = document.querySelector(DiscordSelectors.Textarea.textArea);
             if (!textarea) return;
             if (textarea.tagName === "TEXTAREA") return this.oldWrapSelection(textarea, leftWrapper, rightWrapper);
-            const slateEditor = Utilities.findInTree(ReactTools.getReactInstance(textarea), e => e && e.wrapText, {walkable: ["return", "stateNode", "editorRef"]});
-            if (!slateEditor) return;
-            return slateEditor.wrapText(leftWrapper, rightWrapper);
+            const slateNode = ReactTools.getOwnerInstance(textarea);
+            const slate = slateNode?.ref?.current?.getSlateEditor();
+            if (!slate) return; // bail out if no slate
+
+            const currentSelection = Utilities.deepclone(slate.selection);
+            SlateEditor.Transforms.insertText(slate, leftWrapper, {at: slate.selection.anchor});
+            SlateEditor.Transforms.insertText(slate, rightWrapper, {at: slate.selection.focus});
+            currentSelection.anchor.offset += leftWrapper.length;
+            currentSelection.focus.offset += rightWrapper.length;
+            slateNode.focus();
+            SlateEditor.Transforms.select(slate, currentSelection);
+            // return slateEditor.wrapText(leftWrapper, rightWrapper);
         }
 
         oldWrapSelection(textarea, leftWrapper, rightWrapper) {
@@ -547,10 +935,6 @@ module.exports = (() => {
 
         buildToolbar() {
             const toolbar = DOMTools.createElement(this.toolbarString);
-            if (typeof this.settings.toolbar.bold === "boolean") {
-                this.settings.toolbar = this.defaultSettings.toolbar;
-                this.saveSettings();
-            }
             const sorted = Object.keys(this.settings.toolbar).sort((a,b) => {return this.buttonOrder.indexOf(a) - this.buttonOrder.indexOf(b);});
             for (let i = 0; i < sorted.length; i++) {
                 const button = DOMTools.createElement("<div class='format'>");
@@ -586,7 +970,7 @@ module.exports = (() => {
                     const pos = e.pageX - target.parentElement.getBoundingClientRect().left;
                     const width = parseInt(getComputedStyle(target).width);
                     let diff = -1 * width;
-                    target.children.forEach(elem => {
+                    Array.from(target.children).forEach(elem => {
                         diff += elem.offsetWidth;
                     });
                     target.scrollLeft = (pos / width * diff);
@@ -690,7 +1074,6 @@ module.exports = (() => {
 
     };
 };
-        return plugin(Plugin, Api);
-    })(global.ZeresPluginLibrary.buildPlugin(config));
-})();
+    return plugin(Plugin, Api);
+})(global.ZeresPluginLibrary.buildPlugin(config));
 /*@end@*/

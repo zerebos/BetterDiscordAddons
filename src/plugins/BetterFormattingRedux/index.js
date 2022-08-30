@@ -1,5 +1,7 @@
 module.exports = (Plugin, Api) => {
-    const {DiscordSelectors, PluginUtilities, Tooltip, DiscordModules, Patcher, Utilities, DCM, DOMTools, ReactTools} = Api;
+    const {DiscordSelectors, PluginUtilities, Tooltip, DiscordModules, Patcher, Utilities, DCM, DOMTools, ReactTools, WebpackModules} = Api;
+
+    const SlateEditor = WebpackModules.getByProps("Editor", "Transforms");
 
     return class BetterFormattingRedux extends Plugin {
         constructor() {
@@ -175,9 +177,18 @@ module.exports = (Plugin, Api) => {
             const textarea = document.querySelector(DiscordSelectors.Textarea.textArea);
             if (!textarea) return;
             if (textarea.tagName === "TEXTAREA") return this.oldWrapSelection(textarea, leftWrapper, rightWrapper);
-            const slateEditor = Utilities.findInTree(ReactTools.getReactInstance(textarea), e => e && e.wrapText, {walkable: ["return", "stateNode", "editorRef"]});
-            if (!slateEditor) return;
-            return slateEditor.wrapText(leftWrapper, rightWrapper);
+            const slateNode = ReactTools.getOwnerInstance(textarea);
+            const slate = slateNode?.ref?.current?.getSlateEditor();
+            if (!slate) return; // bail out if no slate
+
+            const currentSelection = Utilities.deepclone(slate.selection);
+            SlateEditor.Transforms.insertText(slate, leftWrapper, {at: slate.selection.anchor});
+            SlateEditor.Transforms.insertText(slate, rightWrapper, {at: slate.selection.focus});
+            currentSelection.anchor.offset += leftWrapper.length;
+            currentSelection.focus.offset += rightWrapper.length;
+            slateNode.focus();
+            SlateEditor.Transforms.select(slate, currentSelection);
+            // return slateEditor.wrapText(leftWrapper, rightWrapper);
         }
 
         oldWrapSelection(textarea, leftWrapper, rightWrapper) {
@@ -207,10 +218,6 @@ module.exports = (Plugin, Api) => {
 
         buildToolbar() {
             const toolbar = DOMTools.createElement(this.toolbarString);
-            if (typeof this.settings.toolbar.bold === "boolean") {
-                this.settings.toolbar = this.defaultSettings.toolbar;
-                this.saveSettings();
-            }
             const sorted = Object.keys(this.settings.toolbar).sort((a,b) => {return this.buttonOrder.indexOf(a) - this.buttonOrder.indexOf(b);});
             for (let i = 0; i < sorted.length; i++) {
                 const button = DOMTools.createElement("<div class='format'>");
@@ -246,7 +253,7 @@ module.exports = (Plugin, Api) => {
                     const pos = e.pageX - target.parentElement.getBoundingClientRect().left;
                     const width = parseInt(getComputedStyle(target).width);
                     let diff = -1 * width;
-                    target.children.forEach(elem => {
+                    Array.from(target.children).forEach(elem => {
                         diff += elem.offsetWidth;
                     });
                     target.scrollLeft = (pos / width * diff);
