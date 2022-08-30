@@ -7,15 +7,29 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.2.5",
-        "description": "Blurs images in NSFW channels until you hover over it.",
+        "version": "1.0.0",
+        "description": "Blurs images and videos until you hover over them.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BlurNSFW",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BlurNSFW/BlurNSFW.plugin.js"
     },
     "changelog": [
-        {"title": "New Option", "items": ["An option to stop blurring a picture when clicking on it/expanding it was added to settings."]}
+        {
+            "title": "What's New?",
+            "items": [
+                "You can now blur *any* channel you want using the context menu!",
+                "You can now also unblur specific NSFW channels!",
+                "There is an options to change that functionality in plugin settings!"
+            ]
+        }
     ],
     "defaultConfig": [
+        {
+            "type": "switch",
+            "id": "blurNSFW",
+            "name": "Blur NSFW Channels",
+            "note": "This setting automatically blurs media in channels marked NSFW.",
+            "value": true
+        },
         {
             "type": "slider",
             "id": "blurSize",

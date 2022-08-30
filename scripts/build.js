@@ -43,7 +43,7 @@ for (let f = 0; f < list.length; f++) {
         continue;
     }
     const config = require(configPath);
-    const files = fs.readdirSync(path.join(pluginsPath, pluginName)).filter(f => f != "config.json" && f != config.main);
+    const files = fs.readdirSync(path.join(pluginsPath, pluginName)).filter(p => p != "config.json" && p != config.main);
     const content = embedFiles(require(path.join(pluginsPath, pluginName, config.main)).toString(), pluginName, files);
     let result = buildMeta(config);
     if (buildConfig.addInstallScript) result += require(path.join(__dirname, "installscript.js"));
