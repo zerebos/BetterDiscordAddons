@@ -10,7 +10,7 @@ module.exports = (Plugin, Api) => {
     const AvatarDefaults = WebpackModules.getByProps("DEFAULT_AVATARS");
     const ModalClasses = WebpackModules.getByProps("root", "header", "small");
     const MenuSeparator = WebpackModules.getByProps("MenuSeparator").MenuSeparator;
-    const Strings = WebpackModules.getModule(m => m.Messages && m.COPY_ID);
+    const Strings = WebpackModules.getModule(m => m.Messages && m.Messages.COPY_ID).Messages;
     const UserPopoutClasses = Object.assign({}, WebpackModules.getByProps("userPopout"), WebpackModules.getByProps("rolesList"), WebpackModules.getByProps("eyebrow"));
     const UserPopoutSelectors = {};
     for (const key in UserPopoutClasses) UserPopoutSelectors[key] = new Structs.Selector(UserPopoutClasses[key]);
@@ -94,7 +94,7 @@ module.exports = (Plugin, Api) => {
 
                 const permBlock = DOMTools.createElement(Utilities.formatTString(this.listHTML, {label: this.strings.popoutLabel}));
                 const memberPerms = permBlock.querySelector(".member-perms");
-                const strings = DiscordModules.Strings;
+                const strings = Strings;
 
                 for (let r = 0; r < userRoles.length; r++) {
                     const role = userRoles[r];
@@ -274,7 +274,7 @@ module.exports = (Plugin, Api) => {
                 setTimeout(() => {modal.remove();}, 300);
             });
 
-            const strings = Strings?.Messages || {};
+            const strings = Strings || {};
             for (const r in displayRoles) {
                 const role = Array.isArray(displayRoles) ? displayRoles[r] : r;
                 const user = UserStore.getUser(role) || {getAvatarURL: () => AvatarDefaults.DEFAULT_AVATARS[Math.floor(Math.random() * AvatarDefaults.DEFAULT_AVATARS.length)], username: role};
@@ -312,7 +312,7 @@ module.exports = (Plugin, Api) => {
                 });
                 item.addEventListener("contextmenu", (e) => {
                     DCM.openContextMenu(e, DCM.buildMenu([
-                        {label: Strings?.Messages?.COPY_ID ?? "Copy Id", action: () => {DiscordModules.ElectronModule.copy(role);}}
+                        {label: Strings.COPY_ID ?? "Copy Id", action: () => {DiscordModules.ElectronModule.copy(role);}}
                     ]));
                 });
             }

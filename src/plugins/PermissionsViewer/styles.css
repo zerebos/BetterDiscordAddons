@@ -133,7 +133,6 @@
 }
 
 #permissions-modal-wrapper #permissions-modal {
-    display: flex;
     contain: layout;
     flex-direction: column;
     pointer-events: auto;
@@ -317,4 +316,8 @@
 .theme-light #permissions-modal-wrapper .role-item,
 .theme-light #permissions-modal-wrapper .perm-name {
     color: #000;
+}
+
+#permissions-modal-wrapper #permissions-modal {
+    width: auto;
 }
