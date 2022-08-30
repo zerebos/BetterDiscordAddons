@@ -1,21 +1,12 @@
-/**
- * @name `{{PLUGIN_NAME}}`
- * @version `{{VERSION}}`
- * @authorLink `{{AUTHOR_LINK}}`
- * @website `{{WEBSITE}}`
- * @source `{{SOURCE}}`
- */
-`{{INSTALL_SCRIPT}}`
-
-const config = `{{CONFIG}}`;
+const config = "";
 class Dummy {
     constructor() {this._config = config;}
     start() {}
     stop() {}
 }
-
+ 
 if (!global.ZeresPluginLibrary) {
-        BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
+    BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
         confirmText: "Download Now",
         cancelText: "Cancel",
         onConfirm: () => {
@@ -26,8 +17,8 @@ if (!global.ZeresPluginLibrary) {
         }
     });
 }
-
+ 
 module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
-    const plugin = `{{INNER}}`;
-    return plugin(Plugin, Api);
+     const plugin = "";
+     return plugin(Plugin, Api);
 })(global.ZeresPluginLibrary.buildPlugin(config));

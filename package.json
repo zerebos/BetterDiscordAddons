@@ -18,7 +18,7 @@
   ],
   "buildConfig": {
     "pluginsFolder": "./src/plugins",
-    "releaseFolder": "./Plugins/`{{PLUGIN_NAME}}`",
+    "releaseFolder": "./Plugins",
     "copyToBD": true,
     "addInstallScript": true,
     "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/`{{PLUGIN_NAME}}`",
