@@ -18,6 +18,7 @@ module.exports = (Plugin, Api) => {
             this.promises.cancel();
             PluginUtilities.removeStyle("BDCM");
             Patcher.unpatchAll();
+            for (const cancel of this.contextMenuPatches) cancel();
         }
 
         async findContextMenu(displayName) {

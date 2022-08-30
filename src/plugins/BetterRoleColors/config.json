@@ -7,7 +7,7 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.8.17",
+        "version": "0.9.0",
         "description": "Adds server-based role colors to typing, voice, popouts, modals and more!",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js"
@@ -15,12 +15,12 @@
     "changelog": [
         {
             "title":"Added",
-            "items":["Now able to color user's messages to match their role colors. (Formerly ColoredText of BD)"]
+            "items":["Thread member list now uses role colors.", "User mentions in the textbox are now role colored."]
         },
         {
             "title":"Bug Fixes",
             "type":"fixed",
-            "items":["Fixed blinking/flashing of voice chat usernames."]
+            "items":["Fixed chat mentions not being colored.", "Fixed the new user popouts not being colored.", "Fixed typing users not being colored."]
         }
     ],
     "defaultConfig": [

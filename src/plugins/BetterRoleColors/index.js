@@ -47,6 +47,7 @@ module.exports = (Plugin, Api) => {
             Utilities.suppressErrors(this.patchAccountDetails.bind(this), "account details patch")();
             Utilities.suppressErrors(this.patchVoiceUsers.bind(this), "voice users patch")();
             Utilities.suppressErrors(this.patchMentions.bind(this), "mentions patch")();
+            Utilities.suppressErrors(this.patchEditorMentions.bind(this), "editor mentions patch")();
             Utilities.suppressErrors(this.patchUserPopouts.bind(this), "user popout patch")();
             Utilities.suppressErrors(this.patchMessageContent.bind(this), "user popout patch")();
 
@@ -55,6 +56,7 @@ module.exports = (Plugin, Api) => {
             Utilities.suppressErrors(this.patchTypingUsers.bind(this), "typing users patch")(this.promises.state);
             Utilities.suppressErrors(this.patchUserModals.bind(this), "user modal patch")(this.promises.state);
             Utilities.suppressErrors(this.patchMemberList.bind(this), "member list patch")(this.promises.state);
+            Utilities.suppressErrors(this.patchThreadMemberList.bind(this), "thread member list patch")(this.promises.state);
         }
 
         onStop() {
@@ -122,8 +124,9 @@ module.exports = (Plugin, Api) => {
         }
 
         patchMentions() {
-            const UserMention = WebpackModules.getModule(m => m.default && m.default.displayName == "UserMention");
-            Patcher.after(UserMention, "default", (_, [props], ret) => {
+            const UserMention = WebpackModules.getModule(m => m?.default?.toString().includes("inlinePreview") && m?.default?.toString().includes("getName"));
+            Patcher.after(UserMention, "default", (_, args, ret) => {
+                const props = args[0];
                 const old = Utilities.getNestedProp(ret, "props.children");
                 if (typeof old !== "function" || !this.settings.modules.mentions) return;
                 ret.props.children = childProps => {
@@ -141,6 +144,38 @@ module.exports = (Plugin, Api) => {
                         }
                         catch (error) {
                             Logger.stacktrace("Error in UserMention patch", error);
+                            return null;
+                            /*  null will make it simply draw nothing, at that point it's obvious
+                                that something went horribly wrong somewhere deeper
+                            */
+                        }
+                    }
+                };
+            });
+        }
+
+        patchEditorMentions() {
+            const UserMention = WebpackModules.getByProps("UserMention");
+            Patcher.after(UserMention, "UserMention", (_, args, ret) => {
+                const props = args[0];
+                const old = Utilities.getNestedProp(ret, "props.children");
+                if (typeof old !== "function" || !this.settings.modules.mentions) return;
+                ret.props.children = childProps => {
+                    try {
+                        const ret2 = old(childProps);
+                        const userId = props.id;
+                        const member = GuildMemberStore.getMember(props.guildId, userId);
+                        if (!member || !member.colorString) return ret2;
+                        // props.children.props
+                        ret2.props.children.props.color = ColorConverter.hex2int(member.colorString);
+                        return ret2;
+                    }
+                    catch (err) {
+                        try {
+                            return old(childProps);
+                        }
+                        catch (error) {
+                            Logger.stacktrace("Error in Editor UserMention patch", error);
                             return null;
                             /*  null will make it simply draw nothing, at that point it's obvious
                                 that something went horribly wrong somewhere deeper
@@ -207,11 +242,13 @@ module.exports = (Plugin, Api) => {
             if (promiseState.cancelled) return;
             Patcher.after(TypingUsers.component.prototype, "render", (thisObject, _, returnValue) => {
                 if (!this.settings.modules.typing) return;
+
                 const typingUsers = this.filterTypingUsers(Object.assign({}, thisObject.props.typingUsers));
                 for (let m = 0; m < typingUsers.length; m++) {
                     const member = GuildMemberStore.getMember(SelectedGuildStore.getGuildId(), typingUsers[m].id);
                     if (!member) continue;
-                    const username = Utilities.getNestedProp(returnValue, `props.children.1.props.children.${m * 2}`);
+
+                    const username = Utilities.getNestedProp(returnValue, `props.children.0.props.children.1.props.children.${m * 2}`);
                     if (!username || !username.props) return;
                     username.props.style = {color: member.colorString};
                     if (!this.settings.global.important) continue;
@@ -224,34 +261,26 @@ module.exports = (Plugin, Api) => {
             TypingUsers.forceUpdateAll();
         }
 
-        async patchUserPopouts() {
-            Patcher.after(DiscordModules.UserPopout, "type", (_, [containerProps], returnValue) => {
-                const member = this.getMember(containerProps.userId);
+        patchUserPopouts() {
+            const UsernameSection = WebpackModules.getModule(m => m?.default?.displayName === "UsernameSection");
+            Patcher.after(UsernameSection, "default", (_, args, returnValue) => {
+                const containerProps = args[0];
+                const member = this.getMember(containerProps.user.id);
                 if (!member || !member.colorString) return;
-                const popoutRender = returnValue.type;
-                returnValue.type = popoutProps => {
-                    const popoutRet = Reflect.apply(popoutRender, null, [popoutProps]);
-                    const infoSection = Utilities.findInTree(popoutRet, m => m && m.type && m.type.displayName === "UserPopoutInfo", {walkable: ["props", "children"]});
-                    if (!infoSection) return popoutRet;
-                    const infoRender = infoSection.type;
-                    infoSection.type = infoProps => {
-                        const infoRet = Reflect.apply(infoRender, null, [infoProps]);
-                        const tag = Utilities.findInTree(infoRet, m => m && m.type && m.type.displayName === "DiscordTag", {walkable: ["props", "children"]});
-                        if (!tag) return infoRet;
-                        const nickname = Utilities.findInTree(infoRet, m => m && m.type && m.type.displayName === "Header", {walkable: ["props", "children"]});
-                        const shouldColorUsername = this.settings.popouts.username || (!nickname && this.settings.popouts.fallback);
-                        const shouldColorDiscriminator = this.settings.popouts.discriminator;
-                        const shouldColorNickname = this.settings.popouts.nickname && nickname;
-                        if (shouldColorNickname) nickname.props.style = {color: member.colorString};
-                        if ((!shouldColorUsername && !shouldColorDiscriminator) || !tag) return infoRet;
-                        if (shouldColorUsername) tag.props.colorUsername = member.colorString;
-                        if (shouldColorDiscriminator) tag.props.colorDiscriminator = member.colorString;
-                        if (this.settings.global.important) tag.props.important = true;
-                        tag.type = ColoredFluxTag;
-                        return infoRet;
-                    };
-                    return popoutRet;
-                };
+
+                const tag = Utilities.findInTree(returnValue, m => m && m.type && m.type.displayName === "DiscordTag", {walkable: ["props", "children"]});
+                if (!tag) return returnValue;
+                const nickname = Utilities.findInTree(returnValue, m => m && m.type && m.type.displayName === "Heading", {walkable: ["props", "children"]});
+                const shouldColorUsername = this.settings.popouts.username || (!nickname && this.settings.popouts.fallback);
+                const shouldColorDiscriminator = this.settings.popouts.discriminator;
+                const shouldColorNickname = this.settings.popouts.nickname && nickname;
+                if (shouldColorNickname) nickname.props.style = {color: member.colorString};
+                if ((!shouldColorUsername && !shouldColorDiscriminator) || !tag) return returnValue;
+                if (shouldColorUsername) tag.props.colorUsername = member.colorString;
+                if (shouldColorDiscriminator) tag.props.colorDiscriminator = member.colorString;
+                if (this.settings.global.important) tag.props.important = true;
+                tag.type = ColoredFluxTag;
+                return returnValue;
             });
         }
 
@@ -312,6 +341,40 @@ module.exports = (Plugin, Api) => {
                 };
                 memberList.renderSection.__patched = true;
                 memberList.forceUpdate();
+            });
+        }
+
+        patchThreadMemberList() {
+            const ThreadMembers = WebpackModules.getModule(m => m?.default?.displayName === "ThreadMembers");
+            Patcher.after(ThreadMembers, "default", (thisObj, args, ret) => {
+                if (!this.settings.modules.memberList) return;
+                const children = ret.props.children.props.children;
+                if (children.__patched) return ret;
+                ret.props.children.props.children = function() {
+                    const retVal = Reflect.apply(children, this, arguments);
+                    const renderSection = retVal.props.children.props.renderSection;
+                    if (renderSection.__patched) return retVal;
+                    retVal.props.children.props.renderSection = function() {
+                        const returnValue = Reflect.apply(renderSection, this, arguments);
+
+                        const originalType = returnValue.type.type;
+                        if (originalType.__patched) return returnValue;
+                        returnValue.type.type = function(props) {
+                            const typeReturn = Reflect.apply(originalType, this, arguments);
+                            const guild = DiscordModules.GuildStore.getGuild(props.guildId);
+                            if (!guild) return typeReturn;
+                            const roleId = props.id;
+                            const roleColor = guild.roles[roleId] ? guild.roles[roleId].colorString : "";
+                            typeReturn.props.children[1].props.style = {color: roleColor};
+                            return typeReturn;
+                        };
+                        returnValue.type.type.__patched = true;
+                        return returnValue; 
+                    };
+                    retVal.props.children.props.renderSection.__patched = true;
+                    return retVal;
+                };
+                ret.props.children.props.children.__patched = true;
             });
         }
 
