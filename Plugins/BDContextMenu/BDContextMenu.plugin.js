@@ -1,6 +1,9 @@
 /**
  * @name BDContextMenu
- * @version 0.1.11
+ * @description Adds BD shortcuts to the settings context menu.
+ * @version 0.1.12
+ * @author Zerebos
+ * @authorId 249746236008169473
  * @authorLink https://twitter.com/IAmZerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu
  * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js
@@ -28,8 +31,6 @@
     WScript.Quit();
 
 @else@*/
-
-
 const config = {
     info: {
         name: "BDContextMenu",
@@ -41,7 +42,7 @@ const config = {
                 twitter_username: "ZackRauen"
             }
         ],
-        version: "0.1.11",
+        version: "0.1.12",
         description: "Adds BD shortcuts to the settings context menu.",
         github: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu",
         github_raw: "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"
@@ -51,7 +52,8 @@ const config = {
             title: "Bugfixes",
             type: "fixed",
             items: [
-                "Context menu should show up again."
+                "Context menu should show up again.",
+                "Clicking to go to each section works again!"
             ]
         }
     ],
@@ -62,9 +64,9 @@ class Dummy {
     start() {}
     stop() {}
 }
-
+ 
 if (!global.ZeresPluginLibrary) {
-        BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
+    BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
         confirmText: "Download Now",
         cancelText: "Cancel",
         onConfirm: () => {
@@ -75,9 +77,9 @@ if (!global.ZeresPluginLibrary) {
         }
     });
 }
-
+ 
 module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
-    const plugin = (Plugin, Api) => {
+     const plugin = (Plugin, Api) => {
     const {Patcher, DiscordModules, DCM, PluginUtilities, WebpackModules} = Api;
 
     const collections = window.BdApi.settings;
@@ -110,6 +112,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
             this.promises.cancel();
             PluginUtilities.removeStyle("BDCM");
             Patcher.unpatchAll();
+            for (const cancel of this.contextMenuPatches) cancel();
         }
 
         async findContextMenu(displayName) {
@@ -148,7 +151,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                 retVal.props.children.type = function() {
                     const returnValue = Reflect.apply(orig, this, arguments);
                     const items = collections.map(c => self.buildCollectionMenu(c));
-                    items.push({label: "Custom CSS", action: () => {self.openCategory("custom css");}});
+                    if (window.BdApi.isSettingEnabled("settings", "customcss", "customcss")) items.push({label: "Custom CSS", action: () => {self.openCategory("customcss");}});
                     items.push(self.buildAddonMenu("Plugins", window.BdApi.Plugins));
                     items.push(self.buildAddonMenu("Themes", window.BdApi.Themes));
                     returnValue.props.children.props.children[0].push(DCM.buildMenuItem({type: "separator"}));
@@ -162,12 +165,12 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
             return {
                 type: "submenu",
                 label: collection.name,
-                action: () => {this.openCategory(collection.name.toLowerCase());},
+                action: () => {this.openCategory(collection.name);},
                 items: collection.settings.map(category => {
                     return {
                         type: "submenu",
                         label: category.name,
-                        action: () => () => {this.openCategory(collection.name.toLowerCase());},
+                        action: () => {this.openCategory(collection.name);},
                         items: category.settings.filter(s => s.type === "switch" && !s.hidden).map(setting => {
                             return {
                                 type: "toggle",
@@ -200,14 +203,10 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
 
         async openCategory(id) {
             DiscordModules.ContextMenuActions.closeContextMenu();
-            DiscordModules.UserSettingsWindow.open(DiscordModules.DiscordConstants.UserSettingsSections.ACCOUNT);
-            while (!document.getElementsByClassName("bd-sidebar-header").length) await new Promise(r => setTimeout(r, 100));
-            const tabs = document.querySelectorAll(".bd-sidebar-header ~ .item-PXvHYJ");
-            const index = Array.from(tabs).findIndex(e => e.textContent.toLowerCase() === id);
-            if (tabs[index] && tabs[index].click) tabs[index].click();
+            DiscordModules.UserSettingsWindow.open(id);
         }
     };
 };
-    return plugin(Plugin, Api);
+     return plugin(Plugin, Api);
 })(global.ZeresPluginLibrary.buildPlugin(config));
 /*@end@*/

@@ -57,7 +57,7 @@ module.exports = (Plugin, Api) => {
                 retVal.props.children.type = function() {
                     const returnValue = Reflect.apply(orig, this, arguments);
                     const items = collections.map(c => self.buildCollectionMenu(c));
-                    items.push({label: "Custom CSS", action: () => {self.openCategory("custom css");}});
+                    if (window.BdApi.isSettingEnabled("settings", "customcss", "customcss")) items.push({label: "Custom CSS", action: () => {self.openCategory("customcss");}});
                     items.push(self.buildAddonMenu("Plugins", window.BdApi.Plugins));
                     items.push(self.buildAddonMenu("Themes", window.BdApi.Themes));
                     returnValue.props.children.props.children[0].push(DCM.buildMenuItem({type: "separator"}));
@@ -71,12 +71,12 @@ module.exports = (Plugin, Api) => {
             return {
                 type: "submenu",
                 label: collection.name,
-                action: () => {this.openCategory(collection.name.toLowerCase());},
+                action: () => {this.openCategory(collection.name);},
                 items: collection.settings.map(category => {
                     return {
                         type: "submenu",
                         label: category.name,
-                        action: () => () => {this.openCategory(collection.name.toLowerCase());},
+                        action: () => {this.openCategory(collection.name);},
                         items: category.settings.filter(s => s.type === "switch" && !s.hidden).map(setting => {
                             return {
                                 type: "toggle",
@@ -109,11 +109,7 @@ module.exports = (Plugin, Api) => {
 
         async openCategory(id) {
             DiscordModules.ContextMenuActions.closeContextMenu();
-            DiscordModules.UserSettingsWindow.open(DiscordModules.DiscordConstants.UserSettingsSections.ACCOUNT);
-            while (!document.getElementsByClassName("bd-sidebar-header").length) await new Promise(r => setTimeout(r, 100));
-            const tabs = document.querySelectorAll(".bd-sidebar-header ~ .item-PXvHYJ");
-            const index = Array.from(tabs).findIndex(e => e.textContent.toLowerCase() === id);
-            if (tabs[index] && tabs[index].click) tabs[index].click();
+            DiscordModules.UserSettingsWindow.open(id);
         }
     };
 };
