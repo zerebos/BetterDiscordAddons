@@ -1,5 +1,7 @@
 #permissions-modal-wrapper #permissions-modal {
-    height: 840px;
+    margin:auto;
+    width: 80%;
+    height: 80%;
 }
 
 #permissions-modal-wrapper #permissions-modal .perm-side {
