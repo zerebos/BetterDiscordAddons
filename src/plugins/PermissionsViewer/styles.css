@@ -11,6 +11,10 @@
     justify-content: space-between;
 }
 
+.member-perms-title{
+	align-self:center;
+}
+
 .member-perms {
     display: flex;
     flex-wrap: wrap;
@@ -37,10 +41,12 @@
 
 .perm-details-button {
     cursor: pointer;
-    height: 12px;
+    height: 100%;
 }
 
 .perm-details {
+	height: 20px;
+	background:var(--background-secondary);
     display: flex;
     justify-content: flex-end;
 }
@@ -174,32 +180,35 @@
 }
 
 #permissions-modal-wrapper .role-side {
-    width: auto;
-    min-width: 150px;
-    background: #2f3136;
-    flex: 0 0 auto;
-    overflow: hidden;
-    display: flex;
-    height: 100%;
-    min-height: 1px;
-    position: relative;
+	min-width: 200px;
+	max-width: 300px;
+	background: #2f3136;
+	flex: 0 0 auto;
+	overflow: hidden;
+	display: flex;
+	height: 100%;
+	min-height: 1px;
+	position: relative;
+	
 }
 
 #permissions-modal-wrapper .role-scroller {
     contain: layout;
-    flex: 1;
+    flex: auto;
     min-height: 1px;
     overflow-y: scroll;
     padding-top: 8px;
 }
 
 #permissions-modal-wrapper .role-item {
-    display: flex;
-    border-radius: 2px;
-    padding: 6px;
-    margin-bottom: 5px;
-    cursor: pointer;
-    color: #dcddde;
+	display: flex;
+	border-radius: 2px;
+	padding: 6px;
+	margin-bottom: 5px;
+	cursor: pointer;
+	color: #dcddde;
+	word-break:break-all;
+	border: 1px solid #444;
 }
 
 #permissions-modal-wrapper .role-item:hover {
@@ -211,14 +220,13 @@
 }
 
 #permissions-modal-wrapper .perm-side {
-    width: 273px;
-    background-color: #36393f;
-    flex: 0 0 auto;
-    display: flex;
-    height: 100%;
-    min-height: 1px;
-    position: relative;
-    padding-left: 10px;
+	background-color: #36393f;
+	flex: 1 0 0; 
+	display: flex;
+	height: 100%;
+	min-height: 1px;
+	position: relative;
+	padding-left: 10px;
 }
 
 #permissions-modal-wrapper .perm-item {
@@ -316,8 +324,4 @@
 .theme-light #permissions-modal-wrapper .role-item,
 .theme-light #permissions-modal-wrapper .perm-name {
     color: #000;
-}
-
-#permissions-modal-wrapper #permissions-modal {
-    width: auto;
 }

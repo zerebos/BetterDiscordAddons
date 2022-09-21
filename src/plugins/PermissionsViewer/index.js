@@ -124,6 +124,7 @@ module.exports = (Plugin, Api) => {
 
                 permBlock.querySelector(".perm-details").addEventListener("click", () => {
                     this.showModal(this.createModalUser(name, user, guild));
+                    props.closePopout();
                 });
                 let roleList = popout.querySelector(isSkin ? ".roles-1waBHC" : UserPopoutSelectors.rolesList);
                 if (isSkin) roleList = roleList.parentElement;
