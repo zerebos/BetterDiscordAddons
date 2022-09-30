@@ -1,3 +1,7 @@
+/**
+ * @param {import("zerespluginlibrary").Plugin} Plugin 
+ * @param {import("zerespluginlibrary").BoundAPI} Api 
+ */
 module.exports = (Plugin, Api) => {
     const {DiscordSelectors, PluginUtilities, Tooltip, DiscordModules, Patcher, Utilities, DCM, DOMTools, ReactTools, WebpackModules} = Api;
 

@@ -6,10 +6,9 @@
     "type": "git",
     "url": "https://github.com/rauenzi/BetterDiscordAddons"
   },
-  "devDependencies": {},
   "scripts": {
-    "build_plugin": "node ./scripts/build.js local",
-    "build_plugin_remote": "node ./scripts/build.js remote"
+    "build": "zpl build",
+    "init": "zpl init"
   },
   "author": "Zerebos",
   "license": "MIT",
@@ -24,5 +23,8 @@
     "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/`{{PLUGIN_NAME}}`",
     "githubRaw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/`{{PLUGIN_NAME}}`/`{{PLUGIN_NAME}}`.plugin.js",
     "authorLink": "https://twitter.com/IAmZerebos"
+  },
+  "devDependencies": {
+    "zerespluginlibrary": "^2.0.6"
   }
 }

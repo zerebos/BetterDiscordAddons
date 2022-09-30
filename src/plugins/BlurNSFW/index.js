@@ -1,4 +1,7 @@
-
+/**
+ * @param {import("zerespluginlibrary").Plugin} Plugin 
+ * @param {import("zerespluginlibrary").BoundAPI} Api 
+ */
 module.exports = (Plugin, Api) => {
     const {Patcher, WebpackModules, DiscordModules, PluginUtilities, Utilities, DCM} = Api;
 

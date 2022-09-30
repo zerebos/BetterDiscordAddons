@@ -1,17 +1,10 @@
 {
-    "info": {
-        "name": "BetterRoleColors",
-        "authors": [{
-            "name": "Zerebos",
-            "discord_id": "249746236008169473",
-            "github_username": "rauenzi",
-            "twitter_username": "ZackRauen"
-        }],
-        "version": "0.9.0",
-        "description": "Adds server-based role colors to typing, voice, popouts, modals and more!",
-        "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors",
-        "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js"
-    },
+    "name": "BetterRoleColors",
+    "author": "Zerebos",
+    "version": "0.9.0",
+    "description": "Adds server-based role colors to typing, voice, popouts, modals and more!",
+    "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors",
+    "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js",
     "changelog": [
         {
             "title":"Added",
