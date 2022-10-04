@@ -1,17 +1,26 @@
 /**
- * @param {import("zerespluginlibrary").Plugin} Plugin 
- * @param {import("zerespluginlibrary").BoundAPI} Api 
+ * @param {import("zerespluginlibrary").Plugin} Plugin
+ * @param {import("zerespluginlibrary").BoundAPI} Api
  */
 module.exports = (Plugin, Api) => {
-    const {Patcher, WebpackModules, Modals} = Api;
+    const { Patcher, WebpackModules, Modals } = Api;
 
     const SettingsManager = WebpackModules.getByProps("ShowCurrentGame");
-    const Analytics = WebpackModules.getByProps("AnalyticEventConfigs");
+    //const Analytics = WebpackModules.getByProps("AnalyticEventConfigs");
 
     return class DoNotTrack extends Plugin {
         onStart() {
-            
-            Patcher.instead(Analytics.default, "track", () => {});
+            webpackJsonp.push([
+                [],
+                {
+                    [""]: (_, e, r) => {
+                        e.cache = r.c;
+                        Object.values(r.c).find((m) => m.exports && m.exports.default && m.exports.default.track !== void 0).exports.default.track = function () {};
+                        //console.log(Object.values(r.c).find(m => m.exports && m.exports.default && m.exports.default.track !== void 0).exports.default.track )
+                    },
+                },
+                [[""]],
+            ]);
 
             const Logger = window.__SENTRY__.logger;
             Logger.disable(); // Kill sentry logs
@@ -24,11 +33,11 @@ module.exports = (Plugin, Api) => {
             for (const method in console) {
                 if (!console[method].__sentry_original__) continue;
                 console[method] = console[method].__sentry_original__;
-            }            
+            }
 
             if (this.settings.stopProcessMonitor) this.disableProcessMonitor();
         }
-        
+
         onStop() {
             Patcher.unpatchAll();
         }
@@ -47,7 +56,7 @@ module.exports = (Plugin, Api) => {
                 cancelText: "Later",
                 onConfirm: () => {
                     window.location.reload();
-                }
+                },
             });
         }
 
@@ -62,6 +71,5 @@ module.exports = (Plugin, Api) => {
             if (value) return this.disableProcessMonitor();
             return this.enableProcessMonitor();
         }
-
     };
 };
