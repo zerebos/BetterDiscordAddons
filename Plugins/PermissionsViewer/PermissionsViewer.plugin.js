@@ -1,7 +1,7 @@
 /**
  * @name PermissionsViewer
  * @description Allows you to view a user's permissions. Thanks to Noodlebox for the idea!
- * @version 0.2.5
+ * @version 0.2.6
  * @author Zerebos
  * @authorId 249746236008169473
  * @authorLink https://twitter.com/IAmZerebos
@@ -42,7 +42,7 @@ const config = {
                 twitter_username: "ZackRauen"
             }
         ],
-        version: "0.2.5",
+        version: "0.2.6",
         description: "Allows you to view a user's permissions. Thanks to Noodlebox for the idea!",
         github: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer",
         github_raw: "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/PermissionsViewer/PermissionsViewer.plugin.js"
@@ -52,7 +52,7 @@ const config = {
             title: "Fixes",
             type: "fixed",
             items: [
-                "Works with the both the new and old user popouts!"
+                "Fixed Permissions Button appearing in DMs User Context Menu"
             ]
         }
     ],
@@ -810,6 +810,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
 
             this.contextMenuPatches.push(Patcher.after(ChannelDeleteItem, "default", (_, [channel], ret) => {
                 const guild = GuildStore.getGuild(channel.guild_id);
+                if (!guild) return;
                 return patch(ret, channel, guild);
             }));
         }
