@@ -39,18 +39,39 @@ module.exports = (Plugin, Api) => {
         }
 
         onStop() {
-            Patcher.unpatchAll();
+            Modals.showConfirmationModal("Reload Discord?", "To disable DoNotTrack, Discord needs to be reloaded.", {
+                confirmText: "Reload",
+                cancelText: "Later",
+                onConfirm: () => {
+                    window.location.reload();
+                },
+            });
         }
 
         disableProcessMonitor() {
-            SettingsManager?.ShowCurrentGame?.updateSetting(false);
+            /*SettingsManager?.ShowCurrentGame?.updateSetting(false);
             const NativeModule = WebpackModules.getByProps("getDiscordUtils");
             const DiscordUtils = NativeModule.getDiscordUtils();
-            DiscordUtils.setObservedGamesCallback([], () => {});
+            DiscordUtils.setObservedGamesCallback([], () => {});*/
+
+            webpackJsonp.push([
+                [],
+                {
+                    [""]: (_, e, r) => {
+                        e.cache = r.c;
+                        const DiscordUtils = Object.values(r.c)
+                            .find((m) => m.exports && m.exports.default && m.exports.default.getDiscordUtils !== void 0)
+                            .exports.default.getDiscordUtils();
+
+                        DiscordUtils.setObservedGamesCallback([], () => {});
+                    },
+                },
+                [[""]],
+            ]);
         }
 
         enableProcessMonitor() {
-            SettingsManager?.ShowCurrentGame?.updateSetting(true);
+            //SettingsManager?.ShowCurrentGame?.updateSetting(true);
             Modals.showConfirmationModal("Reload Discord?", "To reenable the process monitor Discord needs to be reloaded.", {
                 confirmText: "Reload",
                 cancelText: "Later",
