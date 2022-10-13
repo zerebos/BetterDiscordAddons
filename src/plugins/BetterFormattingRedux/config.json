@@ -7,7 +7,7 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "2.3.13",
+        "version": "2.3.14",
         "description": "Enables different types of formatting in standard Discord chat.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js"
@@ -17,8 +17,8 @@
             "title": "GUI Works Again",
             "type": "fixed",
             "items": [
-                "Fixed for latest Discord changes which prevented the wrappers from being added via click. (Thanks to @BadScribbles on GitHub for the initial work)",
-                "Leet and Thicc options will no longer be overridden on every startup!"
+                "Clicking the buttons works again!",
+                "Dragging to reorder the buttons is broken."
             ]
         }
     ],

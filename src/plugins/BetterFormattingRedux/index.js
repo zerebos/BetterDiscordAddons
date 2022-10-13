@@ -3,9 +3,8 @@
  * @param {import("zerespluginlibrary").BoundAPI} Api 
  */
 module.exports = (Plugin, Api) => {
-    const {DiscordSelectors, PluginUtilities, Tooltip, DiscordModules, Patcher, Utilities, DCM, DOMTools, ReactTools, WebpackModules} = Api;
-
-    const SlateEditor = WebpackModules.getByProps("Editor", "Transforms");
+    const {ContextMenu, DOM, Patcher, UI} = window.BdApi;
+    const {DiscordSelectors, PluginUtilities, DiscordModules, Utilities, ReactTools} = Api;
 
     return class BetterFormattingRedux extends Plugin {
         constructor() {
@@ -33,21 +32,21 @@ module.exports = (Plugin, Api) => {
         }
 
         async onStart() {
-            await PluginUtilities.addScript("sortableScript", "//rauenzi.github.io/BetterDiscordAddons/Plugins/Sortable.js");
-            PluginUtilities.addStyle(this.getName() + "-style", this.mainCSS);
-            this.buttonOrder = PluginUtilities.loadData(this.getName(), "buttonOrder", this.buttonOrder);
+            // await PluginUtilities.addScript("sortableScript", "//rauenzi.github.io/BetterDiscordAddons/Plugins/Sortable.js");
+            DOM.addStyle(this.name + "-style", this.mainCSS);
+            this.buttonOrder = PluginUtilities.loadData(this.name, "buttonOrder", this.buttonOrder);
             this.setupToolbar();
-            Patcher.before(DiscordModules.MessageActions, "sendMessage", (_, [, msg]) => {
+            Patcher.before(this.name, DiscordModules.MessageActions, "sendMessage", (_, [, msg]) => {
                 msg.content = this.format(msg.content);
             });
         }
 
         onStop() {
-            Patcher.unpatchAll();
-            // $("*").off("." + this.getName());
+            Patcher.unpatchAll(this.name);
+            // $("*").off("." + this.name);
             document.querySelector(".bf-toolbar")?.remove();
-            PluginUtilities.removeScript("sortableScript");
-            PluginUtilities.removeStyle(this.getName() + "-style");
+            // PluginUtilities.removeScript("sortableScript");
+            DOM.removeStyle(this.name + "-style");
         }
 
         observer(e) {
@@ -186,13 +185,12 @@ module.exports = (Plugin, Api) => {
             if (!slate) return; // bail out if no slate
 
             const currentSelection = Utilities.deepclone(slate.selection);
-            SlateEditor.Transforms.insertText(slate, leftWrapper, {at: slate.selection.anchor});
-            SlateEditor.Transforms.insertText(slate, rightWrapper, {at: slate.selection.focus});
+            slate.apply({type: "insert_text", text: leftWrapper, path: slate.selection.anchor.path, offset: slate.selection.anchor.offset});
+            slate.apply({type: "insert_text", text: rightWrapper, path: slate.selection.focus.path, offset: slate.selection.focus.offset});
+
             currentSelection.anchor.offset += leftWrapper.length;
             currentSelection.focus.offset += rightWrapper.length;
             slateNode.focus();
-            SlateEditor.Transforms.select(slate, currentSelection);
-            // return slateEditor.wrapText(leftWrapper, rightWrapper);
         }
 
         oldWrapSelection(textarea, leftWrapper, rightWrapper) {
@@ -207,7 +205,7 @@ module.exports = (Plugin, Api) => {
         }
 
         getContextMenu() {
-            return DCM.buildMenu(
+            return ContextMenu.buildMenu(
                 Object.keys(this.allLanguages).map(letter => {
                     return {
                         type: "submenu",
@@ -221,18 +219,18 @@ module.exports = (Plugin, Api) => {
         }
 
         buildToolbar() {
-            const toolbar = DOMTools.createElement(this.toolbarString);
+            const toolbar = DOM.parseHTML(this.toolbarString);
             const sorted = Object.keys(this.settings.toolbar).sort((a,b) => {return this.buttonOrder.indexOf(a) - this.buttonOrder.indexOf(b);});
             for (let i = 0; i < sorted.length; i++) {
-                const button = DOMTools.createElement("<div class='format'>");
+                const button = DOM.parseHTML("<div class='format'>");
                 if (!this.toolbarData[sorted[i]]) continue;
                 button.classList.add(this.toolbarData[sorted[i]].type);
-                Tooltip.create(button, this.toolbarData[sorted[i]].name);
+                UI.createTooltip(button, this.toolbarData[sorted[i]].name);
                 if (!this.settings.toolbar[sorted[i]]) button.classList.add("disabled");
                 if (sorted[i] === "codeblock") {
                     const contextMenu = this.getContextMenu();
                     button.addEventListener("contextmenu", (e) => {
-                        DCM.openContextMenu(e, contextMenu, {align: "bottom"});
+                        ContextMenu.open(e, contextMenu, {align: "bottom"});
                     });
                 }
                 button.dataset.name = sorted[i];
@@ -240,17 +238,17 @@ module.exports = (Plugin, Api) => {
                 else button.innerHTML = this.toolbarData[sorted[i]].displayName;
                 toolbar.append(button);
             }
-            window.Sortable.create(toolbar, {
-                draggable: ".format", // css-selector of elements, which can be sorted
-                ghostClass: "ghost",
-                onUpdate: () => {
-                    const buttons = toolbar.querySelectorAll(".format");
-                    for (let i = 0; i < buttons.length; i++) {
-                        this.buttonOrder[i] = buttons[i].dataset.name;
-                    }
-                    PluginUtilities.saveData(this.getName(), "buttonOrder", this.buttonOrder);
-                }
-            });
+            // window.Sortable.create(toolbar, {
+            //     draggable: ".format", // css-selector of elements, which can be sorted
+            //     ghostClass: "ghost",
+            //     onUpdate: () => {
+            //         const buttons = toolbar.querySelectorAll(".format");
+            //         for (let i = 0; i < buttons.length; i++) {
+            //             this.buttonOrder[i] = buttons[i].dataset.name;
+            //         }
+            //         PluginUtilities.saveData(this.name, "buttonOrder", this.buttonOrder);
+            //     }
+            // });
             if (!this.settings.style.icons) {
                 toolbar.addEventListener("mousemove", (e) => {
                     const target = e.currentTarget;
@@ -299,8 +297,8 @@ module.exports = (Plugin, Api) => {
 
             // textarea.parent().parent().after(toolbarElement)
             //     .siblings(".bf-toolbar")
-            //     .off("click." + this.getName())
-            //     .on("click." + this.getName(), "div", e => {
+            //     .off("click." + this.name)
+            //     .on("click." + this.name, "div", e => {
             //         e.preventDefault();
             //         e.stopPropagation();
             //         const button = e.currentTarget;

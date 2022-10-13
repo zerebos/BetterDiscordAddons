@@ -1,10 +1,9 @@
 /**
  * @name BetterFormattingRedux
  * @description Enables different types of formatting in standard Discord chat.
- * @version 2.3.13
+ * @version 2.3.14
  * @author Zerebos
  * @authorId 249746236008169473
- * @authorLink https://twitter.com/IAmZerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux
  * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js
  */
@@ -42,7 +41,7 @@ const config = {
                 twitter_username: "ZackRauen"
             }
         ],
-        version: "2.3.13",
+        version: "2.3.14",
         description: "Enables different types of formatting in standard Discord chat.",
         github: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux",
         github_raw: "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js"
@@ -52,8 +51,8 @@ const config = {
             title: "GUI Works Again",
             type: "fixed",
             items: [
-                "Fixed for latest Discord changes which prevented the wrappers from being added via click. (Thanks to @BadScribbles on GitHub for the initial work)",
-                "Leet and Thicc options will no longer be overridden on every startup!"
+                "Clicking the buttons works again!",
+                "Dragging to reorder the buttons is broken."
             ]
         }
     ],
@@ -257,7 +256,7 @@ const config = {
                     id: "thicc",
                     name: "Extra Thicc",
                     note: "The wrapper to get 乇乂下尺卂 下卄工匚匚.",
-                    value: "$"
+                    value: "$$"
                 }
             ]
         },
@@ -421,13 +420,21 @@ class Dummy {
 }
  
 if (!global.ZeresPluginLibrary) {
-    BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
+    BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.name ?? config.info.name} is missing. Please click Download Now to install it.`, {
         confirmText: "Download Now",
         cancelText: "Cancel",
         onConfirm: () => {
-            require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, response, body) => {
-                if (error) return require("electron").shell.openExternal("https://betterdiscord.app/Download?id=9");
-                await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
+            require("request").get("https://betterdiscord.app/gh-redirect?id=9", async (err, resp, body) => {
+                if (err) return require("electron").shell.openExternal("https://betterdiscord.app/Download?id=9");
+                if (resp.statusCode === 302) {
+                    require("request").get(resp.headers.location, async (error, response, content) => {
+                        if (error) return require("electron").shell.openExternal("https://betterdiscord.app/Download?id=9");
+                        await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), content, r));
+                    });
+                }
+                else {
+                    await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
+                }
             });
         }
     });
@@ -435,9 +442,8 @@ if (!global.ZeresPluginLibrary) {
  
 module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
      const plugin = (Plugin, Api) => {
-    const {DiscordSelectors, PluginUtilities, Tooltip, DiscordModules, Patcher, Utilities, DCM, DOMTools, ReactTools, WebpackModules} = Api;
-
-    const SlateEditor = WebpackModules.getByProps("Editor", "Transforms");
+    const {ContextMenu, DOM, Patcher, UI} = window.BdApi;
+    const {DiscordSelectors, PluginUtilities, DiscordModules, Utilities, ReactTools} = Api;
 
     return class BetterFormattingRedux extends Plugin {
         constructor() {
@@ -747,21 +753,21 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
         }
 
         async onStart() {
-            await PluginUtilities.addScript("sortableScript", "//rauenzi.github.io/BetterDiscordAddons/Plugins/Sortable.js");
-            PluginUtilities.addStyle(this.getName() + "-style", this.mainCSS);
-            this.buttonOrder = PluginUtilities.loadData(this.getName(), "buttonOrder", this.buttonOrder);
+            // await PluginUtilities.addScript("sortableScript", "//rauenzi.github.io/BetterDiscordAddons/Plugins/Sortable.js");
+            DOM.addStyle(this.name + "-style", this.mainCSS);
+            this.buttonOrder = PluginUtilities.loadData(this.name, "buttonOrder", this.buttonOrder);
             this.setupToolbar();
-            Patcher.before(DiscordModules.MessageActions, "sendMessage", (_, [, msg]) => {
+            Patcher.before(this.name, DiscordModules.MessageActions, "sendMessage", (_, [, msg]) => {
                 msg.content = this.format(msg.content);
             });
         }
 
         onStop() {
-            Patcher.unpatchAll();
-            // $("*").off("." + this.getName());
+            Patcher.unpatchAll(this.name);
+            // $("*").off("." + this.name);
             document.querySelector(".bf-toolbar")?.remove();
-            PluginUtilities.removeScript("sortableScript");
-            PluginUtilities.removeStyle(this.getName() + "-style");
+            // PluginUtilities.removeScript("sortableScript");
+            DOM.removeStyle(this.name + "-style");
         }
 
         observer(e) {
@@ -900,13 +906,12 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
             if (!slate) return; // bail out if no slate
 
             const currentSelection = Utilities.deepclone(slate.selection);
-            SlateEditor.Transforms.insertText(slate, leftWrapper, {at: slate.selection.anchor});
-            SlateEditor.Transforms.insertText(slate, rightWrapper, {at: slate.selection.focus});
+            slate.apply({type: "insert_text", text: leftWrapper, path: slate.selection.anchor.path, offset: slate.selection.anchor.offset});
+            slate.apply({type: "insert_text", text: rightWrapper, path: slate.selection.focus.path, offset: slate.selection.focus.offset});
+
             currentSelection.anchor.offset += leftWrapper.length;
             currentSelection.focus.offset += rightWrapper.length;
             slateNode.focus();
-            SlateEditor.Transforms.select(slate, currentSelection);
-            // return slateEditor.wrapText(leftWrapper, rightWrapper);
         }
 
         oldWrapSelection(textarea, leftWrapper, rightWrapper) {
@@ -921,7 +926,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
         }
 
         getContextMenu() {
-            return DCM.buildMenu(
+            return ContextMenu.buildMenu(
                 Object.keys(this.allLanguages).map(letter => {
                     return {
                         type: "submenu",
@@ -935,18 +940,18 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
         }
 
         buildToolbar() {
-            const toolbar = DOMTools.createElement(this.toolbarString);
+            const toolbar = DOM.parseHTML(this.toolbarString);
             const sorted = Object.keys(this.settings.toolbar).sort((a,b) => {return this.buttonOrder.indexOf(a) - this.buttonOrder.indexOf(b);});
             for (let i = 0; i < sorted.length; i++) {
-                const button = DOMTools.createElement("<div class='format'>");
+                const button = DOM.parseHTML("<div class='format'>");
                 if (!this.toolbarData[sorted[i]]) continue;
                 button.classList.add(this.toolbarData[sorted[i]].type);
-                Tooltip.create(button, this.toolbarData[sorted[i]].name);
+                UI.createTooltip(button, this.toolbarData[sorted[i]].name);
                 if (!this.settings.toolbar[sorted[i]]) button.classList.add("disabled");
                 if (sorted[i] === "codeblock") {
                     const contextMenu = this.getContextMenu();
                     button.addEventListener("contextmenu", (e) => {
-                        DCM.openContextMenu(e, contextMenu, {align: "bottom"});
+                        ContextMenu.open(e, contextMenu, {align: "bottom"});
                     });
                 }
                 button.dataset.name = sorted[i];
@@ -954,17 +959,17 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                 else button.innerHTML = this.toolbarData[sorted[i]].displayName;
                 toolbar.append(button);
             }
-            window.Sortable.create(toolbar, {
-                draggable: ".format", // css-selector of elements, which can be sorted
-                ghostClass: "ghost",
-                onUpdate: () => {
-                    const buttons = toolbar.querySelectorAll(".format");
-                    for (let i = 0; i < buttons.length; i++) {
-                        this.buttonOrder[i] = buttons[i].dataset.name;
-                    }
-                    PluginUtilities.saveData(this.getName(), "buttonOrder", this.buttonOrder);
-                }
-            });
+            // window.Sortable.create(toolbar, {
+            //     draggable: ".format", // css-selector of elements, which can be sorted
+            //     ghostClass: "ghost",
+            //     onUpdate: () => {
+            //         const buttons = toolbar.querySelectorAll(".format");
+            //         for (let i = 0; i < buttons.length; i++) {
+            //             this.buttonOrder[i] = buttons[i].dataset.name;
+            //         }
+            //         PluginUtilities.saveData(this.name, "buttonOrder", this.buttonOrder);
+            //     }
+            // });
             if (!this.settings.style.icons) {
                 toolbar.addEventListener("mousemove", (e) => {
                     const target = e.currentTarget;
@@ -1013,8 +1018,8 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
 
             // textarea.parent().parent().after(toolbarElement)
             //     .siblings(".bf-toolbar")
-            //     .off("click." + this.getName())
-            //     .on("click." + this.getName(), "div", e => {
+            //     .off("click." + this.name)
+            //     .on("click." + this.name, "div", e => {
             //         e.preventDefault();
             //         e.stopPropagation();
             //         const button = e.currentTarget;
