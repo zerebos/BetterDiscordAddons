@@ -1,10 +1,9 @@
 /**
  * @name RoleMembers
  * @description Allows you to see the members of each role on a server.
- * @version 0.1.16
+ * @version 0.1.17
  * @author Zerebos
  * @authorId 249746236008169473
- * @authorLink https://twitter.com/IAmZerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers
  * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js
  */
@@ -42,18 +41,19 @@ const config = {
                 twitter_username: "ZackRauen"
             }
         ],
-        version: "0.1.16",
+        version: "0.1.17",
         description: "Allows you to see the members of each role on a server.",
         github: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers",
         github_raw: "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"
     },
     changelog: [
         {
-            title: "Fully Fixed",
+            title: "Mostly Fixed",
             type: "fixed",
             items: [
                 "Context menu item shows and works again.",
-                "Role mentions work again."
+                "Role mentions work again.",
+                "User popouts do not work!"
             ]
         }
     ],
@@ -66,13 +66,21 @@ class Dummy {
 }
  
 if (!global.ZeresPluginLibrary) {
-    BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
+    BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.name ?? config.info.name} is missing. Please click Download Now to install it.`, {
         confirmText: "Download Now",
         cancelText: "Cancel",
         onConfirm: () => {
-            require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, response, body) => {
-                if (error) return require("electron").shell.openExternal("https://betterdiscord.app/Download?id=9");
-                await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
+            require("request").get("https://betterdiscord.app/gh-redirect?id=9", async (err, resp, body) => {
+                if (err) return require("electron").shell.openExternal("https://betterdiscord.app/Download?id=9");
+                if (resp.statusCode === 302) {
+                    require("request").get(resp.headers.location, async (error, response, content) => {
+                        if (error) return require("electron").shell.openExternal("https://betterdiscord.app/Download?id=9");
+                        await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), content, r));
+                    });
+                }
+                else {
+                    await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
+                }
             });
         }
     });
@@ -80,36 +88,17 @@ if (!global.ZeresPluginLibrary) {
  
 module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
      const plugin = (Plugin, Api) => {
-    const {Popouts, DiscordModules, DiscordSelectors, Utilities, WebpackModules, Patcher, DCM, DOMTools, Toasts} = Api;
+    const {DOM, ContextMenu, Patcher, Webpack, UI} = window.BdApi;
+    const {DiscordModules, DiscordSelectors, Utilities} = Api;
 
     const from = arr => arr && arr.length > 0 && Object.assign(...arr.map(([k, v]) => ({[k]: v})));
     const filter = (obj, predicate) => from(Object.entries(obj).filter((o) => {return predicate(o[1]);}));
 
+    const SelectedGuildStore = DiscordModules.SelectedGuildStore;
     const GuildStore = DiscordModules.GuildStore;
     const GuildMemberStore = DiscordModules.GuildMemberStore;
     const UserStore = DiscordModules.UserStore;
     const ImageResolver = DiscordModules.ImageResolver;
-    // const WrapperClasses = WebpackModules.getByProps("wrapperHover");
-    const animate = DOMTools.animate ? DOMTools.animate.bind(DOMTools) : ({timing = _ => _, update, duration}) => {
-        // https://javascript.info/js-animation
-        const start = performance.now();
-
-        requestAnimationFrame(function renderFrame(time) {
-            // timeFraction goes from 0 to 1
-            let timeFraction = (time - start) / duration;
-            if (timeFraction > 1) timeFraction = 1;
-
-            // calculate the current animation state
-            const progress = timing(timeFraction);
-
-            update(progress); // draw it
-
-            if (timeFraction < 1) {
-            requestAnimationFrame(renderFrame);
-            }
-
-        });
-    };
 
     const popoutHTML = `<div class="layer-2aCOJ3" style="z-index: 100">
 <div class="animatorBottom-L63-7D translate-PeW1wK didRender-2SiRlm popout-role-members" style="margin-top: 0;">
@@ -151,47 +140,43 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
     return class RoleMembers extends Plugin {
 
         onStart() {
-            this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
             this.patchRoleMention(); // <@&367344340231782410>
-            this.patchGuildContextMenu(this.promises.state);
+            this.patchGuildContextMenu();
         }
 
         onStop() {
-            this.promises.cancel();
-            if (this.listener) this.listener({target: {classList: {contains: () => {}}, closest: () => {}}});
             const elements = document.querySelectorAll(".popout-role-members");
             for (const el of elements) el && el.remove();
-            Patcher.unpatchAll();
+            Patcher.unpatchAll(this.name);
+            this.contextMenuPatch?.();
         }
 
         patchRoleMention() {
-            const Pill = WebpackModules.getModule(m => m?.default.displayName === "RoleMention");
-            Patcher.after(Pill, "default", (_, [props], component) => {
-                if (!component || !component.props || !component.props.className) return;
-                if (!component.props.className.toLowerCase().includes("mention")) return;
-                component.props.className += ` mention interactive`;
-                component.props.onClick = (e) => {
-                    const roles = GuildStore.getGuild(props.guildId).roles;
-                    const name = component.props.children[1][0].slice(1);
+            const Pill = Webpack.getModule(m => m?.toString().includes("iconMentionText"), {defaultExport: false});
+            Patcher.before(this.name, Pill, "Z", (_, [props]) => {
+                if (!props?.className.toLowerCase().includes("rolemention")) return;
+                props.className += ` interactive`;
+                props.onClick = (e) => {
+                    const roles = GuildStore.getGuild(SelectedGuildStore.getGuildId()).roles;
+                    const name = props.children[1][0].slice(1);
                     let role = filter(roles, r => r.name == name);
                     if (!role) return;
                     role = role[Object.keys(role)[0]];
-                    this.showRolePopout(e.nativeEvent.target, props.guildId, role.id);
+                    this.showRolePopout(e.nativeEvent.target, SelectedGuildStore.getGuildId(), role.id);
                 };
             });
         }
 
-        async patchGuildContextMenu(promiseState) {
-            const GuildContextMenu = await DCM.getDiscordMenu("useGuildMarkAsReadItem");
-            if (promiseState.cancelled) return;
-            Patcher.after(GuildContextMenu, "default", (_, [guild], retVal) => {
+        patchGuildContextMenu() {
+            this.contextMenuPatch = ContextMenu.patch("guild-context", (retVal, props) => {
+                const guild = props.guild;
                 const guildId = guild.id;
                 const roles = guild.roles;
                 const roleItems = [];
 
                 for (const roleId in roles) {
                     const role = roles[roleId];
-                    const item = DCM.buildMenuItem({
+                    const item = ContextMenu.buildItem({
                         id: roleId,
                         label: role.name,
                         style: {color: role.colorString ? role.colorString : ""},
@@ -200,28 +185,36 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                             if (e.ctrlKey) {
                                 try {
                                     DiscordNative.clipboard.copy(role.id);
-                                    Toasts.success("Copied Role ID to clipboard!");
+                                    UI.showToast("Copied Role ID to clipboard!", {type: "success"});
                                 }
                                 catch {
-                                    Toasts.success("Could not copy Role ID to clipboard");
+                                    UI.showToast("Could not copy Role ID to clipboard", {type: "success"});
                                 }
                             }
                             else {
-                                this.showRolePopout(e.target.closest(DiscordSelectors.ContextMenu.item), guildId, role.id);
+                                this.showRolePopout({
+                                    getBoundingClientRect() {
+                                        return {
+                                            top: e.pageY,
+                                            bottom: e.pageY,
+                                            left: e.pageX,
+                                            right: e.pageX
+                                        };
+                                    }
+                                }, guildId, role.id);
                             }
                         }
                     });
                     roleItems.push(item);
                 }
-                const original = retVal;
-                const newOne = DCM.buildMenuItem({type: "submenu", label: "Role Members", children: roleItems});
-                if (Array.isArray(original)) {
-                    const separatorIndex = original.findIndex(k => !k?.props?.label);
-                    const insertIndex = separatorIndex > 0 ? separatorIndex + 1 : 1;
-                    original.splice(insertIndex, 0, newOne);
-                    return original;
-                }
-                return [original, newOne];
+
+                const newOne = ContextMenu.buildItem({type: "submenu", label: "Role Members", children: roleItems});
+
+                const separatorIndex = retVal.props.children.findIndex(k => !k?.props?.label);
+                const insertIndex = separatorIndex > 0 ? separatorIndex + 1 : 1;
+                retVal.props.children.splice(insertIndex, 0, newOne);
+                // return original;
+
             });
         }
 
@@ -231,7 +224,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
             let members = GuildMemberStore.getMembers(guildId);
             if (guildId != roleId) members = members.filter(m => m.roles.includes(role.id));
 
-            const popout = DOMTools.createElement(Utilities.formatString(popoutHTML, {memberCount: members.length}));
+            const popout = DOM.parseHTML(Utilities.formatString(popoutHTML, {memberCount: members.length}));
             const searchInput = popout.querySelector("input");
             searchInput.addEventListener("keyup", () => {
                 const items = popout.querySelectorAll(".role-member");
@@ -247,9 +240,9 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
             const scroller = popout.querySelector(".role-members");
             for (const member of members) {
                 const user = UserStore.getUser(member.userId);
-                const elem = DOMTools.createElement(Utilities.formatString(itemHTML, {username: user.username, discriminator: "#" + user.discriminator, avatar_url: ImageResolver.getUserAvatarURL(user)}));
+                const elem = DOM.parseHTML(Utilities.formatString(itemHTML, {username: user.username, discriminator: "#" + user.discriminator, avatar_url: ImageResolver.getUserAvatarURL(user)}));
                 elem.addEventListener("click", () => {
-                    setTimeout(() => Popouts.showUserPopout(elem, user, {guild: guildId}), 1);
+                    UI.showToast("User popouts are currently broken!", {type: "error"});
                 });
                 scroller.append(elem);
             }
@@ -273,15 +266,12 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                 // popout.animate({left: Math.round(offset.left - popout.offsetWidth - 10)}, 100);
                 const original = Math.round(offset.left - popout.offsetWidth - 20);
                 const endPoint = Math.round(offset.left - popout.offsetWidth - 10);
-                animate({
-                    duration: 100,
-                    update: function(progress) {
+                DOM.animate(function(progress) {
                         let value = 0;
                         if (endPoint > original) value = original + (progress * (endPoint - original));
                         else value = original - (progress * (original - endPoint));
                         popout.style.left = value + "px";
-                    }
-                });
+                }, 100);
             }
             else {
                 // popout.classList.add(...DiscordClasses.Popouts.popoutRight.value.split(" "));
@@ -289,15 +279,12 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                 // popout.animate({left: offset.right}, 100);
                 const original = offset.right + 10;
                 const endPoint = offset.right;
-                animate({
-                    duration: 100,
-                    update: function(progress) {
+                DOM.animate(function(progress) {
                         let value = 0;
                         if (endPoint > original) value = original + (progress * (endPoint - original));
                         else value = original - (progress * (original - endPoint));
                         popout.style.left = value + "px";
-                    }
-                });
+                }, 100);
             }
 
             if (offset.top + popout.offsetHeight >= maxHeight) popout.style.top = Math.round(maxHeight - popout.offsetHeight) + "px";
