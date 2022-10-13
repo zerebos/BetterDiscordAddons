@@ -7,7 +7,7 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.0.7",
+        "version": "0.0.8",
         "description": "Hides disabled emojis from the emoji picker.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideDisabledEmojis",
         "github_raw": "https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/HideDisabledEmojis/HideDisabledEmojis.plugin.js"
