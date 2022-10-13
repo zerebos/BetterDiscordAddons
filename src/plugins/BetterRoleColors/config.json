@@ -1,19 +1,15 @@
 {
     "name": "BetterRoleColors",
     "author": "Zerebos",
-    "version": "0.9.0",
+    "version": "0.9.1",
     "description": "Adds server-based role colors to typing, voice, popouts, modals and more!",
     "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors",
     "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js",
     "changelog": [
         {
-            "title":"Added",
-            "items":["Thread member list now uses role colors.", "User mentions in the textbox are now role colored."]
-        },
-        {
             "title":"Bug Fixes",
             "type":"fixed",
-            "items":["Fixed chat mentions not being colored.", "Fixed the new user popouts not being colored.", "Fixed typing users not being colored."]
+            "items":["Fixed every feature of the plugin!"]
         }
     ],
     "defaultConfig": [
