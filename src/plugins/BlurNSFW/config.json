@@ -7,7 +7,7 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "1.0.0",
+        "version": "1.0.1",
         "description": "Blurs images and videos until you hover over them.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BlurNSFW",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BlurNSFW/BlurNSFW.plugin.js"
@@ -15,10 +15,17 @@
     "changelog": [
         {
             "title": "What's New?",
+            "type": "fixed",
             "items": [
-                "You can now blur *any* channel you want using the context menu!",
-                "You can now also unblur specific NSFW channels!",
-                "There is an options to change that functionality in plugin settings!"
+                "Context menu and blurring should work again!",
+                "Blurring and unblurring happen quicker and using less resources now!"
+            ]
+        },
+        {
+            "title": "Known Issues",
+            "items": [
+                "The checkbox in the context menu won't update after clicking.",
+                "This is just a visual issue, the functionality is fine."
             ]
         }
     ],

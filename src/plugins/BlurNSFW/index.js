@@ -3,15 +3,24 @@
  * @param {import("zerespluginlibrary").BoundAPI} Api 
  */
 module.exports = (Plugin, Api) => {
-    const {Patcher, WebpackModules, DiscordModules, PluginUtilities, Utilities, DCM} = Api;
+    const {ContextMenu, DOM, Webpack, Patcher} = window.BdApi;
 
-    const SelectedChannelStore = DiscordModules.SelectedChannelStore;
-    const ChannelStore = DiscordModules.ChannelStore;
-    const ReactDOM = DiscordModules.ReactDOM;
-    const InlineMediaWrapper = WebpackModules.getByProps("ImageReadyStates").default;
-    const MenuSeparator = WebpackModules.getByProps("MenuSeparator").MenuSeparator;
+    const SelectedChannelStore = Webpack.getModule(m => m.getCurrentlySelectedChannelId);
+    const ChannelStore = Webpack.getModule(m => m.getDMFromUserId);
+    const InlineMediaWrapper = Webpack.getModule(m => m.toString().includes("renderAccessory"));
+    const WrapperClasses = Webpack.getModule(m => m.wrapperPlaying);
     const Events = require("events");
     const Dispatcher = new Events();
+
+    const formatString = (string, values) => {
+        for (const val in values) {
+            let replacement = values[val];
+            if (Array.isArray(replacement)) replacement = JSON.stringify(replacement);
+            if (typeof(replacement) === "object" && replacement !== null) replacement = replacement.toString();
+            string = string.replace(new RegExp(`{{${val}}}`, "g"), replacement);
+        }
+        return string;
+    };
 
     /* globals BdApi:false */
     return class BlurMedia extends Plugin {
@@ -20,15 +29,17 @@ module.exports = (Plugin, Api) => {
             this.meta = meta;
             this.styleTemplate = `
             {{blurOnFocus}}
-            img.blur:hover,
-            video.blur:hover,
+            .${WrapperClasses.wrapperPlaying.split(" ").join(".")} video,
+            .${WrapperClasses.wrapperControlsHidden.split(" ").join(".")} video,
+            .blur:hover img,
+            .blur:hover video,
             a:hover + div > .blur {
                 transition: {{time}}ms cubic-bezier(.2, .11, 0, 1) !important;
                 filter: blur(0px) !important;
             }
             
-            img.blur,
-            video.blur {
+            .blur img,
+            .blur video {
                 filter: blur({{size}}px) !important;
                 transition: {{time}}ms cubic-bezier(.2, .11, 0, 1) !important;
             }`;
@@ -42,29 +53,26 @@ module.exports = (Plugin, Api) => {
 
             /** @type {Set<string>} */
             this.seenChannels = new Set(BdApi.loadData(this.meta.name, "seen") ?? []);
-            const blurAccessory = (thisObject) => {
-                const element = ReactDOM.findDOMNode(thisObject);
-                const mediaElement = element.querySelector("img") || element.querySelector("video");
-                if (!mediaElement) return;
-    
-                Dispatcher.addListener("blur", thisObject.forceUpdate.bind(thisObject));
+
+            Patcher.after(this.meta.name, InlineMediaWrapper.prototype, "render", (thisObject, _, retVal) => {
                 const channel = ChannelStore.getChannel(SelectedChannelStore.getChannelId());
-                if (this.hasBlur(channel)) mediaElement.classList.add("blur");
-                else mediaElement.classList.remove("blur");
-                
-                if (mediaElement.tagName !== "VIDEO") return;
-                mediaElement.addEventListener("play", () => {
-                    if (mediaElement.autoplay) return;
-                    mediaElement.classList.remove("blur");
-                });
-                mediaElement.addEventListener("pause", () => {
-                    if (mediaElement.autoplay) return;
-                    if (this.hasBlur(channel)) mediaElement.classList.add("blur");
-                });
-            };
-            
-            Patcher.after(InlineMediaWrapper.prototype, "componentDidMount", blurAccessory);
-            Patcher.after(InlineMediaWrapper.prototype, "componentDidUpdate", blurAccessory);
+                if (!this.hasBlur(channel)) return;
+                if (retVal.props.className) retVal.props.className = retVal.props.className + " blur";
+                else retVal.props.className = "blur";
+            });
+
+            Patcher.after(this.meta.name, InlineMediaWrapper.prototype, "componentDidMount", (thisObject) => {
+                if (thisObject.cancelBlurListener) return;
+                const listener = () => thisObject.forceUpdate();
+                Dispatcher.on("blur", listener);
+                thisObject.cancelBlurListener = () => Dispatcher.off("blur", listener);
+            });
+
+            Patcher.after(this.meta.name, InlineMediaWrapper.prototype, "componentWillUnmount", (thisObject) => {
+                if (!thisObject.cancelBlurListener) return;
+                thisObject.cancelBlurListener();
+                delete thisObject.cancelBlurListener;
+            });
 
             this.addStyle();
 
@@ -76,8 +84,8 @@ module.exports = (Plugin, Api) => {
         
         onStop() {
             BdApi.saveData(this.meta.name, "blurred", this.blurredChannels);
-            BdApi.saveData(this.meta.name, "sen", this.seenChannels);
-            Patcher.unpatchAll();
+            BdApi.saveData(this.meta.name, "seen", this.seenChannels);
+            this.contextMenuPatch?.();
             this.removeStyle();
             SelectedChannelStore.removeChangeListener(this.channelChange);
         }
@@ -97,7 +105,7 @@ module.exports = (Plugin, Api) => {
         }
 
         channelChange() {
-            Dispatcher.removeAllListeners();
+            Dispatcher?.removeAllListeners();
             const channel = ChannelStore.getChannel(SelectedChannelStore.getChannelId());
             if (this.seenChannels.has(channel.id)) return;
 
@@ -105,47 +113,33 @@ module.exports = (Plugin, Api) => {
             if (this.settings.blurNSFW && channel.nsfw) this.addBlur(channel);
         }
 
-        async patchChannelContextMenu() {
-            const MarkReadItem = await DCM.getDiscordMenu("useChannelMarkAsReadItem");
-            if (this.promises.state.cancelled) return;
-
-            Patcher.after(MarkReadItem, "default", (_, [channel], original) => {
-                const newOne = DCM.buildMenuItem({
+        patchChannelContextMenu() {
+            this.contextMenuPatch = ContextMenu.patch("channel-context", (retVal, props) => {
+                const newItem = ContextMenu.buildItem({
                     type: "toggle",
                     label: "Blur Media",
-                    active: this.hasBlur(channel),
+                    active: this.hasBlur(props.channel),
                     action: () => {
-                        if (this.hasBlur(channel)) this.removeBlur(channel);
-                        else this.addBlur(channel);
+                        if (this.hasBlur(props.channel)) this.removeBlur(props.channel);
+                        else this.addBlur(props.channel);
                     }
                 });
 
-                if (Array.isArray(original)) {
-                    const separatorIndex = original.findIndex(k => !k?.props?.label);
-                    const insertIndex = separatorIndex > 0 ? separatorIndex + 1 : 1;
-                    original.splice(insertIndex, 0, newOne);
-                    return original;
-                }
-
-                return [
-                    original,
-                    DiscordModules.React.createElement(MenuSeparator),
-                    newOne,
-                ];
+                retVal.props.children.splice(1, 0, newItem);
             });
         }
 
         addStyle() {
-            const styleString = Utilities.formatString(this.styleTemplate, {
+            const styleString = formatString(this.styleTemplate, {
                 size: Math.round(this.settings.blurSize),
                 time: Math.round(this.settings.blurTime),
-                blurOnFocus: this.settings.blurOnFocus ? "" : ".layer-1Ixpg3 img.blur,"
+                blurOnFocus: this.settings.blurOnFocus ? "" : ".layer-1Ixpg3 .blur img,"
             });
-            PluginUtilities.addStyle(this.getName(), styleString);
+            DOM.addStyle(this.meta.name, styleString);
         }
 
         removeStyle() {
-            PluginUtilities.removeStyle(this.getName());
+            DOM.removeStyle(this.meta.name);
         }
 
         getSettingsPanel() {
