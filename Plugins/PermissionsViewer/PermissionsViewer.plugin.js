@@ -1,10 +1,9 @@
 /**
  * @name PermissionsViewer
  * @description Allows you to view a user's permissions. Thanks to Noodlebox for the idea!
- * @version 0.2.5
+ * @version 0.2.6
  * @author Zerebos
  * @authorId 249746236008169473
- * @authorLink https://twitter.com/IAmZerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer
  * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/PermissionsViewer/PermissionsViewer.plugin.js
  */
@@ -42,7 +41,7 @@ const config = {
                 twitter_username: "ZackRauen"
             }
         ],
-        version: "0.2.5",
+        version: "0.2.6",
         description: "Allows you to view a user's permissions. Thanks to Noodlebox for the idea!",
         github: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer",
         github_raw: "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/PermissionsViewer/PermissionsViewer.plugin.js"
@@ -52,7 +51,7 @@ const config = {
             title: "Fixes",
             type: "fixed",
             items: [
-                "Works with the both the new and old user popouts!"
+                "Popouts and context menus should all work once again!"
             ]
         }
     ],
@@ -200,13 +199,21 @@ class Dummy {
 }
  
 if (!global.ZeresPluginLibrary) {
-    BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
+    BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.name ?? config.info.name} is missing. Please click Download Now to install it.`, {
         confirmText: "Download Now",
         cancelText: "Cancel",
         onConfirm: () => {
-            require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, response, body) => {
-                if (error) return require("electron").shell.openExternal("https://betterdiscord.app/Download?id=9");
-                await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
+            require("request").get("https://betterdiscord.app/gh-redirect?id=9", async (err, resp, body) => {
+                if (err) return require("electron").shell.openExternal("https://betterdiscord.app/Download?id=9");
+                if (resp.statusCode === 302) {
+                    require("request").get(resp.headers.location, async (error, response, content) => {
+                        if (error) return require("electron").shell.openExternal("https://betterdiscord.app/Download?id=9");
+                        await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), content, r));
+                    });
+                }
+                else {
+                    await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
+                }
             });
         }
     });
@@ -214,28 +221,21 @@ if (!global.ZeresPluginLibrary) {
  
 module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
      const plugin = (Plugin, Api) => {
-    const {Patcher, DiscordModules, WebpackModules, PluginUtilities, Toasts, DiscordClasses, Utilities, DOMTools, ColorConverter, DCM, Structs, ReactTools} = Api;
+    const {ContextMenu, DOM, Utils} = window.BdApi;
+    const {DiscordModules, WebpackModules, Toasts, DiscordClasses, Utilities, DOMTools, ColorConverter, Structs, ReactTools} = Api;
 
     const GuildStore = DiscordModules.GuildStore;
     const SelectedGuildStore = DiscordModules.SelectedGuildStore;
     const MemberStore = DiscordModules.GuildMemberStore;
     const UserStore = DiscordModules.UserStore;
-    const DiscordPerms = Object.assign({}, DiscordModules.DiscordConstants.Permissions);
+    const DiscordPerms = Object.assign({}, DiscordModules.DiscordPermissions);
     const AvatarDefaults = WebpackModules.getByProps("DEFAULT_AVATARS");
     const ModalClasses = WebpackModules.getByProps("root", "header", "small");
-    const MenuSeparator = WebpackModules.getByProps("MenuSeparator").MenuSeparator;
     const Strings = WebpackModules.getModule(m => m.Messages && m.Messages.COPY_ID).Messages;
     const UserPopoutClasses = Object.assign({}, WebpackModules.getByProps("userPopout"), WebpackModules.getByProps("rolesList"), WebpackModules.getByProps("eyebrow"));
     const UserPopoutSelectors = {};
     for (const key in UserPopoutClasses) UserPopoutSelectors[key] = new Structs.Selector(UserPopoutClasses[key]);
     const RoleClasses = Object.assign({}, DiscordClasses.PopoutRoles, WebpackModules.getByProps("rolesList"), WebpackModules.getByProps("roleName", "roleIcon"));
-    const escapeHTML = DOMTools.escapeHTML ? DOMTools.escapeHTML : function(html) {
-        const textNode = document.createTextNode("");
-        const spanElement = document.createElement("span");
-        spanElement.append(textNode);
-        textNode.nodeValue = html;
-        return spanElement.innerHTML;
-    };
 
     if (DiscordPerms.STREAM) {
         DiscordPerms.VIDEO = DiscordPerms.STREAM;
@@ -602,7 +602,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
     <ul class="member-perms \${root} \${rolesList} \${endBodySection}"></ul>
 </div>`;
             this.skinHTML = `<div class="section-3FmfOT" id="permissions-popout">
-    <h3 class="member-perms-header defaultColor-24IHKz eyebrow-Ejf06y defaultColor-HXu-5n title-1r9MQ6" data-text-variant="eyebrow">
+    <h2 class="member-perms-header defaultColor-24IHKz eyebrow-Ejf06y defaultColor-HXu-5n title-1r9MQ6" data-text-variant="eyebrow">
         <div class="member-perms-title">\${label}</div>
         <span class="perm-details">
             <svg name="Details" viewBox="0 0 24 24" class="perm-details-button" fill="currentColor">
@@ -610,8 +610,8 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                 <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
             </svg>
         </span>
-    </h3>
-    <div class="member-perms root-jbEB5E flex-3BkGQD wrap-7NZuTn roles-1waBHC"></div>
+    </h2>
+    <div class="member-perms root-jbEB5E flex-3BkGQD wrap-7NZuTn roles-3zC7MX"></div>
 </div>`;
             this.itemHTML = `<li class="member-perm \${role}">
         <div class="perm-circle \${roleCircle}"></div>
@@ -650,7 +650,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
         }
 
         onStart() {
-            PluginUtilities.addStyle(this.getName(), this.css);
+            DOM.addStyle(this.name, this.css);
 
             this.listHTML = Utilities.formatTString(this.listHTML, DiscordClasses.UserPopout);
             this.listHTML = Utilities.formatTString(this.listHTML, RoleClasses);
@@ -669,20 +669,20 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
         }
 
         onStop() {
-            PluginUtilities.removeStyle(this.getName());
+            DOM.removeStyle(this.name);
             this.promises.cancel();
             this.unbindPopouts();
             this.unbindContextMenus();
         }
 
         setDisplayMode(mode) {
-            if (mode === "cozy") PluginUtilities.addStyle(this.getName() + "-jumbo", this.jumbo);
-            else PluginUtilities.removeStyle(this.getName() + "-jumbo");
+            if (mode === "cozy") DOM.addStyle(this.name + "-jumbo", this.jumbo);
+            else DOM.removeStyle(this.name + "-jumbo");
         }
 
         patchPopouts(e) {
             const popoutMount = (props) => {
-                const popout = document.querySelector(`[class*="userPopout-"]`);
+                const popout = document.querySelector(`[class*="userPopout-"], [class*="userPopoutOuter-"]`);
                 if (!popout || popout.querySelector("#permissions-popout")) return;
                 const user = MemberStore.getMember(props.guildId, props.user.id);
                 const guild = GuildStore.getGuild(props.guildId);
@@ -694,7 +694,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                 userRoles.reverse();
                 let perms = 0n;
 
-                const isSkin = popout.id === "user-popout";
+                const isSkin = popout.className.includes("userPopoutOuter");
                 const permBlock = DOMTools.createElement(Utilities.formatTString(isSkin ? this.skinHTML : this.listHTML, {label: this.strings.popoutLabel}));
                 const memberPerms = permBlock.querySelector(".member-perms");
                 const strings = Strings;
@@ -723,9 +723,9 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                 permBlock.querySelector(".perm-details").addEventListener("click", () => {
                     this.showModal(this.createModalUser(name, user, guild));
                 });
-                let roleList = popout.querySelector(isSkin ? ".roles-1waBHC" : UserPopoutSelectors.rolesList);
+                let roleList = popout.querySelector(isSkin ? ".roles-3zC7MX" : UserPopoutSelectors.rolesList);
                 if (isSkin) roleList = roleList.parentElement;
-                roleList.parentNode.insertBefore(permBlock, roleList.nextSibling);
+                roleList?.parentNode?.insertBefore(permBlock, roleList.nextSibling);
                 
 
 
@@ -737,8 +737,8 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
             if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element)) return;
             // console.log(e)
             const element = e.addedNodes[0];
-            const popout = element.querySelector(`[class*="userPopout-"]`) ?? element;
-            if (!popout || !popout.matches(`[class*="userPopout-"]`)) return;
+            const popout = element.querySelector(`[class*="userPopout-"], [class*="userPopoutOuter-"]`) ?? element;
+            if (!popout || !popout.matches(`[class*="userPopout-"], [class*="userPopoutOuter-"]`)) return;
             const props = Utilities.findInTree(ReactTools.getReactInstance(popout), m => m && m.user, {walkable: ["return", "memoizedProps"]});
             popoutMount(props);
         }
@@ -761,83 +761,45 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
             for (const cancel of this.contextMenuPatches) cancel();
         }
 
-        async patchGuildContextMenu() {
-            const GuildContextMenu = await DCM.getDiscordMenu("useGuildMarkAsReadItem");
-            if (this.promises.state.cancelled) return;
-            this.contextMenuPatches.push(Patcher.after(GuildContextMenu, "default", (_, [guild], retVal) => {
-                const original = retVal;
-                const newOne = DCM.buildMenuItem({
+        patchGuildContextMenu() {
+            this.contextMenuPatches.push(ContextMenu.patch("guild-context", (retVal, props) => {
+                const newItem = ContextMenu.buildItem({
                     label: this.strings.contextMenuLabel,
                     action: () => {
-                        this.showModal(this.createModalGuild(guild.name, guild));
+                        this.showModal(this.createModalGuild(props.guild.name, props.guild));
                     }
                 });
-                if (Array.isArray(original)) {
-                    const separatorIndex = original.findIndex(k => !k?.props?.label);
-                    const insertIndex = separatorIndex > 0 ? separatorIndex + 1 : 1;
-                    original.splice(insertIndex, 0, newOne);
-                    return original;
-                }
-                return [original, DiscordModules.React.createElement(MenuSeparator), newOne];
+                retVal.props.children.splice(1, 0, newItem);
             }));
         }
 
-        async patchChannelContextMenu() {
-            const ChannelDeleteItem = await DCM.getDiscordMenu("useChannelMarkAsReadItem");
-            if (this.promises.state.cancelled) return;
-            const patch = (original, channel, guild) => {
-                const newOne = DCM.buildMenuItem({
+        patchChannelContextMenu() {
+            this.contextMenuPatches.push(ContextMenu.patch("channel-context", (retVal, props) => {
+                const newItem = ContextMenu.buildItem({
                     label: this.strings.contextMenuLabel,
                     action: () => {
-                        if (!Object.keys(channel.permissionOverwrites).length) return Toasts.info(`#${channel.name} has no permission overrides`);
-                        this.showModal(this.createModalChannel(channel.name, channel, guild));
+                        if (!Object.keys(props.channel.permissionOverwrites).length) return Toasts.info(`#${props.channel.name} has no permission overrides`);
+                        this.showModal(this.createModalChannel(props.channel.name, props.channel, props.guild));
                     }
                 });
-
-                if (Array.isArray(original)) {
-                    const separatorIndex = original.findIndex(k => !k?.props?.label);
-                    const insertIndex = separatorIndex > 0 ? separatorIndex + 1 : 1;
-                    original.splice(insertIndex, 0, newOne);
-                    return original;
-                }
-
-                return [
-                    original,
-                    DiscordModules.React.createElement(MenuSeparator),
-                    newOne,
-                ];
-            };
-
-            this.contextMenuPatches.push(Patcher.after(ChannelDeleteItem, "default", (_, [channel], ret) => {
-                const guild = GuildStore.getGuild(channel.guild_id);
-                return patch(ret, channel, guild);
+                retVal.props.children.splice(1, 0, newItem);
             }));
         }
 
-        async patchUserContextMenu() {
-            const UserContextMenu = await DCM.getDiscordMenu("useUserProfileItem");
-            if (this.promises.state.cancelled) return;
-
-            this.contextMenuPatches.push(Patcher.after(UserContextMenu, "default", (_, [userId, guildId], retVal) => {
-                const guild = GuildStore.getGuild(guildId);
+        patchUserContextMenu() {
+            this.contextMenuPatches.push(ContextMenu.patch("user-context", (retVal, props) => {
+                const guild = GuildStore.getGuild(props.guildId);
                 if (!guild) return;
 
-                const original = retVal;
-                const newOne = DCM.buildMenuItem({
+                const newItem = ContextMenu.buildItem({
                     label: this.strings.contextMenuLabel,
                     action: () => {
-                        const user = MemberStore.getMember(guildId, userId);
-                        const name = user.nick ? user.nick : UserStore.getUser(user.userId).username;
+                        const user = MemberStore.getMember(props.guildId, props.user.id);
+                        const name = user.nick ? user.nick : props.user.username;
                         this.showModal(this.createModalUser(name, user, guild));
                     }
                 });
-                if (Array.isArray(original)) {
-                    const separatorIndex = original.findIndex(k => !k?.props?.label);
-                    const insertIndex = separatorIndex > 0 ? separatorIndex + 1 : 1;
-                    original.splice(insertIndex, 0, newOne);
-                    return original;
-                }
-                return [original, newOne];
+                retVal?.props?.children[0]?.props?.children.splice(2, 0, newItem);
             }));
         }
 
@@ -861,7 +823,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
             userRoles.sort((a, b) => {return guildRoles[b].position - guildRoles[a].position;});
 
             if (user.userId == guild.ownerId) {
-                const ALL_PERMISSIONS = Object.values(DiscordModules.DiscordConstants.Permissions).reduce((all, p) => all | p);
+                const ALL_PERMISSIONS = Object.values(DiscordModules.DiscordPermissions).reduce((all, p) => all | p);
                 userRoles.push(user.userId);
                 guildRoles[user.userId] = {name: this.strings.modal.owner, permissions: ALL_PERMISSIONS};
             }
@@ -874,7 +836,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
 
         createModal(title, displayRoles, referenceRoles, isOverride = false) {
             if (!referenceRoles) referenceRoles = displayRoles;
-            const modal = DOMTools.createElement(Utilities.formatTString(Utilities.formatTString(this.modalHTML, this.strings.modal), {name: escapeHTML(title)}));
+            const modal = DOMTools.createElement(Utilities.formatTString(Utilities.formatTString(this.modalHTML, this.strings.modal), {name: Utils.escapeHTML(title)}));
             modal.querySelector(".callout-backdrop").addEventListener("click", () => {
                 modal.classList.add("closing");
                 setTimeout(() => {modal.remove();}, 300);
@@ -888,8 +850,8 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                 const item = DOMTools.createElement(!isOverride || displayRoles[role].type == 0 ? this.modalButton : Utilities.formatTString(this.modalButtonUser, {avatarUrl: user.getAvatarURL(null, 16, true)})); // getAvatarURL(guildId, size, canAnimate);
                 if (!isOverride || displayRoles[role].type == 0) item.style.color = referenceRoles[role].colorString;
                 else item.style.color = member.colorString;
-                if (isOverride) item.querySelector(".role-name").innerHTML = escapeHTML(displayRoles[role].type == 0 ? referenceRoles[role].name : user.username);
-                else item.querySelector(".role-name").innerHTML = escapeHTML(referenceRoles[role].name);
+                if (isOverride) item.querySelector(".role-name").innerHTML = Utils.escapeHTML(displayRoles[role].type == 0 ? referenceRoles[role].name : user.username);
+                else item.querySelector(".role-name").innerHTML = Utils.escapeHTML(referenceRoles[role].name);
                 modal.querySelector(".role-scroller").append(item);
                 item.addEventListener("click", () => {
                     modal.querySelectorAll(".role-item.selected").forEach(e => e.classList.remove("selected"));
@@ -917,7 +879,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                     }
                 });
                 item.addEventListener("contextmenu", (e) => {
-                    DCM.openContextMenu(e, DCM.buildMenu([
+                    ContextMenu.open(e, ContextMenu.buildMenu([
                         {label: Strings.COPY_ID ?? "Copy Id", action: () => {DiscordModules.ElectronModule.copy(role);}}
                     ]));
                 });
