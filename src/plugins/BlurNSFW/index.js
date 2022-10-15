@@ -114,18 +114,21 @@ module.exports = (Plugin, Api) => {
         }
 
         patchChannelContextMenu() {
-            this.contextMenuPatch = ContextMenu.patch("channel-context", (retVal, props) => {
-                const newItem = ContextMenu.buildItem({
-                    type: "toggle",
-                    label: "Blur Media",
-                    active: this.hasBlur(props.channel),
-                    action: () => {
-                        if (this.hasBlur(props.channel)) this.removeBlur(props.channel);
-                        else this.addBlur(props.channel);
-                    }
-                });
+            const toPatch = ["channel-context", "user-context", "gdm-context"]
+            toPatch.forEach(navId => {
+                this.contextMenuPatch = ContextMenu.patch(navId, (retVal, props) => {
+                    const newItem = ContextMenu.buildItem({
+                        type: "toggle",
+                        label: "Blur Media",
+                        active: this.hasBlur(props.channel),
+                        action: () => {
+                            if (this.hasBlur(props.channel)) this.removeBlur(props.channel);
+                            else this.addBlur(props.channel);
+                        }
+                    });
 
-                retVal.props.children.splice(1, 0, newItem);
+                    retVal.props.children.splice(1, 0, newItem);
+                });
             });
         }
 
