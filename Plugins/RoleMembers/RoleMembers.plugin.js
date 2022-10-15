@@ -1,7 +1,7 @@
 /**
  * @name RoleMembers
  * @description Allows you to see the members of each role on a server.
- * @version 0.1.17
+ * @version 0.1.19
  * @author Zerebos
  * @authorId 249746236008169473
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers
@@ -41,19 +41,18 @@ const config = {
                 twitter_username: "ZackRauen"
             }
         ],
-        version: "0.1.17",
+        version: "0.1.19",
         description: "Allows you to see the members of each role on a server.",
         github: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers",
         github_raw: "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"
     },
     changelog: [
         {
-            title: "Mostly Fixed",
+            title: "Fully Fixed!",
             type: "fixed",
             items: [
-                "Context menu item shows and works again.",
-                "Role mentions work again.",
-                "User popouts do not work!"
+                "User popouts work again!",
+                "Fixed an issue where odd usernames could break the list."
             ]
         }
     ],
@@ -88,8 +87,8 @@ if (!global.ZeresPluginLibrary) {
  
 module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
      const plugin = (Plugin, Api) => {
-    const {DOM, ContextMenu, Patcher, Webpack, UI} = window.BdApi;
-    const {DiscordModules, DiscordSelectors, Utilities} = Api;
+    const {DOM, ContextMenu, Patcher, Webpack, UI, Utils} = window.BdApi;
+    const {DiscordModules, DiscordSelectors, Utilities, Popouts} = Api;
 
     const from = arr => arr && arr.length > 0 && Object.assign(...arr.map(([k, v]) => ({[k]: v})));
     const filter = (obj, predicate) => from(Object.entries(obj).filter((o) => {return predicate(o[1]);}));
@@ -240,9 +239,10 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
             const scroller = popout.querySelector(".role-members");
             for (const member of members) {
                 const user = UserStore.getUser(member.userId);
-                const elem = DOM.parseHTML(Utilities.formatString(itemHTML, {username: user.username, discriminator: "#" + user.discriminator, avatar_url: ImageResolver.getUserAvatarURL(user)}));
+                const elem = DOM.parseHTML(Utilities.formatString(itemHTML, {username: Utils.escapeHTML(user.username), discriminator: "#" + user.discriminator, avatar_url: ImageResolver.getUserAvatarURL(user)}));
                 elem.addEventListener("click", () => {
-                    UI.showToast("User popouts are currently broken!", {type: "error"});
+                    // UI.showToast("User popouts are currently broken!", {type: "error"});
+                    setTimeout(() => Popouts.showUserPopout(elem, user, {guild: guildId}), 1);
                 });
                 scroller.append(elem);
             }

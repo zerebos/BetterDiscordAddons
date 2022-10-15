@@ -3,8 +3,8 @@
  * @param {import("zerespluginlibrary").BoundAPI} Api 
  */
 module.exports = (Plugin, Api) => {
-    const {DOM, ContextMenu, Patcher, Webpack, UI} = window.BdApi;
-    const {DiscordModules, DiscordSelectors, Utilities} = Api;
+    const {DOM, ContextMenu, Patcher, Webpack, UI, Utils} = window.BdApi;
+    const {DiscordModules, DiscordSelectors, Utilities, Popouts} = Api;
 
     const from = arr => arr && arr.length > 0 && Object.assign(...arr.map(([k, v]) => ({[k]: v})));
     const filter = (obj, predicate) => from(Object.entries(obj).filter((o) => {return predicate(o[1]);}));
@@ -121,9 +121,10 @@ module.exports = (Plugin, Api) => {
             const scroller = popout.querySelector(".role-members");
             for (const member of members) {
                 const user = UserStore.getUser(member.userId);
-                const elem = DOM.parseHTML(Utilities.formatString(itemHTML, {username: user.username, discriminator: "#" + user.discriminator, avatar_url: ImageResolver.getUserAvatarURL(user)}));
+                const elem = DOM.parseHTML(Utilities.formatString(itemHTML, {username: Utils.escapeHTML(user.username), discriminator: "#" + user.discriminator, avatar_url: ImageResolver.getUserAvatarURL(user)}));
                 elem.addEventListener("click", () => {
-                    UI.showToast("User popouts are currently broken!", {type: "error"});
+                    // UI.showToast("User popouts are currently broken!", {type: "error"});
+                    setTimeout(() => Popouts.showUserPopout(elem, user, {guild: guildId}), 1);
                 });
                 scroller.append(elem);
             }
