@@ -17,7 +17,8 @@
         "type": "fixed", 
         "items": [
             "Popouts and context menus should all work once again!",
-            "User popout will close after opening permissions modal"
+            "User popout will close after opening permissions modal",
+            "Better handling for long role names"
         ]
     }],
     "defaultConfig": [
