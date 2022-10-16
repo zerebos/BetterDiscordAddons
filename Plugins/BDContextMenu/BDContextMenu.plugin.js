@@ -1,10 +1,9 @@
 /**
  * @name BDContextMenu
  * @description Adds BD shortcuts to the settings context menu.
- * @version 0.1.12
+ * @version 0.1.13
  * @author Zerebos
  * @authorId 249746236008169473
- * @authorLink https://twitter.com/IAmZerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu
  * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js
  */
@@ -42,7 +41,7 @@ const config = {
                 twitter_username: "ZackRauen"
             }
         ],
-        version: "0.1.12",
+        version: "0.1.13",
         description: "Adds BD shortcuts to the settings context menu.",
         github: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu",
         github_raw: "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"
@@ -52,8 +51,7 @@ const config = {
             title: "Bugfixes",
             type: "fixed",
             items: [
-                "Context menu should show up again.",
-                "Clicking to go to each section works again!"
+                "Context menu should show up again."
             ]
         }
     ],
@@ -66,13 +64,21 @@ class Dummy {
 }
  
 if (!global.ZeresPluginLibrary) {
-    BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
+    BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.name ?? config.info.name} is missing. Please click Download Now to install it.`, {
         confirmText: "Download Now",
         cancelText: "Cancel",
         onConfirm: () => {
-            require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, response, body) => {
-                if (error) return require("electron").shell.openExternal("https://betterdiscord.app/Download?id=9");
-                await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
+            require("request").get("https://betterdiscord.app/gh-redirect?id=9", async (err, resp, body) => {
+                if (err) return require("electron").shell.openExternal("https://betterdiscord.app/Download?id=9");
+                if (resp.statusCode === 302) {
+                    require("request").get(resp.headers.location, async (error, response, content) => {
+                        if (error) return require("electron").shell.openExternal("https://betterdiscord.app/Download?id=9");
+                        await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), content, r));
+                    });
+                }
+                else {
+                    await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
+                }
             });
         }
     });
@@ -80,7 +86,8 @@ if (!global.ZeresPluginLibrary) {
  
 module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
      const plugin = (Plugin, Api) => {
-    const {Patcher, DiscordModules, DCM, PluginUtilities, WebpackModules} = Api;
+    const {ContextMenu, DOM, Webpack} = window.BdApi;
+    const UserSettingsWindow = Webpack.getModule(Webpack.Filters.byProps("open", "updateAccount"));
 
     const collections = window.BdApi.settings;
     const css = `#user-settings-cog-BetterDiscord--Settings + .layer-2aCOJ3 .submenu-1apzyU .scroller-1bVxF5 {
@@ -102,62 +109,26 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
     return class BDContextMenu extends Plugin {
 
         async onStart() {
-            this.contextMenuPatches = [];
-            this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
-            this.patchSettingsContextMenu(this.promises.state);
-            PluginUtilities.addStyle("BDCM", css);
+            this.patchSettingsContextMenu();
+            DOM.addStyle("BDCM", css);
         }
 
         onStop() {
-            this.promises.cancel();
-            PluginUtilities.removeStyle("BDCM");
-            Patcher.unpatchAll();
-            for (const cancel of this.contextMenuPatches) cancel();
+            DOM.removeStyle("BDCM");
+            this.contextMenuPatch?.();
         }
 
-        async findContextMenu(displayName) {
-            const normalFilter = (exports) => exports && exports.default && exports.default.displayName === displayName;
-            const nestedFilter = (module) => module.toString().includes(displayName);
-            {
-                const normalCache = WebpackModules.getModule(normalFilter);
-                if (normalCache) return {type: "normal", module: normalCache};
-            }
-            {
-                const webpackId = Object.keys(WebpackModules.require.m).find(id => nestedFilter(WebpackModules.require.m[id]));
-                const nestedCache = webpackId !== undefined && WebpackModules.getByIndex(webpackId);
-                if (nestedCache) return {type: "nested", module: nestedCache};
-            }
-            return new Promise((resolve) => {
-                const listener = (exports, module) => {
-                    const normal = normalFilter(exports);
-                    const nested = nestedFilter(module);
-                    if (!nested && !normal) return;
-                    resolve({type: normal ? "normal" : "nested", module: exports});
-                    WebpackModules.removeListener(listener);
-                };
-                WebpackModules.addListener(listener);
-                this.contextMenuPatches.push(() => {
-                    WebpackModules.removeListener(listener);
-                });
-            });
-        }
-
-        async patchSettingsContextMenu(promiseState) {
-            const self = this;
-            const SettingsContextMenu = await this.findContextMenu("UserSettingsCogContextMenu");
-            if (promiseState.cancelled) return;
-            Patcher.after(SettingsContextMenu.module, "default", (component, args, retVal) => {
-                const orig = retVal.props.children.type;
-                retVal.props.children.type = function() {
-                    const returnValue = Reflect.apply(orig, this, arguments);
-                    const items = collections.map(c => self.buildCollectionMenu(c));
-                    if (window.BdApi.isSettingEnabled("settings", "customcss", "customcss")) items.push({label: "Custom CSS", action: () => {self.openCategory("customcss");}});
-                    items.push(self.buildAddonMenu("Plugins", window.BdApi.Plugins));
-                    items.push(self.buildAddonMenu("Themes", window.BdApi.Themes));
-                    returnValue.props.children.props.children[0].push(DCM.buildMenuItem({type: "separator"}));
-                    returnValue.props.children.props.children[0].push(DCM.buildMenuItem({type: "submenu", label: "BetterDiscord", items: items}));
-                    return returnValue;
-                };
+        patchSettingsContextMenu() {
+            // console.log("GOING TO PATCH")
+            this.contextMenuPatch = ContextMenu.patch("user-settings-cog", (retVal) => {
+                // console.log("bdcm", retVal); // props.children.props.children[0]
+                const items = collections.map(c => this.buildCollectionMenu(c));
+                items.push({label: "Updates", action: () => {this.openCategory("updates");}});
+                if (window.BdApi.isSettingEnabled("settings", "customcss", "customcss")) items.push({label: "Custom CSS", action: () => {this.openCategory("customcss");}});
+                items.push(this.buildAddonMenu("Plugins", window.BdApi.Plugins));
+                items.push(this.buildAddonMenu("Themes", window.BdApi.Themes));
+                retVal.props.children.props.children[0].push(ContextMenu.buildItem({type: "separator"}));
+                retVal.props.children.props.children[0].push(ContextMenu.buildItem({type: "submenu", label: "BetterDiscord", items: items}));
             });
         }
 
@@ -175,6 +146,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                             return {
                                 type: "toggle",
                                 label: setting.name,
+                                disabled: setting.disabled,
                                 active: window.BdApi.isSettingEnabled(collection.id, category.id, setting.id),
                                 action: () => window.BdApi.toggleSetting(collection.id, category.id, setting.id)
                             };
@@ -194,6 +166,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                     return {
                         type: "toggle",
                         label: addon,
+                        disabled: manager.get(addon)?.partial ?? false,
                         active: manager.isEnabled(addon),
                         action: () => {manager.toggle(addon);}
                     };
@@ -202,8 +175,8 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
         }
 
         async openCategory(id) {
-            DiscordModules.ContextMenuActions.closeContextMenu();
-            DiscordModules.UserSettingsWindow.open(id);
+            ContextMenu.close();
+            UserSettingsWindow?.open?.(id);
         }
     };
 };
