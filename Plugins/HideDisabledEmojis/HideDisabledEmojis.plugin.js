@@ -1,7 +1,7 @@
 /**
  * @name HideDisabledEmojis
  * @description Hides disabled emojis from the emoji picker.
- * @version 0.0.9
+ * @version 0.0.8
  * @author Zerebos
  * @authorId 249746236008169473
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideDisabledEmojis
@@ -41,7 +41,7 @@ const config = {
                 twitter_username: "ZackRauen"
             }
         ],
-        version: "0.0.9",
+        version: "0.0.8",
         description: "Hides disabled emojis from the emoji picker.",
         github: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideDisabledEmojis",
         github_raw: "https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/HideDisabledEmojis/HideDisabledEmojis.plugin.js"
@@ -85,33 +85,40 @@ if (!global.ZeresPluginLibrary) {
 }
  
 module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
-    const {Patcher, WebpackModules, Utilities} = Api;
+     const plugin = (Plugin, Api) => {
+    const {Patcher, DiscordModules, WebpackModules, Utilities} = Api;
     const PickerWrapMemo = WebpackModules.getModule(m => m?.type?.render?.toString().includes(".emojiSize"));
     return class HideDisabledEmojis extends Plugin {
-        async onStart() { 
+        async onStart() {            
+            Patcher.after(DiscordModules.EmojiInfo, "isEmojiFiltered", (thisObject, methodArguments, returnValue) => {
+                return returnValue || DiscordModules.EmojiInfo.isEmojiDisabled(methodArguments[0], methodArguments[1]);
+            });  
             Patcher.after(PickerWrapMemo.type, "render", (_, args, res) => {
-              const pickerChild = Utilities.findInTree(res, m => m?.props?.emojiGrid, {walkable: ["props", "children"]});
-                Patcher.before(pickerChild.type, "type", (_, [props]) => {
-                  props.emojiGrid = props.emojiGrid.map(m => m.filter(m => !m.isDisabled)).filter(m => m.length);
-                  props.rowCount = props.emojiGrid.length;
-                  if (!props.sectionDescriptors) return;
-                  const mappedEmojiCount = {};
-                  props.emojiGrid.flat(10).forEach(item => {
-                    item?.category?.toLowerCase() == "recent" ||  item?.category?.toLowerCase() == "unicode" ? mappedEmojiCount[item.category] = (mappedEmojiCount[item.category] || 0) + 1 : mappedEmojiCount[item?.emoji?.guildId] = (mappedEmojiCount[item?.emoji?.guildId] || 0) + 1 ;
-                  });                  
-                  props.sectionDescriptors = props.sectionDescriptors.map(m => {
-                    if (m?.type?.toLowerCase() == "unicode") return m;
-                    m.count =  mappedEmojiCount[m.type] ? mappedEmojiCount[m.type] :  mappedEmojiCount[m.guild.id]
-                    return m;
-                  }).filter(m => m.count);
-                 props.rowCountBySection =  props.sectionDescriptors.map(m => Math.ceil(m.count / 9));                  
-              });               
-            });
-        }        
+                const pickerChild = Utilities.findInTree(res, m => m?.props?.emojiGrid, {walkable: ["props", "children"]});
+                  Patcher.before(pickerChild.type, "type", (_, [props]) => {
+                    props.emojiGrid = props.emojiGrid.map(m => m.filter(m => !m.isDisabled)).filter(m => m.length);
+                    props.rowCount = props.emojiGrid.length;
+                    if (!props.sectionDescriptors) return;
+                    const mappedEmojiCount = {};
+                    props.emojiGrid.flat(10).forEach(item => {
+                      item?.category?.toLowerCase() == "recent" ||  item?.category?.toLowerCase() == "unicode" ? mappedEmojiCount[item.category] = (mappedEmojiCount[item.category] || 0) + 1 : mappedEmojiCount[item?.emoji?.guildId] = (mappedEmojiCount[item?.emoji?.guildId] || 0) + 1 ;
+                    });                  
+                    props.sectionDescriptors = props.sectionDescriptors.map(m => {
+                      if (m?.type?.toLowerCase() == "unicode") return m;
+                      m.count =  mappedEmojiCount[m.type] ? mappedEmojiCount[m.type] :  mappedEmojiCount[m.guild.id]
+                      return m;
+                    }).filter(m => m.count);
+                   props.rowCountBySection =  props.sectionDescriptors.map(m => Math.ceil(m.count / 9));                  
+                });               
+              });
+        }
+        
         onStop() {
             Patcher.unpatchAll();
         }
+
     };
+};
      return plugin(Plugin, Api);
 })(global.ZeresPluginLibrary.buildPlugin(config));
 /*@end@*/
