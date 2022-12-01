@@ -108,7 +108,7 @@ class Dummy {
 }
  
 if (!global.ZeresPluginLibrary) {
-    BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.name ?? config.info.name} is missing. Please click Download Now to install it.`, {
+    BdApi.UI.showConfirmationModal("Library Missing", `The library plugin needed for ${config.name ?? config.info.name} is missing. Please click Download Now to install it.`, {
         confirmText: "Download Now",
         cancelText: "Cancel",
         onConfirm: () => {
@@ -203,8 +203,6 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
 
             this.addStyle();
 
-            SelectedChannelStore.addChangeListener(this.channelChange);
-
             this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
             this.patchChannelContextMenu();
         }
@@ -214,11 +212,10 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
             BdApi.saveData(this.meta.name, "seen", this.seenChannels);
             this.contextMenuPatch?.();
             this.removeStyle();
-            SelectedChannelStore.removeChangeListener(this.channelChange);
         }
 
         hasBlur(channel) {
-            return this.blurredChannels.has(channel.id);
+            return (this.blurredChannels.has(channel.id) || (this.settings.blurNSFW && channel.nsfw);
         }
 
         addBlur(channel) {
@@ -229,15 +226,6 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
         removeBlur(channel) {
             this.blurredChannels.delete(channel.id);
             Dispatcher.emit("blur");
-        }
-
-        channelChange() {
-            Dispatcher?.removeAllListeners();
-            const channel = ChannelStore.getChannel(SelectedChannelStore.getChannelId());
-            if (this.seenChannels.has(channel.id)) return;
-
-            this.seenChannels.add(channel.id);
-            if (this.settings.blurNSFW && channel.nsfw) this.addBlur(channel);
         }
 
         patchChannelContextMenu() {
