@@ -130,7 +130,7 @@ if (!global.ZeresPluginLibrary) {
  
 module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
      const plugin = (Plugin, Api) => {
-    const {ContextMenu, DOM, Webpack, Patcher} = window.BdApi;
+    const {UI, ContextMenu, DOM, Webpack, Patcher} = window.BdApi;
 
     const SelectedChannelStore = Webpack.getModule(m => m.getCurrentlySelectedChannelId);
     const ChannelStore = Webpack.getModule(m => m.getDMFromUserId);
@@ -203,6 +203,8 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
 
             this.addStyle();
 
+            SelectedChannelStore.addChangeListener(this.channelChange);
+
             this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
             this.patchChannelContextMenu();
         }
@@ -212,10 +214,11 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
             BdApi.saveData(this.meta.name, "seen", this.seenChannels);
             this.contextMenuPatch?.();
             this.removeStyle();
+            SelectedChannelStore.removeChangeListener(this.channelChange);
         }
 
         hasBlur(channel) {
-            return (this.blurredChannels.has(channel.id) || (this.settings.blurNSFW && channel.nsfw);
+            return this.blurredChannels.has(channel.id) || (this.settings.blurNSFW && channel.nsfw);
         }
 
         addBlur(channel) {
@@ -226,6 +229,15 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
         removeBlur(channel) {
             this.blurredChannels.delete(channel.id);
             Dispatcher.emit("blur");
+        }
+
+        channelChange() {
+            Dispatcher?.removeAllListeners();
+            const channel = ChannelStore.getChannel(SelectedChannelStore.getChannelId());
+            if (this.seenChannels.has(channel.id)) return;
+
+            this.seenChannels.add(channel.id);
+            if (channel.nsfw) this.addBlur(channel);
         }
 
         patchChannelContextMenu() {
