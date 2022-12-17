@@ -1,9 +1,8 @@
 /**
  * @name BlurNSFW
  * @description Blurs images and videos until you hover over them.
- * @version 1.0.1
+ * @version 1.0.2
  * @author Zerebos
- * @authorId 249746236008169473
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BlurNSFW
  * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BlurNSFW/BlurNSFW.plugin.js
  */
@@ -31,35 +30,18 @@
 
 @else@*/
 const config = {
-    info: {
-        name: "BlurNSFW",
-        authors: [
-            {
-                name: "Zerebos",
-                discord_id: "249746236008169473",
-                github_username: "rauenzi",
-                twitter_username: "ZackRauen"
-            }
-        ],
-        version: "1.0.1",
-        description: "Blurs images and videos until you hover over them.",
-        github: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BlurNSFW",
-        github_raw: "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BlurNSFW/BlurNSFW.plugin.js"
-    },
+    name: "BlurNSFW",
+    author: "Zerebos",
+    version: "1.0.2",
+    description: "Blurs images and videos until you hover over them.",
+    website: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BlurNSFW",
+    source: "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BlurNSFW/BlurNSFW.plugin.js",
     changelog: [
         {
             title: "What's New?",
             type: "fixed",
             items: [
-                "Context menu and blurring should work again!",
-                "Blurring and unblurring happen quicker and using less resources now!"
-            ]
-        },
-        {
-            title: "Known Issues",
-            items: [
-                "The checkbox in the context menu won't update after clicking.",
-                "This is just a visual issue, the functionality is fine."
+                "Can join voice channels without causing loading issues!"
             ]
         }
     ],
@@ -232,7 +214,6 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
         }
 
         channelChange() {
-            Dispatcher?.removeAllListeners();
             const channel = ChannelStore.getChannel(SelectedChannelStore.getChannelId());
             if (this.seenChannels.has(channel.id)) return;
 

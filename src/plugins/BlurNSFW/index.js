@@ -105,7 +105,6 @@ module.exports = (Plugin, Api) => {
         }
 
         channelChange() {
-            Dispatcher?.removeAllListeners();
             const channel = ChannelStore.getChannel(SelectedChannelStore.getChannelId());
             if (this.seenChannels.has(channel.id)) return;
 
