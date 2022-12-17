@@ -3,6 +3,7 @@
  * @description Blurs images and videos until you hover over them.
  * @version 1.0.2
  * @author Zerebos
+ * @authorId 249746236008169473
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BlurNSFW
  * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BlurNSFW/BlurNSFW.plugin.js
  */
@@ -30,12 +31,21 @@
 
 @else@*/
 const config = {
-    name: "BlurNSFW",
-    author: "Zerebos",
-    version: "1.0.2",
-    description: "Blurs images and videos until you hover over them.",
-    website: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BlurNSFW",
-    source: "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BlurNSFW/BlurNSFW.plugin.js",
+    info: {
+        name: "BlurNSFW",
+        authors: [
+            {
+                name: "Zerebos",
+                discord_id: "249746236008169473",
+                github_username: "rauenzi",
+                twitter_username: "ZackRauen"
+            }
+        ],
+        version: "1.0.2",
+        description: "Blurs images and videos until you hover over them.",
+        github: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BlurNSFW",
+        github_raw: "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BlurNSFW/BlurNSFW.plugin.js"
+    },
     changelog: [
         {
             title: "What's New?",
