@@ -139,6 +139,8 @@ module.exports = (Plugin, Api) => {
             const popout = element.querySelector(`[class*="userPopout-"], [class*="userPopoutOuter-"]`) ?? element;
             if (!popout || !popout.matches(`[class*="userPopout-"], [class*="userPopoutOuter-"]`)) return;
             const props = Utilities.findInTree(ReactTools.getReactInstance(popout), m => m && m.user, {walkable: ["return", "memoizedProps"]});
+            if(!props.closePopout)
+                props.closePopout = Utilities.findInTree(ReactTools.getReactInstance(popout), m => m && m.closePopout, {walkable: ["return", "memoizedProps"]}).closePopout
             popoutMount(props);
         }
 
