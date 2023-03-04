@@ -102,7 +102,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                 if (wasFiltered) props.emojiGrid.filtered = true; // Reassign
             };
 
-            const PickerWrapMemo = WebpackModules.getModule(m => m?.type?.render.toString().includes("emoji"));
+            const PickerWrapMemo = WebpackModules.getModule(m => m?.type?.render.toString().includes("disableEmojiTutorialFlow"));
             Patcher.after(PickerWrapMemo.type, "render", (_, __, ret) => {
                 const pickerChild = Utilities.findInTree(ret, m => m?.props?.emojiGrid, {walkable: ["props", "children"]});
                 if (!pickerChild?.type?.type) return;
