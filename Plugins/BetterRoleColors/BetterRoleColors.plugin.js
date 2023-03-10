@@ -1,7 +1,7 @@
 /**
  * @name BetterRoleColors
  * @description Adds server-based role colors to typing, voice, popouts, modals and more!
- * @version 0.9.1
+ * @version 0.9.2
  * @author Zerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors
  * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js
@@ -32,7 +32,7 @@
 const config = {
     name: "BetterRoleColors",
     author: "Zerebos",
-    version: "0.9.1",
+    version: "0.9.2",
     description: "Adds server-based role colors to typing, voice, popouts, modals and more!",
     github: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors",
     github_raw: "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js",
@@ -41,7 +41,7 @@ const config = {
             title: "Bug Fixes",
             type: "fixed",
             items: [
-                "Fixed every feature of the plugin!"
+                "Fixed Mentions not being colored after hover with certain other Plugins"
             ]
         }
     ],
@@ -395,7 +395,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
 
         colorMentions(element) {
             if (!this.settings.modules.mentions) return;
-            element = element.querySelectorAll(".mention");
+            element = element?.className?.includes && element?.className.includes("mention") ? [element] : element.querySelectorAll(".mention");
             if (!element?.length) return;
             for (const mention of element) {
                 if (mention.className.includes("role") || mention.className.includes("command")) continue;
