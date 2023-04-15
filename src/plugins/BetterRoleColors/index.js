@@ -179,6 +179,7 @@ module.exports = (Plugin, Api) => {
 
         colorMentions(element) {
             if (!this.settings.modules.mentions) return;
+            if (element.matches(".mention")) element = [element];
             element = element.querySelectorAll(".mention");
             if (!element?.length) return;
             for (const mention of element) {
@@ -207,7 +208,7 @@ module.exports = (Plugin, Api) => {
                 const member = this.getMember(props.message.author.id, channel.guild_id);
                 const refFunc = (element) => {
                     if (!element) return;
-                    element.style.setProperty("color", member.colorString || "", "important");
+                    element.style.setProperty("color", member?.colorString || "", "important");
                 };
                 returnValue.props.style = {color: member?.colorString || ""};
                 if (this.settings.global.saturation) returnValue.props["data-accessibility"] = "desaturate"; // Add to desaturation list for Discord

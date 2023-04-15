@@ -1,7 +1,7 @@
 /**
  * @name BetterRoleColors
  * @description Adds server-based role colors to typing, voice, popouts, modals and more!
- * @version 0.10.0
+ * @version 0.10.1
  * @author Zerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors
  * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js
@@ -32,7 +32,7 @@
 const config = {
     name: "BetterRoleColors",
     author: "Zerebos",
-    version: "0.10.0",
+    version: "0.10.1",
     description: "Adds server-based role colors to typing, voice, popouts, modals and more!",
     github: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors",
     github_raw: "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js",
@@ -52,7 +52,9 @@ const config = {
                 "Fixed a bug where disabling modal coloring would disable popout coloring.",
                 "Fixed a bug where a member list disconnection could cause voice connection issues.",
                 "Fixed the issue with member list headers being non-colored when scrolling.",
-                "Fixed an issue with the observer not firing properly."
+                "Fixed an issue with the observer not firing properly.",
+                "Fixed a compatibility issue with other plugins. (Thanks DevilBro)",
+                "Fixed a crashing issue with the color chat option."
             ]
         }
     ],
@@ -445,6 +447,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
 
         colorMentions(element) {
             if (!this.settings.modules.mentions) return;
+            if (element.matches(".mention")) element = [element];
             element = element.querySelectorAll(".mention");
             if (!element?.length) return;
             for (const mention of element) {
@@ -473,7 +476,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                 const member = this.getMember(props.message.author.id, channel.guild_id);
                 const refFunc = (element) => {
                     if (!element) return;
-                    element.style.setProperty("color", member.colorString || "", "important");
+                    element.style.setProperty("color", member?.colorString || "", "important");
                 };
                 returnValue.props.style = {color: member?.colorString || ""};
                 if (this.settings.global.saturation) returnValue.props["data-accessibility"] = "desaturate"; // Add to desaturation list for Discord
