@@ -1,7 +1,7 @@
 /**
  * @name BetterRoleColors
  * @description Adds server-based role colors to typing, voice, popouts, modals and more!
- * @version 0.9.1
+ * @version 0.10.0
  * @author Zerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors
  * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js
@@ -32,16 +32,27 @@
 const config = {
     name: "BetterRoleColors",
     author: "Zerebos",
-    version: "0.9.1",
+    version: "0.10.0",
     description: "Adds server-based role colors to typing, voice, popouts, modals and more!",
     github: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors",
     github_raw: "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js",
     changelog: [
         {
+            title: "What's New?",
+            type: "added",
+            items: [
+                "New option to adhere to your saturation accessibility setting!",
+                "The `important` option now affects more locations in the plugin."
+            ]
+        },
+        {
             title: "Bug Fixes",
             type: "fixed",
             items: [
-                "Fixed every feature of the plugin!"
+                "Fixed a bug where disabling modal coloring would disable popout coloring.",
+                "Fixed a bug where a member list disconnection could cause voice connection issues.",
+                "Fixed the issue with member list headers being non-colored when scrolling.",
+                "Fixed an issue with the observer not firing properly."
             ]
         }
     ],
@@ -339,7 +350,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
             Patcher.after(VoiceUser.prototype, "renderName", (thisObject, _, returnValue) => {
                 if (!this.settings.modules.voice) return;
                 if (!returnValue || !returnValue.props) return;
-                const member = this.getMember(thisObject.props.user.id);
+                const member = this.getMember(thisObject?.props?.user?.id);
                 if (!member || !member.colorString) return;
                 if (this.settings.global.saturation) returnValue.props["data-accessibility"] = "desaturate"; // Add to desaturation list for Discord
                 returnValue.props.style = {color: member.colorString, backfaceVisibility: "hidden"};
