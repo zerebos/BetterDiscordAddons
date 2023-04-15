@@ -33,7 +33,7 @@ module.exports = (Plugin, Api) => {
         }
 
         patchRoleMention() {
-            const Pill = Webpack.getModule(m => m?.toString().includes("iconMentionText"), {defaultExport: false});
+            const Pill = Webpack.getModule(Webpack.Filters.byStrings("interactive", "iconType"), {defaultExport: false});
             Patcher.before(this.name, Pill, "Z", (_, [props]) => {
                 if (!props?.className.toLowerCase().includes("rolemention")) return;
                 props.className += ` interactive`;
