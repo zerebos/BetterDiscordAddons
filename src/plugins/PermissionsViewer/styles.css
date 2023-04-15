@@ -180,7 +180,6 @@
     flex: 0 0 auto;
     overflow: hidden;
     display: flex;
-    height: 100%;
     min-height: 1px;
     position: relative;
 }
@@ -215,7 +214,6 @@
     background-color: #36393f;
     flex: 0 0 auto;
     display: flex;
-    height: 100%;
     min-height: 1px;
     position: relative;
     padding-left: 10px;
