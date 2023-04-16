@@ -1,7 +1,7 @@
 /**
  * @name HideDisabledEmojis
  * @description Hides disabled emojis from the emoji picker.
- * @version 0.0.8
+ * @version 0.0.9
  * @author Zerebos
  * @authorId 249746236008169473
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideDisabledEmojis
@@ -41,7 +41,7 @@ const config = {
                 twitter_username: "ZackRauen"
             }
         ],
-        version: "0.0.8",
+        version: "0.0.9",
         description: "Hides disabled emojis from the emoji picker.",
         github: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideDisabledEmojis",
         github_raw: "https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/HideDisabledEmojis/HideDisabledEmojis.plugin.js"
@@ -51,7 +51,9 @@ const config = {
             title: "Bugs Squashed",
             type: "fixed",
             items: [
-                "Updated for Discord's changes."
+                "Hides emojis in normal picker once again!",
+                "Hides emojis in the status emoji picker.",
+                "Hides extra unrelated buttons in status emoji picker."
             ]
         }
     ],
@@ -93,6 +95,40 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                 return returnValue || DiscordModules.EmojiInfo.isEmojiDisabled(methodArguments[0], methodArguments[1]);
             });
 
+            // BdApi.Webpack.Filters.byStrings("topEmojis", "getDisambiguatedEmojiContext")
+            let key = "";
+            const categoryMemo = WebpackModules.getModule(m => {
+                if (typeof(m) !== "object") return false;
+                const keys = Object.keys(m);
+                if (!keys.length) return false;
+                for (let k = 0; k < keys.length; k++) {
+                    const val = m[keys[k]];
+                    if (typeof(val?.toString) !== "function") continue;
+                    const first = val.toString().includes("topEmojis");
+                    const second = val.toString().includes("getDisambiguatedEmojiContext");
+                    if (first && second) {
+                        key = keys[k];
+                        return true;
+                    }
+                }
+                return false;
+            });
+
+            if (key && categoryMemo) {
+                Patcher.before(categoryMemo, key, (_, args) => {
+                    // arg 0 = picker intention
+                    // arg 1 = channel object
+                    // arg 2 = guild id
+                    // Create a fake channel object with a null guild id
+                    // This fake object forces the categories to check isEmojiFiltered
+                    if (args[1] == null) {
+                        args[1] = {
+                            getGuildId: () => null
+                        };
+                    }
+                });
+            }
+
             const doFiltering = props => {
                 props.rowCountBySection = props.rowCountBySection.filter((c, i) => c || props.collapsedSections.has(props.sectionDescriptors[i].sectionId));
                 props.sectionDescriptors = props.sectionDescriptors.filter(s => s.count || props.collapsedSections.has(s.sectionId));
@@ -102,10 +138,11 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                 if (wasFiltered) props.emojiGrid.filtered = true; // Reassign
             };
 
-            const PickerWrapMemo = WebpackModules.getModule(m => m?.type?.render.toString().includes("emoji"));
-            Patcher.after(PickerWrapMemo.type, "render", (_, __, ret) => {
+            const PickerWrapMemo = WebpackModules.getModule(m => m?.type?.render?.toString?.()?.includes("EMOJI_PICKER_POPOUT"));
+            Patcher.after(PickerWrapMemo.type, "render", (_, [inputProps], ret) => {
                 const pickerChild = Utilities.findInTree(ret, m => m?.props?.emojiGrid, {walkable: ["props", "children"]});
                 if (!pickerChild?.type?.type) return;
+                ret.props.children.props.page = "DM Channel";
                 if (pickerChild.type.type.__patched) return;
                 Patcher.before(pickerChild.type, "type", (_, [props]) => {
                     if (!props.rowCountBySection) return;
@@ -119,7 +156,8 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                         let countLeft = 0;
                         let rowsLeft = 0;
                         for (let r = row; r <= rowEnd; r++) {
-                            props.emojiGrid[r] = props.emojiGrid[r].filter(e => !e.isDisabled);
+                            // If it's not disabled or if it's the upload button in status picker
+                            props.emojiGrid[r] = props.emojiGrid[r].filter(e => !e.isDisabled && (e.type !== 1 || inputProps?.pickerIntention !== 1));
                             const remaining = props.emojiGrid[r].length;
                             if (remaining) {
                                 rowsLeft = rowsLeft + 1;

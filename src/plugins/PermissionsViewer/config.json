@@ -7,13 +7,14 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.2.6",
+        "version": "0.2.8",
         "description": "Allows you to view a user's permissions. Thanks to Noodlebox for the idea!",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/PermissionsViewer/PermissionsViewer.plugin.js"
     },
     "changelog": [
-        {"title": "Fixes", "type": "fixed", "items": ["Popouts and context menus should all work once again!"]}
+        {"title": "What's New?", "type": "added", "items": ["You can now press `Escape` to close the permissions modal."]},
+        {"title": "Fixes", "type": "fixed", "items": ["Permissions should show in popouts again!", "Scrolling now works again for both sides of the permissions modal.","Popouts from voice users now use the correct permissions!"]}
     ],
     "defaultConfig": [
         {
@@ -44,7 +45,7 @@
             "contextMenuLabel": "Permisos",
             "popoutLabel": "Permisos",
             "modal": {
-                "header": "Permisos de ${name}",
+                "header": "Permisos de {{name}}",
                 "rolesLabel": "Roles",
                 "permissionsLabel": "Permisos",
                 "owner": "@propietario"
@@ -64,7 +65,7 @@
             "contextMenuLabel": "Permissões",
             "popoutLabel": "Permissões",
             "modal": {
-                "header": "Permissões de ${name}",
+                "header": "Permissões de {{name}}",
                 "rolesLabel": "Cargos",
                 "permissionsLabel": "Permissões",
                 "owner": "@dono"
@@ -84,7 +85,7 @@
             "contextMenuLabel": "Berechtigungen",
             "popoutLabel": "Berechtigungen",
             "modal": {
-                "header": "${name}s Berechtigungen",
+                "header": "{{name}}s Berechtigungen",
                 "rolesLabel": "Rollen",
                 "permissionsLabel": "Berechtigungen",
                 "owner": "@eigentümer"
@@ -104,7 +105,7 @@
             "contextMenuLabel": "Permissions",
             "popoutLabel": "Permissions",
             "modal": {
-                "header": "${name}'s Permissions",
+                "header": "{{name}}'s Permissions",
                 "rolesLabel": "Roles",
                 "permissionsLabel": "Permissions",
                 "owner": "@owner"
@@ -127,7 +128,7 @@
             "contextMenuLabel": "Полномочия",
             "popoutLabel": "Полномочия",
             "modal": {
-                "header": "Полномочия ${name}",
+                "header": "Полномочия {{name}}",
                 "rolesLabel": "Роли",
                 "permissionsLabel": "Полномочия",
                 "owner":"Владелец"

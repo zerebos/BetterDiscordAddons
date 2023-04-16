@@ -1,15 +1,30 @@
 {
     "name": "BetterRoleColors",
     "author": "Zerebos",
-    "version": "0.9.1",
+    "version": "0.10.1",
     "description": "Adds server-based role colors to typing, voice, popouts, modals and more!",
     "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors",
     "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js",
     "changelog": [
         {
-            "title":"Bug Fixes",
-            "type":"fixed",
-            "items":["Fixed every feature of the plugin!"]
+            "title": "What's New?",
+            "type": "added",
+            "items": [
+                "New option to adhere to your saturation accessibility setting!",
+                "The `important` option now affects more locations in the plugin."
+            ]
+        },
+        {
+            "title": "Bug Fixes",
+            "type": "fixed",
+            "items": [
+                "Fixed a bug where disabling modal coloring would disable popout coloring.",
+                "Fixed a bug where a member list disconnection could cause voice connection issues.",
+                "Fixed the issue with member list headers being non-colored when scrolling.",
+                "Fixed an issue with the observer not firing properly.",
+                "Fixed a compatibility issue with other plugins. (Thanks DevilBro)",
+                "Fixed a crashing issue with the color chat option."
+            ]
         }
     ],
     "defaultConfig": [
@@ -26,6 +41,13 @@
                     "name": "Use Important",
                     "note": "Add !important to role colors. (Only enable this if the plugin isn't working with your theme).",
                     "value": false
+                },
+                {
+                    "type": "switch",
+                    "id": "saturation",
+                    "name": "Use Saturation",
+                    "note": "Abide by the saturation level set in Discord's accessibility settings.",
+                    "value": true
                 }
             ]
         },

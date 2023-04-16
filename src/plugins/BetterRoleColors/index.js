@@ -62,8 +62,14 @@ module.exports = (Plugin, Api) => {
                 if (!member || !member.colorString) member = {colorString: ""};
                 const doImportant = this.settings.global.important ? "important" : undefined;
 
-                username.style.setProperty("color", this.settings.account.username && !reset ? member.colorString : "", doImportant);
-                discrim.style.setProperty("color", this.settings.account.discriminator && !reset ? member.colorString : "", doImportant);
+                const doColorUsername = this.settings.account.username && !reset ? member.colorString : "";
+                const doColorDiscrim = this.settings.account.discriminator && !reset ? member.colorString : "";
+                username.style.setProperty("color", doColorUsername, doImportant);
+                discrim.style.setProperty("color", doColorDiscrim, doImportant);
+                if (this.settings.global.saturation) {
+                    if (doColorUsername) username.dataset.accessibility = "desaturate"; // Add to desaturation list for Discord
+                    if (doColorUsername) discrim.dataset.accessibility = "desaturate"; // Add to desaturation list for Discord
+                }
             };
 
             this.onSwitch = colorizeAccountDetails;
@@ -78,8 +84,9 @@ module.exports = (Plugin, Api) => {
             Patcher.after(VoiceUser.prototype, "renderName", (thisObject, _, returnValue) => {
                 if (!this.settings.modules.voice) return;
                 if (!returnValue || !returnValue.props) return;
-                const member = this.getMember(thisObject.props.user.id);
+                const member = this.getMember(thisObject?.props?.user?.id);
                 if (!member || !member.colorString) return;
+                if (this.settings.global.saturation) returnValue.props["data-accessibility"] = "desaturate"; // Add to desaturation list for Discord
                 returnValue.props.style = {color: member.colorString, backfaceVisibility: "hidden"};
                 if (!this.settings.global.important) return;
                 returnValue.ref = (element) => {
@@ -101,7 +108,9 @@ module.exports = (Plugin, Api) => {
 
         colorHeaders(element) {
             if (!this.settings.modules.memberList) return;
-            element = element.querySelectorAll(`[class*="membersGroup-"]`);
+            if (element.matches(`[class*="membersGroup-"]`)) element = [element];
+            else element = element.querySelectorAll(`[class*="membersGroup-"]`);
+            
             if (!element?.length) return;
             for (const header of element) {
                 const instance = ReactUtils.getInternalInstance(header);
@@ -113,12 +122,15 @@ module.exports = (Plugin, Api) => {
                 const role = guild.roles[props.id];
                 if (!role?.colorString) continue;
 
-                header.style.color = role.colorString;
+                header.style.setProperty("color", role.colorString, this.settings.global.important ? "important" : "");
+                if (this.settings.global.saturation) header.dataset.accessibility = "desaturate"; // Add to desaturation list for Discord
             }
         }
 
         colorNameTags(element) {
-            if (!this.settings.modals.username && !this.settings.modals.discriminator) return;
+            const doColorModals = this.settings.modals.username || this.settings.modals.discriminator;
+            const doColorPopouts = this.settings.popouts.username || this.settings.popouts.discriminator || this.settings.popouts.nickname;
+            if (!doColorModals && !doColorPopouts) return;
 
             const nameTag = element.querySelector(`[class*="profile"] [class*="nameTag-"]`);
             if (!nameTag) return;
@@ -129,24 +141,45 @@ module.exports = (Plugin, Api) => {
             const member = this.getMember(props.user?.id);
             if (!member?.colorString) return;
 
+            const important = this.settings.global.important ? "important" : "";
             const isPopout = "usernameIcon" in props;
             if (!isPopout) {
-                if (this.settings.modals.username) nameTag.querySelector(`.${props?.usernameClass?.split(" ")[0]}`).style.color = member.colorString;
-                if (this.settings.modals.discriminator) nameTag.querySelector(`.${props?.discriminatorClass?.split(" ")[0]}`).style.color = member.colorString;
+                if (this.settings.modals.username) {
+                    const username = nameTag.querySelector(`.${props?.usernameClass?.split(" ")[0]}`);
+                    username.style.setProperty("color", member.colorString, important);
+                    if (this.settings.global.saturation) username.dataset.accessibility = "desaturate"; // Add to desaturation list for Discord
+                }
+                if (this.settings.modals.discriminator) {
+                    const discrim = nameTag.querySelector(`.${props?.discriminatorClass?.split(" ")[0]}`);
+                    discrim.style.setProperty("color", member.colorString, important);
+                    if (this.settings.global.saturation) discrim.dataset.accessibility = "desaturate"; // Add to desaturation list for Discord
+                }
             }
             else {
                 const hasNickname = props?.className.toLowerCase().includes("withnickname") && nameTag.previousElementSibling;
                 const shouldColorUsername = this.settings.popouts.username || (!hasNickname && this.settings.popouts.fallback);
                 const shouldColorDiscriminator = this.settings.popouts.discriminator;
                 const shouldColorNickname = this.settings.popouts.nickname && hasNickname;
-                if (shouldColorNickname) nameTag.previousElementSibling.style.color = member.colorString;
-                if (shouldColorUsername) nameTag.querySelector(`.${props?.usernameClass?.split(" ")[0]}`).style.color = member.colorString;
-                if (shouldColorDiscriminator) nameTag.querySelector(`.${props?.discriminatorClass?.split(" ")[0]}`).style.color = member.colorString;
+                if (shouldColorNickname) {
+                    nameTag.previousElementSibling.style.setProperty("color", member.colorString, important);
+                    if (this.settings.global.saturation) nameTag.previousElementSibling.dataset.accessibility = "desaturate"; // Add to desaturation list for Discord
+                }
+                if (shouldColorUsername) {
+                    const username = nameTag.querySelector(`.${props?.usernameClass?.split(" ")[0]}`);
+                    username.style.setProperty("color", member.colorString, important);
+                    if (this.settings.global.saturation) username.dataset.accessibility = "desaturate"; // Add to desaturation list for Discord
+                }
+                if (shouldColorDiscriminator) {
+                    const discrim = nameTag.querySelector(`.${props?.discriminatorClass?.split(" ")[0]}`);
+                    discrim.style.setProperty("color", member.colorString, important);
+                    if (this.settings.global.saturation) discrim.dataset.accessibility = "desaturate"; // Add to desaturation list for Discord
+                }
             }
         }
 
         colorMentions(element) {
             if (!this.settings.modules.mentions) return;
+            if (element.matches(".mention")) element = [element];
             element = element.querySelectorAll(".mention");
             if (!element?.length) return;
             for (const mention of element) {
@@ -157,10 +190,12 @@ module.exports = (Plugin, Api) => {
                 if (!props) continue;
                 const member = GuildMemberStore.getMember(SelectedGuildStore.getGuildId(), props.userId ?? props.id);
                 if (!member?.colorString) continue;
-                mention.style.color = member.colorString;
-                mention.style.backgroundColor = `rgb(${ColorConverter.getRGB(member.colorString).join(", ")}, 0.1)`;
-                mention.addEventListener("mouseenter", () => mention.style.backgroundColor = `rgb(${ColorConverter.getRGB(member.colorString).join(", ")}, 0.3)`);
-                mention.addEventListener("mouseleave", () => mention.style.backgroundColor = `rgb(${ColorConverter.getRGB(member.colorString).join(", ")}, 0.1)`);
+                const important = this.settings.global.important ? "important" : "";
+                if (this.settings.global.saturation) mention.dataset.accessibility = "desaturate"; // Add to desaturation list for Discord
+                mention.style.setProperty("color", member.colorString, important);
+                mention.style.setProperty("background-color", `rgb(${ColorConverter.getRGB(member.colorString).join(", ")}, 0.1)`, important);
+                mention.addEventListener("mouseenter", () => mention.style.setProperty("background-color", `rgb(${ColorConverter.getRGB(member.colorString).join(", ")}, 0.3)`, important));
+                mention.addEventListener("mouseleave", () => mention.style.setProperty("background-color", `rgb(${ColorConverter.getRGB(member.colorString).join(", ")}, 0.1)`, important));
             }
         }
 
@@ -171,7 +206,13 @@ module.exports = (Plugin, Api) => {
                 const channel = DiscordModules.ChannelStore.getChannel(props.message.channel_id);
                 if (!channel || !channel.guild_id) return;
                 const member = this.getMember(props.message.author.id, channel.guild_id);
+                const refFunc = (element) => {
+                    if (!element) return;
+                    element.style.setProperty("color", member?.colorString || "", "important");
+                };
                 returnValue.props.style = {color: member?.colorString || ""};
+                if (this.settings.global.saturation) returnValue.props["data-accessibility"] = "desaturate"; // Add to desaturation list for Discord
+                if (this.settings.global.important) returnValue.ref = refFunc;
             });
         }
 
@@ -191,12 +232,14 @@ module.exports = (Plugin, Api) => {
                 };
 
                 if (username && this.settings.auditLog.username) {
+                    if (this.settings.global.saturation) username.props["data-accessibility"] = "desaturate"; // Add to desaturation list for Discord
                     username.props.style = {color: member.colorString};
-                    if (this.settings.global.important) username.ref = refFunc;
+                    if (this.settings.global.important) username.props.ref = refFunc;
                 }
                 if (discriminator && this.settings.auditLog.discriminator) {
+                    if (this.settings.global.saturation) discriminator.props["data-accessibility"] = "desaturate"; // Add to desaturation list for Discord
                     discriminator.props.style = {color: member.colorString};
-                    if (this.settings.global.important) discriminator.ref = refFunc;
+                    if (this.settings.global.important) discriminator.props.ref = refFunc;
                 }
             });
             UserHook.forceUpdateAll();
@@ -228,6 +271,7 @@ module.exports = (Plugin, Api) => {
 
                     const username = Utilities.getNestedProp(returnValue, `props.children.0.props.children.1.props.children.${m * 2}`);
                     if (!username || !username.props) return;
+                    if (this.settings.global.saturation) username.props["data-accessibility"] = "desaturate"; // Add to desaturation list for Discord
                     username.props.style = {color: member.colorString};
                     if (!this.settings.global.important) continue;
                     username.ref = (element) => {

@@ -1,7 +1,7 @@
 /**
  * @name RoleMembers
  * @description Allows you to see the members of each role on a server.
- * @version 0.1.19
+ * @version 0.1.20
  * @author Zerebos
  * @authorId 249746236008169473
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers
@@ -41,7 +41,7 @@ const config = {
                 twitter_username: "ZackRauen"
             }
         ],
-        version: "0.1.19",
+        version: "0.1.20",
         description: "Allows you to see the members of each role on a server.",
         github: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers",
         github_raw: "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"
@@ -51,8 +51,8 @@ const config = {
             title: "Fully Fixed!",
             type: "fixed",
             items: [
-                "User popouts work again!",
-                "Fixed an issue where odd usernames could break the list."
+                "Context menu popouts work once more!",
+                "Role mentions are now clickable again!"
             ]
         }
     ],
@@ -99,9 +99,9 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
     const UserStore = DiscordModules.UserStore;
     const ImageResolver = DiscordModules.ImageResolver;
 
-    const popoutHTML = `<div class="layer-2aCOJ3" style="z-index: 100">
-<div class="animatorBottom-L63-7D translate-PeW1wK didRender-2SiRlm popout-role-members" style="margin-top: 0;">
-    <div class="container-2O1UgZ role-members-popout">
+    const popoutHTML = `<div class="theme-dark layer-2BGhQ8" style="z-index: 100">
+<div class="animatorBottom-1jjd1i translate-2vghI- didRender-2dwLEv popout-role-members" style="margin-top: 0;">
+    <div class="container-2kTWmC selectFilterPopout-1eHbO2 elevationBorderHigh-3drnJX role-members-popout">
         <div class="container-2oNtJn medium-2NClDM">
             <div class="inner-2pOSmK"><input class="input-2m5SfJ" placeholder="Search Members — {{memberCount}}" value="">
                 <div tabindex="0" class="iconLayout-3Bjizv medium-2NClDM" role="button">
@@ -112,26 +112,26 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
             </div>
         </div>
         <div>
-            <div class="list-3cyRKU none-2-_0dP scrollerBase-_bVAAt role-members" dir="ltr" style="overflow: hidden scroll; padding-right: 0px; max-height: 400px;">
+            <div class="list-1B0XtU list-24H0V9 none-1rXy4P scrollerBase-1Pkza4 role-members" dir="ltr" style="overflow: hidden scroll; padding-right: 0px; max-height: 400px;">
                 
             </div>
         </div>
     </div>
 </div>
 </div>`;
-    const itemHTML = `<div class="item-1BCeuB role-member">
-    <div class="itemCheckbox-2G8-Td">
-        <div class="avatar-1XUb0A wrapper-1VLyxH" role="img" aria-hidden="false" style="width: 32px; height: 32px;">
-            <svg width="40" height="32" viewBox="0 0 40 32" class="mask-1FEkla svg-2azL_l" aria-hidden="true">
+    const itemHTML = `<div class="item-1Mjtru role-member">
+    <div class="itemCheckbox-1w3Hcp">
+        <div class="wrapper-3Un6-K avatar-1XUb0A" role="img" aria-hidden="false" style="width: 32px; height: 32px;">
+            <svg width="40" height="32" viewBox="0 0 40 32" class="mask-1y0tyc svg-1G_H_8" aria-hidden="true">
                 <foreignObject x="0" y="0" width="32" height="32" mask="url(#svg-mask-avatar-default)">
-                        <div class="avatarStack-3vfSFa">
-                            <img src="{{avatar_url}}" alt=" " class="avatar-b5OQ1N" aria-hidden="true">
+                        <div class="avatarStack-3Bjmsl">
+                            <img src="{{avatar_url}}" alt=" " class="avatar-31d8He" aria-hidden="true">
                         </div>
                 </foreignObject>
             </svg>
         </div>
     </div>
-    <div class="itemLabel-27pirQ">
+    <div class="itemLabel-3P3d08">
         <span class="username">{{username}}</span><span class="discriminator-2jnrqC">{{discriminator}}</span>
     </div>
 </div>`;
@@ -151,7 +151,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
         }
 
         patchRoleMention() {
-            const Pill = Webpack.getModule(m => m?.toString().includes("iconMentionText"), {defaultExport: false});
+            const Pill = Webpack.getModule(Webpack.Filters.byStrings("interactive", "iconType"), {defaultExport: false});
             Patcher.before(this.name, Pill, "Z", (_, [props]) => {
                 if (!props?.className.toLowerCase().includes("rolemention")) return;
                 props.className += ` interactive`;

@@ -4,7 +4,7 @@
  */
 module.exports = (Plugin, Api) => {
     const {ContextMenu, DOM, Utils} = window.BdApi;
-    const {DiscordModules, WebpackModules, Toasts, DiscordClasses, Utilities, DOMTools, ColorConverter, Structs, ReactTools} = Api;
+    const {DiscordModules, WebpackModules, Toasts, DiscordClasses, Utilities, DOMTools, ColorConverter, ReactTools} = Api;
 
     const GuildStore = DiscordModules.GuildStore;
     const SelectedGuildStore = DiscordModules.SelectedGuildStore;
@@ -14,10 +14,8 @@ module.exports = (Plugin, Api) => {
     const AvatarDefaults = WebpackModules.getByProps("DEFAULT_AVATARS");
     const ModalClasses = WebpackModules.getByProps("root", "header", "small");
     const Strings = WebpackModules.getModule(m => m.Messages && m.Messages.COPY_ID).Messages;
-    const UserPopoutClasses = Object.assign({}, WebpackModules.getByProps("userPopout"), WebpackModules.getByProps("rolesList"), WebpackModules.getByProps("eyebrow"));
-    const UserPopoutSelectors = {};
-    for (const key in UserPopoutClasses) UserPopoutSelectors[key] = new Structs.Selector(UserPopoutClasses[key]);
-    const RoleClasses = Object.assign({}, DiscordClasses.PopoutRoles, WebpackModules.getByProps("rolesList"), WebpackModules.getByProps("roleName", "roleIcon"));
+    const UserPopoutClasses = Object.assign({}, WebpackModules.getByProps("userPopoutOuter"), WebpackModules.getByProps("rolePill"), WebpackModules.getByProps("eyebrow"));
+    const RoleClasses = Object.assign({}, DiscordClasses.PopoutRoles, WebpackModules.getByProps("rolePill"), WebpackModules.getByProps("roleName", "roleIcon"));
 
     if (DiscordPerms.STREAM) {
         DiscordPerms.VIDEO = DiscordPerms.STREAM;
@@ -33,8 +31,7 @@ module.exports = (Plugin, Api) => {
             super();
             this.css = require("styles.css");
             this.jumbo = require("jumbo.css");
-            this.listHTML = require("list.html");
-            this.skinHTML = require("listnew.html");
+            this.sectionHTML = require("list.html");
             this.itemHTML = require("item.html");
             this.modalHTML = require("modal.html");
             this.modalItem = require("modalitem.html");
@@ -50,15 +47,12 @@ module.exports = (Plugin, Api) => {
         onStart() {
             DOM.addStyle(this.name, this.css);
 
-            this.listHTML = Utilities.formatTString(this.listHTML, DiscordClasses.UserPopout);
-            this.listHTML = Utilities.formatTString(this.listHTML, RoleClasses);
-            this.listHTML = Utilities.formatTString(this.listHTML, UserPopoutClasses);
-            this.skinHTML = Utilities.formatTString(this.skinHTML, DiscordClasses.UserPopout);
-            this.skinHTML = Utilities.formatTString(this.skinHTML, RoleClasses);
-            this.skinHTML = Utilities.formatTString(this.skinHTML, UserPopoutClasses);
-            this.itemHTML = Utilities.formatTString(this.itemHTML, RoleClasses);
-            this.modalHTML = Utilities.formatTString(this.modalHTML, DiscordClasses.Backdrop);
-            this.modalHTML = Utilities.formatTString(this.modalHTML, {root: ModalClasses.root, small: ModalClasses.small});
+            this.sectionHTML = Utilities.formatString(this.sectionHTML, DiscordClasses.UserPopout);
+            this.sectionHTML = Utilities.formatString(this.sectionHTML, RoleClasses);
+            this.sectionHTML = Utilities.formatString(this.sectionHTML, UserPopoutClasses);
+            this.itemHTML = Utilities.formatString(this.itemHTML, RoleClasses);
+            this.modalHTML = Utilities.formatString(this.modalHTML, DiscordClasses.Backdrop);
+            this.modalHTML = Utilities.formatString(this.modalHTML, {root: ModalClasses.root, small: ModalClasses.small});
 
             this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
             if (this.settings.popouts) this.bindPopouts();
@@ -91,9 +85,7 @@ module.exports = (Plugin, Api) => {
                 userRoles.push(guild.id);
                 userRoles.reverse();
                 let perms = 0n;
-
-                const isSkin = popout.className.includes("userPopoutOuter");
-                const permBlock = DOMTools.createElement(Utilities.formatTString(isSkin ? this.skinHTML : this.listHTML, {label: this.strings.popoutLabel}));
+                const permBlock = DOMTools.createElement(Utilities.formatString(this.sectionHTML, {label: this.strings.popoutLabel}));
                 const memberPerms = permBlock.querySelector(".member-perms");
                 const strings = Strings;
 
@@ -106,7 +98,7 @@ module.exports = (Plugin, Api) => {
                         const hasPerm = (perms & DiscordPerms[perm]) == DiscordPerms[perm];
                         if (hasPerm && !memberPerms.querySelector(`[data-name="${permName}"]`)) {
                             const element = DOMTools.createElement(this.itemHTML);
-                            if (isSkin) element.classList.add("rolePill-2Lo5dd");
+                            element.classList.add(RoleClasses.rolePill);
                             let roleColor = guild.roles[role].colorString;
                             element.querySelector(".name").textContent = permName;
                             element.setAttribute("data-name", permName);
@@ -121,8 +113,8 @@ module.exports = (Plugin, Api) => {
                 permBlock.querySelector(".perm-details").addEventListener("click", () => {
                     this.showModal(this.createModalUser(name, user, guild));
                 });
-                let roleList = popout.querySelector(isSkin ? ".roles-3zC7MX" : UserPopoutSelectors.rolesList);
-                if (isSkin) roleList = roleList.parentElement;
+                let roleList = popout.querySelector(`[class*="roles-"]`);
+                roleList = roleList?.parentElement;
                 roleList?.parentNode?.insertBefore(permBlock, roleList.nextSibling);
                 
 
@@ -137,7 +129,7 @@ module.exports = (Plugin, Api) => {
             const element = e.addedNodes[0];
             const popout = element.querySelector(`[class*="userPopout-"], [class*="userPopoutOuter-"]`) ?? element;
             if (!popout || !popout.matches(`[class*="userPopout-"], [class*="userPopoutOuter-"]`)) return;
-            const props = Utilities.findInTree(ReactTools.getReactInstance(popout), m => m && m.user, {walkable: ["return", "memoizedProps"]});
+            const props = Utilities.findInTree(ReactTools.getReactInstance(popout), m => m && m.user, {walkable: ["memoizedProps", "return"]});
             popoutMount(props);
         }
 
@@ -202,11 +194,19 @@ module.exports = (Plugin, Api) => {
         }
 
         showModal(modal) {
-            const popout = document.querySelector(UserPopoutSelectors.userPopout);
+            const popout = document.querySelector(`[class*="userPopoutOuter-"]`);
             if (popout) popout.style.display = "none";
             const app = document.querySelector(".app-19_DXt");
             if (app) app.append(modal);
             else document.querySelector("#app-mount").append(modal);
+
+            const closeModal = (event) => {
+                if (!event.key === "Escape") return;
+                modal.classList.add("closing");
+                setTimeout(() => {modal.remove();}, 300);
+            };
+            document.addEventListener("keydown", closeModal, true);
+            DOMTools.onRemoved(modal, () => document.removeEventListener("keydown", closeModal, true));
         }
 
         createModalChannel(name, channel, guild) {
@@ -234,18 +234,19 @@ module.exports = (Plugin, Api) => {
 
         createModal(title, displayRoles, referenceRoles, isOverride = false) {
             if (!referenceRoles) referenceRoles = displayRoles;
-            const modal = DOMTools.createElement(Utilities.formatTString(Utilities.formatTString(this.modalHTML, this.strings.modal), {name: Utils.escapeHTML(title)}));
-            modal.querySelector(".callout-backdrop").addEventListener("click", () => {
+            const modal = DOMTools.createElement(Utilities.formatString(Utilities.formatString(this.modalHTML, this.strings.modal), {name: Utils.escapeHTML(title)}));
+            const closeModal = () => {
                 modal.classList.add("closing");
                 setTimeout(() => {modal.remove();}, 300);
-            });
+            };
+            modal.querySelector(".callout-backdrop").addEventListener("click", closeModal);
 
             const strings = Strings || {};
             for (const r in displayRoles) {
                 const role = Array.isArray(displayRoles) ? displayRoles[r] : r;
                 const user = UserStore.getUser(role) || {getAvatarURL: () => AvatarDefaults.DEFAULT_AVATARS[Math.floor(Math.random() * AvatarDefaults.DEFAULT_AVATARS.length)], username: role};
                 const member = MemberStore.getMember(SelectedGuildStore.getGuildId(), role) || {colorString: ""};
-                const item = DOMTools.createElement(!isOverride || displayRoles[role].type == 0 ? this.modalButton : Utilities.formatTString(this.modalButtonUser, {avatarUrl: user.getAvatarURL(null, 16, true)})); // getAvatarURL(guildId, size, canAnimate);
+                const item = DOMTools.createElement(!isOverride || displayRoles[role].type == 0 ? this.modalButton : Utilities.formatString(this.modalButtonUser, {avatarUrl: user.getAvatarURL(null, 16, true)})); // getAvatarURL(guildId, size, canAnimate);
                 if (!isOverride || displayRoles[role].type == 0) item.style.color = referenceRoles[role].colorString;
                 else item.style.color = member.colorString;
                 if (isOverride) item.querySelector(".role-name").innerHTML = Utils.escapeHTML(displayRoles[role].type == 0 ? referenceRoles[role].name : user.username);
