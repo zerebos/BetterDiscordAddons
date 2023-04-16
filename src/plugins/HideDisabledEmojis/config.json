@@ -7,13 +7,21 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.0.8",
+        "version": "0.0.9",
         "description": "Hides disabled emojis from the emoji picker.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideDisabledEmojis",
         "github_raw": "https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/HideDisabledEmojis/HideDisabledEmojis.plugin.js"
     },
     "changelog": [
-        {"title": "Bugs Squashed", "type": "fixed", "items": ["Updated for Discord's changes."]}
+        {
+            "title": "Bugs Squashed",
+            "type": "fixed",
+            "items": [
+                "Hides emojis in normal picker once again!",
+                "Hides emojis in the status emoji picker.",
+                "Hides extra unrelated buttons in status emoji picker."
+            ]
+        }
     ],
     "main": "index.js"
 }
