@@ -97,18 +97,21 @@ module.exports = (Plugin, Api) => {
         addBlur(channel) {
             this.blurredChannels.add(channel.id);
             Dispatcher.emit("blur");
+            BdApi.saveData(this.meta.name, "blurred", this.blurredChannels);
         }
 
         removeBlur(channel) {
             this.blurredChannels.delete(channel.id);
             Dispatcher.emit("blur");
+            BdApi.saveData(this.meta.name, "blurred", this.blurredChannels);
         }
 
         channelChange() {
             const channel = ChannelStore.getChannel(SelectedChannelStore.getChannelId());
-            if (this.seenChannels.has(channel.id)) return;
+            if (!channel?.id || this.seenChannels.has(channel.id)) return;
 
             this.seenChannels.add(channel.id);
+            BdApi.saveData(this.meta.name, "seen", this.seenChannels);
             if (this.settings.blurNSFW && channel.nsfw) this.addBlur(channel);
         }
 

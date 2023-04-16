@@ -1,7 +1,7 @@
 /**
  * @name BlurNSFW
  * @description Blurs images and videos until you hover over them.
- * @version 1.0.2
+ * @version 1.0.3
  * @author Zerebos
  * @authorId 249746236008169473
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BlurNSFW
@@ -41,7 +41,7 @@ const config = {
                 twitter_username: "ZackRauen"
             }
         ],
-        version: "1.0.2",
+        version: "1.0.3",
         description: "Blurs images and videos until you hover over them.",
         github: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BlurNSFW",
         github_raw: "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BlurNSFW/BlurNSFW.plugin.js"
@@ -51,7 +51,8 @@ const config = {
             title: "What's New?",
             type: "fixed",
             items: [
-                "Can join voice channels without causing loading issues!"
+                "Account switching no longer causes crashes.",
+                "Blur/unblur status should be remembered better between reloads."
             ]
         }
     ],
@@ -216,18 +217,21 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
         addBlur(channel) {
             this.blurredChannels.add(channel.id);
             Dispatcher.emit("blur");
+            BdApi.saveData(this.meta.name, "blurred", this.blurredChannels);
         }
 
         removeBlur(channel) {
             this.blurredChannels.delete(channel.id);
             Dispatcher.emit("blur");
+            BdApi.saveData(this.meta.name, "blurred", this.blurredChannels);
         }
 
         channelChange() {
             const channel = ChannelStore.getChannel(SelectedChannelStore.getChannelId());
-            if (this.seenChannels.has(channel.id)) return;
+            if (!channel?.id || this.seenChannels.has(channel.id)) return;
 
             this.seenChannels.add(channel.id);
+            BdApi.saveData(this.meta.name, "seen", this.seenChannels);
             if (this.settings.blurNSFW && channel.nsfw) this.addBlur(channel);
         }
 
