@@ -207,7 +207,9 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
         onStop() {
             BdApi.saveData(this.meta.name, "blurred", this.blurredChannels);
             BdApi.saveData(this.meta.name, "seen", this.seenChannels);
-            this.contextMenuPatch?.();
+            this.contextMenuPatch1?.();
+            this.contextMenuPatch2?.();
+            this.contextMenuPatch3?.();
             this.removeStyle();
             SelectedChannelStore.removeChangeListener(this.channelChange);
         }
@@ -238,7 +240,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
         }
 
         patchUserContextMenu() {
-            this.contextMenuPatch = ContextMenu.patch("user-context", (retVal, props) => {
+            this.contextMenuPatch1 = ContextMenu.patch("user-context", (retVal, props) => {
                 const newItem = ContextMenu.buildItem({
                     type: "toggle",
                     label: "Blur Media",
@@ -254,7 +256,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
         }
 
         patchChannelContextMenu() {
-            this.contextMenuPatch = ContextMenu.patch("channel-context", (retVal, props) => {
+            this.contextMenuPatch2 = ContextMenu.patch("channel-context", (retVal, props) => {
                 const newItem = ContextMenu.buildItem({
                     type: "toggle",
                     label: "Blur Media",
@@ -270,7 +272,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
         }
 
         patchGroupContextMenu() {
-            this.contextMenuPatch = ContextMenu.patch("gdm-context", (retVal, props) => {
+            this.contextMenuPatch3 = ContextMenu.patch("gdm-context", (retVal, props) => {
                 const newItem = ContextMenu.buildItem({
                     type: "toggle",
                     label: "Blur Media",
