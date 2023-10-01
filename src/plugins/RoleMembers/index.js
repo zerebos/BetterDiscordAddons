@@ -121,7 +121,8 @@ module.exports = (Plugin, Api) => {
             const scroller = popout.querySelector(".role-members");
             for (const member of members) {
                 const user = UserStore.getUser(member.userId);
-                const elem = DOM.parseHTML(Utilities.formatString(itemHTML, {username: Utils.escapeHTML(user.username), discriminator: "#" + user.discriminator, avatar_url: ImageResolver.getUserAvatarURL(user)}));
+                const discriminator = user.discriminator != 0 ? "#" + user.discriminator : "";
+                const elem = DOM.parseHTML(Utilities.formatString(itemHTML, {username: Utils.escapeHTML(user.username), discriminator, avatar_url: ImageResolver.getUserAvatarURL(user)}));
                 elem.addEventListener("click", () => {
                     // UI.showToast("User popouts are currently broken!", {type: "error"});
                     setTimeout(() => Popouts.showUserPopout(elem, user, {guild: guildId}), 1);
