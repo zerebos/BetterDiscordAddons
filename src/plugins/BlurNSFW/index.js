@@ -79,15 +79,17 @@ module.exports = (Plugin, Api) => {
             SelectedChannelStore.addChangeListener(this.channelChange);
 
             this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
-            this.patchChannelContextMenu();
+            this.contextMenuPatches = [
+                this.patchContextMenu("user-context"),
+                this.patchContextMenu("channel-context"),
+                this.patchContextMenu("gdm-context")
+            ];
         }
         
         onStop() {
             BdApi.saveData(this.meta.name, "blurred", this.blurredChannels);
             BdApi.saveData(this.meta.name, "seen", this.seenChannels);
-            this.contextMenuPatch1?.();
-            this.contextMenuPatch2?.();
-            this.contextMenuPatch3?.();
+            this.contextMenuPatches.forEach(cancel => cancel());
             this.removeStyle();
             SelectedChannelStore.removeChangeListener(this.channelChange);
         }

@@ -200,16 +200,12 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
 
             this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
             this.patchChannelContextMenu();
-            this.patchUserContextMenu();
-            this.patchGroupContextMenu();
         }
         
         onStop() {
             BdApi.saveData(this.meta.name, "blurred", this.blurredChannels);
             BdApi.saveData(this.meta.name, "seen", this.seenChannels);
-            this.contextMenuPatch1?.();
-            this.contextMenuPatch2?.();
-            this.contextMenuPatch3?.();
+            this.contextMenuPatch?.();
             this.removeStyle();
             SelectedChannelStore.removeChangeListener(this.channelChange);
         }
@@ -239,40 +235,8 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
             if (this.settings.blurNSFW && channel.nsfw) this.addBlur(channel);
         }
 
-        patchUserContextMenu() {
-            this.contextMenuPatch1 = ContextMenu.patch("user-context", (retVal, props) => {
-                const newItem = ContextMenu.buildItem({
-                    type: "toggle",
-                    label: "Blur Media",
-                    active: this.hasBlur(props.channel),
-                    action: () => {
-                        if (this.hasBlur(props.channel)) this.removeBlur(props.channel);
-                        else this.addBlur(props.channel);
-                    }
-                });
-
-                retVal.props.children.splice(1, 0, newItem);
-            });
-        }
-
         patchChannelContextMenu() {
-            this.contextMenuPatch2 = ContextMenu.patch("channel-context", (retVal, props) => {
-                const newItem = ContextMenu.buildItem({
-                    type: "toggle",
-                    label: "Blur Media",
-                    active: this.hasBlur(props.channel),
-                    action: () => {
-                        if (this.hasBlur(props.channel)) this.removeBlur(props.channel);
-                        else this.addBlur(props.channel);
-                    }
-                });
-
-                retVal.props.children.splice(1, 0, newItem);
-            });
-        }
-
-        patchGroupContextMenu() {
-            this.contextMenuPatch3 = ContextMenu.patch("gdm-context", (retVal, props) => {
+            this.contextMenuPatch = ContextMenu.patch("channel-context", (retVal, props) => {
                 const newItem = ContextMenu.buildItem({
                     type: "toggle",
                     label: "Blur Media",
