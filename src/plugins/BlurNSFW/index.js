@@ -3,7 +3,7 @@
  * @param {import("zerespluginlibrary").BoundAPI} Api 
  */
 module.exports = (Plugin, Api) => {
-    const {ContextMenu, DOM, Webpack, Patcher} = window.BdApi;
+    const { ContextMenu, DOM, Webpack, Patcher } = window.BdApi;
 
     const SelectedChannelStore = Webpack.getModule(m => m.getCurrentlySelectedChannelId);
     const ChannelStore = Webpack.getModule(m => m.getDMFromUserId);
@@ -16,7 +16,7 @@ module.exports = (Plugin, Api) => {
         for (const val in values) {
             let replacement = values[val];
             if (Array.isArray(replacement)) replacement = JSON.stringify(replacement);
-            if (typeof(replacement) === "object" && replacement !== null) replacement = replacement.toString();
+            if (typeof (replacement) === "object" && replacement !== null) replacement = replacement.toString();
             string = string.replace(new RegExp(`{{${val}}}`, "g"), replacement);
         }
         return string;
@@ -44,6 +44,7 @@ module.exports = (Plugin, Api) => {
                 transition: {{time}}ms cubic-bezier(.2, .11, 0, 1) !important;
             }`;
 
+            this.contextPatches = [];
             this.channelChange = this.channelChange.bind(this);
         }
 
@@ -78,18 +79,14 @@ module.exports = (Plugin, Api) => {
 
             SelectedChannelStore.addChangeListener(this.channelChange);
 
-            this.promises = {state: {cancelled: false}, cancel() {this.state.cancelled = true;}};
-            this.contextMenuPatches = [
-                this.patchContextMenu("user-context"),
-                this.patchContextMenu("channel-context"),
-                this.patchContextMenu("gdm-context")
-            ];
+            this.promises = { state: { cancelled: false }, cancel() { this.state.cancelled = true; } };
+            this.patchContextMenus();
         }
-        
+
         onStop() {
             BdApi.saveData(this.meta.name, "blurred", this.blurredChannels);
             BdApi.saveData(this.meta.name, "seen", this.seenChannels);
-            this.contextMenuPatches.forEach(cancel => cancel());
+            this.contextPatches.forEach(cancel => cancel());
             this.removeStyle();
             SelectedChannelStore.removeChangeListener(this.channelChange);
         }
@@ -119,8 +116,8 @@ module.exports = (Plugin, Api) => {
             if (this.settings.blurNSFW && channel.nsfw) this.addBlur(channel);
         }
 
-        patchUserContextMenu() {
-            this.contextMenuPatch1 = ContextMenu.patch("user-context", (retVal, props) => {
+        patchContextMenus() {
+            const patchFunction = (retVal, props) => {
                 const newItem = ContextMenu.buildItem({
                     type: "toggle",
                     label: "Blur Media",
@@ -132,38 +129,10 @@ module.exports = (Plugin, Api) => {
                 });
 
                 retVal.props.children.splice(1, 0, newItem);
-            });
-        }
+            };
 
-        patchChannelContextMenu() {
-            this.contextMenuPatch2 = ContextMenu.patch("channel-context", (retVal, props) => {
-                const newItem = ContextMenu.buildItem({
-                    type: "toggle",
-                    label: "Blur Media",
-                    active: this.hasBlur(props.channel),
-                    action: () => {
-                        if (this.hasBlur(props.channel)) this.removeBlur(props.channel);
-                        else this.addBlur(props.channel);
-                    }
-                });
-
-                retVal.props.children.splice(1, 0, newItem);
-            });
-        }
-
-        patchGroupContextMenu() {
-            this.contextMenuPatch3 = ContextMenu.patch("gdm-context", (retVal, props) => {
-                const newItem = ContextMenu.buildItem({
-                    type: "toggle",
-                    label: "Blur Media",
-                    active: this.hasBlur(props.channel),
-                    action: () => {
-                        if (this.hasBlur(props.channel)) this.removeBlur(props.channel);
-                        else this.addBlur(props.channel);
-                    }
-                });
-
-                retVal.props.children.splice(1, 0, newItem);
+            ["user-context", "channel-context", "gdm-context"].forEach(contextName => {
+                this.contextPatches.push(ContextMenu.patch(contextName, patchFunction));
             });
         }
 
