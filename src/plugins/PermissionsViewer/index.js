@@ -153,6 +153,7 @@ module.exports = (Plugin, Api) => {
 
         patchGuildContextMenu() {
             this.contextMenuPatches.push(ContextMenu.patch("guild-context", (retVal, props) => {
+                if (!props?.guild) return retVal; // Ignore non-guild items
                 const newItem = ContextMenu.buildItem({
                     label: this.strings.contextMenuLabel,
                     action: () => {
