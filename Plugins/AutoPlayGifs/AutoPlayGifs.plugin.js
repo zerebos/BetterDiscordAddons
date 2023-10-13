@@ -1,6 +1,6 @@
 /**
  * @name AutoPlayGifs
- * @version 0.1.5
+ * @version 0.1.6
  * @authorLink https://twitter.com/IAmZerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/AutoPlayGifs
  * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/AutoPlayGifs/AutoPlayGifs.plugin.js
