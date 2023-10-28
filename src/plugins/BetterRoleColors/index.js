@@ -11,7 +11,7 @@ module.exports = (Plugin, Api) => {
     const SelectedGuildStore = DiscordModules.SelectedGuildStore;
     const UserStore = DiscordModules.UserStore;
     const RelationshipStore = DiscordModules.RelationshipStore;
-    const VoiceUser = WebpackModules.getByPrototypes("renderName");
+    const VoiceUser = WebpackModules.getByPrototypes("renderName", "renderAvatar");
 
     return class BetterRoleColors extends Plugin {
 
@@ -108,8 +108,8 @@ module.exports = (Plugin, Api) => {
 
         colorHeaders(element) {
             if (!this.settings.modules.memberList) return;
-            if (element.matches(`[class*="membersGroup-"]`)) element = [element];
-            else element = element.querySelectorAll(`[class*="membersGroup-"]`);
+            if (element.matches(`[class*="membersGroup__"]`)) element = [element];
+            else element = element.querySelectorAll(`[class*="membersGroup__"]`);
             
             if (!element?.length) return;
             for (const header of element) {
@@ -200,7 +200,7 @@ module.exports = (Plugin, Api) => {
         }
 
         patchMessageContent() {
-            const MessageContent = WebpackModules.getModule(m => m?.type?.toString().includes("messageContent"));
+            const MessageContent = WebpackModules.getModule(m => m?.type?.toString().includes("messageContent") && m?.type?.toString().includes("MESSAGE_EDITED"));
             Patcher.after(MessageContent, "type", (_, [props], returnValue) => {
                 if (!this.settings.modules.chat) return;
                 const channel = DiscordModules.ChannelStore.getChannel(props.message.channel_id);
@@ -217,7 +217,7 @@ module.exports = (Plugin, Api) => {
         }
 
         async patchAuditLog(promiseState) {
-            const UserHook = await ReactComponents.getComponent("UserHook", `[class*="userHook-"]`, c => c?.prototype?.render?.toString().includes("userHook"));
+            const UserHook = await ReactComponents.getComponent("UserHook", `[class*="userHook_"]`, c => c?.prototype?.render?.toString().includes("userHook"));
             if (promiseState.cancelled) return;
             Patcher.after(UserHook.component.prototype, "render", (thisObject, _, returnValue) => {
                 if (!this.settings.auditLog.username && !this.settings.auditLog.discriminator) return;

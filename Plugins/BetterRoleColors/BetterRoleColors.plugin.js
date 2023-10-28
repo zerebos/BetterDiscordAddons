@@ -1,7 +1,7 @@
 /**
  * @name BetterRoleColors
  * @description Adds server-based role colors to typing, voice, popouts, modals and more!
- * @version 0.10.1
+ * @version 0.10.2
  * @author Zerebos
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors
  * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js
@@ -32,29 +32,21 @@
 const config = {
     name: "BetterRoleColors",
     author: "Zerebos",
-    version: "0.10.1",
+    version: "0.10.2",
     description: "Adds server-based role colors to typing, voice, popouts, modals and more!",
     github: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors",
     github_raw: "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js",
     changelog: [
         {
-            title: "What's New?",
-            type: "added",
-            items: [
-                "New option to adhere to your saturation accessibility setting!",
-                "The `important` option now affects more locations in the plugin."
-            ]
-        },
-        {
-            title: "Bug Fixes",
+            title: "Partially Fixed!",
             type: "fixed",
             items: [
-                "Fixed a bug where disabling modal coloring would disable popout coloring.",
-                "Fixed a bug where a member list disconnection could cause voice connection issues.",
-                "Fixed the issue with member list headers being non-colored when scrolling.",
-                "Fixed an issue with the observer not firing properly.",
-                "Fixed a compatibility issue with other plugins. (Thanks DevilBro)",
-                "Fixed a crashing issue with the color chat option."
+                "Fixed coloring voice users.",
+                "Fixed coloring audit log.",
+                "Fixed coloring chat text.",
+                "Fixed coloring members group.",
+                "Popouts and profiles will be fixed in the next update.",
+                "Account container will be fixed in the next update."
             ]
         }
     ],
@@ -279,7 +271,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
     const SelectedGuildStore = DiscordModules.SelectedGuildStore;
     const UserStore = DiscordModules.UserStore;
     const RelationshipStore = DiscordModules.RelationshipStore;
-    const VoiceUser = WebpackModules.getByPrototypes("renderName");
+    const VoiceUser = WebpackModules.getByPrototypes("renderName", "renderAvatar");
 
     return class BetterRoleColors extends Plugin {
 
@@ -376,8 +368,8 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
 
         colorHeaders(element) {
             if (!this.settings.modules.memberList) return;
-            if (element.matches(`[class*="membersGroup-"]`)) element = [element];
-            else element = element.querySelectorAll(`[class*="membersGroup-"]`);
+            if (element.matches(`[class*="membersGroup__"]`)) element = [element];
+            else element = element.querySelectorAll(`[class*="membersGroup__"]`);
             
             if (!element?.length) return;
             for (const header of element) {
@@ -468,7 +460,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
         }
 
         patchMessageContent() {
-            const MessageContent = WebpackModules.getModule(m => m?.type?.toString().includes("messageContent"));
+            const MessageContent = WebpackModules.getModule(m => m?.type?.toString().includes("messageContent") && m?.type?.toString().includes("MESSAGE_EDITED"));
             Patcher.after(MessageContent, "type", (_, [props], returnValue) => {
                 if (!this.settings.modules.chat) return;
                 const channel = DiscordModules.ChannelStore.getChannel(props.message.channel_id);
@@ -485,7 +477,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
         }
 
         async patchAuditLog(promiseState) {
-            const UserHook = await ReactComponents.getComponent("UserHook", `[class*="userHook-"]`, c => c?.prototype?.render?.toString().includes("userHook"));
+            const UserHook = await ReactComponents.getComponent("UserHook", `[class*="userHook_"]`, c => c?.prototype?.render?.toString().includes("userHook"));
             if (promiseState.cancelled) return;
             Patcher.after(UserHook.component.prototype, "render", (thisObject, _, returnValue) => {
                 if (!this.settings.auditLog.username && !this.settings.auditLog.discriminator) return;
