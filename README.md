@@ -8,7 +8,7 @@ A series of plugins and themes for BetterDiscord.
  - [BDContextMenu](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu) - Adds BD shortcuts to the settings context menu.
  - [BetterFormattingRedux](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux) - A rewrite of Anxeal's BetterFormatting that includes new options and settings.
  - [BetterRoleColors](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors) - Adds server-based role colors to typing, voice, popouts, modals and more!
- - [BlurNSFW](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BlurNSFW) - Blurs images in NSFW channels until you hover over it.
+ - [BlurNSFW](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BlurNSFW) - Blurs images in any channel, DM or Group!
  - [DoNotTrack](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/DoNotTrack) - Stops Discord from tracking everything you do like Sentry and Analytics.
  - [HideDisabledEmojis](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideDisabledEmojis) - Hides disabled emojis from the emoji picker.
  - [HideIconBadge](https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideIconBadge) - Hides the badge that appears on the taskbar icon.
