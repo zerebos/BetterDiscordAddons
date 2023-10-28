@@ -7,13 +7,13 @@
             "github_username": "rauenzi",
             "twitter_username": "ZackRauen"
         }],
-        "version": "0.1.20",
+        "version": "0.1.21",
         "description": "Allows you to see the members of each role on a server.",
         "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers",
         "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"
     },
     "changelog": [
-        {"title": "Fully Fixed!", "type": "fixed", "items": ["Context menu popouts work once more!", "Role mentions are now clickable again!"]}
+        {"title": "Partially Fixed!", "type": "fixed", "items": ["Updated for Discord's changes!", "User popouts will not show on click, that will come in a later update from the library."]}
 
     ],
     "main": "index.js"

@@ -137,7 +137,7 @@ module.exports = (Plugin, Api) => {
         showPopout(popout, relativeTarget) {
             if (this.listener) this.listener({target: {classList: {contains: () => {}}, closest: () => {}}}); // Close any previous popouts
             
-            document.querySelector(`[class*="app-"] ~ ${DiscordSelectors.TooltipLayers.layerContainer}`).append(popout);
+            document.querySelector(`[class*="app_"] ~ ${DiscordSelectors.TooltipLayers.layerContainer}`).append(popout);
 
             const maxWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
             const maxHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);

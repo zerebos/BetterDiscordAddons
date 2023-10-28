@@ -1,7 +1,7 @@
 /**
  * @name RoleMembers
  * @description Allows you to see the members of each role on a server.
- * @version 0.1.20
+ * @version 0.1.21
  * @author Zerebos
  * @authorId 249746236008169473
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers
@@ -41,18 +41,18 @@ const config = {
                 twitter_username: "ZackRauen"
             }
         ],
-        version: "0.1.20",
+        version: "0.1.21",
         description: "Allows you to see the members of each role on a server.",
         github: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers",
         github_raw: "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"
     },
     changelog: [
         {
-            title: "Fully Fixed!",
+            title: "Partially Fixed!",
             type: "fixed",
             items: [
-                "Context menu popouts work once more!",
-                "Role mentions are now clickable again!"
+                "Updated for Discord's changes!",
+                "User popouts will not show on click, that will come in a later update from the library."
             ]
         }
     ],
@@ -99,40 +99,40 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
     const UserStore = DiscordModules.UserStore;
     const ImageResolver = DiscordModules.ImageResolver;
 
-    const popoutHTML = `<div class="theme-dark layer-2BGhQ8" style="z-index: 100">
-<div class="animatorBottom-1jjd1i translate-2vghI- didRender-2dwLEv popout-role-members" style="margin-top: 0;">
-    <div class="container-2kTWmC selectFilterPopout-1eHbO2 elevationBorderHigh-3drnJX role-members-popout">
-        <div class="container-2oNtJn medium-2NClDM">
-            <div class="inner-2pOSmK"><input class="input-2m5SfJ" placeholder="Search Members — {{memberCount}}" value="">
-                <div tabindex="0" class="iconLayout-3Bjizv medium-2NClDM" role="button">
-                    <div class="iconContainer-6pgShY">
-                        <svg name="Search" class="icon-3CDcPB visible-CwPfRb" width="18" height="18" viewBox="0 0 18 18"><g fill="none" fill-rule="evenodd"><path fill="currentColor" d="M3.60091481,7.20297313 C3.60091481,5.20983419 5.20983419,3.60091481 7.20297313,3.60091481 C9.19611206,3.60091481 10.8050314,5.20983419 10.8050314,7.20297313 C10.8050314,9.19611206 9.19611206,10.8050314 7.20297313,10.8050314 C5.20983419,10.8050314 3.60091481,9.19611206 3.60091481,7.20297313 Z M12.0057176,10.8050314 L11.3733562,10.8050314 L11.1492281,10.5889079 C11.9336764,9.67638651 12.4059463,8.49170955 12.4059463,7.20297313 C12.4059463,4.32933105 10.0766152,2 7.20297313,2 C4.32933105,2 2,4.32933105 2,7.20297313 C2,10.0766152 4.32933105,12.4059463 7.20297313,12.4059463 C8.49170955,12.4059463 9.67638651,11.9336764 10.5889079,11.1492281 L10.8050314,11.3733562 L10.8050314,12.0057176 L14.8073185,16 L16,14.8073185 L12.2102538,11.0099776 L12.0057176,10.8050314 Z"></path></g></svg>
+    const popoutHTML = `<div class="theme-dark layer_ec16dd" style="z-index: 100">
+<div class="animatorBottom_b2d32e translate_c2f6c4 didRender_f1da13 popout-role-members" style="margin-top: 0;">
+    <div class="container_d27846 selectFilterPopout_f4af87 elevationBorderHigh_f9a758 role-members-popout">
+        <div class="container__7712a medium__0fb5d">
+            <div class="inner__999f6"><input class="input__74754" placeholder="Search Members — {{memberCount}}" value="">
+                <div tabindex="0" class="iconLayout__6d744 medium__0fb5d" role="button">
+                    <div class="iconContainer__3af05">
+                        <svg name="Search" class="icon__37cc1 visible__50aa8" width="18" height="18" viewBox="0 0 18 18"><g fill="none" fill-rule="evenodd"><path fill="currentColor" d="M3.60091481,7.20297313 C3.60091481,5.20983419 5.20983419,3.60091481 7.20297313,3.60091481 C9.19611206,3.60091481 10.8050314,5.20983419 10.8050314,7.20297313 C10.8050314,9.19611206 9.19611206,10.8050314 7.20297313,10.8050314 C5.20983419,10.8050314 3.60091481,9.19611206 3.60091481,7.20297313 Z M12.0057176,10.8050314 L11.3733562,10.8050314 L11.1492281,10.5889079 C11.9336764,9.67638651 12.4059463,8.49170955 12.4059463,7.20297313 C12.4059463,4.32933105 10.0766152,2 7.20297313,2 C4.32933105,2 2,4.32933105 2,7.20297313 C2,10.0766152 4.32933105,12.4059463 7.20297313,12.4059463 C8.49170955,12.4059463 9.67638651,11.9336764 10.5889079,11.1492281 L10.8050314,11.3733562 L10.8050314,12.0057176 L14.8073185,16 L16,14.8073185 L12.2102538,11.0099776 L12.0057176,10.8050314 Z"></path></g></svg>
                     </div>
                 </div>
             </div>
         </div>
         <div>
-            <div class="list-1B0XtU list-24H0V9 none-1rXy4P scrollerBase-1Pkza4 role-members" dir="ltr" style="overflow: hidden scroll; padding-right: 0px; max-height: 400px;">
+            <div class="list__9970c list_bc6ec7 none__51a8f scrollerBase_dc3aa9 role-members" dir="ltr" style="overflow: hidden scroll; padding-right: 0px; max-height: 400px;">
                 
             </div>
         </div>
     </div>
 </div>
 </div>`;
-    const itemHTML = `<div class="item-1Mjtru role-member">
-    <div class="itemCheckbox-1w3Hcp">
-        <div class="wrapper-3Un6-K avatar-1XUb0A" role="img" aria-hidden="false" style="width: 32px; height: 32px;">
-            <svg width="40" height="32" viewBox="0 0 40 32" class="mask-1y0tyc svg-1G_H_8" aria-hidden="true">
+    const itemHTML = `<div class="item__287de role-member">
+    <div class="itemCheckbox__8e8b3">
+        <div class="wrapper_edb6e0 avatar__31cab" role="img" aria-hidden="false" style="width: 32px; height: 32px;">
+            <svg width="40" height="32" viewBox="0 0 40 32" class="mask__1979f svg_f5b652" aria-hidden="true">
                 <foreignObject x="0" y="0" width="32" height="32" mask="url(#svg-mask-avatar-default)">
-                        <div class="avatarStack-3Bjmsl">
-                            <img src="{{avatar_url}}" alt=" " class="avatar-31d8He" aria-hidden="true">
+                        <div class="avatarStack__6604a">
+                            <img src="{{avatar_url}}" alt=" " class="avatar__991e2" aria-hidden="true">
                         </div>
                 </foreignObject>
             </svg>
         </div>
     </div>
-    <div class="itemLabel-3P3d08">
-        <span class="username">{{username}}</span><span class="discriminator-2jnrqC">{{discriminator}}</span>
+    <div class="itemLabel__6d2fe">
+        <span class="defaultColor__77578 username">{{username}}</span>
     </div>
 </div>`;
 
@@ -239,7 +239,8 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
             const scroller = popout.querySelector(".role-members");
             for (const member of members) {
                 const user = UserStore.getUser(member.userId);
-                const elem = DOM.parseHTML(Utilities.formatString(itemHTML, {username: Utils.escapeHTML(user.username), discriminator: "#" + user.discriminator, avatar_url: ImageResolver.getUserAvatarURL(user)}));
+                const discriminator = user.discriminator != 0 ? "#" + user.discriminator : "";
+                const elem = DOM.parseHTML(Utilities.formatString(itemHTML, {username: Utils.escapeHTML(user.username), discriminator, avatar_url: ImageResolver.getUserAvatarURL(user)}));
                 elem.addEventListener("click", () => {
                     // UI.showToast("User popouts are currently broken!", {type: "error"});
                     setTimeout(() => Popouts.showUserPopout(elem, user, {guild: guildId}), 1);
@@ -254,7 +255,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
         showPopout(popout, relativeTarget) {
             if (this.listener) this.listener({target: {classList: {contains: () => {}}, closest: () => {}}}); // Close any previous popouts
             
-            document.querySelector(`[class*="app-"] ~ ${DiscordSelectors.TooltipLayers.layerContainer}`).append(popout);
+            document.querySelector(`[class*="app_"] ~ ${DiscordSelectors.TooltipLayers.layerContainer}`).append(popout);
 
             const maxWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
             const maxHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
