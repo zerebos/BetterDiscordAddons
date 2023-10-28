@@ -1,7 +1,7 @@
 /**
  * @name PermissionsViewer
  * @description Allows you to view a user's permissions. Thanks to Noodlebox for the idea!
- * @version 0.2.8
+ * @version 0.2.9
  * @author Zerebos
  * @authorId 249746236008169473
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer
@@ -41,26 +41,17 @@ const config = {
                 twitter_username: "ZackRauen"
             }
         ],
-        version: "0.2.8",
+        version: "0.2.9",
         description: "Allows you to view a user's permissions. Thanks to Noodlebox for the idea!",
         github: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer",
         github_raw: "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/PermissionsViewer/PermissionsViewer.plugin.js"
     },
     changelog: [
         {
-            title: "What's New?",
-            type: "added",
-            items: [
-                "You can now press `Escape` to close the permissions modal."
-            ]
-        },
-        {
             title: "Fixes",
             type: "fixed",
             items: [
-                "Permissions should show in popouts again!",
-                "Scrolling now works again for both sides of the permissions modal.",
-                "Popouts from voice users now use the correct permissions!"
+                "Fixed for the latest Discord changes!"
             ]
         }
     ],
@@ -594,8 +585,8 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
 #permissions-modal .perm-item {
     width: 50%;
 }`;
-            this.sectionHTML = `<div class="section-28YDOf" id="permissions-popout">
-    <h2 class="member-perms-header defaultColor-1EVLSt eyebrow-1Shfyi defaultColor-1GKx81 title-3CjiSS" data-text-variant="eyebrow">
+            this.sectionHTML = `<div class="section__6f61e" id="permissions-popout">
+    <h2 class="member-perms-header defaultColor__77578 eyebrow_e5a66c defaultColor__87d87 title_ef4a6d" data-text-variant="eyebrow">
         <div class="member-perms-title">{{label}}</div>
         <span class="perm-details">
             <svg name="Details" viewBox="0 0 24 24" class="perm-details-button" fill="currentColor">
@@ -634,7 +625,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
     </div>`;
             this.modalItem = `<div class="perm-item"><span class="perm-name"></span></div>`;
             this.modalButton = `<div class="role-item"><span class="role-name"></span></div>`;
-            this.modalButtonUser = `<div class="role-item"><div class="wrapper-2F3Zv8 xsmall-3afG_L"><div class="image-33JSyf xsmall-3afG_L perm-user-avatar" style="background-image: url('\\{{avatarUrl}}');"></div></div><span class="role-name marginLeft8-1YseBe"></span></div>`;
+            this.modalButtonUser = `<div class="role-item"><div class="wrapper_de5239 xsmall_d82b57"><div class="image__25781 xsmall_d82b57 perm-user-avatar" style="background-image: url('\\{{avatarUrl}}');"></div></div><span class="role-name marginLeft8_ff311d"></span></div>`;
             this.permAllowedIcon = `<svg height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
             this.permDeniedIcon = `<svg height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8 0-1.85.63-3.55 1.69-4.9L16.9 18.31C15.55 19.37 13.85 20 12 20zm6.31-3.1L7.1 5.69C8.45 4.63 10.15 4 12 4c4.42 0 8 3.58 8 8 0 1.85-.63 3.55-1.69 4.9z"/></svg>`;
 
@@ -672,7 +663,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
 
         patchPopouts(e) {
             const popoutMount = (props) => {
-                const popout = document.querySelector(`[class*="userPopout-"], [class*="userPopoutOuter-"]`);
+                const popout = document.querySelector(`[class*="userPopout_"], [class*="userPopoutOuter_"]`);
                 if (!popout || popout.querySelector("#permissions-popout")) return;
                 const user = MemberStore.getMember(props.guildId, props.user.id);
                 const guild = GuildStore.getGuild(props.guildId);
@@ -711,7 +702,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                 permBlock.querySelector(".perm-details").addEventListener("click", () => {
                     this.showModal(this.createModalUser(name, user, guild));
                 });
-                let roleList = popout.querySelector(`[class*="roles-"]`);
+                let roleList = popout.querySelector(`[class*="roles_"]`);
                 roleList = roleList?.parentElement;
                 roleList?.parentNode?.insertBefore(permBlock, roleList.nextSibling);
                 
@@ -725,8 +716,8 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
             if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element)) return;
             // console.log(e)
             const element = e.addedNodes[0];
-            const popout = element.querySelector(`[class*="userPopout-"], [class*="userPopoutOuter-"]`) ?? element;
-            if (!popout || !popout.matches(`[class*="userPopout-"], [class*="userPopoutOuter-"]`)) return;
+            const popout = element.querySelector(`[class*="userPopout_"], [class*="userPopoutOuter_"]`) ?? element;
+            if (!popout || !popout.matches(`[class*="userPopout_"], [class*="userPopoutOuter_"]`)) return;
             const props = Utilities.findInTree(ReactTools.getReactInstance(popout), m => m && m.user, {walkable: ["memoizedProps", "return"]});
             popoutMount(props);
         }
@@ -751,6 +742,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
 
         patchGuildContextMenu() {
             this.contextMenuPatches.push(ContextMenu.patch("guild-context", (retVal, props) => {
+                if (!props?.guild) return retVal; // Ignore non-guild items
                 const newItem = ContextMenu.buildItem({
                     label: this.strings.contextMenuLabel,
                     action: () => {

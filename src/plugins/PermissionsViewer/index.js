@@ -74,7 +74,7 @@ module.exports = (Plugin, Api) => {
 
         patchPopouts(e) {
             const popoutMount = (props) => {
-                const popout = document.querySelector(`[class*="userPopout-"], [class*="userPopoutOuter-"]`);
+                const popout = document.querySelector(`[class*="userPopout_"], [class*="userPopoutOuter_"]`);
                 if (!popout || popout.querySelector("#permissions-popout")) return;
                 const user = MemberStore.getMember(props.guildId, props.user.id);
                 const guild = GuildStore.getGuild(props.guildId);
@@ -113,7 +113,7 @@ module.exports = (Plugin, Api) => {
                 permBlock.querySelector(".perm-details").addEventListener("click", () => {
                     this.showModal(this.createModalUser(name, user, guild));
                 });
-                let roleList = popout.querySelector(`[class*="roles-"]`);
+                let roleList = popout.querySelector(`[class*="roles_"]`);
                 roleList = roleList?.parentElement;
                 roleList?.parentNode?.insertBefore(permBlock, roleList.nextSibling);
                 
@@ -127,8 +127,8 @@ module.exports = (Plugin, Api) => {
             if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element)) return;
             // console.log(e)
             const element = e.addedNodes[0];
-            const popout = element.querySelector(`[class*="userPopout-"], [class*="userPopoutOuter-"]`) ?? element;
-            if (!popout || !popout.matches(`[class*="userPopout-"], [class*="userPopoutOuter-"]`)) return;
+            const popout = element.querySelector(`[class*="userPopout_"], [class*="userPopoutOuter_"]`) ?? element;
+            if (!popout || !popout.matches(`[class*="userPopout_"], [class*="userPopoutOuter_"]`)) return;
             const props = Utilities.findInTree(ReactTools.getReactInstance(popout), m => m && m.user, {walkable: ["memoizedProps", "return"]});
             popoutMount(props);
         }
