@@ -42,6 +42,15 @@ Click the buttons to insert tags or surround the selected text with tags.
 #### Leet (++)
 `++Sample Text++` will show up as 54mp13 73x7
 
+#### First Caps (--)
+`--sample text--` will show up as Sample Text
+
+#### Uppercase (>>)
+`>>Sample Text>>` will show up as SAMPLE TEXT
+
+#### Lowercase (<<)
+`<<Sample Text<<` will show up as sample text
+
 #### Escaping Unwanted Tags (\\)
 Put a backslash before the tags if you want them to be rendered normally.
 
@@ -62,7 +71,7 @@ Note: There is no save button to click, settings update automatically.
  - Adds a checkbox for every custom format allowing you to enable/disable them
 
 ### Wrappers
-The default wrappers (`^`, `%`, `##`, `&&`, `||`, `++`) can all be customized in the settings panel. They can be any symbol or letters of any length.
+The default wrappers (`^`, `%`, `##`, `&&`, `||`, `++`, `--`, `>>`, `<<`) can all be customized in the settings panel. They can be any symbol or letters of any length.
 
 ![BFRedux Wrappers](https://i.imgur.com/isbKNur.png)
 
