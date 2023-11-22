@@ -34,7 +34,7 @@ Click the buttons to insert tags or surround the selected text with tags.
 `##Sample Text##` will show up as Ｓａｍｐｌｅ　Ｔｅｘｔ or S A M P L E  T E X T
 
 #### Upsidedown (&&)
-`&&Sample Text&&` will show up as ʇxǝ┴ ǝldɯɐS or Sɐɯdlǝ ┴ǝxʇ
+`&&Sample Text&&` will show up as ʇxǝꓕ ǝldɯɐS or Sɐɯdlǝ ꓕǝxʇ
 
 #### Varied Caps (||)
 `||Sample Text||` will show up as SaMpLe TeXt or sAmPlE tExT
@@ -77,7 +77,7 @@ The default wrappers (`^`, `%`, `##`, `&&`, `||`, `++`, `--`, `>>`, `<<`) can al
 
 ### Formatting
  - The fullwidth format can switch between Ｓａｍｐｌｅ　Ｔｅｘｔ and S A M P L E  T E X T.
- - The upsidedown text can switch between ʇxǝ┴ ǝldɯɐS and Sɐɯdlǝ ┴ǝxʇ.
+ - The upsidedown text can switch between ʇxǝꓕ ǝldɯɐS and Sɐɯdlǝ ꓕǝxʇ.
  - The varied caps can switch between SaMpLe TeXt and sAmPlE tExT. (Change whether to start with a capital)
  
 ![BFRedux Formatting](https://i.imgur.com/jiqJNkE.png)
@@ -97,9 +97,9 @@ The default wrappers (`^`, `%`, `##`, `&&`, `||`, `++`, `--`, `>>`, `<<`) can al
 
  - You can also switch format chaining order from outside first to inside first which means:
  
-`&&##Sample Text##&&` will give you ｔｘｅＴ　ｅｌｐｍａＳ instead of ʇｘǝ┴　ǝｌｄɯɐＳ (May not appear right in browser)
+`&&##Sample Text##&&` will give you ｔｘｅＴ　ｅｌｐｍａＳ instead of ʇｘǝꓕ　ǝｌｄɯɐＳ (May not appear right in browser)
 
-`##&&Sample Text&&##` will give you ʇｘǝ┴　ǝｌｄɯɐＳ instead of ＆＆Ｓａｍｐｌｅ　Ｔｅｘｔ＆＆ (May not appear right in browser)
+`##&&Sample Text&&##` will give you ʇｘǝꓕ　ǝｌｄɯɐＳ instead of ＆＆Ｓａｍｐｌｅ　Ｔｅｘｔ＆＆ (May not appear right in browser)
 
  ![BFRedux Chaining](https://i.imgur.com/7NbaKfI.png)
  
