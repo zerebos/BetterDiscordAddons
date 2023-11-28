@@ -34,22 +34,13 @@ Click the buttons to insert tags or surround the selected text with tags.
 `##Sample Text##` will show up as Ｓａｍｐｌｅ　Ｔｅｘｔ or S A M P L E  T E X T
 
 #### Upsidedown (&&)
-`&&Sample Text&&` will show up as ʇxǝꓕ ǝldɯɐS or Sɐɯdlǝ ꓕǝxʇ
+`&&Sample Text&&` will show up as ʇxǝ┴ ǝldɯɐS or Sɐɯdlǝ ┴ǝxʇ
 
 #### Varied Caps (||)
 `||Sample Text||` will show up as SaMpLe TeXt or sAmPlE tExT
 
 #### Leet (++)
 `++Sample Text++` will show up as 54mp13 73x7
-
-#### First Caps (--)
-`--sample text--` will show up as Sample Text
-
-#### Uppercase (>>)
-`>>Sample Text>>` will show up as SAMPLE TEXT
-
-#### Lowercase (<<)
-`<<Sample Text<<` will show up as sample text
 
 #### Escaping Unwanted Tags (\\)
 Put a backslash before the tags if you want them to be rendered normally.
@@ -71,13 +62,13 @@ Note: There is no save button to click, settings update automatically.
  - Adds a checkbox for every custom format allowing you to enable/disable them
 
 ### Wrappers
-The default wrappers (`^`, `%`, `##`, `&&`, `||`, `++`, `--`, `>>`, `<<`) can all be customized in the settings panel. They can be any symbol or letters of any length.
+The default wrappers (`^`, `%`, `##`, `&&`, `||`, `++`) can all be customized in the settings panel. They can be any symbol or letters of any length.
 
 ![BFRedux Wrappers](https://i.imgur.com/isbKNur.png)
 
 ### Formatting
  - The fullwidth format can switch between Ｓａｍｐｌｅ　Ｔｅｘｔ and S A M P L E  T E X T.
- - The upsidedown text can switch between ʇxǝꓕ ǝldɯɐS and Sɐɯdlǝ ꓕǝxʇ.
+ - The upsidedown text can switch between ʇxǝ┴ ǝldɯɐS and Sɐɯdlǝ ┴ǝxʇ.
  - The varied caps can switch between SaMpLe TeXt and sAmPlE tExT. (Change whether to start with a capital)
  
 ![BFRedux Formatting](https://i.imgur.com/jiqJNkE.png)
@@ -97,9 +88,9 @@ The default wrappers (`^`, `%`, `##`, `&&`, `||`, `++`, `--`, `>>`, `<<`) can al
 
  - You can also switch format chaining order from outside first to inside first which means:
  
-`&&##Sample Text##&&` will give you ｔｘｅＴ　ｅｌｐｍａＳ instead of ʇｘǝꓕ　ǝｌｄɯɐＳ (May not appear right in browser)
+`&&##Sample Text##&&` will give you ｔｘｅＴ　ｅｌｐｍａＳ instead of ʇｘǝ┴　ǝｌｄɯɐＳ (May not appear right in browser)
 
-`##&&Sample Text&&##` will give you ʇｘǝꓕ　ǝｌｄɯɐＳ instead of ＆＆Ｓａｍｐｌｅ　Ｔｅｘｔ＆＆ (May not appear right in browser)
+`##&&Sample Text&&##` will give you ʇｘǝ┴　ǝｌｄɯɐＳ instead of ＆＆Ｓａｍｐｌｅ　Ｔｅｘｔ＆＆ (May not appear right in browser)
 
  ![BFRedux Chaining](https://i.imgur.com/7NbaKfI.png)
  
