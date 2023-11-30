@@ -325,11 +325,11 @@ module.exports = (Plugin, Api) => {
         updateSettingLanguage(language) {
             if (language == "English") {
                 this.toolbarData = require("toolbardata.js");
-                this._config = require("config_English.js")
+                this._config = require("config_English.js");
             }
             if (language == "Korean") {
                 this.toolbarData = require("toolbardata_Korean.js");
-                this._config = require("config_Korean.js")
+                this._config = require("config_Korean.js");
             }
         }
 
