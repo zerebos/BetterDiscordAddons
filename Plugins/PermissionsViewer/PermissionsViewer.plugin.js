@@ -196,7 +196,7 @@ const config = {
                 header: "{{name}}'s Permissies",
                 rolesLabel: "Rollen",
                 permissionsLabel: "Permissies",
-                owner: "@owner"
+                owner: "@eigenaar"
             },
             settings: {
                 popouts: {
