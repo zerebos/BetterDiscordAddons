@@ -89,17 +89,19 @@ module.exports = (Plugin, Api) => {
                 const memberPerms = permBlock.querySelector(".member-perms");
                 const strings = Strings;
 
+                const guildRoles = guild.roles || GuildStore.getRoles(guild.id);
+                
                 for (let r = 0; r < userRoles.length; r++) {
                     const role = userRoles[r];
-                    if (!guild.roles[role]) continue;
-                    perms = perms | guild.roles[role].permissions;
+                    if (!guildRoles[role]) continue;
+                    perms = perms | guildRoles[role].permissions;
                     for (const perm in DiscordPerms) {
                         const permName = strings[perm] || perm.split("_").map(n => n[0].toUpperCase() + n.slice(1).toLowerCase()).join(" ");
                         const hasPerm = (perms & DiscordPerms[perm]) == DiscordPerms[perm];
                         if (hasPerm && !memberPerms.querySelector(`[data-name="${permName}"]`)) {
                             const element = DOMTools.createElement(this.itemHTML);
                             element.classList.add(RoleClasses.rolePill);
-                            let roleColor = guild.roles[role].colorString;
+                            let roleColor = guildRoles[role].colorString;
                             element.querySelector(".name").textContent = permName;
                             element.setAttribute("data-name", permName);
                             if (!roleColor) roleColor = "#B9BBBE";
@@ -211,11 +213,12 @@ module.exports = (Plugin, Api) => {
         }
 
         createModalChannel(name, channel, guild) {
-            return this.createModal(`#${name}`, channel.permissionOverwrites, guild.roles, true);
+            const guildRoles = guild.roles || GuildStore.getRoles(guild.id);
+            return this.createModal(`#${name}`, channel.permissionOverwrites, guildRoles, true);
         }
 
         createModalUser(name, user, guild) {
-            const guildRoles = Object.assign({}, guild.roles);
+            const guildRoles = Object.assign({}, guild.roles || GuildStore.getRoles(guild.id));
             const userRoles = user.roles.slice(0).filter(r => typeof(guildRoles[r]) !== "undefined");
             
             userRoles.push(guild.id);
@@ -230,7 +233,8 @@ module.exports = (Plugin, Api) => {
         }
 
         createModalGuild(name, guild) {
-            return this.createModal(name, guild.roles);
+            const guildRoles = guild.roles || GuildStore.getRoles(guild.id);
+            return this.createModal(name, guildRoles);
         }
 
         createModal(title, displayRoles, referenceRoles, isOverride = false) {

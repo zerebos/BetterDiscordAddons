@@ -1,7 +1,7 @@
 /**
  * @name PermissionsViewer
  * @description Allows you to view a user's permissions. Thanks to Noodlebox for the idea!
- * @version 0.2.9
+ * @version 0.2.10
  * @author Zerebos
  * @authorId 249746236008169473
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer
@@ -41,7 +41,7 @@ const config = {
                 twitter_username: "ZackRauen"
             }
         ],
-        version: "0.2.9",
+        version: "0.2.10",
         description: "Allows you to view a user's permissions. Thanks to Noodlebox for the idea!",
         github: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer",
         github_raw: "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/PermissionsViewer/PermissionsViewer.plugin.js"
@@ -678,17 +678,19 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                 const memberPerms = permBlock.querySelector(".member-perms");
                 const strings = Strings;
 
+                const guildRoles = guild.roles || GuildStore.getRoles(guild.id);
+
                 for (let r = 0; r < userRoles.length; r++) {
                     const role = userRoles[r];
-                    if (!guild.roles[role]) continue;
-                    perms = perms | guild.roles[role].permissions;
+                    if (!guildRoles[role]) continue;
+                    perms = perms | guildRoles[role].permissions;
                     for (const perm in DiscordPerms) {
                         const permName = strings[perm] || perm.split("_").map(n => n[0].toUpperCase() + n.slice(1).toLowerCase()).join(" ");
                         const hasPerm = (perms & DiscordPerms[perm]) == DiscordPerms[perm];
                         if (hasPerm && !memberPerms.querySelector(`[data-name="${permName}"]`)) {
                             const element = DOMTools.createElement(this.itemHTML);
                             element.classList.add(RoleClasses.rolePill);
-                            let roleColor = guild.roles[role].colorString;
+                            let roleColor = guildRoles[role].colorString;
                             element.querySelector(".name").textContent = permName;
                             element.setAttribute("data-name", permName);
                             if (!roleColor) roleColor = "#B9BBBE";
@@ -800,11 +802,12 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
         }
 
         createModalChannel(name, channel, guild) {
-            return this.createModal(`#${name}`, channel.permissionOverwrites, guild.roles, true);
+            const guildRoles = guild.roles || GuildStore.getRoles(guild.id);
+            return this.createModal(`#${name}`, channel.permissionOverwrites, guildRoles, true);
         }
 
         createModalUser(name, user, guild) {
-            const guildRoles = Object.assign({}, guild.roles);
+            const guildRoles = Object.assign({}, guild.roles || GuildStore.getRoles(guild.id));
             const userRoles = user.roles.slice(0).filter(r => typeof(guildRoles[r]) !== "undefined");
             
             userRoles.push(guild.id);
@@ -819,7 +822,8 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
         }
 
         createModalGuild(name, guild) {
-            return this.createModal(name, guild.roles);
+            const guildRoles = guild.roles || GuildStore.getRoles(guild.id);
+            return this.createModal(name, guildRoles);
         }
 
         createModal(title, displayRoles, referenceRoles, isOverride = false) {
