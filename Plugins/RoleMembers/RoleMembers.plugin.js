@@ -1,7 +1,7 @@
 /**
  * @name RoleMembers
  * @description Allows you to see the members of each role on a server.
- * @version 0.1.21
+ * @version 0.1.22
  * @author Zerebos
  * @authorId 249746236008169473
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers
@@ -41,7 +41,7 @@ const config = {
                 twitter_username: "ZackRauen"
             }
         ],
-        version: "0.1.21",
+        version: "0.1.22",
         description: "Allows you to see the members of each role on a server.",
         github: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers",
         github_raw: "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"
@@ -99,20 +99,20 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
     const UserStore = DiscordModules.UserStore;
     const ImageResolver = DiscordModules.ImageResolver;
 
-    const popoutHTML = `<div class="theme-dark layer_ec16dd" style="z-index: 100">
-<div class="animatorBottom_b2d32e translate_c2f6c4 didRender_f1da13 popout-role-members" style="margin-top: 0;">
-    <div class="container_d27846 selectFilterPopout_f4af87 elevationBorderHigh_f9a758 role-members-popout">
-        <div class="container__7712a medium__0fb5d">
-            <div class="inner__999f6"><input class="input__74754" placeholder="Search Members — {{memberCount}}" value="">
-                <div tabindex="0" class="iconLayout__6d744 medium__0fb5d" role="button">
-                    <div class="iconContainer__3af05">
-                        <svg name="Search" class="icon__37cc1 visible__50aa8" width="18" height="18" viewBox="0 0 18 18"><g fill="none" fill-rule="evenodd"><path fill="currentColor" d="M3.60091481,7.20297313 C3.60091481,5.20983419 5.20983419,3.60091481 7.20297313,3.60091481 C9.19611206,3.60091481 10.8050314,5.20983419 10.8050314,7.20297313 C10.8050314,9.19611206 9.19611206,10.8050314 7.20297313,10.8050314 C5.20983419,10.8050314 3.60091481,9.19611206 3.60091481,7.20297313 Z M12.0057176,10.8050314 L11.3733562,10.8050314 L11.1492281,10.5889079 C11.9336764,9.67638651 12.4059463,8.49170955 12.4059463,7.20297313 C12.4059463,4.32933105 10.0766152,2 7.20297313,2 C4.32933105,2 2,4.32933105 2,7.20297313 C2,10.0766152 4.32933105,12.4059463 7.20297313,12.4059463 C8.49170955,12.4059463 9.67638651,11.9336764 10.5889079,11.1492281 L10.8050314,11.3733562 L10.8050314,12.0057176 L14.8073185,16 L16,14.8073185 L12.2102538,11.0099776 L12.0057176,10.8050314 Z"></path></g></svg>
+    const popoutHTML = `<div class="theme-dark layer__6b5c3" style="z-index: 100">
+<div class="animatorBottom__90ece translate__02873 didRender__7e24c popout-role-members" style="margin-top: 0;">
+    <div class="container_cff83e selectFilterPopout_ef1367 elevationBorderHigh__24051 role-members-popout">
+        <div class="container__33507 medium__5b9a9">
+            <div class="inner__999f6"><input class="input__48d49" placeholder="Search Members — {{memberCount}}" value="">
+                <div tabindex="0" class="iconLayout__67261 medium__5b9a9" role="button">
+                    <div class="iconContainer__4d295">
+                        <svg name="Search" class="icon_fb52f0 visible_c5d475" width="18" height="18" viewBox="0 0 18 18"><g fill="none" fill-rule="evenodd"><path fill="currentColor" d="M3.60091481,7.20297313 C3.60091481,5.20983419 5.20983419,3.60091481 7.20297313,3.60091481 C9.19611206,3.60091481 10.8050314,5.20983419 10.8050314,7.20297313 C10.8050314,9.19611206 9.19611206,10.8050314 7.20297313,10.8050314 C5.20983419,10.8050314 3.60091481,9.19611206 3.60091481,7.20297313 Z M12.0057176,10.8050314 L11.3733562,10.8050314 L11.1492281,10.5889079 C11.9336764,9.67638651 12.4059463,8.49170955 12.4059463,7.20297313 C12.4059463,4.32933105 10.0766152,2 7.20297313,2 C4.32933105,2 2,4.32933105 2,7.20297313 C2,10.0766152 4.32933105,12.4059463 7.20297313,12.4059463 C8.49170955,12.4059463 9.67638651,11.9336764 10.5889079,11.1492281 L10.8050314,11.3733562 L10.8050314,12.0057176 L14.8073185,16 L16,14.8073185 L12.2102538,11.0099776 L12.0057176,10.8050314 Z"></path></g></svg>
                     </div>
                 </div>
             </div>
         </div>
         <div>
-            <div class="list__9970c list_bc6ec7 none__51a8f scrollerBase_dc3aa9 role-members" dir="ltr" style="overflow: hidden scroll; padding-right: 0px; max-height: 400px;">
+            <div class="list__9970c list_bc6ec7 none__7a473 scrollerBase_f742b2 role-members" dir="ltr" style="overflow: hidden scroll; padding-right: 0px; max-height: 400px;">
                 
             </div>
         </div>
@@ -120,19 +120,19 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
 </div>
 </div>`;
     const itemHTML = `<div class="item__287de role-member">
-    <div class="itemCheckbox__8e8b3">
-        <div class="wrapper_edb6e0 avatar__31cab" role="img" aria-hidden="false" style="width: 32px; height: 32px;">
+    <div class="itemCheckbox_c26cf8">
+        <div class="wrapper__3ed10 avatar__31cab" role="img" aria-hidden="false" style="width: 32px; height: 32px;">
             <svg width="40" height="32" viewBox="0 0 40 32" class="mask__1979f svg_f5b652" aria-hidden="true">
                 <foreignObject x="0" y="0" width="32" height="32" mask="url(#svg-mask-avatar-default)">
-                        <div class="avatarStack__6604a">
+                        <div class="avatarStack__789b4">
                             <img src="{{avatar_url}}" alt=" " class="avatar__991e2" aria-hidden="true">
                         </div>
                 </foreignObject>
             </svg>
         </div>
     </div>
-    <div class="itemLabel__6d2fe">
-        <span class="defaultColor__77578 username">{{username}}</span>
+    <div class="itemLabel_d89e4d">
+        <span class="username">{{username}}</span>
     </div>
 </div>`;
 
@@ -156,7 +156,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                 if (!props?.className.toLowerCase().includes("rolemention")) return;
                 props.className += ` interactive`;
                 props.onClick = (e) => {
-                    const roles = GuildStore.getGuild(SelectedGuildStore.getGuildId()).roles;
+                    const roles = GuildStore.getGuild(SelectedGuildStore.getGuildId()).roles || GuildStore.getRoles(SelectedGuildStore.getGuildId());
                     const name = props.children[1][0].slice(1);
                     let role = filter(roles, r => r.name == name);
                     if (!role) return;
@@ -170,7 +170,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
             this.contextMenuPatch = ContextMenu.patch("guild-context", (retVal, props) => {
                 const guild = props.guild;
                 const guildId = guild.id;
-                const roles = guild.roles;
+                const roles = guild.roles || GuildStore.getRoles(guild.id);
                 const roleItems = [];
 
                 for (const roleId in roles) {
@@ -218,7 +218,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
         }
 
         showRolePopout(target, guildId, roleId) {
-            const roles = GuildStore.getGuild(guildId).roles;
+            const roles = GuildStore.getGuild(guildId).roles || GuildStore.getRoles(guildId);
             const role = roles[roleId];
             let members = GuildMemberStore.getMembers(guildId);
             if (guildId != roleId) members = members.filter(m => m.roles.includes(role.id));

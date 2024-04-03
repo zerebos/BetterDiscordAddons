@@ -38,7 +38,7 @@ module.exports = (Plugin, Api) => {
                 if (!props?.className.toLowerCase().includes("rolemention")) return;
                 props.className += ` interactive`;
                 props.onClick = (e) => {
-                    const roles = GuildStore.getGuild(SelectedGuildStore.getGuildId()).roles;
+                    const roles = GuildStore.getGuild(SelectedGuildStore.getGuildId()).roles || GuildStore.getRoles(SelectedGuildStore.getGuildId());
                     const name = props.children[1][0].slice(1);
                     let role = filter(roles, r => r.name == name);
                     if (!role) return;
@@ -52,7 +52,7 @@ module.exports = (Plugin, Api) => {
             this.contextMenuPatch = ContextMenu.patch("guild-context", (retVal, props) => {
                 const guild = props.guild;
                 const guildId = guild.id;
-                const roles = guild.roles;
+                const roles = guild.roles || GuildStore.getRoles(guild.id);
                 const roleItems = [];
 
                 for (const roleId in roles) {
@@ -100,7 +100,7 @@ module.exports = (Plugin, Api) => {
         }
 
         showRolePopout(target, guildId, roleId) {
-            const roles = GuildStore.getGuild(guildId).roles;
+            const roles = GuildStore.getGuild(guildId).roles || GuildStore.getRoles(guildId);
             const role = roles[roleId];
             let members = GuildMemberStore.getMembers(guildId);
             if (guildId != roleId) members = members.filter(m => m.roles.includes(role.id));
