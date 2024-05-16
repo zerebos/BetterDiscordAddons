@@ -288,7 +288,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
         onStop() {
             Patcher.unpatchAll();
             this.promises.cancel();
-            if (this.unpatchAccountDetails) {
+            if (this.unountDetails) {
                 this.unpatchAccountDetails();
                 delete this.unpatchAccountDetails;
             }
@@ -310,8 +310,8 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
             const rawClasses = WebpackModules.getByProps("container", "avatar", "hasBuildOverride");
 
             const containerSelector = DiscordSelectors.AccountDetails.container || `.${rawClasses.container.split(" ").join(".")}`;
-            const usernameSelector = `${containerSelector} .${rawClasses.usernameContainer.split(" ").join(".")} > div`;
-            const discrimSelector = `${containerSelector} .${rawClasses.usernameContainer.split(" ").join(".")} + div`;
+            const usernameSelector = `${containerSelector} .${rawClasses.panelTitleContainer.split(" ").join(".")} > div `;
+            const discrimSelector = `${containerSelector} .${rawClasses.panelSubtextContainer.split(" ").join(".")} > div `;
 
             const colorizeAccountDetails = (reset = false) => {
                 let username = document.querySelector(usernameSelector);
@@ -392,7 +392,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
             const doColorPopouts = this.settings.popouts.username || this.settings.popouts.discriminator || this.settings.popouts.nickname;
             if (!doColorModals && !doColorPopouts) return;
 
-            const nameTag = element.querySelector(`[class*="profile"] [class*="nameTag-"]`);
+            const nameTag = element.querySelector(`[class*="userTag_"]`);
             if (!nameTag) return;
 
             const props = Utils.findInTree(ReactUtils.getInternalInstance(nameTag), m => m?.user, {walkable: ["memoizedProps", "return"]});
@@ -431,8 +431,11 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                 }
                 if (shouldColorDiscriminator) {
                     const discrim = nameTag.querySelector(`.${props?.discriminatorClass?.split(" ")[0]}`);
-                    discrim.style.setProperty("color", member.colorString, important);
-                    if (this.settings.global.saturation) discrim.dataset.accessibility = "desaturate"; // Add to desaturation list for Discord
+                    if(discrim)
+                    {
+                        discrim.style.setProperty("color", member.colorString, important);
+                        if (this.settings.global.saturation) discrim.dataset.accessibility = "desaturate"; // Add to desaturation list for Discord
+                    }
                 }
             }
         }
