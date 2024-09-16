@@ -1,21 +1,29 @@
 {
     "name": "BetterRoleColors",
     "author": "Zerebos",
-    "version": "0.10.2",
+    "version": "0.10.3",
     "description": "Adds server-based role colors to typing, voice, popouts, modals and more!",
     "github": "https://github.com/zerebos/BetterDiscordAddons/tree/master/Plugins/BetterRoleColors",
     "github_raw": "https://raw.githubusercontent.com/zerebos/BetterDiscordAddons/master/Plugins/BetterRoleColors/BetterRoleColors.plugin.js",
     "changelog": [
         {
-            "title": "Partially Fixed!",
+            "title": "Improvements!",
+            "type": "improved",
+            "items": [
+                "Support was added for the new style bot/app tags, they should be colored the same as the bot.",
+                "Settings were simplified for the new username style system with no discriminators.",
+                "Simplified coloring techniques to hopefully make this update work longer."
+            ]
+        },
+        {
+            "title": "Finally Fixed!",
             "type": "fixed",
             "items": [
                 "Fixed coloring voice users.",
                 "Fixed coloring audit log.",
-                "Fixed coloring chat text.",
                 "Fixed coloring members group.",
-                "Popouts and profiles will be fixed in the next update.",
-                "Account container will be fixed in the next update."
+                "Fixed coloring account container.",
+                "Fixed coloring popouts and modals."
             ]
         }
     ],
@@ -110,23 +118,9 @@
                 },
                 {
                     "type": "switch",
-                    "id": "discriminator",
-                    "name": "Discriminator",
-                    "note": "Toggles coloring on the discriminator in popouts.",
-                    "value": false
-                },
-                {
-                    "type": "switch",
-                    "id": "nickname",
-                    "name": "Nickname",
-                    "note": "Toggles coloring on the nickname in popouts.",
-                    "value": true
-                },
-                {
-                    "type": "switch",
-                    "id": "fallback",
-                    "name": "Enable Fallback",
-                    "note": "If nickname is on and username is off, enabling this will automatically color the username.",
+                    "id": "displayName",
+                    "name": "Display Name",
+                    "note": "Toggles coloring on the display name in popouts.",
                     "value": true
                 }
             ]
@@ -143,14 +137,14 @@
                     "id": "username",
                     "name": "Username",
                     "note": "Toggles coloring on the username in modals.",
-                    "value": true
+                    "value": false
                 },
                 {
                     "type": "switch",
-                    "id": "discriminator",
-                    "name": "Discriminator",
-                    "note": "Toggles coloring on the discriminator in modals.",
-                    "value": false
+                    "id": "displayName",
+                    "name": "Display Name",
+                    "note": "Toggles coloring on the display name in modals.",
+                    "value": true
                 }
             ]
         },
@@ -167,13 +161,6 @@
                     "name": "Username",
                     "note": "Toggles coloring on the username in audit log.",
                     "value": true
-                },
-                {
-                    "type": "switch",
-                    "id": "discriminator",
-                    "name": "Discriminator",
-                    "note": "Toggles coloring on the discriminator in audit log.",
-                    "value": false
                 }
             ]
         },
@@ -190,13 +177,6 @@
                     "name": "Username",
                     "note": "Toggles coloring on the username in account details.",
                     "value": true
-                },
-                {
-                    "type": "switch",
-                    "id": "discriminator",
-                    "name": "Discriminator",
-                    "note": "Toggles coloring on the discriminator in account details.",
-                    "value": false
                 }
             ]
         }
