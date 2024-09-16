@@ -4,13 +4,13 @@
         "authors": [{
             "name": "Zerebos",
             "discord_id": "249746236008169473",
-            "github_username": "rauenzi",
-            "twitter_username": "ZackRauen"
+            "github_username": "zerebos",
+            "twitter_username": "IAmZerebos"
         }],
         "version": "0.1.13",
         "description": "Adds BD shortcuts to the settings context menu.",
-        "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BDContextMenu",
-        "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"
+        "github": "https://github.com/zerebos/BetterDiscordAddons/tree/master/Plugins/BDContextMenu",
+        "github_raw": "https://raw.githubusercontent.com/zerebos/BetterDiscordAddons/master/Plugins/BDContextMenu/BDContextMenu.plugin.js"
     },
     "changelog": [
         {"title": "Bugfixes", "type": "fixed", "items": ["Context menu should show up again."]}

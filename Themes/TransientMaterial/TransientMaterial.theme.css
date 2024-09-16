@@ -1,6 +1,6 @@
 //META{"name":"TransientMaterial","description":"Transparency patch theme for Beard's Material Design Theme","author":"Zerebos","version":"1.0.0"}*//{}
 
-@import url(https://rawgit.com/rauenzi/BetterDiscordAddons/master/Themes/TransientMaterial/import/TransientMaterial.css);
+@import url(https://rawgit.com/zerebos/BetterDiscordAddons/master/Themes/TransientMaterial/import/TransientMaterial.css);
 
 /* Change the URLs here to your image and make sure the link starts with https not http */
 #app-mount {

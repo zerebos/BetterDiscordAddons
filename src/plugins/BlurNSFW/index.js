@@ -7,7 +7,7 @@ module.exports = (Plugin, Api) => {
 
     const SelectedChannelStore = Webpack.getModule(m => m.getCurrentlySelectedChannelId);
     const ChannelStore = Webpack.getModule(m => m.getDMFromUserId);
-    const InlineMediaWrapper = Webpack.getModule(m => m.toString().includes("renderAccessory"));
+    const InlineMediaWrapper = Webpack.getModule(m => m.toString().includes("renderAccessory"), {defaultExport: false});
     const WrapperClasses = Webpack.getModule(m => m.wrapperPlaying);
     const Events = require("events");
     const Dispatcher = new Events();

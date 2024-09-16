@@ -4,13 +4,13 @@
         "authors": [{
             "name": "Zerebos",
             "discord_id": "249746236008169473",
-            "github_username": "rauenzi",
-            "twitter_username": "ZackRauen"
+            "github_username": "zerebos",
+            "twitter_username": "IAmZerebos"
         }],
         "version": "0.0.9",
         "description": "Hides disabled emojis from the emoji picker.",
-        "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/HideDisabledEmojis",
-        "github_raw": "https://github.com/rauenzi/BetterDiscordAddons/blob/master/Plugins/HideDisabledEmojis/HideDisabledEmojis.plugin.js"
+        "github": "https://github.com/zerebos/BetterDiscordAddons/tree/master/Plugins/HideDisabledEmojis",
+        "github_raw": "https://github.com/zerebos/BetterDiscordAddons/blob/master/Plugins/HideDisabledEmojis/HideDisabledEmojis.plugin.js"
     },
     "changelog": [
         {

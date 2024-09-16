@@ -1,12 +1,12 @@
-# Transient Material - [Download](http://betterdiscord.net/ghdl/?url=https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Themes/TransientMaterial/TransientMaterial.theme.css)
+# Transient Material - [Download](http://betterdiscord.net/ghdl/?url=https://raw.githubusercontent.com/zerebos/BetterDiscordAddons/master/Themes/TransientMaterial/TransientMaterial.theme.css)
 
 Transparency patch theme for Beard's Material Design Theme. Also works fairly well on it's own.
 
-For support and update announcements you can visit [Zere's server](http://discord.zackrauen.com/).
+For support and update announcements you can visit [Zere's server](http://discord.zerebos.com/).
 
 ## Preview
 
-![Demo](http://discord.zackrauen.com/TransientMaterial/demo.png)
+![Demo](http://discord.zerebos.com/TransientMaterial/demo.png)
 
 ## Instructions
 
