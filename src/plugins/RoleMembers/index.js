@@ -4,7 +4,7 @@
  */
 module.exports = (Plugin, Api) => {
     const {DOM, ContextMenu, Patcher, Webpack, UI, Utils} = window.BdApi;
-    const {DiscordModules, DiscordSelectors, Utilities, Popouts} = Api;
+    const {DiscordModules, DiscordSelectors, Utilities} = Api;
 
     const from = arr => arr && arr.length > 0 && Object.assign(...arr.map(([k, v]) => ({[k]: v})));
     const filter = (obj, predicate) => from(Object.entries(obj).filter((o) => {return predicate(o[1]);}));
@@ -14,6 +14,8 @@ module.exports = (Plugin, Api) => {
     const GuildMemberStore = DiscordModules.GuildMemberStore;
     const UserStore = DiscordModules.UserStore;
     const ImageResolver = DiscordModules.ImageResolver;
+
+    const getRoles = (guild) => guild?.roles ?? GuildStore.getRoles(guild?.id);
 
     const popoutHTML = require("popout.html");
     const itemHTML = require("item.html");
@@ -38,7 +40,7 @@ module.exports = (Plugin, Api) => {
                 if (!props?.className.toLowerCase().includes("rolemention")) return;
                 props.className += ` interactive`;
                 props.onClick = (e) => {
-                    const roles = GuildStore.getGuild(SelectedGuildStore.getGuildId()).roles;
+                    const roles = getRoles({id: SelectedGuildStore.getGuildId()});
                     const name = props.children[1][0].slice(1);
                     let role = filter(roles, r => r.name == name);
                     if (!role) return;
@@ -52,14 +54,20 @@ module.exports = (Plugin, Api) => {
             this.contextMenuPatch = ContextMenu.patch("guild-context", (retVal, props) => {
                 const guild = props.guild;
                 const guildId = guild.id;
-                const roles = guild.roles;
+                const roles = getRoles(guild);
                 const roleItems = [];
 
                 for (const roleId in roles) {
                     const role = roles[roleId];
+                    let label = role.name;
+                    if (this.settings.showCounts) {
+                        let members = GuildMemberStore.getMembers(guildId);
+                        if (guildId != roleId) members = members.filter(m => m.roles.includes(role.id));
+                        label = `${label} (${members.length})`;
+                    }
                     const item = ContextMenu.buildItem({
                         id: roleId,
-                        label: role.name,
+                        label: label,
                         style: {color: role.colorString ? role.colorString : ""},
                         closeOnClick: false,
                         action: (e) => {
@@ -100,7 +108,7 @@ module.exports = (Plugin, Api) => {
         }
 
         showRolePopout(target, guildId, roleId) {
-            const roles = GuildStore.getGuild(guildId).roles;
+            const roles = getRoles({id: guildId});
             const role = roles[roleId];
             let members = GuildMemberStore.getMembers(guildId);
             if (guildId != roleId) members = members.filter(m => m.roles.includes(role.id));
@@ -124,8 +132,8 @@ module.exports = (Plugin, Api) => {
                 const discriminator = user.discriminator != 0 ? "#" + user.discriminator : "";
                 const elem = DOM.parseHTML(Utilities.formatString(itemHTML, {username: Utils.escapeHTML(user.username), discriminator, avatar_url: ImageResolver.getUserAvatarURL(user)}));
                 elem.addEventListener("click", () => {
-                    // UI.showToast("User popouts are currently broken!", {type: "error"});
-                    setTimeout(() => Popouts.showUserPopout(elem, user, {guild: guildId}), 1);
+                    UI.showToast("Sorry, user popouts are currently broken!", {type: "error"});
+                    // setTimeout(() => Popouts.showUserPopout(elem, user, {guild: guildId}), 1);
                 });
                 scroller.append(elem);
             }
@@ -182,6 +190,11 @@ module.exports = (Plugin, Api) => {
                 }
             };
             setTimeout(() => document.addEventListener("click", this.listener), 500);
+        }
+
+
+        getSettingsPanel() {
+            return this.buildSettingsPanel().getElement();
         }
 
     };
