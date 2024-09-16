@@ -1,11 +1,11 @@
 /**
  * @name PermissionsViewer
  * @description Allows you to view a user's permissions. Thanks to Noodlebox for the idea!
- * @version 0.2.9
+ * @version 0.2.10
  * @author Zerebos
  * @authorId 249746236008169473
- * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer
- * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/PermissionsViewer/PermissionsViewer.plugin.js
+ * @website https://github.com/zerebos/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer
+ * @source https://raw.githubusercontent.com/zerebos/BetterDiscordAddons/master/Plugins/PermissionsViewer/PermissionsViewer.plugin.js
  */
 /*@cc_on
 @if (@_jscript)
@@ -37,21 +37,22 @@ const config = {
             {
                 name: "Zerebos",
                 discord_id: "249746236008169473",
-                github_username: "rauenzi",
-                twitter_username: "ZackRauen"
+                github_username: "zerebos",
+                twitter_username: "IAmZerebos"
             }
         ],
-        version: "0.2.9",
+        version: "0.2.10",
         description: "Allows you to view a user's permissions. Thanks to Noodlebox for the idea!",
-        github: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer",
-        github_raw: "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/PermissionsViewer/PermissionsViewer.plugin.js"
+        github: "https://github.com/zerebos/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer",
+        github_raw: "https://raw.githubusercontent.com/zerebos/BetterDiscordAddons/master/Plugins/PermissionsViewer/PermissionsViewer.plugin.js"
     },
     changelog: [
         {
             title: "Fixes",
             type: "fixed",
             items: [
-                "Fixed for the latest Discord changes!"
+                "Permissions should now show in the user popout again.",
+                "The modal should now show when using the context menu."
             ]
         }
     ],
@@ -232,8 +233,10 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
     const AvatarDefaults = WebpackModules.getByProps("DEFAULT_AVATARS");
     const ModalClasses = WebpackModules.getByProps("root", "header", "small");
     const Strings = WebpackModules.getModule(m => m.Messages && m.Messages.COPY_ID).Messages;
-    const UserPopoutClasses = Object.assign({}, WebpackModules.getByProps("userPopoutOuter"), WebpackModules.getByProps("rolePill"), WebpackModules.getByProps("eyebrow"));
-    const RoleClasses = Object.assign({}, DiscordClasses.PopoutRoles, WebpackModules.getByProps("rolePill"), WebpackModules.getByProps("roleName", "roleIcon"));
+    const UserPopoutClasses = Object.assign({section: "section_ba4d80", heading: "heading_ba4d80", root: "root_c83b44"}, WebpackModules.getByProps("userPopoutOuter"), WebpackModules.getByProps("defaultColor", "eyebrow"), DiscordClasses.PopoutRoles, WebpackModules.getByProps("root", "expandButton"), WebpackModules.getModule(m => m?.heading && m?.section && Object.keys(m)?.length === 2));
+    const RoleClasses = Object.assign({}, DiscordClasses.PopoutRoles, WebpackModules.getByProps("defaultColor", "eyebrow"));
+
+    const getRoles = (guild) => guild?.roles ?? GuildStore.getRoles(guild?.id);
 
     if (DiscordPerms.STREAM) {
         DiscordPerms.VIDEO = DiscordPerms.STREAM;
@@ -585,21 +588,21 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
 #permissions-modal .perm-item {
     width: 50%;
 }`;
-            this.sectionHTML = `<div class="section__6f61e" id="permissions-popout">
-    <h2 class="member-perms-header defaultColor__77578 eyebrow_e5a66c defaultColor__87d87 title_ef4a6d" data-text-variant="eyebrow">
-        <div class="member-perms-title">{{label}}</div>
+            this.sectionHTML = `<div class="{{section}}" id="permissions-popout">
+    <h1 class="member-perms-header {{text-xs/semibold}} {{defaultColor_e9e35f}} {{heading}}" data-text-variant="text-xs/semibold" style="color: var(--header-secondary);">
+        <div class="member-perms-title">{{sectionTitle}}</div>
         <span class="perm-details">
             <svg name="Details" viewBox="0 0 24 24" class="perm-details-button" fill="currentColor">
                 <path d="M0 0h24v24H0z" fill="none"/>
                 <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
             </svg>
         </span>
-    </h2>
-    <div class="member-perms {{root}} {{roles}}"></div>
+    </h1>
+    <div class="member-perms {{root}}"></div>
 </div>`;
-            this.itemHTML = `<div class="member-perm {{role}} {{rolePill}}">
+            this.itemHTML = `<div class="member-perm {{role}}">
     <div class="perm-circle {{roleCircle}}"></div>
-    <div class="name {{roleName}}"></div>
+    <div class="name {{roleName}} {{defaultColor}}"></div>
 </div>`;
             this.modalHTML = `<div id="permissions-modal-wrapper">
         <div class="callout-backdrop {{backdrop}}"></div>
@@ -665,35 +668,36 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
             const popoutMount = (props) => {
                 const popout = document.querySelector(`[class*="userPopout_"], [class*="userPopoutOuter_"]`);
                 if (!popout || popout.querySelector("#permissions-popout")) return;
-                const user = MemberStore.getMember(props.guildId, props.user.id);
-                const guild = GuildStore.getGuild(props.guildId);
-                const name = MemberStore.getNick(props.guildId, props.user.id) ?? props.user.username;
+                const user = MemberStore.getMember(props.displayProfile.guildId, props.user.id);
+                const guild = GuildStore.getGuild(props.displayProfile.guildId);
+                const name = MemberStore.getNick(props.displayProfile.guildId, props.user.id) ?? props.user.username;
                 if (!user || !guild || !name) return;
 
                 const userRoles = user.roles.slice(0);
                 userRoles.push(guild.id);
                 userRoles.reverse();
                 let perms = 0n;
-                const permBlock = DOMTools.createElement(Utilities.formatString(this.sectionHTML, {label: this.strings.popoutLabel}));
+                const permBlock = DOMTools.createElement(Utilities.formatString(this.sectionHTML, {sectionTitle: this.strings.popoutLabel}));
                 const memberPerms = permBlock.querySelector(".member-perms");
                 const strings = Strings;
 
+                const referenceRoles = getRoles(guild);
                 for (let r = 0; r < userRoles.length; r++) {
                     const role = userRoles[r];
-                    if (!guild.roles[role]) continue;
-                    perms = perms | guild.roles[role].permissions;
+                    if (!referenceRoles[role]) continue;
+                    perms = perms | referenceRoles[role].permissions;
                     for (const perm in DiscordPerms) {
                         const permName = strings[perm] || perm.split("_").map(n => n[0].toUpperCase() + n.slice(1).toLowerCase()).join(" ");
                         const hasPerm = (perms & DiscordPerms[perm]) == DiscordPerms[perm];
                         if (hasPerm && !memberPerms.querySelector(`[data-name="${permName}"]`)) {
                             const element = DOMTools.createElement(this.itemHTML);
-                            element.classList.add(RoleClasses.rolePill);
-                            let roleColor = guild.roles[role].colorString;
+                            // element.classList.add(RoleClasses.rolePill);
+                            let roleColor = referenceRoles[role].colorString;
                             element.querySelector(".name").textContent = permName;
                             element.setAttribute("data-name", permName);
                             if (!roleColor) roleColor = "#B9BBBE";
                             element.querySelector(".perm-circle").style.backgroundColor = ColorConverter.rgbToAlpha(roleColor, 1);
-                            element.style.borderColor = ColorConverter.rgbToAlpha(roleColor, 0.6);
+                            // element.style.borderColor = ColorConverter.rgbToAlpha(roleColor, 0.6);
                             memberPerms.prepend(element);
                         }
                     }
@@ -702,9 +706,9 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                 permBlock.querySelector(".perm-details").addEventListener("click", () => {
                     this.showModal(this.createModalUser(name, user, guild));
                 });
-                let roleList = popout.querySelector(`[class*="roles_"]`);
+                let roleList = popout.querySelector(`[class*="section_"]`);
                 roleList = roleList?.parentElement;
-                roleList?.parentNode?.insertBefore(permBlock, roleList.nextSibling);
+                roleList?.parentNode?.append(permBlock);
                 
 
 
@@ -714,7 +718,6 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
             };
 
             if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element)) return;
-            // console.log(e)
             const element = e.addedNodes[0];
             const popout = element.querySelector(`[class*="userPopout_"], [class*="userPopoutOuter_"]`) ?? element;
             if (!popout || !popout.matches(`[class*="userPopout_"], [class*="userPopoutOuter_"]`)) return;
@@ -800,11 +803,11 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
         }
 
         createModalChannel(name, channel, guild) {
-            return this.createModal(`#${name}`, channel.permissionOverwrites, guild.roles, true);
+            return this.createModal(`#${name}`, channel.permissionOverwrites, getRoles(guild), true);
         }
 
         createModalUser(name, user, guild) {
-            const guildRoles = Object.assign({}, guild.roles);
+            const guildRoles = Object.assign({}, getRoles(guild));
             const userRoles = user.roles.slice(0).filter(r => typeof(guildRoles[r]) !== "undefined");
             
             userRoles.push(guild.id);
@@ -819,7 +822,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
         }
 
         createModalGuild(name, guild) {
-            return this.createModal(name, guild.roles);
+            return this.createModal(name, getRoles(guild));
         }
 
         createModal(title, displayRoles, referenceRoles, isOverride = false) {

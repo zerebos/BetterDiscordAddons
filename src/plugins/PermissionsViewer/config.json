@@ -7,13 +7,13 @@
             "github_username": "zerebos",
             "twitter_username": "IAmZerebos"
         }],
-        "version": "0.2.9",
+        "version": "0.2.10",
         "description": "Allows you to view a user's permissions. Thanks to Noodlebox for the idea!",
         "github": "https://github.com/zerebos/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer",
         "github_raw": "https://raw.githubusercontent.com/zerebos/BetterDiscordAddons/master/Plugins/PermissionsViewer/PermissionsViewer.plugin.js"
     },
     "changelog": [
-        {"title": "Fixes", "type": "fixed", "items": ["Fixed for the latest Discord changes!"]}
+        {"title": "Fixes", "type": "fixed", "items": ["Permissions should now show in the user popout again.", "The modal should now show when using the context menu."]}
     ],
     "defaultConfig": [
         {
