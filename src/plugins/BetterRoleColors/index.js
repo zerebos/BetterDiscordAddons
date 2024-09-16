@@ -13,6 +13,8 @@ module.exports = (Plugin, Api) => {
     const RelationshipStore = DiscordModules.RelationshipStore;
     const VoiceUser = WebpackModules.getByPrototypes("renderName", "renderAvatar");
 
+    const getRoles = (guild) => guild?.roles ?? GuildStore.getRoles(guild?.id);
+
     return class BetterRoleColors extends Plugin {
 
         onStart() {
@@ -50,25 +52,20 @@ module.exports = (Plugin, Api) => {
             const rawClasses = WebpackModules.getByProps("container", "avatar", "hasBuildOverride");
 
             const containerSelector = DiscordSelectors.AccountDetails.container || `.${rawClasses.container.split(" ").join(".")}`;
-            const usernameSelector = `${containerSelector} .${rawClasses.usernameContainer.split(" ").join(".")} > div`;
-            const discrimSelector = `${containerSelector} .${rawClasses.usernameContainer.split(" ").join(".")} + div`;
+            const usernameSelector = `${containerSelector} .${rawClasses.panelTitleContainer.split(" ").join(".")} > div`;
 
             const colorizeAccountDetails = (reset = false) => {
                 let username = document.querySelector(usernameSelector);
                 if (!username) username = document.querySelector(usernameSelector.replace(" > div", ""));
-                const discrim = document.querySelector(discrimSelector);
-                if (!username || !discrim) return Logger.info("Could not get account details username and discrim elements");
+                if (!username) return Logger.info("Could not get account details username element");
                 let member = this.getMember(UserStore.getCurrentUser().id, SelectedGuildStore.getGuildId());
                 if (!member || !member.colorString) member = {colorString: ""};
                 const doImportant = this.settings.global.important ? "important" : undefined;
 
                 const doColorUsername = this.settings.account.username && !reset ? member.colorString : "";
-                const doColorDiscrim = this.settings.account.discriminator && !reset ? member.colorString : "";
                 username.style.setProperty("color", doColorUsername, doImportant);
-                discrim.style.setProperty("color", doColorDiscrim, doImportant);
                 if (this.settings.global.saturation) {
                     if (doColorUsername) username.dataset.accessibility = "desaturate"; // Add to desaturation list for Discord
-                    if (doColorUsername) discrim.dataset.accessibility = "desaturate"; // Add to desaturation list for Discord
                 }
             };
 
@@ -87,9 +84,11 @@ module.exports = (Plugin, Api) => {
                 const member = this.getMember(thisObject?.props?.user?.id);
                 if (!member || !member.colorString) return;
                 if (this.settings.global.saturation) returnValue.props["data-accessibility"] = "desaturate"; // Add to desaturation list for Discord
-                returnValue.props.style = {color: member.colorString, backfaceVisibility: "hidden"};
+                const target = returnValue?.props?.children?.props?.children;
+                if (!target || !target.props) return;
+                target.props.style = {color: member.colorString, backfaceVisibility: "hidden"};
                 if (!this.settings.global.important) return;
-                returnValue.ref = (element) => {
+                target.ref = (element) => {
                     if (!element) return;
                     element.style.setProperty("color", member.colorString, "important");
                 };
@@ -104,12 +103,13 @@ module.exports = (Plugin, Api) => {
             this.colorMentions(element);
             this.colorNameTags(element);
             this.colorHeaders(element);
+            this.colorBotTags(element);
         }
 
         colorHeaders(element) {
             if (!this.settings.modules.memberList) return;
-            if (element.matches(`[class*="membersGroup__"]`)) element = [element];
-            else element = element.querySelectorAll(`[class*="membersGroup__"]`);
+            if (element.matches(`[class*="membersGroup_"]`)) element = [element];
+            else element = element.querySelectorAll(`[class*="membersGroup_"]`);
             
             if (!element?.length) return;
             for (const header of element) {
@@ -119,7 +119,8 @@ module.exports = (Plugin, Api) => {
                 if (!props) continue;
                 const guild = GuildStore.getGuild(props.guildId);
                 if (!guild) continue;
-                const role = guild.roles[props.id];
+                const roles = getRoles(guild) ?? {};
+                const role = roles[props.id];
                 if (!role?.colorString) continue;
 
                 header.style.setProperty("color", role.colorString, this.settings.global.important ? "important" : "");
@@ -127,12 +128,33 @@ module.exports = (Plugin, Api) => {
             }
         }
 
+        colorBotTags(element) {
+            if (!this.settings.modules.botTags) return;
+            if (element.matches(`[class*="botTag_"]`)) element = [element];
+            else element = element.querySelectorAll(`[class*="botTag_"]`);
+            
+            if (!element?.length) return;
+            for (const tag of element) {
+                const instance = ReactUtils.getInternalInstance(tag);
+                if (!instance) continue;
+
+                const props = Utils.findInTree(instance, p => p?.user, {walkable: ["memoizedProps", "return", "stateNode", "props"]});
+                if (!props) continue;
+                
+                const member = this.getMember(props.user?.id);
+                if (!member?.colorString) return;
+
+                tag.style.setProperty("--bg-brand", member.colorString, this.settings.global.important ? "important" : "");
+                if (this.settings.global.saturation) tag.dataset.accessibility = "desaturate"; // Add to desaturation list for Discord
+            }
+        }
+
         colorNameTags(element) {
-            const doColorModals = this.settings.modals.username || this.settings.modals.discriminator;
-            const doColorPopouts = this.settings.popouts.username || this.settings.popouts.discriminator || this.settings.popouts.nickname;
+            const doColorModals = this.settings.modals.username || this.settings.modals.displayName;
+            const doColorPopouts = this.settings.popouts.username || this.settings.popouts.displayName;
             if (!doColorModals && !doColorPopouts) return;
 
-            const nameTag = element.querySelector(`[class*="profile"] [class*="nameTag-"]`);
+            const nameTag = element.querySelector(`[class*="Profile"] [class*="body_"] > [class*="container_"]`);
             if (!nameTag) return;
 
             const props = Utils.findInTree(ReactUtils.getInternalInstance(nameTag), m => m?.user, {walkable: ["memoizedProps", "return"]});
@@ -142,38 +164,19 @@ module.exports = (Plugin, Api) => {
             if (!member?.colorString) return;
 
             const important = this.settings.global.important ? "important" : "";
-            const isPopout = "usernameIcon" in props;
-            if (!isPopout) {
-                if (this.settings.modals.username) {
-                    const username = nameTag.querySelector(`.${props?.usernameClass?.split(" ")[0]}`);
-                    username.style.setProperty("color", member.colorString, important);
-                    if (this.settings.global.saturation) username.dataset.accessibility = "desaturate"; // Add to desaturation list for Discord
-                }
-                if (this.settings.modals.discriminator) {
-                    const discrim = nameTag.querySelector(`.${props?.discriminatorClass?.split(" ")[0]}`);
-                    discrim.style.setProperty("color", member.colorString, important);
-                    if (this.settings.global.saturation) discrim.dataset.accessibility = "desaturate"; // Add to desaturation list for Discord
-                }
+            const isPopout = props.onOpenProfile || props.profileType === "BITE_SIZE";
+
+            const shouldColorUsername = isPopout ? this.settings.popouts.username : this.settings.modals.username;
+            const shouldColorDisplayName = isPopout ? this.settings.popouts.displayName : this.settings.modals.displayName;
+            if (shouldColorDisplayName) {
+                const displayName = nameTag.querySelector(`[class*="nickname_"]`);
+                displayName?.style?.setProperty("color", member.colorString, important);
+                if (displayName && this.settings.global.saturation) displayName.dataset.accessibility = "desaturate"; // Add to desaturation list for Discord
             }
-            else {
-                const hasNickname = props?.className.toLowerCase().includes("withnickname") && nameTag.previousElementSibling;
-                const shouldColorUsername = this.settings.popouts.username || (!hasNickname && this.settings.popouts.fallback);
-                const shouldColorDiscriminator = this.settings.popouts.discriminator;
-                const shouldColorNickname = this.settings.popouts.nickname && hasNickname;
-                if (shouldColorNickname) {
-                    nameTag.previousElementSibling.style.setProperty("color", member.colorString, important);
-                    if (this.settings.global.saturation) nameTag.previousElementSibling.dataset.accessibility = "desaturate"; // Add to desaturation list for Discord
-                }
-                if (shouldColorUsername) {
-                    const username = nameTag.querySelector(`.${props?.usernameClass?.split(" ")[0]}`);
-                    username.style.setProperty("color", member.colorString, important);
-                    if (this.settings.global.saturation) username.dataset.accessibility = "desaturate"; // Add to desaturation list for Discord
-                }
-                if (shouldColorDiscriminator) {
-                    const discrim = nameTag.querySelector(`.${props?.discriminatorClass?.split(" ")[0]}`);
-                    discrim.style.setProperty("color", member.colorString, important);
-                    if (this.settings.global.saturation) discrim.dataset.accessibility = "desaturate"; // Add to desaturation list for Discord
-                }
+            if (shouldColorUsername) {
+                const userTag = nameTag.querySelector(`[class*="userTag_"]`);
+                userTag?.style?.setProperty("--header-primary", member.colorString, important);
+                if (userTag && this.settings.global.saturation) userTag.dataset.accessibility = "desaturate"; // Add to desaturation list for Discord
             }
         }
 

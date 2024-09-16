@@ -4,17 +4,26 @@
         "authors": [{
             "name": "Zerebos",
             "discord_id": "249746236008169473",
-            "github_username": "rauenzi",
-            "twitter_username": "ZackRauen"
+            "github_username": "zerebos",
+            "twitter_username": "IAmZerebos"
         }],
-        "version": "0.1.21",
+        "version": "0.1.22",
         "description": "Allows you to see the members of each role on a server.",
-        "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers",
-        "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"
+        "github": "https://github.com/zerebos/BetterDiscordAddons/tree/master/Plugins/RoleMembers",
+        "github_raw": "https://raw.githubusercontent.com/zerebos/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"
     },
     "changelog": [
-        {"title": "Partially Fixed!", "type": "fixed", "items": ["Updated for Discord's changes!", "User popouts will not show on click, that will come in a later update from the library."]}
-
+        {"title": "Small New Feature!", "type": "added", "items": ["You can now show member counts for each role directly in the context menu, just enable it in the plugin's settings."]},
+        {"title": "Mostly Fixed!", "type": "fixed", "items": ["Updated for Discord's changes!", "User popouts will not show on click, that *may* come in a later update from the library."]}
+    ],
+    "defaultConfig": [
+        {
+            "type": "switch",
+            "id": "showCounts",
+            "name": "Show Member Counts",
+            "note": "Enabling this shows the members counts of each role in the context menu",
+            "value": false
+        }
     ],
     "main": "index.js"
 }

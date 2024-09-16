@@ -1,11 +1,11 @@
 /**
  * @name RoleMembers
  * @description Allows you to see the members of each role on a server.
- * @version 0.1.21
+ * @version 0.1.22
  * @author Zerebos
  * @authorId 249746236008169473
- * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers
- * @source https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js
+ * @website https://github.com/zerebos/BetterDiscordAddons/tree/master/Plugins/RoleMembers
+ * @source https://raw.githubusercontent.com/zerebos/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js
  */
 /*@cc_on
 @if (@_jscript)
@@ -37,23 +37,39 @@ const config = {
             {
                 name: "Zerebos",
                 discord_id: "249746236008169473",
-                github_username: "rauenzi",
-                twitter_username: "ZackRauen"
+                github_username: "zerebos",
+                twitter_username: "IAmZerebos"
             }
         ],
-        version: "0.1.21",
+        version: "0.1.22",
         description: "Allows you to see the members of each role on a server.",
-        github: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/RoleMembers",
-        github_raw: "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"
+        github: "https://github.com/zerebos/BetterDiscordAddons/tree/master/Plugins/RoleMembers",
+        github_raw: "https://raw.githubusercontent.com/zerebos/BetterDiscordAddons/master/Plugins/RoleMembers/RoleMembers.plugin.js"
     },
     changelog: [
         {
-            title: "Partially Fixed!",
+            title: "Small New Feature!",
+            type: "added",
+            items: [
+                "You can now show member counts for each role directly in the context menu, just enable it in the plugin's settings."
+            ]
+        },
+        {
+            title: "Mostly Fixed!",
             type: "fixed",
             items: [
                 "Updated for Discord's changes!",
-                "User popouts will not show on click, that will come in a later update from the library."
+                "User popouts will not show on click, that *may* come in a later update from the library."
             ]
+        }
+    ],
+    defaultConfig: [
+        {
+            type: "switch",
+            id: "showCounts",
+            name: "Show Member Counts",
+            note: "Enabling this shows the members counts of each role in the context menu",
+            value: false
         }
     ],
     main: "index.js"
@@ -88,7 +104,7 @@ if (!global.ZeresPluginLibrary) {
 module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
      const plugin = (Plugin, Api) => {
     const {DOM, ContextMenu, Patcher, Webpack, UI, Utils} = window.BdApi;
-    const {DiscordModules, DiscordSelectors, Utilities, Popouts} = Api;
+    const {DiscordModules, DiscordSelectors, Utilities} = Api;
 
     const from = arr => arr && arr.length > 0 && Object.assign(...arr.map(([k, v]) => ({[k]: v})));
     const filter = (obj, predicate) => from(Object.entries(obj).filter((o) => {return predicate(o[1]);}));
@@ -99,40 +115,43 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
     const UserStore = DiscordModules.UserStore;
     const ImageResolver = DiscordModules.ImageResolver;
 
-    const popoutHTML = `<div class="theme-dark layer_ec16dd" style="z-index: 100">
-<div class="animatorBottom_b2d32e translate_c2f6c4 didRender_f1da13 popout-role-members" style="margin-top: 0;">
-    <div class="container_d27846 selectFilterPopout_f4af87 elevationBorderHigh_f9a758 role-members-popout">
-        <div class="container__7712a medium__0fb5d">
-            <div class="inner__999f6"><input class="input__74754" placeholder="Search Members — {{memberCount}}" value="">
-                <div tabindex="0" class="iconLayout__6d744 medium__0fb5d" role="button">
-                    <div class="iconContainer__3af05">
-                        <svg name="Search" class="icon__37cc1 visible__50aa8" width="18" height="18" viewBox="0 0 18 18"><g fill="none" fill-rule="evenodd"><path fill="currentColor" d="M3.60091481,7.20297313 C3.60091481,5.20983419 5.20983419,3.60091481 7.20297313,3.60091481 C9.19611206,3.60091481 10.8050314,5.20983419 10.8050314,7.20297313 C10.8050314,9.19611206 9.19611206,10.8050314 7.20297313,10.8050314 C5.20983419,10.8050314 3.60091481,9.19611206 3.60091481,7.20297313 Z M12.0057176,10.8050314 L11.3733562,10.8050314 L11.1492281,10.5889079 C11.9336764,9.67638651 12.4059463,8.49170955 12.4059463,7.20297313 C12.4059463,4.32933105 10.0766152,2 7.20297313,2 C4.32933105,2 2,4.32933105 2,7.20297313 C2,10.0766152 4.32933105,12.4059463 7.20297313,12.4059463 C8.49170955,12.4059463 9.67638651,11.9336764 10.5889079,11.1492281 L10.8050314,11.3733562 L10.8050314,12.0057176 L14.8073185,16 L16,14.8073185 L12.2102538,11.0099776 L12.0057176,10.8050314 Z"></path></g></svg>
+    const getRoles = (guild) => guild?.roles ?? GuildStore.getRoles(guild?.id);
+
+    const popoutHTML = `<div class="theme-dark layer_cd0de5" style="z-index: 100">
+<div class="animatorBottom_f88ae3 translate_f88ae3 didRender_f88ae3 popout-role-members" style="margin-top: 0;">
+    <div class="container_ac201b selectFilterPopout_cfe282 elevationBorderHigh_ff8688 scroller_ac201b role-members-popout">
+        <div class="searchWithScrollbar_eef3ef container_c18ec9 medium_c18ec9">
+            <div class="inner_c18ec9">
+                <input class="input_c18ec9" placeholder="Search Members — {{memberCount}}" value="">
+                <div tabindex="0" class="iconLayout_c18ec9 medium_c18ec9" role="button">
+                    <div class="iconContainer_c18ec9">
+                        <svg name="Search" class="icon_c18ec9 visible_c18ec9" width="18" height="18" viewBox="0 0 18 18"><g fill="none" fill-rule="evenodd"><path fill="currentColor" d="M3.60091481,7.20297313 C3.60091481,5.20983419 5.20983419,3.60091481 7.20297313,3.60091481 C9.19611206,3.60091481 10.8050314,5.20983419 10.8050314,7.20297313 C10.8050314,9.19611206 9.19611206,10.8050314 7.20297313,10.8050314 C5.20983419,10.8050314 3.60091481,9.19611206 3.60091481,7.20297313 Z M12.0057176,10.8050314 L11.3733562,10.8050314 L11.1492281,10.5889079 C11.9336764,9.67638651 12.4059463,8.49170955 12.4059463,7.20297313 C12.4059463,4.32933105 10.0766152,2 7.20297313,2 C4.32933105,2 2,4.32933105 2,7.20297313 C2,10.0766152 4.32933105,12.4059463 7.20297313,12.4059463 C8.49170955,12.4059463 9.67638651,11.9336764 10.5889079,11.1492281 L10.8050314,11.3733562 L10.8050314,12.0057176 L14.8073185,16 L16,14.8073185 L12.2102538,11.0099776 L12.0057176,10.8050314 Z"></path></g></svg>
                     </div>
                 </div>
             </div>
         </div>
         <div>
-            <div class="list__9970c list_bc6ec7 none__51a8f scrollerBase_dc3aa9 role-members" dir="ltr" style="overflow: hidden scroll; padding-right: 0px; max-height: 400px;">
+            <div class="list_eef3ef list_ac201b scroller_eef3ef thin_eed6a8 scrollerBase_eed6a8 role-members" dir="ltr" style="overflow: hidden scroll; padding-right: 0px; max-height: 400px;">
                 
             </div>
         </div>
     </div>
 </div>
 </div>`;
-    const itemHTML = `<div class="item__287de role-member">
-    <div class="itemCheckbox__8e8b3">
-        <div class="wrapper_edb6e0 avatar__31cab" role="img" aria-hidden="false" style="width: 32px; height: 32px;">
-            <svg width="40" height="32" viewBox="0 0 40 32" class="mask__1979f svg_f5b652" aria-hidden="true">
+    const itemHTML = `<div class="item_eef3ef role-member">
+    <div class="itemCheckbox_eef3ef">
+        <div class="wrapper_c51b4e avatar_cfe282" role="img" aria-hidden="false" style="width: 32px; height: 32px;">
+            <svg width="40" height="32" viewBox="0 0 40 32" class="mask_c51b4e svg_c51b4e" aria-hidden="true">
                 <foreignObject x="0" y="0" width="32" height="32" mask="url(#svg-mask-avatar-default)">
-                        <div class="avatarStack__6604a">
-                            <img src="{{avatar_url}}" alt=" " class="avatar__991e2" aria-hidden="true">
+                        <div class="avatarStack_c51b4e">
+                            <img src="{{avatar_url}}" alt=" " class="avatar_c51b4e" aria-hidden="true">
                         </div>
                 </foreignObject>
             </svg>
         </div>
     </div>
-    <div class="itemLabel__6d2fe">
-        <span class="defaultColor__77578 username">{{username}}</span>
+    <div class="itemLabel_eef3ef">
+        <span class="defaultColor_a595eb text-sm/normal_dc00ef username">{{username}}</span>
     </div>
 </div>`;
 
@@ -156,7 +175,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                 if (!props?.className.toLowerCase().includes("rolemention")) return;
                 props.className += ` interactive`;
                 props.onClick = (e) => {
-                    const roles = GuildStore.getGuild(SelectedGuildStore.getGuildId()).roles;
+                    const roles = getRoles({id: SelectedGuildStore.getGuildId()});
                     const name = props.children[1][0].slice(1);
                     let role = filter(roles, r => r.name == name);
                     if (!role) return;
@@ -170,14 +189,20 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
             this.contextMenuPatch = ContextMenu.patch("guild-context", (retVal, props) => {
                 const guild = props.guild;
                 const guildId = guild.id;
-                const roles = guild.roles;
+                const roles = getRoles(guild);
                 const roleItems = [];
 
                 for (const roleId in roles) {
                     const role = roles[roleId];
+                    let label = role.name;
+                    if (this.settings.showCounts) {
+                        let members = GuildMemberStore.getMembers(guildId);
+                        if (guildId != roleId) members = members.filter(m => m.roles.includes(role.id));
+                        label = `${label} (${members.length})`;
+                    }
                     const item = ContextMenu.buildItem({
                         id: roleId,
-                        label: role.name,
+                        label: label,
                         style: {color: role.colorString ? role.colorString : ""},
                         closeOnClick: false,
                         action: (e) => {
@@ -218,7 +243,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
         }
 
         showRolePopout(target, guildId, roleId) {
-            const roles = GuildStore.getGuild(guildId).roles;
+            const roles = getRoles({id: guildId});
             const role = roles[roleId];
             let members = GuildMemberStore.getMembers(guildId);
             if (guildId != roleId) members = members.filter(m => m.roles.includes(role.id));
@@ -242,8 +267,8 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                 const discriminator = user.discriminator != 0 ? "#" + user.discriminator : "";
                 const elem = DOM.parseHTML(Utilities.formatString(itemHTML, {username: Utils.escapeHTML(user.username), discriminator, avatar_url: ImageResolver.getUserAvatarURL(user)}));
                 elem.addEventListener("click", () => {
-                    // UI.showToast("User popouts are currently broken!", {type: "error"});
-                    setTimeout(() => Popouts.showUserPopout(elem, user, {guild: guildId}), 1);
+                    UI.showToast("Sorry, user popouts are currently broken!", {type: "error"});
+                    // setTimeout(() => Popouts.showUserPopout(elem, user, {guild: guildId}), 1);
                 });
                 scroller.append(elem);
             }
@@ -300,6 +325,11 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
                 }
             };
             setTimeout(() => document.addEventListener("click", this.listener), 500);
+        }
+
+
+        getSettingsPanel() {
+            return this.buildSettingsPanel().getElement();
         }
 
     };

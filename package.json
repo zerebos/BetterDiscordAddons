@@ -4,7 +4,7 @@
   "description": "Addons for BetterDiscord.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rauenzi/BetterDiscordAddons"
+    "url": "https://github.com/zerebos/BetterDiscordAddons"
   },
   "scripts": {
     "build": "zpl build",
@@ -20,8 +20,8 @@
     "releaseFolder": "./Plugins",
     "copyToBD": true,
     "addInstallScript": true,
-    "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/`{{PLUGIN_NAME}}`",
-    "githubRaw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/`{{PLUGIN_NAME}}`/`{{PLUGIN_NAME}}`.plugin.js",
+    "github": "https://github.com/zerebos/BetterDiscordAddons/tree/master/Plugins/`{{PLUGIN_NAME}}`",
+    "githubRaw": "https://raw.githubusercontent.com/zerebos/BetterDiscordAddons/master/Plugins/`{{PLUGIN_NAME}}`/`{{PLUGIN_NAME}}`.plugin.js",
     "authorLink": "https://twitter.com/IAmZerebos"
   },
   "devDependencies": {

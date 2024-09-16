@@ -32,7 +32,7 @@ module.exports = (Plugin, Api) => {
         }
 
         async onStart() {
-            // await PluginUtilities.addScript("sortableScript", "//rauenzi.github.io/BetterDiscordAddons/Plugins/Sortable.js");
+            // await PluginUtilities.addScript("sortableScript", "//zerebos.github.io/BetterDiscordAddons/Plugins/Sortable.js");
             DOM.addStyle(this.name + "-style", this.mainCSS);
             this.buttonOrder = PluginUtilities.loadData(this.name, "buttonOrder", this.buttonOrder);
             this.setupToolbar();

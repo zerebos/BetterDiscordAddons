@@ -4,13 +4,13 @@
         "authors": [{
             "name": "Ckat/Cate edited by confus, rewritten by zerebos",
             "discord_id": "249746236008169473",
-            "github_username": "rauenzi",
-            "twitter_username": "ZackRauen"
+            "github_username": "zerebos",
+            "twitter_username": "IAmZerebos"
         }],
         "version": "1.2.4",
         "description": "Search through all emotes in bd with /es emoteuwant.",
-        "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/EmoteSearch",
-        "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/EmoteSearch/EmoteSearch.plugin.js"
+        "github": "https://github.com/zerebos/BetterDiscordAddons/tree/master/Plugins/EmoteSearch",
+        "github_raw": "https://raw.githubusercontent.com/zerebos/BetterDiscordAddons/master/Plugins/EmoteSearch/EmoteSearch.plugin.js"
     },
     "changelog": [],
     "main": "index.js"

@@ -4,13 +4,13 @@
         "authors": [{
             "name": "Zerebos",
             "discord_id": "249746236008169473",
-            "github_username": "rauenzi",
-            "twitter_username": "ZackRauen"
+            "github_username": "zerebos",
+            "twitter_username": "IAmZerebos"
         }],
         "version": "2.3.14",
         "description": "Enables different types of formatting in standard Discord chat.",
-        "github": "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux",
-        "github_raw": "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js"
+        "github": "https://github.com/zerebos/BetterDiscordAddons/tree/master/Plugins/BetterFormattingRedux",
+        "github_raw": "https://raw.githubusercontent.com/zerebos/BetterDiscordAddons/master/Plugins/BetterFormattingRedux/BetterFormattingRedux.plugin.js"
     },
     "changelog": [
         {
