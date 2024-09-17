@@ -1,7 +1,7 @@
 /**
  * @name PermissionsViewer
  * @description Allows you to view a user's permissions. Thanks to Noodlebox for the idea!
- * @version 0.2.10
+ * @version 0.2.11
  * @author Zerebos
  * @authorId 249746236008169473
  * @website https://github.com/zerebos/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer
@@ -41,7 +41,7 @@ const config = {
                 twitter_username: "IAmZerebos"
             }
         ],
-        version: "0.2.10",
+        version: "0.2.11",
         description: "Allows you to view a user's permissions. Thanks to Noodlebox for the idea!",
         github: "https://github.com/zerebos/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer",
         github_raw: "https://raw.githubusercontent.com/zerebos/BetterDiscordAddons/master/Plugins/PermissionsViewer/PermissionsViewer.plugin.js"
@@ -51,8 +51,7 @@ const config = {
             title: "Fixes",
             type: "fixed",
             items: [
-                "Permissions should now show in the user popout again.",
-                "The modal should now show when using the context menu."
+                "Quick fix for displaying permissions in user popouts!"
             ]
         }
     ],
@@ -234,7 +233,7 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
     const ModalClasses = WebpackModules.getByProps("root", "header", "small");
     const Strings = WebpackModules.getModule(m => m.Messages && m.Messages.COPY_ID).Messages;
     const UserPopoutClasses = Object.assign({section: "section_ba4d80", heading: "heading_ba4d80", root: "root_c83b44"}, WebpackModules.getByProps("userPopoutOuter"), WebpackModules.getByProps("defaultColor", "eyebrow"), DiscordClasses.PopoutRoles, WebpackModules.getByProps("root", "expandButton"), WebpackModules.getModule(m => m?.heading && m?.section && Object.keys(m)?.length === 2));
-    const RoleClasses = Object.assign({}, DiscordClasses.PopoutRoles, WebpackModules.getByProps("defaultColor", "eyebrow"));
+    const RoleClasses = Object.assign({}, DiscordClasses.PopoutRoles, WebpackModules.getByProps("defaultColor", "eyebrow"), WebpackModules.getByProps("role", "roleName", "roleCircle"));
 
     const getRoles = (guild) => guild?.roles ?? GuildStore.getRoles(guild?.id);
 

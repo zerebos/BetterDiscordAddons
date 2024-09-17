@@ -15,7 +15,7 @@ module.exports = (Plugin, Api) => {
     const ModalClasses = WebpackModules.getByProps("root", "header", "small");
     const Strings = WebpackModules.getModule(m => m.Messages && m.Messages.COPY_ID).Messages;
     const UserPopoutClasses = Object.assign({section: "section_ba4d80", heading: "heading_ba4d80", root: "root_c83b44"}, WebpackModules.getByProps("userPopoutOuter"), WebpackModules.getByProps("defaultColor", "eyebrow"), DiscordClasses.PopoutRoles, WebpackModules.getByProps("root", "expandButton"), WebpackModules.getModule(m => m?.heading && m?.section && Object.keys(m)?.length === 2));
-    const RoleClasses = Object.assign({}, DiscordClasses.PopoutRoles, WebpackModules.getByProps("defaultColor", "eyebrow"));
+    const RoleClasses = Object.assign({}, DiscordClasses.PopoutRoles, WebpackModules.getByProps("defaultColor", "eyebrow"), WebpackModules.getByProps("role", "roleName", "roleCircle"));
 
     const getRoles = (guild) => guild?.roles ?? GuildStore.getRoles(guild?.id);
 
