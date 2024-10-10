@@ -224,7 +224,8 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
     const {ContextMenu, DOM, Utils} = window.BdApi;
     const {DiscordModules, WebpackModules, Toasts, DiscordClasses, Utilities, DOMTools, ColorConverter, ReactTools} = Api;
 
-    const GuildStore = DiscordModules.GuildStore;
+    const { Webpack } = BdApi;
+    const GuildStore = Webpack.getStore("GuildStore");
     const SelectedGuildStore = DiscordModules.SelectedGuildStore;
     const MemberStore = DiscordModules.GuildMemberStore;
     const UserStore = DiscordModules.UserStore;
@@ -745,10 +746,12 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
         patchGuildContextMenu() {
             this.contextMenuPatches.push(ContextMenu.patch("guild-context", (retVal, props) => {
                 if (!props?.guild) return retVal; // Ignore non-guild items
+                const guild = GuildStore.getGuild(props.guild.id);
+                if (!guild) return retVal;
                 const newItem = ContextMenu.buildItem({
                     label: this.strings.contextMenuLabel,
                     action: () => {
-                        this.showModal(this.createModalGuild(props.guild.name, props.guild));
+                        this.showModal(this.createModalGuild(guild.name, guild));
                     }
                 });
                 retVal.props.children.splice(1, 0, newItem);
