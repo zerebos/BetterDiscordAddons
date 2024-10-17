@@ -6,7 +6,8 @@ module.exports = (Plugin, Api) => {
     const {ContextMenu, DOM, Utils} = window.BdApi;
     const {DiscordModules, WebpackModules, Toasts, DiscordClasses, Utilities, DOMTools, ColorConverter, ReactTools} = Api;
 
-    const GuildStore = DiscordModules.GuildStore;
+    const { Webpack } = BdApi;
+    const GuildStore = Webpack.getStore("GuildStore");
     const SelectedGuildStore = DiscordModules.SelectedGuildStore;
     const MemberStore = DiscordModules.GuildMemberStore;
     const UserStore = DiscordModules.UserStore;
@@ -155,11 +156,12 @@ module.exports = (Plugin, Api) => {
 
         patchGuildContextMenu() {
             this.contextMenuPatches.push(ContextMenu.patch("guild-context", (retVal, props) => {
-                if (!props?.guild) return retVal; // Ignore non-guild items
+                if (!props?.guild) return retVal;
+                const guild = props.guild;
                 const newItem = ContextMenu.buildItem({
                     label: this.strings.contextMenuLabel,
                     action: () => {
-                        this.showModal(this.createModalGuild(props.guild.name, props.guild));
+                        this.showModal(this.createModalGuild(guild.name, guild));
                     }
                 });
                 retVal.props.children.splice(1, 0, newItem);
@@ -181,14 +183,15 @@ module.exports = (Plugin, Api) => {
 
         patchUserContextMenu() {
             this.contextMenuPatches.push(ContextMenu.patch("user-context", (retVal, props) => {
+                if (!props.guildId) return;
                 const guild = GuildStore.getGuild(props.guildId);
                 if (!guild) return;
 
                 const newItem = ContextMenu.buildItem({
                     label: this.strings.contextMenuLabel,
                     action: () => {
-                        const user = MemberStore.getMember(props.guildId, props.user.id);
-                        const name = user.nick ? user.nick : props.user.username;
+                        const user = MemberStore.getMember(guild.id, props.user.id);
+                        const name = user.nick || props.user.username;
                         this.showModal(this.createModalUser(name, user, guild));
                     }
                 });
