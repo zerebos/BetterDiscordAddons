@@ -14,7 +14,7 @@ module.exports = (Plugin, Api) => {
     const DiscordPerms = Object.assign({}, DiscordModules.DiscordPermissions);
     const AvatarDefaults = WebpackModules.getByProps("DEFAULT_AVATARS");
     const ModalClasses = WebpackModules.getByProps("root", "header", "small");
-    const Strings = WebpackModules.getModule(m => m.Messages && m.Messages.COPY_ID).Messages;
+    const Strings = WebpackModules.getByProps("COPY_ID");
     const UserPopoutClasses = Object.assign({section: "section_ba4d80", heading: "heading_ba4d80", root: "root_c83b44"}, WebpackModules.getByProps("userPopoutOuter"), WebpackModules.getByProps("defaultColor", "eyebrow"), DiscordClasses.PopoutRoles, WebpackModules.getByProps("root", "expandButton"), WebpackModules.getModule(m => m?.heading && m?.section && Object.keys(m)?.length === 2));
     const RoleClasses = Object.assign({}, DiscordClasses.PopoutRoles, WebpackModules.getByProps("defaultColor", "eyebrow"), WebpackModules.getByProps("role", "roleName", "roleCircle"));
 
