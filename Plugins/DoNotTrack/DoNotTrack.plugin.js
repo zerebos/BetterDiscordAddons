@@ -1,7 +1,7 @@
 /**
  * @name DoNotTrack
  * @description Stops Discord from tracking everything you do like Sentry and Analytics.
- * @version 0.0.8
+ * @version 0.0.9
  * @author Zerebos
  * @authorId 249746236008169473
  * @website https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/DoNotTrack
@@ -41,7 +41,7 @@ const config = {
                 twitter_username: "ZackRauen"
             }
         ],
-        version: "0.0.8",
+        version: "0.0.9",
         description: "Stops Discord from tracking everything you do like Sentry and Analytics.",
         github: "https://github.com/rauenzi/BetterDiscordAddons/tree/master/Plugins/DoNotTrack",
         github_raw: "https://raw.githubusercontent.com/rauenzi/BetterDiscordAddons/master/Plugins/DoNotTrack/DoNotTrack.plugin.js"
@@ -51,7 +51,7 @@ const config = {
             title: "Fixes",
             type: "fixed",
             items: [
-                "Fixed for Discord changes"
+                "Fixed on Novermber 2024 for Discord changes"
             ]
         }
     ],
@@ -97,51 +97,75 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
      const plugin = (Plugin, Api) => {
     const {Patcher, WebpackModules, Modals} = Api;
 
-    const SettingsManager = WebpackModules.getModule(m => m?.updateAsync, {searchExports: true});
-    const BoolSetting = WebpackModules.getModule(m => m?.typeName?.includes("Bool"), {searchExports: true});
+    const SettingsManager = WebpackModules.getByProps("ShowCurrentGame");
     const Analytics = WebpackModules.getByProps("AnalyticEventConfigs");
-    const NativeModule = WebpackModules.getByProps("getDiscordUtils");
 
     return class DoNotTrack extends Plugin {
         onStart() {
-            
-            Patcher.instead(Analytics.default, "track", () => {});
-            Patcher.instead(NativeModule, "ensureModule", (_, [moduleName], originalFunction) => {
-                if (moduleName.includes("discord_rpc")) return;
-                return originalFunction(moduleName);
-            });
+    // Disable Analytics
+    Patcher.instead(Analytics.default, "track", () => {});
 
-            // No more global processors
-            window.__SENTRY__.globalEventProcessors.splice(0, window.__SENTRY__.globalEventProcessors.length);
+    // Disable Sentry Logger if it exists
+    if (window.__SENTRY__?.logger) {
+        window.__SENTRY__.logger.disable();
+    }
 
-            // Kill sentry logs
-            window.__SENTRY__.logger.disable(); 
-
-            const SentryHub = window.DiscordSentry.getCurrentHub();
-            SentryHub.getClient().close(0); // Kill reporting
-            SentryHub.getScope().clear(); // Delete PII
-
-            if (this.settings.stopProcessMonitor) this.disableProcessMonitor();
+    // Enhanced Sentry protection using available methods
+    if (window.DiscordSentry?.getCurrentHub()) {
+        const SentryHub = window.DiscordSentry.getCurrentHub();
+        
+        // Close the client to stop reporting
+        if (SentryHub.getClient()) {
+            SentryHub.getClient().close(0);
         }
+
+        // Clear all scope data
+        if (SentryHub.getScope()) {
+            SentryHub.getScope().clear();
+        }
+
+        // End any active sessions
+        SentryHub.endSession();
+        
+        // Clear user data
+        SentryHub.setUser(null);
+        
+        // Clear any tags that might contain tracking data
+        SentryHub.setTags({});
+        
+        // Clear any extra data
+        SentryHub.setExtras({});
+    }
+
+    // Clean up console methods
+    for (const method in console) {
+        if (console[method]?.__sentry_original__) {
+            console[method] = console[method].__sentry_original__;
+        }
+    }
+
+    if (this.settings.stopProcessMonitor) this.disableProcessMonitor();
+}
         
         onStop() {
             Patcher.unpatchAll();
         }
 
         disableProcessMonitor() {
-            SettingsManager?.updateAsync("status", settings => settings.showCurrentGame = BoolSetting.create({value: false}));
+            SettingsManager?.ShowCurrentGame?.updateSetting(false);
+            const NativeModule = WebpackModules.getByProps("getDiscordUtils");
             const DiscordUtils = NativeModule.getDiscordUtils();
-            const original = DiscordUtils.setObservedGamesCallback;
-            Patcher.instead(DiscordUtils, "setObservedGamesCallback", () => {});
-            setTimeout(() => original([], () => {}), 3000); // Delay this in case there's a boot order issue
+            DiscordUtils.setObservedGamesCallback([], () => {});
         }
 
         enableProcessMonitor() {
-            SettingsManager?.updateAsync("status", settings => settings.showCurrentGame = BoolSetting.create({value: true}));
+            SettingsManager?.ShowCurrentGame?.updateSetting(true);
             Modals.showConfirmationModal("Reload Discord?", "To reenable the process monitor Discord needs to be reloaded.", {
                 confirmText: "Reload",
                 cancelText: "Later",
-                onConfirm: () => window.location.reload()
+                onConfirm: () => {
+                    window.location.reload();
+                }
             });
         }
 
@@ -161,4 +185,3 @@ module.exports = !global.ZeresPluginLibrary ? Dummy : (([Plugin, Api]) => {
 };
      return plugin(Plugin, Api);
 })(global.ZeresPluginLibrary.buildPlugin(config));
-/*@end@*/
