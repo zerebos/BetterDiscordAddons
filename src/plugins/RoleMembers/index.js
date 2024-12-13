@@ -10,7 +10,7 @@ module.exports = (Plugin, Api) => {
     const filter = (obj, predicate) => from(Object.entries(obj).filter((o) => {return predicate(o[1]);}));
 
     const SelectedGuildStore = DiscordModules.SelectedGuildStore;
-    const GuildStore = DiscordModules.GuildStore;
+    const GuildStore = Webpack.getStore("GuildStore");
     const GuildMemberStore = DiscordModules.GuildMemberStore;
     const UserStore = DiscordModules.UserStore;
     const ImageResolver = DiscordModules.ImageResolver;
