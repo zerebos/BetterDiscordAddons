@@ -19,7 +19,7 @@
     "@types/node": "^22.10.2",
     "@types/react": "^19.0.1",
     "@types/react-reconciler": "^0.28.9",
-    "esbuild": "^0.24.0",
+    "esbuild": "^0.25.0",
     "eslint": "^9.17.0",
     "globals": "^15.13.0",
     "typescript": "^5.7.2",
