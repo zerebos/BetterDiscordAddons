@@ -237,7 +237,7 @@ var RoleMembers = class extends Plugin {
   patchRoleMention() {
     const Pill = Webpack.getModule(Webpack.Filters.byStrings("interactive", "iconType"), { defaultExport: false });
     Patcher.before(this.meta.name, Pill, "Z", (_, [props]) => {
-      if (!props?.className.toLowerCase().includes("rolemention")) return;
+      if (!props?.className?.toLowerCase().includes("rolemention")) return;
       props.className += ` interactive`;
       props.onClick = (e) => {
         const roles = getRoles({ id: SelectedGuildStore.getGuildId() });
