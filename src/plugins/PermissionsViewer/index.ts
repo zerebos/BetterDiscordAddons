@@ -30,8 +30,9 @@ type DisplayMode = "cozy" | "compact";
 
 const {ContextMenu, DOM, Utils, Webpack, UI, ReactUtils} = BdApi;
 
-const GuildStore = Webpack.getStore<{getRoles(id: string): Record<string, GuildRole>; getGuild(id: string): Guild;}>("GuildStore");
+const GuildStore = Webpack.getStore<{getGuild(id: string): Guild;}>("GuildStore");
 const SelectedGuildStore = Webpack.getStore<{getGuildId(): string}>("SelectedGuildStore");
+const GuildRoleStore = Webpack.getStore<{getRoles(id: string): Record<string, GuildRole>; }>("GuildRoleStore");
 const MemberStore = Webpack.getStore<{getNick(gid: string, uid: string): string; getMembers(id: string): GuildMember[]; getMember(gid: string, uid: string): GuildMember;}>("GuildMemberStore");
 const UserStore = Webpack.getStore<{getUser(id: string): User}>("UserStore");
 const DiscordPermissions = Webpack.getModule<IDiscordPermissions>(m => m.ADD_REACTIONS, {searchExports: true});
@@ -40,7 +41,7 @@ const ElectronModule = BdApi.Webpack.getByKeys<{copy(s: string): void}>("setBadg
 const intlModule = BdApi.Webpack.getByKeys<{intl: {string(hash: string): string;}; t: Record<string, string>;}>("intl");
 
 
-const getRoles = (guild: {roles?: Record<string, GuildRole>; id: string}): Record<string, GuildRole> | undefined => guild?.roles ?? GuildStore?.getRoles(guild?.id);
+const getRoles = (guild: {roles?: Record<string, GuildRole>; id: string}): Record<string, GuildRole> | undefined => guild?.roles ?? GuildRoleStore?.getRoles(guild?.id);
 const getHashString = (hash: string) => intlModule?.intl.string(hash);
 const getPermString = (perm: keyof IDiscordPermissions) => intlModule?.intl.string(intlModule.t[PermissionStringMap[perm]]) ?? perm.toString();
 
