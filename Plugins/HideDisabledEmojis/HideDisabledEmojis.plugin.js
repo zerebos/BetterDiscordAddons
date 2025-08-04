@@ -32,6 +32,11 @@
 
 @else@*/
 
+// why are we letting Zere, the braindead American let control BD when he can't even
+// fucking read clearly documented and well known standards, such as __filename being
+// the files full fucking path and not just the filename itself, IS IT REALLY SO HARD
+// TO FUCKING READ?! https://nodejs.org/api/modules.html#modules_filename
+
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
