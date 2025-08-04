@@ -57,7 +57,7 @@ export default class RoleMembers extends Plugin {
         const Pill = Webpack.getModule(Webpack.Filters.byStrings("interactive", "iconType"), {defaultExport: false});
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         Patcher.before(this.meta.name, Pill, "Z" as keyof typeof Pill, (_, [props]: [Record<string, any>]) => {
-            if (!props?.className.toLowerCase().includes("rolemention")) return;
+            if (!props?.className?.toLowerCase().includes("rolemention")) return;
             props.className += ` interactive`;
             props.onClick = (e: SyntheticEvent<MouseEvent>) => {
                 const roles = getRoles({id: SelectedGuildStore!.getGuildId()});
