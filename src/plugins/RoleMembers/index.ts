@@ -50,6 +50,15 @@ function openUserPopout(event: MouseEvent, userId: string, guildId: string) {
     return BdApi.ContextMenu.open(event, () => rendered, {noBlurEvent: true});
 }
 
+interface OffsetRect {
+    top: number;
+    bottom: number;
+    left: number;
+    right: number;
+    width?: number;
+    height?: number;
+}
+
 export default class RoleMembers extends Plugin {
     constructor(meta: Meta) {
         super(meta, Config);
@@ -83,8 +92,7 @@ export default class RoleMembers extends Plugin {
                 const filtered = filter(roles!, (r: GuildRole) => r.name == name) as Record<string, GuildRole>;
                 if (!filtered) return;
                 const role = filtered[Object.keys(filtered)[0]];
-                // this.showRolePopout(e.nativeEvent.target as HTMLSpanElement, SelectedGuildStore!.getGuildId(), role.id);
-                this.showSveltePopout(e.nativeEvent, e.currentTarget as HTMLElement, SelectedGuildStore!.getGuildId()!, role.id);
+                this.showSveltePopout(e.nativeEvent, SelectedGuildStore!.getGuildId()!, role.id, e.currentTarget.getBoundingClientRect());
             };
         });
     }
@@ -106,11 +114,9 @@ export default class RoleMembers extends Plugin {
                 }
                 const item = ContextMenu.buildItem({
                     id: roleId,
-                    label: label,
-                    style: {color: role.colorString ? role.colorString : ""},
-                    closeOnClick: false,
+                    label: () => BdApi.React.createElement("span", {style: {color: role.colorStrings?.primaryColor ? role.colorStrings.primaryColor : ""}}, label),
+                    // dontCloseOnAction: true,
                     action: (e: ReactMouseEvent<HTMLElement>) => {
-
                         e.currentTarget = e.target as HTMLElement; // Fixes incorrect target typing
 
                         if (e.ctrlKey) {
@@ -119,20 +125,11 @@ export default class RoleMembers extends Plugin {
                                 UI.showToast("Copied Role ID to clipboard!", {type: "success"});
                             }
                             catch {
-                                UI.showToast("Could not copy Role ID to clipboard", {type: "success"});
+                                UI.showToast("Could not copy Role ID to clipboard", {type: "error"});
                             }
                         }
                         else {
-                            this.showSveltePopout(e.nativeEvent, {
-                                getBoundingClientRect() {
-                                    return {
-                                        top: e.pageY,
-                                        bottom: e.pageY,
-                                        left: e.pageX,
-                                        right: e.pageX
-                                    } as DOMRect;
-                                }
-                            }, guildId, role.id);
+                            this.showSveltePopout(e.nativeEvent, guildId, role.id, {top: e.pageY, bottom: e.pageY, left: e.pageX, right: e.pageX});
                         }
                     }
                 });
@@ -149,33 +146,27 @@ export default class RoleMembers extends Plugin {
         });
     }
 
-    showSveltePopout(event: MouseEvent, target: HTMLElement | {getBoundingClientRect(): DOMRect;}, guildId: string, roleId: string) {
+    showSveltePopout(event: MouseEvent, guildId: string, roleId: string, offset: OffsetRect) {
         const roles = getRoles({id: guildId});
         if (!roles) return;
         const role = roles[roleId];
         let members = GuildMemberStore!.getMembers(guildId);
         if (guildId != roleId) members = members.filter(m => m.roles.includes(role.id));
 
-        // const popoutContainer = document.querySelector("#popover-portal");
         const svelteMountContainer = document.createElement("div");
         svelteMountContainer.style.position = "fixed";
         svelteMountContainer.style.pointerEvents = "all";
-        // popoutContainer?.appendChild(svelteMountContainer);
         mount(UserSearchPopout, {
             target: svelteMountContainer,
             props: {
-                onItemClick: (ev, user) => {
-                    openUserPopout(ev, user.id, guildId);
-                    // UserModals!.openUserProfileModal({userId: user.id});
-                    // UI.showToast("Sorry, user popouts are currently broken!", {type: "error"});
-                    // setTimeout(() => Popouts.showUserPopout(elem, user, {guild: guildId}), 1);
-                },
+                onItemClick: (ev, user) => openUserPopout(ev, user.id, guildId),
                 users: members.map(m => {
                     const user = UserStore.getUser(m.userId)!;
                     return {
                         id: m.userId,
                         avatar: Images!.getUserAvatarURL(user),
-                        name: user.username
+                        name: user.username,
+                        color: m.colorStrings?.primaryColor ? m.colorStrings.primaryColor : undefined
                     };
                 })
             }
@@ -183,10 +174,10 @@ export default class RoleMembers extends Plugin {
 
         // BdApi.ContextMenu.open(event, () => BdApi.React.createElement(BdApi.ReactUtils.wrapElement(svelteMountContainer)), {noBlurEvent: true});
 
-        this.showPopout(svelteMountContainer, target);
+        this.showPopout(svelteMountContainer, offset);
     }
 
-    showPopout(popout: HTMLElement, relativeTarget: HTMLElement | {getBoundingClientRect(): DOMRect;}) {
+    showPopout(popout: HTMLElement, offset: OffsetRect) {
         if (this.listener) this.listener(null); // Close any previous popouts
 
         const layerContainers = document.querySelectorAll(`[class*="-app"] ~ .${LayerClasses?.layerContainer ?? "_59d0d7075b521375-layerContainer"}`);
@@ -198,11 +189,8 @@ export default class RoleMembers extends Plugin {
         const maxWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
         const maxHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
-        const offset = relativeTarget.getBoundingClientRect();
         if (offset.right + popout.offsetHeight >= maxWidth) {
-            // popout.classList.add(...DiscordClasses.Popouts.popoutLeft.value.split(" "));
             popout.style.left = Math.round(offset.left - popout.offsetWidth - 20) + "px";
-            // popout.animate({left: Math.round(offset.left - popout.offsetWidth - 10)}, 100);
             const original = Math.round(offset.left - popout.offsetWidth - 20);
             const endPoint = Math.round(offset.left - popout.offsetWidth - 10);
             DOM.animate(function (progress) {
@@ -213,9 +201,7 @@ export default class RoleMembers extends Plugin {
             }, 100);
         }
         else {
-            // popout.classList.add(...DiscordClasses.Popouts.popoutRight.value.split(" "));
             popout.style.left = (offset.right + 10) + "px";
-            // popout.animate({left: offset.right}, 100);
             const original = offset.right + 10;
             const endPoint = offset.right;
             DOM.animate(function (progress) {

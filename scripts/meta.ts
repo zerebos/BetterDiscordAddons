@@ -1,10 +1,10 @@
-import {Manifest} from "../src/BetterDiscord/manifest";
+import type {Manifest} from "../src/types/betterdiscord/manifest";
 
 
 export default (config: Manifest) => {
     const info = config.info;
     const metaString = ["/**"];
-    const line = (label, val) => val && metaString.push(` * @${label} ${val}`);
+    const line = (label: string, val: unknown) => val && metaString.push(` * @${label} ${val}`);
     line("name", info.name);
     line("description", info.description);
     line("version", info.version);

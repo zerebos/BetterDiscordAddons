@@ -5,6 +5,7 @@
         id: string;
         name: string;
         avatar: string;
+        color?: string;
     }
 
     interface UserSearchPopoutProps {
@@ -38,7 +39,7 @@
             onclick={(event) => onItemClick?.(event, user)}
         >
 			<img src={user.avatar} alt="{user.name} Avatar" />
-			<span>{user.name}</span>
+			<span style:color={user.color}>{user.name}</span>
 		</div>
 	{/each}
 </div>

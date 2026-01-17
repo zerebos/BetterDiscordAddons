@@ -31,7 +31,7 @@ export default class Plugin {
         this.manifest = zplConfig;
 
         // Build the settings model from the default if it exists
-        if (typeof (this.manifest.config) !== "undefined") {
+        if (typeof this.manifest.config !== "undefined") {
             this.defaultSettings = {};
             for (let s = 0; s < this.manifest.config.length; s++) {
                 const current = this.manifest.config[s];
@@ -78,16 +78,16 @@ export default class Plugin {
     async start() {
         BdApi.Logger.info(this.meta.name, `version ${this.meta.version} has started.`);
         if (this.defaultSettings) this.settings = this.loadSettings();
-        if (typeof (this.onStart) == "function") this.onStart();
+        if (typeof this.onStart == "function") this.onStart();
     }
 
     stop() {
         BdApi.Logger.info(this.meta.name, `version ${this.meta.version} has stopped.`);
-        if (typeof (this.onStop) == "function") this.onStop();
+        if (typeof this.onStop == "function") this.onStop();
     }
 
     #showChangelog() {
-        if (typeof (this.manifest.changelog) == "undefined") return;
+        if (typeof this.manifest.changelog == "undefined") return;
         const changelog: Partial<Changelog> = {
             title: this.meta.name + " Changelog",
             subtitle: `v${this.meta.version}`,

@@ -70,6 +70,11 @@ export interface GuildMember {
     avatarDecoration: undefined;
     colorRoleId: string;
     colorString: HexString;
+    colorStrings: {
+        primaryColor: HexString;
+        secondaryColor: HexString;
+        tertiaryColor: HexString;
+    };
     communicationDisabledUntil: null;
     flags: number;
     fullProfileLoadedTimestamp: number;
@@ -88,19 +93,32 @@ export interface GuildMember {
 
 export interface GuildRole {
     color: number;
-    colorString: HexString;
+    colors: {
+        primaryColor: number;
+        secondaryColor: number;
+        tertiaryColor: number;
+    };
+    colorString: null;
+    colorStrings: {
+        primaryColor: HexString;
+        secondaryColor: HexString;
+        tertiaryColor: HexString;
+    };
+    description: string | null;
     flags: number;
+    guildId: string;
     hoist: boolean;
-    icon: null;
+    icon: string | null;
     id: string;
     managed: boolean;
     mentionable: boolean;
     name: string;
-    originalPosition: number;
+    // originalPosition: number;
     permissions: bigint;
     position: number;
     tags: Record<string, unknown>;
     unicodeEmoji: null;
+    version: null;
 }
 
 export interface PermissionOverwrite {
@@ -124,7 +142,7 @@ export interface Channel {
     name: string;
     nicks: {
         [key: string]: string;
-    }
+    };
     ownerId: string;
     rawRecipients: User[];
     recipientFlags: number;
