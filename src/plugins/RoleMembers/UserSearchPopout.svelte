@@ -30,7 +30,7 @@
 
 
 <div class="user-list">
-	{#each results as user (user.name)}
+	{#each results as user (user.id)}
 		<!-- svelte-ignore a11y_click_events_have_key_events -->
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div

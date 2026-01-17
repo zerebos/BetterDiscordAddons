@@ -21,7 +21,7 @@ const linux = process.env.XDG_CONFIG_HOME ? process.env.XDG_CONFIG_HOME : proces
 let bdFolder = (process.platform == "win32" ? windows : process.platform == "darwin" ? mac : linux) + "/BetterDiscord/";
 
 if (process.env.WSL_DISTRO_NAME) {
-    // WSL detected, generate props windows path for wsl
+    // WSL detected, generate proper windows path for wsl
     const appdata = (await $`wslpath "$(cmd.exe /c "echo %APPDATA%" 2>/dev/null | tr -d '\r')"`.text()).trim();
     bdFolder = path.join(appdata, "BetterDiscord") + "/";
 }
