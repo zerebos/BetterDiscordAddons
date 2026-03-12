@@ -230,12 +230,11 @@ var DoNotTrack = class extends Plugin {
     if (client) {
       client.getOptions().enabled = false;
       client.getOptions().dsn = '';
+      client.close(0);
     }
-    const scope = window.DiscordSentry?.getCurrentScope?.();
-    if (scope) {
-      scope.setUser(null);
-      scope.clear();
-    }
+    window.DiscordSentry?.getCurrentScope?.()?.clear?.();
+    window.DiscordSentry?.getIsolationScope?.()?.clear?.();
+    window.DiscordSentry?.getGlobalScope?.()?.clear?.();
     for (const method in console) {
       if (!Object.hasOwn(console[method], "__sentry_original__")) continue;
       console[method] = console[method].__sentry_original__;
