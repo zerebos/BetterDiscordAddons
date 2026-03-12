@@ -226,18 +226,15 @@ var DoNotTrack = class extends Plugin {
         return originalFunction(moduleName);
       });
     }
-    window?.__SENTRY__?.globalEventProcessors?.splice(0, window?.__SENTRY__?.globalEventProcessors?.length);
-    window?.__SENTRY__?.logger?.disable();
-    const SentryHub = window.DiscordSentry?.getCurrentHub?.();
-    if (SentryHub) {
-      SentryHub.getClient()?.close?.(0);
-      const scope = SentryHub.getScope();
-      scope?.clear?.();
-      scope?.setFingerprint?.(null);
-      SentryHub?.setUser(null);
-      SentryHub?.setTags({});
-      SentryHub?.setExtras({});
-      SentryHub?.endSession();
+    const client = window.DiscordSentry?.getClient?.();
+    if (client) {
+      client.getOptions().enabled = false;
+      client.getOptions().dsn = '';
+    }
+    const scope = window.DiscordSentry?.getCurrentScope?.();
+    if (scope) {
+      scope.setUser(null);
+      scope.clear();
     }
     for (const method in console) {
       if (!Object.hasOwn(console[method], "__sentry_original__")) continue;
