@@ -1,0 +1,38 @@
+{
+	"version": 3,
+	"file": "index.d.ts",
+	"names": [
+		"BaseNode",
+		"NodeOf",
+		"SpecialisedVisitors",
+		"Visitor",
+		"Visitors",
+		"Location",
+		"Command",
+		"PrintOptions",
+		"print",
+		"Context",
+		"EXPRESSIONS_PRECEDENCE",
+		"Node",
+		"TSOptions",
+		"Position",
+		"BaseComment",
+		"Comment"
+	],
+	"sources": [
+		"../src/types.d.ts",
+		"../src/index.js",
+		"../src/context.js",
+		"../src/languages/ts/index.js",
+		"../src/languages/types.d.ts"
+	],
+	"sourcesContent": [
+		null,
+		null,
+		null,
+		null,
+		null
+	],
+	"mappings": ";MAEYA,QAAQA;;;;;;;;MAQfC,MAAMA;;MAENC,mBAAmBA;;;;MAIZC,OAAOA;;aAEPC,QAAQA;;;;WAWHC,QAAQA;;;;;;MAWbC,OAAOA;;kBAEFC,YAAYA;;;;;;;;;iBCWbC,KAAKA;;;;cC7CRC,OAAOA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;cCAPC,sBAAsBA;;aAHZC,IAAIA;MCHfC,SAASA;;;;;;;WAOXC,QAAQA;;;;;;;kBAODC,WAAWA;;;;;;;kBAOXC,OAAOA;;;;;;MJrBZf,QAAQA;;;;;;;;MAQfC,MAAMA;;MAENC,mBAAmBA;;;;MAIZC,OAAOA;;MAEPC,QAAQA;;;;;;;;;;;MIhBRQ,SAASA;;;;;;;WAOXC,QAAQA;;;;;;;kBAODC,WAAWA;;;;;;;kBAOXC,OAAOA;;;;;;MJrBZf,QAAQA;;;;;;;;MAQfC,MAAMA;;MAENC,mBAAmBA;;;;MAIZC,OAAOA;;MAEPC,QAAQA",
+	"ignoreList": []
+}

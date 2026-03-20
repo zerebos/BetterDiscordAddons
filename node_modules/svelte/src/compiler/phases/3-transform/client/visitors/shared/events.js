@@ -1,0 +1,180 @@
+/** @import { Expression } from 'estree' */
+/** @import { AST } from '#compiler' */
+/** @import { ComponentContext } from '../../types' */
+import { is_capture_event, is_passive_event } from '../../../../../../utils.js';
+import { dev, locator } from '../../../../../state.js';
+import * as b from '#compiler/builders';
+import { ExpressionMetadata } from '../../../../nodes.js';
+
+/**
+ * @param {AST.Attribute} node
+ * @param {ComponentContext} context
+ */
+export function visit_event_attribute(node, context) {
+	let capture = false;
+
+	let event_name = node.name.slice(2);
+	if (is_capture_event(event_name)) {
+		event_name = event_name.slice(0, -7);
+		capture = true;
+	}
+
+	// we still need to support the weird `onclick="{() => {...}}" form
+	const tag = Array.isArray(node.value)
+		? /** @type {AST.ExpressionTag} */ (node.value[0])
+		: /** @type {AST.ExpressionTag} */ (node.value);
+
+	let handler = build_event_handler(tag.expression, tag.metadata.expression, context);
+
+	if (node.metadata.delegated) {
+		context.state.events.add(event_name);
+	}
+
+	const statement = b.stmt(
+		build_event(
+			context,
+			event_name,
+			handler,
+			capture,
+			is_passive_event(event_name) ? true : undefined,
+			node.metadata.delegated
+		)
+	);
+
+	const type = /** @type {AST.SvelteNode} */ (context.path.at(-1)).type;
+
+	if (type === 'SvelteDocument' || type === 'SvelteWindow' || type === 'SvelteBody') {
+		// These nodes are above the component tree, and its events should run parent first
+		context.state.init.push(statement);
+	} else {
+		context.state.after_update.push(statement);
+	}
+}
+
+/**
+ * Creates a `$.event(...)` call for non-delegated event handlers
+ * @param {ComponentContext} context
+ * @param {string} event_name
+ * @param {Expression} handler
+ * @param {boolean} capture
+ * @param {boolean | undefined} passive
+ * @param {boolean | undefined} delegated
+ */
+export function build_event(context, event_name, handler, capture, passive, delegated) {
+	let fn = handler;
+
+	if (dev && handler.type === 'ArrowFunctionExpression') {
+		// create a named function for better debugging
+		const name = context.state.scope.generate(event_name);
+
+		fn = b.function(
+			b.id(name),
+			handler.params,
+			handler.body.type === 'BlockStatement' ? handler.body : b.block([b.return(handler.body)]),
+			handler.async
+		);
+	}
+
+	return b.call(
+		delegated ? '$.delegated' : '$.event',
+		b.literal(event_name),
+		context.state.node,
+		fn,
+		capture && b.true,
+		passive === undefined ? undefined : b.literal(passive)
+	);
+}
+
+/**
+ * Creates an event handler
+ * @param {Expression | null} node
+ * @param {ExpressionMetadata} metadata
+ * @param {ComponentContext} context
+ * @returns {Expression}
+ */
+export function build_event_handler(node, metadata, context) {
+	if (node === null) {
+		// bubble event
+		return b.function(
+			null,
+			[b.id('$$arg')],
+			b.block([b.stmt(b.call('$.bubble_event.call', b.this, b.id('$$props'), b.id('$$arg')))])
+		);
+	}
+
+	let handler = /** @type {Expression} */ (context.visit(node));
+
+	// inline handler
+	if (handler.type === 'ArrowFunctionExpression' || handler.type === 'FunctionExpression') {
+		return handler;
+	}
+
+	// function declared in the script
+	if (handler.type === 'Identifier') {
+		const binding = context.state.scope.get(handler.name);
+
+		if (binding?.is_function()) {
+			return handler;
+		}
+
+		// local variable can be assigned directly
+		// except in dev mode where when need $.apply()
+		// in order to handle warnings.
+		if (!dev && binding?.declaration_kind !== 'import') {
+			return handler;
+		}
+	}
+
+	if (metadata.has_call) {
+		// memoize where necessary
+		const id = b.id(context.state.scope.generate('event_handler'));
+
+		context.state.init.push(b.var(id, b.call('$.derived', b.thunk(handler))));
+		handler = b.call('$.get', id);
+	}
+
+	// wrap the handler in a function, so the expression is re-evaluated for each event
+	let call = b.call(b.member(handler, 'apply', false, true), b.this, b.id('$$args'));
+
+	if (dev) {
+		const loc = locator(/** @type {number} */ (node.start));
+
+		const remove_parens =
+			node.type === 'CallExpression' &&
+			node.arguments.length === 0 &&
+			node.callee.type === 'Identifier';
+
+		call = b.call(
+			'$.apply',
+			b.thunk(handler),
+			b.this,
+			b.id('$$args'),
+			b.id(context.state.analysis.name),
+			b.array([b.literal(loc.line), b.literal(loc.column)]),
+			has_side_effects(node) && b.true,
+			remove_parens && b.true
+		);
+	}
+
+	return b.function(null, [b.rest(b.id('$$args'))], b.block([b.stmt(call)]));
+}
+
+/**
+ * @param {Expression} node
+ */
+function has_side_effects(node) {
+	if (
+		node.type === 'CallExpression' ||
+		node.type === 'NewExpression' ||
+		node.type === 'AssignmentExpression' ||
+		node.type === 'UpdateExpression'
+	) {
+		return true;
+	}
+
+	if (node.type === 'SequenceExpression') {
+		return node.expressions.some(has_side_effects);
+	}
+
+	return false;
+}
