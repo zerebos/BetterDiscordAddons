@@ -18,13 +18,9 @@ const {ContextMenu, Patcher, ReactUtils, Webpack, Logger} = BdApi;
 const MessageActions = Webpack.getByKeys<{sendMessage(): void}>("jumpToMessage", "_sendMessage");
 const TextareaClasses = Webpack.getByKeys<ClassModule>("channelTextArea", "textArea") ?? {textArea: "textArea_bdf0de"};
 
-interface ToolbarInstance {
-    close: () => void;
-}
-
 interface ToolbarEntry {
     container: HTMLDivElement;
-    instance: ToolbarInstance;
+    instance: ReturnType<typeof mount>;
 }
 
 export default class BetterFormattingRedux extends Plugin {
@@ -64,11 +60,12 @@ export default class BetterFormattingRedux extends Plugin {
     }
 
     observer(e: MutationRecord) {
-        if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element)) return;
-
-        const elem = e.addedNodes[0];
-        const textarea = elem.matches(`.${TextareaClasses.textArea}`) ? elem : elem.querySelector(`.${TextareaClasses.textArea}`);
-        if (textarea) this.addToolbar(textarea as HTMLDivElement);
+        if (!e.addedNodes.length) return;
+        for (const node of Array.from(e.addedNodes)) {
+            if (!(node instanceof Element)) continue;
+            const textarea = node.matches(`.${TextareaClasses.textArea}`) ? node : node.querySelector(`.${TextareaClasses.textArea}`);
+            if (textarea) this.addToolbar(textarea.children[0] as HTMLDivElement);
+        }
     }
 
     getButtonsConfig() {
@@ -90,7 +87,7 @@ export default class BetterFormattingRedux extends Plugin {
 
     removeAllToolbars() {
         for (const entry of this.toolbarEntries) {
-            unmount(entry.instance as ReturnType<typeof mount>);
+            unmount(entry.instance);
             entry.container.remove();
         }
         this.toolbarEntries = [];
@@ -126,10 +123,18 @@ export default class BetterFormattingRedux extends Plugin {
                     this.toolbarOpen = isOpen;
                 },
             },
-        }) as unknown as ToolbarInstance;
+        });
 
         inner.parentElement?.insertBefore(container, inner.nextSibling);
         this.toolbarEntries.push({container, instance});
+
+        BdApi.DOM.onRemoved(container, () => {
+            const index = this.toolbarEntries.findIndex(entry => entry.container === container);
+            if (index !== -1) {
+                const [entry] = this.toolbarEntries.splice(index, 1);
+                unmount(entry.instance);
+            }
+        });
     }
 
     onButtonClick(key: string) {
@@ -223,7 +228,7 @@ export default class BetterFormattingRedux extends Plugin {
             }
         }
         if (this.settings.closeOnSend) {
-            for (const entry of this.toolbarEntries) entry.instance.close();
+            for (const entry of this.toolbarEntries) (entry.instance as unknown as {close(): void}).close();
         }
         return text;
     }

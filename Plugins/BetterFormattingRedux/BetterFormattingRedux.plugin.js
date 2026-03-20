@@ -6113,7 +6113,7 @@ function get_custom_elements_slots(element2) {
 
 // src/plugins/BetterFormattingRedux/Toolbar.svelte
 var root_1 = from_html(`<div role="button" tabindex="0"><!></div>`);
-var root = from_html(`<div role="toolbar" tabindex="-1" aria-label="Text formatting"><div class="bf-arrow BetterFormattingRedux-9t07st" role="button" tabindex="-1" aria-label="Toggle formatting toolbar"></div> <!></div>`);
+var root = from_html(`<div role="toolbar" tabindex="-1" aria-label="Text formatting"><div class="bf-arrow BetterFormattingRedux-9t07st" role="button" tabindex="0" aria-label="Toggle formatting toolbar"></div> <!></div>`);
 var $$css = {
   hash: "BetterFormattingRedux-9t07st",
   code: `.bf-toolbar.BetterFormattingRedux-9t07st {user-select:none;white-space:nowrap;display:block;position:absolute;color:rgba(255, 255, 255, 0.5);width:auto !important;right:0;bottom:auto;border-radius:3px;height:27px !important;top:0px;transform:translate(0, -100%);overflow:hidden !important;pointer-events:none;padding:10px 30px 15px 5px;margin:0 5px 0 0;}.bf-toolbar.bf-visible.BetterFormattingRedux-9t07st,
@@ -6206,7 +6206,7 @@ function Toolbar($$anchor, $$props) {
     });
     styles = set_style(div, "", styles, {
       opacity: $$props.opacity,
-      "font-size": `${$$props.fontSize ?? ""}%`
+      "font-size": $$props.fontSize + "%"
     });
   });
   delegated("mousemove", div, function(...$$args) {
@@ -6258,10 +6258,12 @@ var BetterFormattingRedux = class extends Plugin {
     this.removeAllToolbars();
   }
   observer(e) {
-    if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element)) return;
-    const elem = e.addedNodes[0];
-    const textarea = elem.matches(`.${TextareaClasses.textArea}`) ? elem : elem.querySelector(`.${TextareaClasses.textArea}`);
-    if (textarea) this.addToolbar(textarea);
+    if (!e.addedNodes.length) return;
+    for (const node of Array.from(e.addedNodes)) {
+      if (!(node instanceof Element)) continue;
+      const textarea = node.matches(`.${TextareaClasses.textArea}`) ? node : node.querySelector(`.${TextareaClasses.textArea}`);
+      if (textarea) this.addToolbar(textarea.children[0]);
+    }
   }
   getButtonsConfig() {
     return this.buttonOrder.map((key2) => {
@@ -6315,6 +6317,13 @@ var BetterFormattingRedux = class extends Plugin {
     });
     inner.parentElement?.insertBefore(container, inner.nextSibling);
     this.toolbarEntries.push({ container, instance });
+    BdApi.DOM.onRemoved(container, () => {
+      const index2 = this.toolbarEntries.findIndex((entry) => entry.container === container);
+      if (index2 !== -1) {
+        const [entry] = this.toolbarEntries.splice(index2, 1);
+        unmount(entry.instance);
+      }
+    });
   }
   onButtonClick(key2) {
     const wrapper = this.discordWrappers[key2] ?? this.settings[key2 + "Wrapper"];

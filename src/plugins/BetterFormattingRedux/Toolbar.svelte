@@ -74,14 +74,14 @@
     class:bf-hover={hoverOpen}
     class:bf-left={!rightSide}
     style:opacity={opacity}
-    style:font-size="{fontSize}%"
+    style:font-size={fontSize + "%"}
     onmousemove={!useIcons ? handleMouseMove : undefined}
     bind:this={toolbarEl}
 >
     <div
         class="bf-arrow"
         role="button"
-        tabindex="-1"
+        tabindex="0"
         aria-label="Toggle formatting toolbar"
         onclick={handleArrowClick}
         onkeydown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleArrowClick(); } }}
