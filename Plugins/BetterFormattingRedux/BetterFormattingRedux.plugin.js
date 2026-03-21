@@ -6262,7 +6262,10 @@ var BetterFormattingRedux = class extends Plugin {
     for (const node of Array.from(e.addedNodes)) {
       if (!(node instanceof Element)) continue;
       const textarea = node.matches(`.${TextareaClasses.textArea}`) ? node : node.querySelector(`.${TextareaClasses.textArea}`);
-      if (textarea) this.addToolbar(textarea.children[0]);
+      if (textarea) {
+        const firstChild = textarea.firstElementChild;
+        if (firstChild instanceof HTMLDivElement) this.addToolbar(firstChild);
+      }
     }
   }
   getButtonsConfig() {
@@ -6289,7 +6292,8 @@ var BetterFormattingRedux = class extends Plugin {
   setupToolbar() {
     this.removeAllToolbars();
     document.querySelectorAll(`.${TextareaClasses.textArea}`).forEach((elem) => {
-      this.addToolbar(elem.children[0]);
+      const firstChild = elem.firstElementChild;
+      if (firstChild instanceof HTMLDivElement) this.addToolbar(firstChild);
     });
   }
   addToolbar(textarea) {
