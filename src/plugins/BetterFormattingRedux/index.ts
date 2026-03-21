@@ -1,30 +1,35 @@
 import Plugin from "@common/plugin";
 
-import {Meta} from "@betterdiscord/meta";
+import type {Meta} from "@betterdiscord/meta";
+import type {SettingGroup} from "@betterdiscord/api/ui";
+import type {Component, RefObject} from "react";
+import type {Message} from "@discord";
+import type {ClassModule} from "@discord/modules";
 
 import Config from "./config";
 import ToolbarData from "./toolbar";
 import Languages from "./languages";
-import CSS from "./styles.css";
-import ToolbarHTML from "./toolbar.html";
-import {SettingGroup} from "@betterdiscord/api/ui";
-import {Component, RefObject} from "react";
-import {Message} from "@discord";
-import {ClassModule} from "@discord/modules";
+import Toolbar from "./Toolbar.svelte";
+import {mount, unmount} from "svelte";
 
 
-
-const {ContextMenu, DOM, Patcher, UI, ReactUtils, Webpack, Logger} = BdApi;
+const {ContextMenu, Patcher, ReactUtils, Webpack, Logger} = BdApi;
 
 const MessageActions = Webpack.getByKeys<{sendMessage(): void}>("jumpToMessage", "_sendMessage");
 const TextareaClasses = Webpack.getByKeys<ClassModule>("channelTextArea", "textArea") ?? {textArea: "textArea_bdf0de"};
 
+interface ToolbarEntry {
+    container: HTMLDivElement;
+    instance: ReturnType<typeof mount>;
+}
+
 export default class BetterFormattingRedux extends Plugin {
     customWrappers: string[];
     buttonOrder: string[];
+    toolbarOpen: boolean = false;
+    toolbarEntries: ToolbarEntry[] = [];
 
     discordWrappers: Record<string, string> = {bold: "**", italic: "*", underline: "__", strikethrough: "~~", code: "`", codeblock: "```", spoiler: "||"};
-    isOpen: boolean = false;
     replaceList = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}";
     smallCapsList = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘǫʀꜱᴛᴜᴠᴡxʏᴢ{|}";
     superscriptList = " !\"#$%&'⁽⁾*⁺,⁻./⁰¹²³⁴⁵⁶⁷⁸⁹:;<⁼>?@ᴬᴮᶜᴰᴱᶠᴳᴴᴵᴶᴷᴸᴹᴺᴼᴾQᴿˢᵀᵁνᵂˣʸᶻ[\\]^_`ᵃᵇᶜᵈᵉᶠᵍʰᶦʲᵏˡᵐⁿᵒᵖᑫʳˢᵗᵘᵛʷˣʸᶻ{|}";
@@ -40,9 +45,7 @@ export default class BetterFormattingRedux extends Plugin {
         this.buttonOrder = (this.manifest.config?.find(g => g.id === "toolbar") as SettingGroup).settings.map(s => s.id);
     }
 
-    async onStart() {
-        // await PluginUtilities.addScript("sortableScript", "//zerebos.github.io/BetterDiscordAddons/Plugins/Sortable.js");
-        DOM.addStyle(this.meta.name + "-style", CSS);
+    onStart() {
         this.setupToolbar();
 
         if (!MessageActions) return Logger.error(this.meta.name, "Could not find MessageActions module!");
@@ -53,50 +56,94 @@ export default class BetterFormattingRedux extends Plugin {
 
     onStop() {
         Patcher.unpatchAll(this.meta.name);
-        // $("*").off("." + this.meta.name);
-        document.querySelector(".bf-toolbar")?.remove();
-        // PluginUtilities.removeScript("sortableScript");
-        DOM.removeStyle(this.meta.name + "-style");
+        this.removeAllToolbars();
     }
 
     observer(e: MutationRecord) {
-        if (!e.addedNodes.length || !(e.addedNodes[0] instanceof Element)) return;
-
-        const elem = e.addedNodes[0];
-        const textarea = elem.matches(`.${TextareaClasses.textArea}`) ? elem : elem.querySelector(`.${TextareaClasses.textArea}`);
-        if (textarea) this.addToolbar(textarea as HTMLDivElement);
+        if (!e.addedNodes.length) return;
+        for (const node of Array.from(e.addedNodes)) {
+            if (!(node instanceof Element)) continue;
+            const textarea = node.matches(`.${TextareaClasses.textArea}`) ? node : node.querySelector(`.${TextareaClasses.textArea}`);
+            if (textarea) {
+                const firstChild = textarea.firstElementChild;
+                if (firstChild instanceof HTMLDivElement) this.addToolbar(firstChild);
+            }
+        }
     }
 
-    updateStyle() {
-        this.updateSide();
-        this.updateOpacity();
-        this.updateFontSize();
+    getButtonsConfig() {
+        return this.buttonOrder
+            .map(key => {
+                const name = key.replace("Button", "") as keyof typeof ToolbarData;
+                if (!ToolbarData[name]) return null;
+                if (!this.settings[key]) return null;
+                return {
+                    key: name,
+                    type: ToolbarData[name].type,
+                    name: ToolbarData[name].name,
+                    displayName: ToolbarData[name].displayName,
+                    icon: ToolbarData[name].icon,
+                };
+            })
+            .filter(Boolean) as Array<{key: string; type: string; name: string; displayName: string; icon: string;}>;
     }
 
-    updateSide() {
-        const toolbar = document.querySelector(".bf-toolbar");
-        if (!toolbar) return;
-        if (this.settings.rightSide) toolbar.classList.remove("bf-left");
-        else toolbar.classList.add("bf-left");
+    removeAllToolbars() {
+        for (const entry of this.toolbarEntries) {
+            unmount(entry.instance);
+            entry.container.remove();
+        }
+        this.toolbarEntries = [];
     }
 
-    updateOpacity() {
-        const toolbar = document.querySelector<HTMLDivElement>(".bf-toolbar");
-        if (!toolbar) return;
-        toolbar.style.opacity = this.settings.toolbarOpacity as string;
+    setupToolbar() {
+        this.removeAllToolbars();
+        document.querySelectorAll(`.${TextareaClasses.textArea}`).forEach(elem => {
+            const firstChild = elem.firstElementChild;
+            if (firstChild instanceof HTMLDivElement) this.addToolbar(firstChild);
+        });
     }
 
-    updateFontSize() {
-        const toolbar = document.querySelector<HTMLDivElement>(".bf-toolbar");
-        if (!toolbar) return;
-        toolbar.style.fontSize = this.settings.fontSize + "%";
+    addToolbar(textarea: HTMLDivElement) {
+        const inner = textarea.parentElement?.parentElement;
+        if (!inner) return;
+
+        const container = document.createElement("div");
+        const instance = mount(Toolbar, {
+            target: container,
+            props: {
+                buttons: this.getButtonsConfig(),
+                useIcons: this.settings.useIcons as boolean,
+                hoverOpen: this.settings.hoverOpen as boolean,
+                rightSide: this.settings.rightSide as boolean,
+                opacity: this.settings.toolbarOpacity as number,
+                fontSize: this.settings.fontSize as number,
+                initiallyOpen: this.toolbarOpen,
+                onButtonClick: (key: string) => this.onButtonClick(key),
+                onCodeblockContext: (e: MouseEvent) => {
+                    ContextMenu.open(e, this.getContextMenu());
+                },
+                onToggle: (isOpen: boolean) => {
+                    this.toolbarOpen = isOpen;
+                },
+            },
+        });
+
+        inner.parentElement?.insertBefore(container, inner.nextSibling);
+        this.toolbarEntries.push({container, instance});
+
+        BdApi.DOM.onRemoved(container, () => {
+            const index = this.toolbarEntries.findIndex(entry => entry.container === container);
+            if (index !== -1) {
+                const [entry] = this.toolbarEntries.splice(index, 1);
+                unmount(entry.instance);
+            }
+        });
     }
 
-    openClose() {
-        this.isOpen = !this.isOpen;
-        const toolbar = document.querySelector<HTMLDivElement>(".bf-toolbar");
-        if (!toolbar) return;
-        toolbar.classList.toggle("bf-visible");
+    onButtonClick(key: string) {
+        const wrapper = this.discordWrappers[key] ?? this.settings[key + "Wrapper"] as string;
+        this.wrapSelection(wrapper);
     }
 
     escape(s: string) {
@@ -184,7 +231,9 @@ export default class BetterFormattingRedux extends Plugin {
                 }
             }
         }
-        if (this.settings.closeOnSend) document.querySelector(".bf-toolbar")?.classList.remove("bf-visible");
+        if (this.settings.closeOnSend) {
+            for (const entry of this.toolbarEntries) (entry.instance as unknown as {close(): void}).close();
+        }
         return text;
     }
 
@@ -251,128 +300,17 @@ export default class BetterFormattingRedux extends Plugin {
         );
     }
 
-    buildToolbar() {
-        const toolbar = DOM.parseHTML(ToolbarHTML) as HTMLDivElement;
-        const sorted = this.buttonOrder;
-        for (let i = 0; i < sorted.length; i++) {
-            const key = sorted[i].replace("Button", "") as keyof typeof ToolbarData;
-            const button = DOM.parseHTML("<div class='format'>") as HTMLDivElement;
-            if (!ToolbarData[key]) continue;
-            button.classList.add(ToolbarData[key].type);
-            UI.createTooltip(button, ToolbarData[key].name);
-            if (!this.settings[key + "Button"]) button.classList.add("disabled");
-            if (key === "codeblock") {
-                const contextMenu = this.getContextMenu();
-                button.addEventListener("contextmenu", (e) => {
-                    ContextMenu.open(e, contextMenu, {align: "bottom"});
-                });
-            }
-            button.dataset.name = sorted[i].replace("Button", "");
-            if (this.settings.useIcons) button.innerHTML = ToolbarData[key].icon;
-            else button.innerHTML = ToolbarData[key].displayName;
-            toolbar.append(button);
-        }
-        // window.Sortable.create(toolbar, {
-        //     draggable: ".format", // css-selector of elements, which can be sorted
-        //     ghostClass: "ghost",
-        //     onUpdate: () => {
-        //         const buttons = toolbar.querySelectorAll(".format");
-        //         for (let i = 0; i < buttons.length; i++) {
-        //             this.buttonOrder[i] = buttons[i].dataset.name;
-        //         }
-        //         PluginUtilities.saveData(this.meta.name, "buttonOrder", this.buttonOrder);
-        //     }
-        // });
-        if (!this.settings.useIcons) {
-            toolbar.addEventListener("mousemove", (e) => {
-                const target = e.currentTarget as HTMLDivElement;
-                const pos = e.pageX - (target.parentElement?.getBoundingClientRect()?.left ?? 0);
-                const width = parseInt(getComputedStyle(target).width);
-                let diff = -1 * width;
-                Array.from(target.children).forEach((elem: HTMLElement) => {
-                    diff += elem.offsetWidth;
-                });
-                target.scrollLeft = (pos / width * diff);
-            });
-        }
-
-        return toolbar;
-    }
-
-    setupToolbar() {
-        document.querySelector(".bf-toolbar")?.remove();
-        document.querySelectorAll(`.${TextareaClasses.textArea}`).forEach(elem => {
-            this.addToolbar(elem.children[0] as HTMLDivElement);
-        });
-    }
-
-    addToolbar(textarea: HTMLDivElement) {
-        const toolbarElement = this.buildToolbar();
-        if (this.settings.hoverOpen == true) toolbarElement.classList.add("bf-hover");
-        if (this.isOpen) toolbarElement.classList.add("bf-visible");
-
-        const inner = textarea.parentElement?.parentElement;
-        if (!inner) return;
-        inner.parentElement?.insertBefore(toolbarElement, inner.nextSibling);
-
-        toolbarElement.addEventListener("click", (e: MouseEvent & {target: HTMLDivElement}) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const button = e.target.closest("div");
-                if (!button) return;
-                if (button.classList.contains("bf-arrow")) {
-                    if (!this.settings.hoverOpen) this.openClose();
-                }
-                else if (button.classList.contains("format")) {
-                    if (!button.dataset.name) return;
-                    let wrapper = "";
-                    if (button.classList.contains("native-format")) wrapper = this.discordWrappers[button.dataset.name];
-                    else wrapper = this.settings[button.dataset.name + "Wrapper"] as string;
-                    this.wrapSelection(wrapper);
-                }
-            });
-
-        this.updateStyle();
-    }
-
     getSettingsPanel() {
         return this.buildSettingsPanel(this.updateSettings.bind(this));
     }
 
     updateSettings(group: string, id: string, value: unknown) {
-
-        if (group == "toolbar") this.setupToolbar();
-        if (group == "plugin" && id == "hoverOpen") {
-            const toolbar = document.querySelector(".bf-toolbar");
-            if (value) {
-                toolbar?.classList.remove("bf-visible");
-                toolbar?.classList.add("bf-hover");
-            }
-            else {
-                toolbar?.classList.remove("bf-hover");
-            }
+        if (group === "toolbar" || group === "style") {
+            this.setupToolbar();
         }
-
-        if (group == "style") {
-            if (id == "icons") this.setupToolbar();
-            if (id == "rightSide") this.updateSide();
-            if (id == "toolbarOpacity") this.updateOpacity();
-            if (id == "fontSize") this.updateFontSize();
+        if (group === "plugin" && id === "hoverOpen") {
+            if (value === true) this.toolbarOpen = false;
+            this.setupToolbar();
         }
-
-        // let resetButton = $("<button>");
-        // resetButton.on("click", () => {
-        //     this.settings = this.defaultSettings;
-        //     this.saveSettings();
-        //     this.setupToolbar();
-        //     panel.empty();
-        //     this.generateSettings(panel);
-        // });
-        // resetButton.text("Reset To Defaults");
-        // resetButton.css("float", "right");
-        // resetButton.attr("type","button");
-
-        // panel.append(resetButton);
     }
-
-};
+}

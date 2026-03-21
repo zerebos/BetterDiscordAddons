@@ -1,4 +1,4 @@
-import {Manifest} from "@betterdiscord/manifest";
+import type {Manifest} from "@betterdiscord/manifest";
 
 const manifest: Manifest = {
     info: {
