@@ -1,7 +1,7 @@
 /**
  * @name PermissionsViewer
  * @description Allows you to view all the permissions for users, servers, and channels!
- * @version 1.0.0
+ * @version 1.0.1
  * @author Zerebos
  * @authorId 249746236008169473
  * @website https://github.com/zerebos/BetterDiscordAddons/tree/master/Plugins/PermissionsViewer
@@ -6839,8 +6839,11 @@ function PermissionViewerModal($$anchor, $$props) {
 var GuildStore = BdApi.Webpack.Stores.GuildStore;
 var UserStore = BdApi.Webpack.Stores.UserStore;
 var DiscordPermissions = BdApi.Webpack.getModule((m) => m.ADD_REACTIONS, { searchExports: true });
-var specManager = BdApi.Webpack.getByKeys("generateGuildPermissionSpec");
+var specManager = null
 function getDefinitions(guildIdOrGuild) {
+   if (!specManager) specManager = BdApi.Webpack.getByKeys("generateGuildPermissionSpec");
+    if (!specManager) specManager = BdApi.Webpack.getModule(m => typeof m?.generateGuildPermissionSpec === "function", {searchExports: true});
+    if (!specManager) throw new Error("Permission spec manager not found");
   if (!specManager) throw new Error("Permission spec manager not found");
   if (!guildIdOrGuild) guildIdOrGuild = BdApi.Webpack.Stores.SortedGuildStore.getFlattenedGuildIds()[0];
   const guild = typeof guildIdOrGuild === "string" ? BdApi.Webpack.Stores.GuildStore.getGuild(guildIdOrGuild) : guildIdOrGuild;
