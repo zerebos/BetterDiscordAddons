@@ -29,26 +29,16 @@ export default class DoNotTrack extends Plugin {
             });
         }
 
-        // No more global processors
-        window?.__SENTRY__?.globalEventProcessors?.splice(0, window?.__SENTRY__?.globalEventProcessors?.length);
-
-        // Kill sentry logs if it still exists here
-        window?.__SENTRY__?.logger?.disable();
-
-        const SentryHub = window.DiscordSentry?.getCurrentHub?.();
-        if (SentryHub) {
-            SentryHub.getClient()?.close?.(0); // Kill reporting
-
-            const scope = SentryHub.getScope();
-            scope?.clear?.(); // Delete PII
-            scope?.setFingerprint?.(null); // Remove fingerprinting
-            
-            SentryHub?.setUser(null); // Unset default PII
-            SentryHub?.setTags({}); // Empty tracking tags
-            SentryHub?.setExtras({}); // Empty extra idendtifiable data
-
-            SentryHub?.endSession(); // End current session
+        const hub = window.DiscordSentry?.getCurrentHub?.();
+        const client = hub?.getClient?.();
+        if (client) {
+            client.getOptions().enabled = false;
+            client.getOptions().dsn = "";
+            client.close?.(0);
         }
+        hub?.getScope?.()?.clear?.();
+        hub?.getIsolationScope?.()?.clear?.();
+        hub?.getGlobalScope?.()?.clear?.();
 
         for (const method in console) {
             // eslint-disable-next-line no-console
