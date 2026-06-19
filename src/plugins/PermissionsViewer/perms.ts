@@ -12,7 +12,7 @@ interface Description {
 interface PermissionSpecification {
     title: string;
     flag: bigint;
-    description: ((locale: string) => Description) | string[];
+    description: ((locale: string) => Description) | string[] | string;
 }
 
 interface PermissionSpecCategory {
@@ -62,7 +62,7 @@ export function getDefinitions(guildIdOrGuild?: string | Guild): PermissionCateg
         permissions: category.permissions.map(perm => ({
             id: Object.keys(DiscordPermissions).find(key => DiscordPermissions[key as keyof IDiscordPermissions] === perm.flag) ?? "",
             name: perm.title,
-            description: typeof perm.description === "function" ? perm.description(BdApi.Webpack.Stores.LocaleStore.locale).ast[0] : perm.description[0]
+            description: typeof perm.description === "function" ? perm.description(BdApi.Webpack.Stores.LocaleStore.locale).ast[0] : (Array.isArray(perm.description) ? perm.description[0] : (perm.description || ""))
         }))
     }));
 }
